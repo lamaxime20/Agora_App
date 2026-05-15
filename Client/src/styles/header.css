@@ -1,0 +1,37 @@
+/*Header*/
+@media (max-width: 768px) {
+  .name-role {
+    display: none !important;
+  }
+}
+
+.nav-link-custom {
+    color: #000 !important; 
+    font-size: 15px;
+}
+
+.nav-link-custom:hover {
+    color: orange !important; 
+}
+
+.nav-link-custom.active {
+    background-color: orange !important;
+    color: #fff !important; 
+}
+
+.nav-link-notification:hover {
+    color: orange !important; 
+}
+
+.nav-link-notification:active {
+    color: orange !important; 
+}
+
+.dropdown-item.active {
+    background-color: orange !important;
+    color: white !important;
+}
+
+.dropdown-item:hover {
+    color: orange !important;
+}

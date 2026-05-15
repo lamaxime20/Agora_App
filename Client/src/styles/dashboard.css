@@ -1,0 +1,62 @@
+.dashboard-container {
+  padding-top: 80px; /* Espace pour la Navbar fixe */
+  font-family: 'Roboto', sans-serif;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background-color: #fff;
+  border: 1px solid #f28c38;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #f28c38;
+}
+
+.quick-action-btn {
+  background-color: orange !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-3px);
+  background-color: #e3843a !important;
+}
+
+.list-group-item {
+  border-color: #d3d3d3;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+.btn-orange-outline {
+  color: #003366;
+  border-color: orange;
+  background-color: transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-orange-outline:hover {
+  background-color: orange;
+  color: white;
+}
