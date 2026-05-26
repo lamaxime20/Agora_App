@@ -1,0 +1,356 @@
+@startuml
+' =====================================================================
+' MCD COMPLET - AGORA
+' =====================================================================
+
+hide circle
+skinparam linetype ortho
+
+skinparam class {
+    BackgroundColor White
+    BorderColor #2F4F4F
+}
+
+skinparam class<<Association>> {
+    RoundCorner 30
+    BackgroundColor #F0F8FF
+    BorderColor #1E90FF
+}
+
+' =====================================================================
+' ENTITES
+' =====================================================================
+
+entity "Utilisateur" as utilisateur {
+    * id_utilisateur : INT <<PK>>
+    --
+    * nom : VARCHAR(100)
+    * prenom : VARCHAR(100)
+    * email : VARCHAR(150)
+    * mot_de_passe : VARCHAR(255)
+    * date_creation : DATETIME
+}
+
+entity "Entreprise" as entreprise {
+    * id_entreprise : INT <<PK>>
+    --
+    * nom : VARCHAR(150)
+    * adresse : VARCHAR(255)
+    * telephone : VARCHAR(30)
+    * email : VARCHAR(150)
+    * solde_virtuel : DECIMAL
+    * date_creation : DATETIME
+}
+
+entity "Role" as role {
+    * id_role : INT <<PK>>
+    --
+    * nom_role : VARCHAR(100)
+    * description : TEXT
+}
+
+entity "Invitation" as invitation {
+    * id_invitation : INT <<PK>>
+    --
+    * email_invite : VARCHAR(150)
+    * etat : VARCHAR(50)
+    * date_invitation : DATETIME
+    * date_expiration : DATETIME
+}
+
+entity "Categorie" as categorie {
+    * id_categorie : INT <<PK>>
+    --
+    * nom_categorie : VARCHAR(100)
+    * description : TEXT
+}
+
+entity "Produit" as produit {
+    * id_produit : INT <<PK>>
+    --
+    * nom_produit : VARCHAR(150)
+    * description : TEXT
+    * type_produit : VARCHAR(50)
+    * unite_mesure : VARCHAR(50)
+    * prix_unitaire : DECIMAL
+    * stock_total : INT
+    * stock_reserve : INT
+    * stock_disponible : INT
+    * archive : BOOLEAN
+}
+
+entity "MouvementStock" as mouvement_stock {
+    * id_mouvement : INT <<PK>>
+    --
+    * type_mouvement : VARCHAR(50)
+    * quantite : INT
+    * cout : DECIMAL
+    * motif : TEXT
+    * date_mouvement : DATETIME
+}
+
+entity "Reapprovisionnement" as reapprovisionnement {
+    * id_reappro : INT <<PK>>
+    --
+    * quantite : INT
+    * cout_total : DECIMAL
+    * etat : VARCHAR(50)
+    * date_demande : DATETIME
+}
+
+entity "Client" as client {
+    * id_client : INT <<PK>>
+    --
+    * nom : VARCHAR(100)
+    * prenom : VARCHAR(100)
+    * email : VARCHAR(150)
+    * telephone : VARCHAR(30)
+}
+
+entity "Commande" as commande {
+    * id_commande : INT <<PK>>
+    --
+    * reference : VARCHAR(100)
+    * etat : VARCHAR(50)
+    * montant_total : DECIMAL
+    * montant_restant : DECIMAL
+    * archive : BOOLEAN
+    * date_commande : DATETIME
+}
+
+entity "Paiement" as paiement {
+    * id_paiement : INT <<PK>>
+    --
+    * montant : DECIMAL
+    * mode_paiement : VARCHAR(50)
+    * date_paiement : DATETIME
+}
+
+entity "Remboursement" as remboursement {
+    * id_remboursement : INT <<PK>>
+    --
+    * montant : DECIMAL
+    * motif : TEXT
+    * date_remboursement : DATETIME
+}
+
+entity "Depense" as depense {
+    * id_depense : INT <<PK>>
+    --
+    * montant : DECIMAL
+    * motif : TEXT
+    * date_depense : DATETIME
+}
+
+entity "EntreeArgent" as entree_argent {
+    * id_entree : INT <<PK>>
+    --
+    * montant : DECIMAL
+    * source : TEXT
+    * date_entree : DATETIME
+}
+
+entity "PerteFinanciere" as perte_financiere {
+    * id_perte : INT <<PK>>
+    --
+    * montant : DECIMAL
+    * motif : TEXT
+    * date_perte : DATETIME
+}
+
+entity "RapportFinancier" as rapport_financier {
+    * id_rapport : INT <<PK>>
+    --
+    * mois : VARCHAR(20)
+    * annee : INT
+    * solde_debut : DECIMAL
+    * total_entrees : DECIMAL
+    * total_depenses : DECIMAL
+    * total_remboursements : DECIMAL
+    * total_pertes : DECIMAL
+    * solde_final : DECIMAL
+}
+
+entity "Tache" as tache {
+    * id_tache : INT <<PK>>
+    --
+    * titre : VARCHAR(150)
+    * description : TEXT
+    * pourcentage_avancement : INT
+    * etat : VARCHAR(50)
+    * raison_annulation : TEXT
+    * raison_report : TEXT
+    * date_debut : DATETIME
+    * date_fin : DATETIME
+}
+
+entity "Livraison" as livraison {
+    * id_livraison : INT <<PK>>
+    --
+    * etat : VARCHAR(50)
+    * adresse_livraison : TEXT
+    * motif_echec : TEXT
+    * date_livraison : DATETIME
+}
+
+entity "Evenement" as evenement {
+    * id_evenement : INT <<PK>>
+    --
+    * titre : VARCHAR(150)
+    * description : TEXT
+    * date_evenement : DATETIME
+}
+
+entity "Notification" as notification {
+    * id_notification : INT <<PK>>
+    --
+    * contenu : TEXT
+    * etat : VARCHAR(50)
+    * date_notification : DATETIME
+}
+
+entity "Historique" as historique {
+    * id_historique : INT <<PK>>
+    --
+    * module : VARCHAR(100)
+    * action : TEXT
+    * modifications : TEXT
+    * date_action : DATETIME
+}
+
+' =====================================================================
+' ASSOCIATIONS
+' =====================================================================
+
+class "Appartenir" as assoc_appartenir <<Association>> {
+    * date_integration : DATETIME
+}
+
+class "Inviter" as assoc_inviter <<Association>>
+
+class "AttribuerRole" as assoc_role <<Association>>
+
+class "Posseder" as assoc_posseder_produit <<Association>>
+
+class "Categoriser" as assoc_categorie <<Association>>
+
+class "EffectuerMouvement" as assoc_mouvement <<Association>>
+
+class "ConcernerProduit" as assoc_mvt_produit <<Association>>
+
+class "DemanderReappro" as assoc_reappro <<Association>>
+
+class "EffectuerCommande" as assoc_commande_client <<Association>>
+
+class "EnregistrerCommande" as assoc_commande_user <<Association>>
+
+class "Contenir" as assoc_contenir <<Association>> {
+    * quantite : INT
+    * prix_unitaire : DECIMAL
+}
+
+class "RecevoirPaiement" as assoc_paiement <<Association>>
+
+class "RecevoirRemboursement" as assoc_remboursement <<Association>>
+
+class "GenererLivraison" as assoc_livraison <<Association>>
+
+class "AssignerLivreur" as assoc_livreur <<Association>>
+
+class "AssignerTache" as assoc_tache <<Association>>
+
+class "Participer" as assoc_evenement <<Association>>
+
+class "RecevoirNotification" as assoc_notification <<Association>>
+
+class "EffectuerAction" as assoc_historique_user <<Association>>
+
+class "ConcernerEntreprise" as assoc_historique_entreprise <<Association>>
+
+' =====================================================================
+' CARDINALITES
+' =====================================================================
+
+' Utilisateur / Entreprise / Role
+
+utilisateur "0,N" -- assoc_appartenir
+assoc_appartenir -- "0,N" entreprise
+
+assoc_appartenir "1,1" -- assoc_role
+assoc_role -- "1,1" role
+
+utilisateur "1,1" -- assoc_inviter
+assoc_inviter -- "0,N" invitation
+
+entreprise "1,1" -- assoc_inviter
+assoc_inviter -- "0,N" invitation
+
+role "1,1" -- invitation
+invitation "0,N" -- utilisateur
+
+' Produits
+
+entreprise "1,1" -- assoc_posseder_produit
+assoc_posseder_produit -- "0,N" produit
+
+categorie "1,1" -- assoc_categorie
+assoc_categorie -- "0,N" produit
+
+mouvement_stock "0,N" -- assoc_mvt_produit
+assoc_mvt_produit -- "1,1" produit
+
+utilisateur "1,1" -- assoc_mouvement
+assoc_mouvement -- "0,N" mouvement_stock
+
+produit "1,1" -- assoc_reappro
+assoc_reappro -- "0,N" reapprovisionnement
+
+' Commandes
+
+client "1,1" -- assoc_commande_client
+assoc_commande_client -- "0,N" commande
+
+utilisateur "1,1" -- assoc_commande_user
+assoc_commande_user -- "0,N" commande
+
+commande "1,N" -- assoc_contenir
+assoc_contenir -- "0,N" produit
+
+commande "1,1" -- assoc_paiement
+assoc_paiement -- "0,N" paiement
+
+commande "1,1" -- assoc_remboursement
+assoc_remboursement -- "0,N" remboursement
+
+' Livraison
+
+commande "1,1" -- assoc_livraison
+assoc_livraison -- "0,1" livraison
+
+utilisateur "1,1" -- assoc_livreur
+assoc_livreur -- "0,N" livraison
+
+' Tâches
+
+utilisateur "1,1" -- assoc_tache
+assoc_tache -- "0,N" tache
+
+' Evénements
+
+utilisateur "0,N" -- assoc_evenement
+assoc_evenement -- "0,N" evenement
+
+' Notifications
+
+utilisateur "1,1" -- assoc_notification
+assoc_notification -- "0,N" notification
+
+' Historiques
+
+utilisateur "1,1" -- assoc_historique_user
+assoc_historique_user -- "0,N" historique
+
+entreprise "1,1" -- assoc_historique_entreprise
+assoc_historique_entreprise -- "0,N" historique
+
+@enduml
