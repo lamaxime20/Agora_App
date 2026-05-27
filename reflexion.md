@@ -11,6 +11,7 @@ Chaque champ aura une balise <p> pour afficher l'erreur
 Le form aura un bouton suivant, en dessous du bouton, il y aura
 une balise <p> pour afficher l'erreur global (réseau etc...)
 Lorsque on clique sur le bouton suivant, celui ci appelle une fonction dans utils qui va checker avec un lien API si l'email est déjà utilisé ou pas, et si l'email n'est pas utilisé, le backend va renvoyer un code de confirmation  par email et le frontend va renvoyer vers le second form
+Il doit y avoir un bouton continuer avec Google.
 
 - Le second form aura 06 champs pour entrer le code de vérification
 en dessous du code, il y aura une balise <p> pour afficher l'erreur global (réseau etc...)
@@ -41,6 +42,13 @@ Lorsqu'on rentre au form 1 après l'envoit du premier code, on ne rappelle le li
 
 ### Logique login
 l'utilisateur entre son email et son mot de passe, on fait un appel API vers le backend, et ensuite on récupère sa réponse.
+Il doit y avoir un bouton continuer avec Google.
+
+### Logique choix de role
+Il y aura deux formulaires pour cela, un pour l'entreprise et un autre pour les rôles
+Sur cette page, on va faire une requête API pour avoir le mappage des rôle de l'utilisateur en fonction des entreprises auxquelles il appartient.
+- Sur le premier formulaire, il y aura la liste des entreprises auxquelles il appartient avec un bouton changer d'email, il devra cliquer sur une entreprise pour aller sur le second formulaire
+- Sur le second formulaire, il y aura le nom de l'entreprise, la liste de ses rôles en fonction de l'entreprise qu'il aura choisi avec un bouton changer d'email et un bouton retour. Quand il va cliquer sur un rôle, on va faire un fetch vers le lien API correspondant, puis lorsque le backend aura répondu favorablement, on se dirige vers "/application"
 
 ### Logique des Contexts
 Il y aura deux context afin de bien gérer les sessions de l'utilisateur
