@@ -135,7 +135,7 @@ CREATE TYPE statut_general AS ENUM (
 CREATE TABLE IF NOT EXISTS utilisateurs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  email Email NOT NULL UNIQUE,
+  email Email NOT NULL,
   password_hash TEXT NOT NULL,
 
   name Name NOT NULL,
@@ -145,6 +145,9 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
 
   modified_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW()
+
+  CONSTRAINT utilisateurs_cc0 PRIMARY KEY(id),
+  CONSTRAINT utilisateur_cc1 UNIQUE(email)
 );
 
 -- =========================================================
@@ -154,8 +157,11 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
 CREATE TABLE IF NOT EXISTS roles_utilisateur (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  role VARCHAR(100) NOT NULL UNIQUE,
+  role VARCHAR(100) NOT NULL,
   description TEXT
+
+  CONSTRAINT roles_utilisateur_cc0 PRIMARY KEY(id),
+  CONSTRAINT roles_utilisateur_cc1 UNIQUE(role)
 );
 
 -- =========================================================
@@ -175,12 +181,30 @@ CREATE TABLE IF NOT EXISTS entreprises (
 
   directeur UUID NOT NULL,
 
+  CONSTRAINT entreprises_cc0 PRIMARY KEY(id),
   CONSTRAINT entreprises_cr0
     FOREIGN KEY (directeur)
     REFERENCES utilisateurs(id)
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS codes_couleurs (
+  id UUID DEFAULT gen_random_uuid(),
+
+  couleur_primaire VARCHAR(20) DEFAULT '#FFF',
+  couleur_secondaire VARCHAR(20) DEFAULT '#000',
+  couleur_tertiaire VARCHAR(20) DEFAULT '#F0F0F0',
+
+  entreprise UUID NOT NULL,
+
+  CONSTRAINT codes_couleurs_cc0 PRIMARY KEY(id),
+  CONSTRAINT codes_couleurs_cr0
+    FOREIGN KEY(entreprise)
+    REFERENCES entreprises(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+)
 
 -- =========================================================
 -- TABLE appartenir_entreprise
@@ -241,6 +265,8 @@ CREATE TABLE IF NOT EXISTS invitations (
   role UUID NOT NULL,
   entreprise UUID NOT NULL,
 
+  CONSTRAINT invitations_cc0 PRIMARY KEY(id),
+
   CONSTRAINT invitations_cr0
     FOREIGN KEY (role)
     REFERENCES roles_utilisateur(id)
@@ -276,6 +302,8 @@ CREATE TABLE IF NOT EXISTS notifications (
   entreprise UUID NOT NULL,
   role UUID NOT NULL,
 
+  CONSTRAINT notifications_cc0 PRIMARY KEY(id),
+
   CONSTRAINT notifications_cr0
     FOREIGN KEY (utilisateur)
     REFERENCES utilisateurs(id)
@@ -308,7 +336,9 @@ CREATE TABLE IF NOT EXISTS categories_produit (
   entreprise UUID NOT NULL,
   utilisateur UUID NOT NULL,
 
-  CONSTRAINT categories_produit_cc0
+  CONSTRAINT categories_produit_cc0 PRIMARY KEY(id),
+
+  CONSTRAINT categories_produit_cc1
     UNIQUE(categorie, entreprise),
 
   CONSTRAINT categories_produit_cr0
@@ -354,6 +384,8 @@ CREATE TABLE IF NOT EXISTS produits (
   entreprise UUID NOT NULL,
   categorie UUID NOT NULL,
 
+  CONSTRAINT produits_cc0 PRIMARY KEY(id),
+
   CONSTRAINT produits_cr0
     FOREIGN KEY (utilisateur)
     REFERENCES utilisateurs(id)
@@ -397,6 +429,8 @@ CREATE TABLE IF NOT EXISTS ravitaillements (
 
   produit UUID NOT NULL,
 
+  CONSTRAINT ravitaillements_cc0 PRIMARY KEY(id),
+
   CONSTRAINT ravitaillements_cr0
     FOREIGN KEY (utilisateur_demande)
     REFERENCES utilisateurs(id)
@@ -432,6 +466,8 @@ CREATE TABLE IF NOT EXISTS pertes_produits (
   user_signale UUID NOT NULL,
   produit UUID NOT NULL,
 
+  CONSTRAINT pertes_produits_cc0 PRIMARY KEY(id),
+
   CONSTRAINT pertes_produits_cr0
     FOREIGN KEY (user_signale)
     REFERENCES utilisateurs(id)
@@ -460,6 +496,8 @@ CREATE TABLE IF NOT EXISTS clients (
   telephone Telephone,
 
   entreprise UUID NOT NULL,
+
+  CONSTRAINT clients_cc0 PRIMARY KEY(id),
 
   CONSTRAINT clients_cr0
     FOREIGN KEY (entreprise)
@@ -495,6 +533,8 @@ CREATE TABLE IF NOT EXISTS commandes (
   utilisateur_enregistre UUID NOT NULL,
   client UUID NOT NULL,
   utilisateur_valide UUID,
+
+  CONSTRAINT commandes_cc0 PRIMARY KEY(id),
 
   CONSTRAINT commandes_cr0
     FOREIGN KEY (entreprise)
@@ -576,6 +616,8 @@ CREATE TABLE IF NOT EXISTS livraisons (
   commande UUID NOT NULL,
   livreur UUID NOT NULL,
 
+  CONSTRAINT livraisons_cc0 PRIMARY KEY(id),
+
   CONSTRAINT livraisons_cr0
     FOREIGN KEY (commande)
     REFERENCES commandes(id)
@@ -609,6 +651,8 @@ CREATE TABLE IF NOT EXISTS payements (
   commande UUID NOT NULL,
   user_enregistre UUID NOT NULL,
   entreprise UUID NOT NULL,
+
+  CONSTRAINT payements_cc0 PRIMARY KEY(id),
 
   CONSTRAINT payements_cr0
     FOREIGN KEY (commande)
@@ -647,6 +691,8 @@ CREATE TABLE IF NOT EXISTS depenses (
   entreprise UUID NOT NULL,
   utilisateur_marque UUID NOT NULL,
 
+  CONSTRAINT depenses_cc0 PRIMARY KEY(id),
+
   CONSTRAINT depenses_cr0
     FOREIGN KEY (entreprise)
     REFERENCES entreprises(id)
@@ -677,6 +723,8 @@ CREATE TABLE IF NOT EXISTS entrees_argent (
 
   entreprise UUID NOT NULL,
   utilisateur_marque UUID NOT NULL,
+
+  CONSTRAINT entrees_argent_cc0 PRIMARY KEY(id),
 
   CONSTRAINT entrees_argent_cr0
     FOREIGN KEY (entreprise)
@@ -712,6 +760,8 @@ CREATE TABLE IF NOT EXISTS salaires (
   utilisateur UUID NOT NULL,
   entreprise UUID NOT NULL,
 
+  CONSTRAINT salaires_cc0 PRIMARY KEY(id),
+
   CONSTRAINT salaires_cr0
     FOREIGN KEY (utilisateur)
     REFERENCES utilisateurs(id)
@@ -746,6 +796,8 @@ CREATE TABLE IF NOT EXISTS frais_mensuel (
 
   entreprise UUID NOT NULL,
 
+  CONSTRAINT frais_mensuel_cc0 PRIMARY KEY(id),
+
   CONSTRAINT frais_mensuel_cr0
     FOREIGN KEY (entreprise)
     REFERENCES entreprises(id)
@@ -770,6 +822,8 @@ CREATE TABLE IF NOT EXISTS pertes_argent (
 
   entreprise UUID NOT NULL,
   utilisateur_signale UUID NOT NULL,
+
+  CONSTRAINT pertes_argent_cc0 PRIMARY KEY(id),
 
   CONSTRAINT pertes_argent_cr0
     FOREIGN KEY (entreprise)
@@ -802,6 +856,8 @@ CREATE TABLE IF NOT EXISTS remboursements (
   commande UUID NOT NULL,
   utilisateur_engage UUID NOT NULL,
   entreprise UUID NOT NULL,
+
+  CONSTRAINT remboursements_cc0 PRIMARY KEY(id),
 
   CONSTRAINT remboursements_cr0
     FOREIGN KEY (commande)
@@ -853,6 +909,8 @@ CREATE TABLE IF NOT EXISTS taches (
   role_associe UUID NOT NULL,
   entreprise UUID NOT NULL,
 
+  CONSTRAINT taches_cc0 PRIMARY KEY(id),
+
   CONSTRAINT taches_cr0
     FOREIGN KEY (utilisateur_defini)
     REFERENCES utilisateurs(id)
@@ -899,6 +957,8 @@ CREATE TABLE IF NOT EXISTS evenements (
 
   creation UUID NOT NULL,
   entreprise UUID NOT NULL,
+
+  CONSTRAINT evenements_cc0 PRIMARY KEY(id),
 
   CONSTRAINT evenements_cr0
     FOREIGN KEY (creation)
@@ -970,6 +1030,8 @@ CREATE TABLE IF NOT EXISTS historiques (
   utilisateur UUID NOT NULL,
   entreprise UUID NOT NULL,
 
+  CONSTRAINT historiques_cc0 PRIMARY KEY(id),
+
   CONSTRAINT historiques_cr0
     FOREIGN KEY (utilisateur)
     REFERENCES utilisateurs(id)
@@ -1001,6 +1063,10 @@ CREATE TABLE IF NOT EXISTS sessions (
   role UUID NOT NULL,
   entreprise UUID NOT NULL,
   utilisateur UUID NOT NULL,
+
+  CONSTRAINT sessions_cc0 PRIMARY KEY(id),
+
+  CONSTRAINT sessions_cc1 UNIQUE(token),
 
   CONSTRAINT sessions_cr0
     FOREIGN KEY (role)
@@ -1037,6 +1103,10 @@ CREATE TABLE IF NOT EXISTS token_choix_role (
   validite BOOLEAN DEFAULT FALSE,
 
   utilisateur UUID NOT NULL,
+
+  CONSTRAINT token_choix_role_cc0 PRIMARY KEY(id),
+
+  CONSTRAINT token_choix_role_cc1 UNIQUE(token),
 
   CONSTRAINT token_choix_role_cr0
     FOREIGN KEY (utilisateur)
