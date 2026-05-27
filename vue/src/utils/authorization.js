@@ -1,9 +1,9 @@
-import authResponse from '../mockups/auth.json';
-import logoutAuthResponse from '../mockups/logoutAuth.json';
-import recoverSessionResponse from '../mockups/recoverSession.json';
+import choixRoleResponse from '../mockups/choixRole.json';
+import logoutAuthorizationResponse from '../mockups/logoutAuthorization.json';
+import recoverAuthorizationResponse from '../mockups/recoverAuthorization.json';
 
-const SESSION_KEY = 'auth_session';
-const SESSION_ACTIVE_FLAG = 'auth_active';
+const SESSION_KEY = 'authorization_session';
+const SESSION_ACTIVE_FLAG = 'authorization_active';
 const SIMULATED_DELAY = 400;
 
 function simulateDelay() {
@@ -22,28 +22,28 @@ function buildSession(user) {
     return { user, expiresAt };
 }
 
-export function saveAuthSession(session) {
+export function saveAuthorizationSession(session) {
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
     window.sessionStorage.setItem(SESSION_ACTIVE_FLAG, 'true');
 }
 
-export function clearAuthSession() {
+export function clearAuthorizationSession() {
     window.localStorage.removeItem(SESSION_KEY);
     window.sessionStorage.removeItem(SESSION_ACTIVE_FLAG);
 }
 
-export function getAuthSession() {
+export function getAuthorizationSession() {
     const raw = window.localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
     try {
         return JSON.parse(raw);
     } catch {
-        clearAuthSession();
+        clearAuthorizationSession();
         return null;
     }
 }
 
-export function wasAuthSessionActive() {
+export function wasAuthorizationSessionActive() {
     return window.sessionStorage.getItem(SESSION_ACTIVE_FLAG) === 'true';
 }
 
@@ -57,37 +57,37 @@ export function createSessionTimeout(expiresAt, onExpire) {
     return window.setTimeout(onExpire, remaining);
 }
 
-export async function loginAuthFromApi() {
+export async function selectRoleFromApi() {
     await simulateDelay();
 
-    if (!authResponse.ok) {
-        throw new Error(authResponse.message || "Échec de l'authentification");
+    if (!choixRoleResponse.ok) {
+        throw new Error(choixRoleResponse.message || 'Échec de la sélection du rôle');
     }
 
-    const session = buildSession(authResponse.user);
-    saveAuthSession(session);
+    const session = buildSession(choixRoleResponse.user);
+    saveAuthorizationSession(session);
     return session;
 }
 
-export async function logoutAuthFromApi() {
+export async function logoutAuthorizationFromApi() {
     await simulateDelay();
 
-    if (!logoutAuthResponse.ok) {
-        throw new Error(logoutAuthResponse.message || 'Impossible de se déconnecter');
+    if (!logoutAuthorizationResponse.ok) {
+        throw new Error(logoutAuthorizationResponse.message || 'Impossible de se déconnecter');
     }
 
-    clearAuthSession();
+    clearAuthorizationSession();
     return true;
 }
 
-export async function recoverAuthSessionFromApi() {
+export async function recoverAuthorizationSessionFromApi() {
     await simulateDelay();
 
-    if (!recoverSessionResponse.ok) {
-        throw new Error(recoverSessionResponse.message || 'Impossible de récupérer la session');
+    if (!recoverAuthorizationResponse.ok) {
+        throw new Error(recoverAuthorizationResponse.message || "Impossible de récupérer la session d'autorisation");
     }
 
-    const session = buildSession(recoverSessionResponse.user);
-    saveAuthSession(session);
+    const session = buildSession(recoverAuthorizationResponse.user);
+    saveAuthorizationSession(session);
     return session;
 }

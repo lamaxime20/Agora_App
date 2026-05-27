@@ -1,0 +1,15 @@
+{
+    "ok": true,
+    "message": "Rôle sélectionné avec succès",
+    "user": {
+        "email": "john.doe@example.com",
+        "nom": "Doe",
+        "prenom": "John",
+        "expires_at": "2026-05-29T10:00:00.000Z",
+        "entreprise": {
+            "id": 1,
+            "nom": "Bytes Corp"
+        },
+        "role": "Manager"
+    }
+}

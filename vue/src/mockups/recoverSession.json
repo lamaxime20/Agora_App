@@ -1,6 +1,6 @@
 {
     "ok": true,
-    "message": "Authentification réussie",
+    "message": "Session récupérée",
     "user": {
         "email": "john.doe@example.com",
         "nom": "Doe",

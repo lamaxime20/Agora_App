@@ -2,29 +2,29 @@ import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
-    clearAuthSession,
+    clearAuthorizationSession,
     createSessionTimeout,
-    getAuthSession,
+    getAuthorizationSession,
     isSessionExpired,
-    loginAuthFromApi,
-    logoutAuthFromApi,
-    recoverAuthSessionFromApi,
-    wasAuthSessionActive,
-} from '../utils/auth';
+    logoutAuthorizationFromApi,
+    recoverAuthorizationSessionFromApi,
+    selectRoleFromApi,
+    wasAuthorizationSessionActive,
+} from '../utils/authorization';
 
-import '../assets/styles/components/AuthContext.css';
+import '../assets/styles/components/AuthorizationContext.css';
 
-export const AuthContext = createContext({
-    isAuthenticated: false,
+export const AuthorizationContext = createContext({
+    isAuthorized: false,
     isLoading: true,
     user: null,
     logoutError: null,
-    loginAuth: async () => false,
-    logoutAuth: async () => false,
+    selectRole: async () => false,
+    logoutAuthorization: async () => false,
 });
 
-export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+export const AuthorizationProvider = ({ children }) => {
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState(null);
     const [logoutError, setLogoutError] = useState(null);
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
             window.clearTimeout(timeoutRef.current);
             timeoutRef.current = null;
         }
-        setIsAuthenticated(false);
+        setIsAuthorized(false);
         setUser(null);
     }, []);
 
@@ -51,23 +51,23 @@ export const AuthProvider = ({ children }) => {
         }
 
         timeoutRef.current = createSessionTimeout(session.expiresAt, () => {
-            clearAuthSession();
+            clearAuthorizationSession();
             clearState();
             navigate('/login', { replace: true });
         });
 
         setUser(session.user);
-        setIsAuthenticated(true);
+        setIsAuthorized(true);
         return true;
     }, [clearState, navigate]);
 
     useEffect(() => {
         async function initSession() {
-            const stored = getAuthSession();
+            const stored = getAuthorizationSession();
 
             if (stored) {
                 if (isSessionExpired(stored.expiresAt)) {
-                    clearAuthSession();
+                    clearAuthorizationSession();
                     clearState();
                     setIsLoading(false);
                     navigate('/login', { replace: true });
@@ -78,9 +78,9 @@ export const AuthProvider = ({ children }) => {
                 return;
             }
 
-            if (wasAuthSessionActive()) {
+            if (wasAuthorizationSessionActive()) {
                 try {
-                    const recovered = await recoverAuthSessionFromApi();
+                    const recovered = await recoverAuthorizationSessionFromApi();
                     applySession(recovered);
                 } catch {
                     clearState();
@@ -93,10 +93,10 @@ export const AuthProvider = ({ children }) => {
         initSession();
     }, []);
 
-    const loginAuth = async (credentials) => {
+    const selectRole = async (payload) => {
         setIsLoading(true);
         try {
-            const session = await loginAuthFromApi(credentials);
+            const session = await selectRoleFromApi(payload);
             const success = applySession(session);
             return success;
         } catch {
@@ -107,10 +107,10 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logoutAuth = useCallback(async () => {
+    const logoutAuthorization = useCallback(async () => {
         setLogoutError(null);
         try {
-            await logoutAuthFromApi();
+            await logoutAuthorizationFromApi();
             clearState();
             return true;
         } catch {
@@ -122,14 +122,14 @@ export const AuthProvider = ({ children }) => {
     const dismissLogoutError = useCallback(() => setLogoutError(null), []);
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, logoutError, loginAuth, logoutAuth }}>
+        <AuthorizationContext.Provider value={{ isAuthorized, isLoading, user, logoutError, selectRole, logoutAuthorization }}>
             {children}
             {logoutError && (
-                <div className="authContext-logoutError" role="alert">
-                    <p className="authContext-logoutError__message">{logoutError}</p>
+                <div className="authorizationContext-logoutError" role="alert">
+                    <p className="authorizationContext-logoutError__message">{logoutError}</p>
                     <button
                         type="button"
-                        className="authContext-logoutError__close"
+                        className="authorizationContext-logoutError__close"
                         onClick={dismissLogoutError}
                         aria-label="Fermer"
                     >
@@ -137,8 +137,8 @@ export const AuthProvider = ({ children }) => {
                     </button>
                 </div>
             )}
-        </AuthContext.Provider>
+        </AuthorizationContext.Provider>
     );
 };
 
-export default AuthContext;
+export default AuthorizationContext;
