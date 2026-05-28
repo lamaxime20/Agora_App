@@ -10,15 +10,12 @@ use App\Support\BrevoMailer;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class SignupController extends Controller
 {
-    public $withinTransaction = false;
-    
     public function checkEmail(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -56,19 +53,17 @@ class SignupController extends Controller
         $dateExpiration = now()->addMinutes(10);
 
         try {
-            DB::transaction(function () use ($request, $code, $dateExpiration) {
-                CodeOtp::where('email', $request->email)
-                    ->where('utilise', false)
-                    ->update(['actif' => false]);
+            CodeOtp::where('email', $request->email)
+                ->where('utilise', false)
+                ->update(['actif' => false]);
 
-                CodeOtp::create([
-                    'code'            => $code,
-                    'email'           => $request->email,
-                    'date_expiration' => $dateExpiration,
-                    'utilise'         => false,
-                    'actif'           => true,
-                ]);
-            });
+            CodeOtp::create([
+                'code'            => $code,
+                'email'           => $request->email,
+                'date_expiration' => $dateExpiration,
+                'utilise'         => false,
+                'actif'           => true,
+            ]);
 
             $mailer   = new BrevoMailer();
             $fullName = $request->prenom . ' ' . $request->nom;
@@ -82,9 +77,7 @@ class SignupController extends Controller
                 ], 500);
             }
         } catch (\Throwable $e) {
-            Log::error('Erreur Brevo', [
-                'message' => $e->getMessage()
-            ]);
+            Log::error('SignupController@checkEmail error', ['message' => $e->getMessage()]);
             return response()->json([
                 'ok'      => false,
                 'code'    => 'SERVER_ERROR',
@@ -205,33 +198,29 @@ class SignupController extends Controller
         }
 
         try {
-            $ttlMinutes  = (int) env('TOKEN_AUTH_TTL_HOURS', 24) * 60;
-            $tokenValue  = bin2hex(random_bytes(40));
-            $expiration  = now()->addMinutes($ttlMinutes);
+            $ttlMinutes = (int) env('TOKEN_AUTH_TTL_HOURS', 24) * 60;
+            $tokenValue = bin2hex(random_bytes(40));
+            $expiration = now()->addMinutes($ttlMinutes);
 
-            $user = DB::transaction(function () use ($request, $tokenValue, $expiration) {
-                $user = Utilisateur::create([
-                    'email'         => $request->email,
-                    'password_hash' => Hash::make($request->password),
-                    'name'          => $request->nom,
-                    'prename'       => $request->prenom,
-                    'statut'        => 'actif',
-                ]);
+            $user = Utilisateur::create([
+                'email'         => $request->email,
+                'password_hash' => Hash::make($request->password),
+                'name'          => $request->nom,
+                'prename'       => $request->prenom,
+                'statut'        => 'actif',
+            ]);
 
-                CodeOtp::where('email', $request->email)
-                    ->where('utilise', true)
-                    ->update(['actif' => false]);
+            CodeOtp::where('email', $request->email)
+                ->where('utilise', true)
+                ->update(['actif' => false]);
 
-                TokenChoixRole::create([
-                    'token'           => $tokenValue,
-                    'utilisateur'     => $user->id,
-                    'validite'        => true,
-                    'date_creation'   => now(),
-                    'date_expiration' => $expiration,
-                ]);
-
-                return $user;
-            });
+            TokenChoixRole::create([
+                'token'           => $tokenValue,
+                'utilisateur'     => $user->id,
+                'validite'        => true,
+                'date_creation'   => now(),
+                'date_expiration' => $expiration,
+            ]);
 
             $cookie = cookie(
                 'tokenAuth',
@@ -256,6 +245,7 @@ class SignupController extends Controller
                 ],
             ], 201)->withCookie($cookie);
         } catch (\Throwable $e) {
+            Log::error('SignupController@create error', ['message' => $e->getMessage()]);
             return response()->json([
                 'ok'      => false,
                 'code'    => 'SERVER_ERROR',

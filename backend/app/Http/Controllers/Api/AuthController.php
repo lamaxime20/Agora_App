@@ -5,13 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AppartenirEntreprise;
 use App\Models\Entreprise;
+use App\Models\RoleUtilisateur;
 use App\Models\SessionApp;
 use App\Models\TokenChoixRole;
 use App\Models\Utilisateur;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -67,19 +69,17 @@ class AuthController extends Controller
             $tokenValue = bin2hex(random_bytes(40));
             $expiration = now()->addMinutes($ttlMinutes);
 
-            DB::transaction(function () use ($user, $tokenValue, $expiration) {
-                TokenChoixRole::where('utilisateur', $user->id)
-                    ->where('validite', true)
-                    ->update(['validite' => false]);
+            TokenChoixRole::where('utilisateur', $user->id)
+                ->where('validite', true)
+                ->update(['validite' => false]);
 
-                TokenChoixRole::create([
-                    'token'           => $tokenValue,
-                    'utilisateur'     => $user->id,
-                    'validite'        => true,
-                    'date_creation'   => now(),
-                    'date_expiration' => $expiration,
-                ]);
-            });
+            TokenChoixRole::create([
+                'token'           => $tokenValue,
+                'utilisateur'     => $user->id,
+                'validite'        => true,
+                'date_creation'   => now(),
+                'date_expiration' => $expiration,
+            ]);
 
             $cookie = cookie(
                 'tokenAuth',
@@ -104,6 +104,7 @@ class AuthController extends Controller
                 ],
             ], 200)->withCookie($cookie);
         } catch (\Throwable $e) {
+            Log::error('AuthController@login error', ['message' => $e->getMessage()]);
             return response()->json([
                 'ok'      => false,
                 'code'    => 'SERVER_ERROR',
@@ -126,7 +127,7 @@ class AuthController extends Controller
                 'email'      => $user->email,
                 'nom'        => $user->name,
                 'prenom'     => $user->prename,
-                'expires_at' => \Carbon\Carbon::parse($token->date_expiration)->toIso8601String(),
+                'expires_at' => Carbon::parse($token->date_expiration)->toIso8601String(),
             ],
         ], 200);
     }
@@ -178,7 +179,7 @@ class AuthController extends Controller
         }
 
         /** @var Utilisateur $user */
-        $user  = $request->attributes->get('authUser');
+        $user      = $request->attributes->get('authUser');
         /** @var TokenChoixRole $authToken */
         $authToken = $request->attributes->get('authToken');
 
@@ -213,20 +214,20 @@ class AuthController extends Controller
             $tokenValue = bin2hex(random_bytes(40));
             $expiration = now()->addMinutes($ttlMinutes);
 
-            $session = DB::transaction(function () use ($authToken, $tokenValue, $expiration, $request, $user) {
-                TokenChoixRole::where('id', $authToken->id)
-                    ->update(['validite' => false]);
+            TokenChoixRole::where('id', $authToken->id)
+                ->update(['validite' => false]);
 
-                return SessionApp::create([
-                    'token'           => $tokenValue,
-                    'role'            => $request->role_id,
-                    'entreprise'      => $request->entreprise_id,
-                    'utilisateur'     => $user->id,
-                    'validite'        => true,
-                    'date_creation'   => now(),
-                    'date_expiration' => $expiration,
-                ]);
-            });
+            SessionApp::create([
+                'token'           => $tokenValue,
+                'role'            => $request->role_id,
+                'entreprise'      => $request->entreprise_id,
+                'utilisateur'     => $user->id,
+                'validite'        => true,
+                'date_creation'   => now(),
+                'date_expiration' => $expiration,
+            ]);
+
+            $roleName = RoleUtilisateur::find($request->role_id)?->role ?? '';
 
             $expiredAuthCookie = cookie('tokenAuth', '', -1, '/', null, $request->secure(), true, false, 'lax');
 
@@ -241,8 +242,6 @@ class AuthController extends Controller
                 false,
                 'lax'
             );
-
-            $roleName = \App\Models\RoleUtilisateur::find($request->role_id)?->role ?? '';
 
             return response()->json([
                 'ok'      => true,
@@ -262,6 +261,7 @@ class AuthController extends Controller
                 ->withCookie($expiredAuthCookie)
                 ->withCookie($authorizationCookie);
         } catch (\Throwable $e) {
+            Log::error('AuthController@selectRole error', ['message' => $e->getMessage()]);
             return response()->json([
                 'ok'      => false,
                 'code'    => 'SERVER_ERROR',
@@ -279,7 +279,7 @@ class AuthController extends Controller
         $session    = $request->attributes->get('currentSession');
         /** @var Entreprise $entreprise */
         $entreprise = $request->attributes->get('currentEntreprise');
-        /** @var \App\Models\RoleUtilisateur $role */
+        /** @var RoleUtilisateur $role */
         $role       = $request->attributes->get('currentRole');
 
         return response()->json([
@@ -288,7 +288,7 @@ class AuthController extends Controller
                 'email'      => $user->email,
                 'nom'        => $user->name,
                 'prenom'     => $user->prename,
-                'expires_at' => \Carbon\Carbon::parse($session->date_expiration)->toIso8601String(),
+                'expires_at' => Carbon::parse($session->date_expiration)->toIso8601String(),
                 'entreprise' => [
                     'id'  => $entreprise->id,
                     'nom' => $entreprise->nom,

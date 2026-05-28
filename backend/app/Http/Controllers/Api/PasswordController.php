@@ -11,8 +11,8 @@ use App\Support\BrevoMailer;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PasswordController extends Controller
@@ -51,19 +51,17 @@ class PasswordController extends Controller
         $expiration = now()->addHour();
 
         try {
-            DB::transaction(function () use ($user, $code, $expiration) {
-                CodeReinitialisation::where('utilisateur', $user->id)
-                    ->where('utilise', false)
-                    ->update(['actif' => false]);
+            CodeReinitialisation::where('utilisateur', $user->id)
+                ->where('utilise', false)
+                ->update(['actif' => false]);
 
-                CodeReinitialisation::create([
-                    'code'            => $code,
-                    'utilisateur'     => $user->id,
-                    'date_expiration' => $expiration,
-                    'utilise'         => false,
-                    'actif'           => true,
-                ]);
-            });
+            CodeReinitialisation::create([
+                'code'            => $code,
+                'utilisateur'     => $user->id,
+                'date_expiration' => $expiration,
+                'utilise'         => false,
+                'actif'           => true,
+            ]);
 
             $mailer = new BrevoMailer();
             $sent   = $mailer->sendPasswordResetEmail($user->email, $user->prename . ' ' . $user->name, $code);
@@ -76,6 +74,7 @@ class PasswordController extends Controller
                 ], 500);
             }
         } catch (\Throwable $e) {
+            Log::error('PasswordController@sendCode error', ['message' => $e->getMessage()]);
             return response()->json([
                 'ok'      => false,
                 'code'    => 'SERVER_ERROR',
@@ -211,7 +210,7 @@ class PasswordController extends Controller
             ], 403);
         }
 
-        DB::transaction(function () use ($user, $request) {
+        try {
             $user->password_hash = Hash::make($request->password);
             $user->save();
 
@@ -225,7 +224,14 @@ class PasswordController extends Controller
             SessionApp::where('utilisateur', $user->id)
                 ->where('validite', true)
                 ->update(['validite' => false]);
-        });
+        } catch (\Throwable $e) {
+            Log::error('PasswordController@reset error', ['message' => $e->getMessage()]);
+            return response()->json([
+                'ok'      => false,
+                'code'    => 'SERVER_ERROR',
+                'message' => 'Une erreur est survenue. Réessayez.',
+            ], 500);
+        }
 
         return response()->json([
             'ok'      => true,
