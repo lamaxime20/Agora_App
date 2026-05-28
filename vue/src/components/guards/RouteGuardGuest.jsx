@@ -8,7 +8,7 @@ const RouteGuardGuest = () => {
     const { isAuthorized, isLoading: authorizationLoading } = useAuthorization();
 
     if (authLoading || authorizationLoading) {
-        return null;
+        return <Outlet />;
     }
 
     if (isAuthorized) {
