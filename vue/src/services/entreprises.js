@@ -1,17 +1,7 @@
-import entreprisesData from '../mockups/entreprises.json';
+import { apiFetch } from './api';
 
-const DELAY = 500;
-
-function simulateDelay() {
-    return new Promise(resolve => setTimeout(resolve, DELAY));
-}
-
+// GET /api/user/entreprises
 export async function getEntreprises() {
-    await simulateDelay();
-
-    if (!entreprisesData.ok) {
-        throw new Error('Impossible de charger vos entreprises.');
-    }
-
-    return entreprisesData.entreprises;
+    const payload = await apiFetch('user/entreprises');
+    return payload.entreprises ?? [];
 }

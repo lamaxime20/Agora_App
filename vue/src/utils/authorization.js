@@ -1,20 +1,11 @@
-import { ApiError, createApiErrorFromPayload, fetchMockJson } from './mockApi';
+import { apiFetch } from '../services/api';
+import { ApiError } from './mockApi';
 import { buildSession, createSessionTimeout, isSessionExpired, resetBrowserStorage } from './session';
 
-const SESSION_KEY = 'authorization_session';
+const SESSION_KEY        = 'authorization_session';
 const SESSION_ACTIVE_FLAG = 'authorization_active';
 
-function parseAuthorizationSession(payload, fallbackMessage) {
-    const error = createApiErrorFromPayload(payload, fallbackMessage);
-    if (error) throw error;
-
-    const user = payload?.user ?? payload?.session?.user ?? payload?.data?.user;
-    if (!user) {
-        throw new ApiError(fallbackMessage, { status: 500, code: 'INVALID_MOCK_PAYLOAD' });
-    }
-
-    return buildSession(user);
-}
+// ─── Session locale ───────────────────────────────────────────────────────────
 
 export function saveAuthorizationSession(session) {
     resetBrowserStorage();
@@ -29,7 +20,6 @@ export function clearAuthorizationSession() {
 export function getAuthorizationSession() {
     const raw = window.localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
-
     try {
         return JSON.parse(raw);
     } catch {
@@ -44,48 +34,51 @@ export function wasAuthorizationSessionActive() {
 
 export { isSessionExpired, createSessionTimeout };
 
-export async function getEntreprisesFromApi() {
-    const payload = await fetchMockJson('../mockups/entreprises.json');
-    const error = createApiErrorFromPayload(payload, 'Impossible de charger vos entreprises.');
-    if (error) throw error;
+// ─── Entreprises ──────────────────────────────────────────────────────────────
 
+// GET /api/user/entreprises
+export async function getEntreprisesFromApi() {
+    const payload = await apiFetch('user/entreprises');
     return payload.entreprises ?? [];
 }
 
+// ─── Sélection de rôle ────────────────────────────────────────────────────────
+
+// POST /api/auth/select-role
 export async function selectRoleFromApi({ entrepriseId, roleId }) {
-    const payload = await fetchMockJson('../mockups/choixRole.json');
-    const error = createApiErrorFromPayload(payload, 'Échec de la sélection du rôle.');
-    if (error) throw error;
+    const payload = await apiFetch('auth/select-role', {
+        method: 'POST',
+        body: { entreprise_id: entrepriseId, role_id: roleId },
+    });
 
-    const companies = Array.isArray(payload.entreprises) ? payload.entreprises : [];
-    const selectedCompany = companies.find(company => company.id === entrepriseId);
-    const selectedRole = selectedCompany?.roles?.find(role => role.id === roleId);
-
-    if (!selectedCompany || !selectedRole) {
-        throw new ApiError(payload.invalidSelectionMessage || 'Le rôle demandé est introuvable.', {
-            status: 422,
-            code: 'INVALID_ROLE_SELECTION',
-        });
+    const user = payload?.user;
+    if (!user) {
+        throw new ApiError('Sélection de rôle invalide.', { status: 500, code: 'INVALID_RESPONSE' });
     }
 
-    const session = parseAuthorizationSession(payload, 'Échec de la sélection du rôle.');
+    const session = buildSession(user);
     saveAuthorizationSession(session);
     return session;
 }
 
-export async function logoutAuthorizationFromApi() {
-    const payload = await fetchMockJson('../mockups/logoutAuthorization.json');
-    const error = createApiErrorFromPayload(payload, 'Impossible de se déconnecter.');
-    if (error) throw error;
+// ─── Déconnexion et récupération de session ───────────────────────────────────
 
+// POST /api/auth/logout/application
+export async function logoutAuthorizationFromApi() {
+    await apiFetch('auth/logout/application', { method: 'POST' });
     clearAuthorizationSession();
     return true;
 }
 
+// GET /api/auth/me/application
 export async function recoverAuthorizationSessionFromApi() {
-    const payload = await fetchMockJson('../mockups/recoverAuthorization.json');
-    const error = createApiErrorFromPayload(payload, "Impossible de récupérer la session d'autorisation.");
-    if (error) throw error;
-
-    return parseAuthorizationSession(payload, "Impossible de récupérer la session d'autorisation.");
+    const payload = await apiFetch('auth/me/application');
+    const user = payload?.user;
+    if (!user) {
+        throw new ApiError("Impossible de récupérer la session d'autorisation.", {
+            status: 500,
+            code: 'INVALID_RESPONSE',
+        });
+    }
+    return buildSession(user);
 }

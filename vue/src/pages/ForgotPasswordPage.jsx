@@ -178,6 +178,7 @@ const ForgotPasswordPage = () => {
         try {
             await verifyPasswordResetCodeFromApi({
                 code: otp,
+                email,
                 draft: {
                     expiresAt: codeExpiresAt,
                 },

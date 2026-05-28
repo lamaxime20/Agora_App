@@ -205,6 +205,7 @@ const SignupPage = () => {
         try {
             await verifySignupCodeFromApi({
                 code: otp,
+                email,
                 draft: {
                     expiresAt: codeExpiresAt,
                 },
