@@ -1,14 +1,16 @@
 {
     "ok": true,
     "message": "Authentification réussie",
+    "invalidCredentialsMessage": "Identifiants incorrects. Vérifiez votre e-mail et votre mot de passe.",
+    "archivedMessage": "Ce compte est désactivé. Contactez votre administrateur.",
     "users": [
         {
             "email": "john.doe@example.com",
             "password": "Password123!",
             "nom": "Doe",
             "prenom": "John",
-            "expires_at": "2026-05-29T10:00:00.000Z"
+            "isArchived": false,
+            "expires_at": "2027-12-31T23:59:59.000Z"
         }
     ]
 }
-
