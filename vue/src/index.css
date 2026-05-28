@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Poppins:wght@600;700&display=swap');
 
 /* ─── Variables ───────────────────────────────────────────────────────────── */
 
@@ -100,6 +100,21 @@
     --duration-normal: 250ms;
     --duration-slow:   350ms;
 
+    /* Auth design system */
+    --font-auth:         'Inter', system-ui, sans-serif;
+
+    --auth-bg:           #FFF8F0;
+    --auth-panel:        linear-gradient(145deg, #1A252F 0%, #2C3E50 60%, #243342 100%);
+    --auth-accent:       #2C3E50;
+
+    --auth-input-bg:      #FFFFFF;
+    --auth-input-border:  #E5D9CE;
+    --auth-input-focus:   rgba(243, 156, 18, 0.6);
+    --auth-input-glow:    0 0 0 4px rgba(243, 156, 18, 0.10), 0 2px 12px rgba(243, 156, 18, 0.08);
+
+    --auth-btn-shadow:    0 4px 20px rgba(44, 62, 80, 0.30);
+    --auth-btn-shadow-h:  0 8px 28px rgba(44, 62, 80, 0.40);
+
     /* Z-index */
     --z-base:    0;
     --z-dropdown: 100;
@@ -131,6 +146,12 @@
         --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
         --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
         --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+        --auth-bg:           #121212;
+        --auth-input-bg:     #1E1E1E;
+        --auth-input-border: #3E3E3E;
+        --auth-input-focus:  rgba(243, 156, 18, 0.5);
+        --auth-input-glow:   0 0 0 4px rgba(243, 156, 18, 0.12), 0 2px 12px rgba(243, 156, 18, 0.10);
     }
 }
 
@@ -283,6 +304,63 @@ p {
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50%       { opacity: 0.5; }
+}
+
+@keyframes blobFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(20px, -25px) scale(1.06); }
+    66%       { transform: translate(-15px, 15px) scale(0.94); }
+}
+
+@keyframes widgetFloat {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-8px); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+}
+
+@keyframes bounceIn {
+    0%   { opacity: 0; transform: scale(0.6); }
+    60%  { opacity: 1; transform: scale(1.08); }
+    80%  { transform: scale(0.96); }
+    100% { transform: scale(1); }
+}
+
+@keyframes checkDraw {
+    from { stroke-dashoffset: 60; }
+    to   { stroke-dashoffset: 0; }
+}
+
+@keyframes glowPulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50%       { opacity: 0.8; transform: scale(1.12); }
+}
+
+@keyframes particleRise {
+    0%   { opacity: 0; transform: translateY(0) scale(0); }
+    20%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-60px) scale(1); }
+}
+
+@keyframes stepSlideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes stepSlideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(-20px); }
+}
+
+@keyframes timerSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
 }
 
 /* ─── Utilitaires accessibilité ──────────────────────────────────────────── */

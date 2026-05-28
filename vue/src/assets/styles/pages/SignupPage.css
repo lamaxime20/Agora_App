@@ -1,0 +1,481 @@
+/* ─── SignupPage ──────────────────────────────────────────────────────────── */
+
+.signupPage-root {
+    width: 100%;
+    max-width: 440px;
+}
+
+/* ─── Step wrapper ────────────────────────────────────────────────────────── */
+
+.signupPage-step {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    animation: stepSlideIn 0.35s var(--ease-out) both;
+}
+
+.signupPage-step--success {
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+/* ─── Header & Logo ───────────────────────────────────────────────────────── */
+
+.signupPage-header {
+    display: flex;
+    align-items: center;
+}
+
+.signupPage-logo {
+    display: flex;
+    align-items: center;
+}
+
+.signupPage-logo__img {
+    height: 32px;
+    width: auto;
+}
+
+/* ─── Back button ─────────────────────────────────────────────────────────── */
+
+.signupPage-backBtn {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--auth-input-bg);
+    border: 1.5px solid var(--auth-input-border);
+    border-radius: 12px;
+    color: var(--color-text-muted);
+    transition:
+        background 200ms var(--ease-out),
+        border-color 200ms var(--ease-out),
+        color 200ms var(--ease-out),
+        transform 150ms var(--ease-out);
+}
+
+.signupPage-backBtn:hover {
+    background: rgba(243, 156, 18, 0.06);
+    border-color: rgba(243, 156, 18, 0.25);
+    color: var(--color-primary);
+    transform: translateX(-2px);
+}
+
+/* ─── Content ─────────────────────────────────────────────────────────────── */
+
+.signupPage-content {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* ─── OTP icon ────────────────────────────────────────────────────────────── */
+
+.signupPage-otpIcon {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    background: rgba(243, 156, 18, 0.08);
+    border: 1.5px solid rgba(243, 156, 18, 0.20);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+}
+
+.signupPage-otpIcon--shield { color: #2C3E50; background: rgba(44, 62, 80, 0.08); border-color: rgba(44, 62, 80, 0.18); }
+
+.signupPage-otpIcon__glow {
+    position: absolute;
+    inset: -8px;
+    border-radius: 24px;
+    background: radial-gradient(circle, rgba(243, 156, 18, 0.12) 0%, transparent 70%);
+    animation: glowPulse 3s ease-in-out infinite;
+}
+
+.signupPage-otpIcon__glow--shield {
+    background: radial-gradient(circle, rgba(44, 62, 80, 0.10) 0%, transparent 70%);
+}
+
+/* ─── Headline ────────────────────────────────────────────────────────────── */
+
+.signupPage-headline {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.signupPage-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+}
+
+.signupPage-desc {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
+.signupPage-desc strong { color: var(--color-text); font-weight: 700; }
+
+/* ─── Form ────────────────────────────────────────────────────────────────── */
+
+.signupPage-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.signupPage-form--otp {
+    align-items: center;
+    gap: 24px;
+}
+
+/* ─── Google button ───────────────────────────────────────────────────────── */
+
+.signupPage-googleBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 54px;
+    background: var(--color-surface, #fff);
+    border: 1.5px solid var(--color-border);
+    border-radius: 18px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+    cursor: pointer;
+    transition:
+        border-color 200ms var(--ease-out),
+        box-shadow   200ms var(--ease-out),
+        transform    150ms var(--ease-out);
+    box-shadow: var(--shadow-xs);
+}
+
+.signupPage-googleBtn:hover {
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+/* ─── Divider ─────────────────────────────────────────────────────────────── */
+
+.signupPage-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.signupPage-divider__line {
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+}
+
+.signupPage-divider__text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* ─── Row (prénom + nom side by side) ────────────────────────────────────── */
+
+.signupPage-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* ─── Fields ──────────────────────────────────────────────────────────────── */
+
+.signupPage-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.signupPage-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    letter-spacing: 0.01em;
+}
+
+.signupPage-inputWrap { position: relative; }
+
+.signupPage-input {
+    width: 100%;
+    height: 56px;
+    background: var(--auth-input-bg);
+    border: 1.5px solid var(--auth-input-border);
+    border-radius: 16px;
+    padding: 0 20px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text);
+    outline: none;
+    transition:
+        border-color 200ms var(--ease-out),
+        box-shadow   200ms var(--ease-out),
+        background   200ms var(--ease-out);
+}
+
+.signupPage-input::placeholder { color: var(--color-text-light); }
+
+.signupPage-input:focus {
+    border-color: var(--auth-input-focus);
+    box-shadow: var(--auth-input-glow);
+    background: #FFFFFF;
+}
+
+.signupPage-input--error {
+    border-color: rgba(239, 68, 68, 0.45);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.06);
+}
+
+.signupPage-input--withIcon { padding-right: 52px; }
+
+.signupPage-eyeBtn {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    transition: color 150ms var(--ease-out);
+}
+
+.signupPage-eyeBtn:hover { color: var(--color-text); }
+
+.signupPage-fieldError {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #DC2626;
+    animation: fadeInUp 0.2s var(--ease-out);
+}
+
+/* ─── OTP error ───────────────────────────────────────────────────────────── */
+
+.signupPage-otpError {
+    font-size: 13px;
+    font-weight: 500;
+    color: #DC2626;
+    text-align: center;
+    animation: fadeInUp 0.2s var(--ease-out);
+}
+
+/* ─── Timer / resend ──────────────────────────────────────────────────────── */
+
+.signupPage-timerRow {
+    display: flex;
+    justify-content: center;
+}
+
+.signupPage-timer {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+}
+
+.signupPage-timer strong {
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.signupPage-resendBtn {
+    background: none;
+    border: none;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: opacity 150ms;
+}
+
+.signupPage-resendBtn:hover { opacity: 0.75; }
+
+/* ─── CTA ─────────────────────────────────────────────────────────────────── */
+
+.signupPage-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 56px;
+    background: var(--auth-accent);
+    border: none;
+    border-radius: 18px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    box-shadow: var(--auth-btn-shadow);
+    transition:
+        box-shadow 250ms var(--ease-out),
+        transform  150ms var(--ease-out),
+        opacity    200ms var(--ease-out);
+}
+
+.signupPage-cta:hover:not(:disabled) {
+    box-shadow: var(--auth-btn-shadow-h);
+    transform: translateY(-2px);
+}
+
+.signupPage-cta:active:not(:disabled) { transform: translateY(0); }
+
+.signupPage-cta:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.signupPage-spinner { animation: timerSpin 0.8s linear infinite; }
+
+/* ─── Login row ───────────────────────────────────────────────────────────── */
+
+.signupPage-loginRow {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+}
+
+.signupPage-loginLink {
+    font-weight: 700;
+    color: var(--color-primary);
+    transition: opacity 150ms;
+}
+
+.signupPage-loginLink:hover { opacity: 0.75; }
+
+/* ─── Success screen ──────────────────────────────────────────────────────── */
+
+.signupPage-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+    animation: bounceIn 0.6s var(--ease-out) both;
+}
+
+.signupPage-success__circle {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signupPage-success__glow {
+    position: absolute;
+    inset: -16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.25) 0%, transparent 70%);
+    animation: glowPulse 2.5s ease-in-out infinite;
+}
+
+.signupPage-success__icon {
+    color: #22C55E;
+    position: relative;
+    z-index: 1;
+    animation: bounceIn 0.5s var(--ease-out) 0.1s both;
+}
+
+/* Particles */
+.signupPage-success__particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22C55E;
+    animation: particleRise 1.2s var(--ease-out) infinite;
+}
+
+.signupPage-success__particle--1  { top: 10px;  left: 50%; transform: translateX(-50%); animation-delay: 0s; background: #22C55E; }
+.signupPage-success__particle--2  { top: 25px;  right: 10px; animation-delay: 0.15s; width: 6px; height: 6px; background: #60A5FA; }
+.signupPage-success__particle--3  { bottom: 10px; left: 50%; transform: translateX(-50%); animation-delay: 0.3s; background: #A78BFA; }
+.signupPage-success__particle--4  { top: 25px;  left: 10px;  animation-delay: 0.45s; width: 6px; height: 6px; background: #34D399; }
+.signupPage-success__particle--5  { bottom: 25px; right: 12px; animation-delay: 0.6s;  width: 5px; height: 5px; background: #FCD34D; }
+.signupPage-success__particle--6  { bottom: 25px; left: 12px;  animation-delay: 0.75s; width: 5px; height: 5px; background: #FB923C; }
+
+.signupPage-success__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.03em;
+}
+
+.signupPage-success__desc {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
+.signupPage-success__loader {
+    width: 200px;
+    height: 3px;
+    background: var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.signupPage-success__loaderBar {
+    height: 100%;
+    width: 0%;
+    background: var(--color-primary);
+    border-radius: 4px;
+    animation: loaderFill 3s var(--ease-out) forwards;
+}
+
+@keyframes loaderFill {
+    to { width: 100%; }
+}
+
+/* ─── Dark mode ───────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+    .signupPage-input:focus { background: var(--auth-input-bg); }
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .signupPage-step { gap: 28px; }
+    .signupPage-content { gap: 24px; }
+    .signupPage-row { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .signupPage-root { max-width: 400px; margin: 0 auto; }
+}

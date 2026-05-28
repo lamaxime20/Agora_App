@@ -1,0 +1,89 @@
+/* ─── OTPInput ────────────────────────────────────────────────────────────── */
+
+.otpInput-root {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.otpInput-root--error {
+    animation: shake 0.45s var(--ease-out);
+}
+
+.otpInput-cell {
+    width: 52px;
+    height: 60px;
+    border-radius: 16px;
+    background: var(--auth-input-bg);
+    border: 1.5px solid var(--auth-input-border);
+    font-family: var(--font-ui);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-text);
+    text-align: center;
+    outline: none;
+    transition:
+        border-color 200ms var(--ease-out),
+        box-shadow   200ms var(--ease-out),
+        transform    200ms var(--ease-out),
+        background   200ms var(--ease-out);
+    caret-color: transparent;
+}
+
+.otpInput-cell:focus {
+    border-color: var(--auth-input-focus);
+    box-shadow: var(--auth-input-glow);
+    background: rgba(255, 255, 255, 0.92);
+    transform: scale(1.05);
+}
+
+.otpInput-cell--filled {
+    border-color: rgba(243, 156, 18, 0.35);
+    background: rgba(243, 156, 18, 0.04);
+}
+
+.otpInput-cell--error {
+    border-color: rgba(239, 68, 68, 0.45);
+    background: rgba(239, 68, 68, 0.04);
+}
+
+.otpInput-cell--error:focus {
+    border-color: #EF4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+/* ─── Dark mode ───────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+    .otpInput-cell {
+        background: var(--auth-input-bg);
+        border-color: var(--auth-input-border);
+        color: #E2E8F0;
+    }
+
+    .otpInput-cell:focus {
+        border-color: var(--auth-input-focus);
+        box-shadow: var(--auth-input-glow);
+        background: rgba(15, 23, 42, 0.88);
+    }
+
+    .otpInput-cell--filled {
+        border-color: rgba(243, 156, 18, 0.3);
+        background: rgba(243, 156, 18, 0.06);
+    }
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .otpInput-cell {
+        width: 44px;
+        height: 54px;
+        font-size: 20px;
+        border-radius: 14px;
+    }
+
+    .otpInput-root {
+        gap: 8px;
+    }
+}

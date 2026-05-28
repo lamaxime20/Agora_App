@@ -8,6 +8,11 @@ import RouteGuardAuthorization from './components/guards/RouteGuardAuthorization
 import RouteGuardGuest from './components/guards/RouteGuardGuest';
 import RouteGuardShared from './components/guards/RouteGuardShared';
 
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ChoixRolePage from './pages/ChoixRolePage';
+
 import './App.css';
 
 function App() {
@@ -17,13 +22,14 @@ function App() {
                 <AuthorizationProvider>
                     <Routes>
                         <Route element={<RouteGuardGuest />}>
-                            <Route path="/" element={<div>Page Login</div>} />
-                            <Route path="/login" element={<div>Page Login</div>} />
-                            <Route path="/signup" element={<div>Page Signup</div>} />
+                            <Route path="/"                element={<LoginPage />} />
+                            <Route path="/login"           element={<LoginPage />} />
+                            <Route path="/signup"          element={<SignupPage />} />
+                            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                         </Route>
 
                         <Route element={<RouteGuardAuth />}>
-                            <Route path="/choix-role" element={<div>Page Choix de rôle</div>} />
+                            <Route path="/choix-role" element={<ChoixRolePage />} />
                         </Route>
 
                         <Route element={<RouteGuardShared />}>
