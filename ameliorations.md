@@ -1,0 +1,29 @@
+Ajout d'un trigger pour mettre automatiquement à jour le nombre d'exemplaire d'un produit en fonction de la perte ou de l'ajout
+
+Bon, le backend aura ses statuts pour les commandes qu'il va envoyer au frontend
+reçu
+validé
+en cours de livraison
+annulé
+livré
+
+Une commande dont le id=x est marquée comme reçu si le statut de la tuple de id x dans la table commandes est marqué comme reçu
+
+Une commande est marquée comme validé si dans la table commandes, le statut de la tuple de id x est marqué validé, et si dans la table livraisons, il n'y a aucune tuple qui fait référence à la commande de id x ou bien, toutes les tuples de livraisons qui y font référence sont marquées annulé.
+
+Une commande est marqué en cours de livraison si dans la table commandes, le statut de la tuple de id x est marqué validé, état du payement est marqué au moins partiellement, et si dans la table livraisons, il y a une seule tuple qui fait référence à la commande de id x dont le statut est en_cours
+
+Une commande est marquée annulé, lorsque dans la table commandes, le statut de la tuple de id x est marqué annulé.
+
+Une commande de id x est marquée comme livré, si dans la table commandes, la tuple de la commande x doit avoir comme statut validé, état du payement est marqué au moins partiellement, et dans la table livraison, il doit y avoir une seule tuple dont le statut est marqué validé
+
+Dans la table livraisons, pour une commande de id x dont le statut est en cours de livraison, il ne doit y avoir qu'une seule tuple dont le statut est en_cours, tout le reste des livraisons pour la commande x doivent être annulées sinon, on n'ajoute pas de livraison pour la commande x.
+
+Si dans la table commandes, une commande de id x est marquée annulé, toutes les tuples de la table livraisons qui font références à la commande x, doivent être marquées annulé.
+
+Une commande livrée ne peut plus recevoir de nouvelle livraison en_cours.
+
+
+On va calculer dynamiquement les stocks réservés en listant le nombre de commandes validés qui n'ont aucune livraisons successful et donc, on peut calculer le stock_disponible avec le stock actuel - le réservé qu'on a calculé
+Quand la livraison est success, on diminue le stock_actuel
+Comme ça, on évite de modifier les tuples de la table commande à chaque fois
