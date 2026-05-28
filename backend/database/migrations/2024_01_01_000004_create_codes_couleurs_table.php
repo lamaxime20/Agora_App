@@ -1,16 +1,16 @@
-<?php
+﻿<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public $withinTransaction = false;
     public function up(): void
     {
         Schema::create('codes_couleurs', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
 
             $table->string('couleur_primaire', 20)->default('#FFF');
             $table->string('couleur_secondaire', 20)->default('#000');
@@ -29,3 +29,4 @@ return new class extends Migration
         Schema::dropIfExists('codes_couleurs');
     }
 };
+

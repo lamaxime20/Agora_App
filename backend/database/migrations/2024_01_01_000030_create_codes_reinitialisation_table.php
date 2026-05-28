@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public $withinTransaction = false;
     public function up(): void
     {
         Schema::create('codes_reinitialisation', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
 
             $table->string('code', 10);
 
@@ -39,3 +40,4 @@ return new class extends Migration
         Schema::dropIfExists('codes_reinitialisation');
     }
 };
+
