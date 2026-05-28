@@ -1,0 +1,18 @@
+{
+    "ok": true,
+    "message": "Un code de vérification a été envoyé.",
+    "verificationCode": "246810",
+    "codeExpiresInMinutes": 10,
+    "canResendAfterSeconds": 60,
+    "activeUsers": [
+        {
+            "email": "existing.active@example.com"
+        }
+    ],
+    "archivedUsers": [
+        {
+            "email": "archived.user@example.com"
+        }
+    ]
+}
+

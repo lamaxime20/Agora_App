@@ -11,6 +11,8 @@ import {
     selectRoleFromApi,
     wasAuthorizationSessionActive,
 } from '../utils/authorization';
+import { isUnauthorizedError } from '../utils/mockApi';
+import { onSessionReset } from '../utils/session';
 
 import '../assets/styles/components/AuthorizationContext.css';
 
@@ -38,6 +40,7 @@ export const AuthorizationProvider = ({ children }) => {
         }
         setIsAuthorized(false);
         setUser(null);
+        setLogoutError(null);
     }, []);
 
     const applySession = useCallback((session) => {
@@ -62,6 +65,10 @@ export const AuthorizationProvider = ({ children }) => {
     }, [clearState, navigate]);
 
     useEffect(() => {
+        const unsubscribeSessionReset = onSessionReset(() => {
+            clearState();
+        });
+
         async function initSession() {
             const stored = getAuthorizationSession();
 
@@ -82,7 +89,14 @@ export const AuthorizationProvider = ({ children }) => {
                 try {
                     const recovered = await recoverAuthorizationSessionFromApi();
                     applySession(recovered);
-                } catch {
+                } catch (error) {
+                    if (isUnauthorizedError(error)) {
+                        clearAuthorizationSession();
+                        clearState();
+                        navigate('/login', { replace: true });
+                        setIsLoading(false);
+                        return;
+                    }
                     clearState();
                 }
             }
@@ -91,17 +105,25 @@ export const AuthorizationProvider = ({ children }) => {
         }
 
         initSession();
-    }, []);
+
+        return () => {
+            unsubscribeSessionReset();
+        };
+    }, [applySession, clearState, navigate]);
 
     const selectRole = async (payload) => {
         setIsLoading(true);
         try {
             const session = await selectRoleFromApi(payload);
-            const success = applySession(session);
-            return success;
-        } catch {
+            return applySession(session) ? session : null;
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                clearAuthorizationSession();
+                clearState();
+                navigate('/login', { replace: true });
+            }
             clearState();
-            return false;
+            throw error;
         } finally {
             setIsLoading(false);
         }
@@ -113,11 +135,17 @@ export const AuthorizationProvider = ({ children }) => {
             await logoutAuthorizationFromApi();
             clearState();
             return true;
-        } catch {
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                clearAuthorizationSession();
+                clearState();
+                navigate('/login', { replace: true });
+                return false;
+            }
             setLogoutError('Déconnexion impossible, vérifiez votre connexion.');
             return false;
         }
-    }, [clearState]);
+    }, [clearState, navigate]);
 
     const dismissLogoutError = useCallback(() => setLogoutError(null), []);
 

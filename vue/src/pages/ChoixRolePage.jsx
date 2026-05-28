@@ -1,23 +1,33 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-    ChevronRight, Plus, LayoutDashboard, Wallet,
-    ShoppingCart, Package, Users, LoaderCircle,
-    AlertCircle, ArrowLeft, Building2,
+    AlertCircle,
+    ArrowLeft,
+    Building2,
+    ChevronRight,
+    LayoutDashboard,
+    LoaderCircle,
+    Package,
+    Plus,
+    ShoppingCart,
+    Users,
+    Wallet,
 } from 'lucide-react';
 
 import { useAuth } from '../hooks/useAuth';
 import { useAuthorization } from '../hooks/useAuthorization';
-import { getEntreprises } from '../services/entreprises';
+import { getEntreprisesFromApi } from '../utils/authorization';
+import { getApiErrorMessage, isUnauthorizedError } from '../utils/mockApi';
+import { resetBrowserStorage } from '../utils/session';
 import agoraLogo from '../assets/images/logo_sans_background.svg';
 import '../assets/styles/pages/ChoixRolePage.css';
 
 const ROLE_ICONS = {
-    manager:    LayoutDashboard,
-    comptable:  Wallet,
-    vendeur:    ShoppingCart,
-    stock:      Package,
-    rh:         Users,
+    manager: LayoutDashboard,
+    comptable: Wallet,
+    vendeur: ShoppingCart,
+    stock: Package,
+    rh: Users,
 };
 
 const RoleIcon = ({ icone, size = 22 }) => {
@@ -30,32 +40,50 @@ const STEPS = { COMPANY: 'company', ROLE: 'role' };
 const ChoixRolePage = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { selectRole } = useAuthorization();
+    const { selectRole, isLoading: contextLoading } = useAuthorization();
 
-    const [step, setStep]               = useState(STEPS.COMPANY);
+    const [step, setStep] = useState(STEPS.COMPANY);
     const [entreprises, setEntreprises] = useState([]);
-    const [fetching, setFetching]       = useState(true);
-    const [fetchError, setFetchError]   = useState('');
+    const [fetching, setFetching] = useState(true);
+    const [fetchError, setFetchError] = useState('');
 
     const [selectedCompany, setSelectedCompany] = useState(null);
-    const [selectedRole, setSelectedRole]       = useState(null);
-    const [submitting, setSubmitting]           = useState(false);
-    const [submitError, setSubmitError]         = useState('');
+    const [selectedRole, setSelectedRole] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
 
     useEffect(() => {
         let cancelled = false;
+
         (async () => {
             try {
-                const data = await getEntreprises();
-                if (!cancelled) setEntreprises(data);
-            } catch (err) {
-                if (!cancelled) setFetchError(err.message);
+                const data = await getEntreprisesFromApi();
+                if (!cancelled) {
+                    setEntreprises(data);
+                }
+            } catch (error) {
+                if (cancelled) {
+                    return;
+                }
+
+                if (isUnauthorizedError(error)) {
+                    resetBrowserStorage();
+                    navigate('/login', { replace: true });
+                    return;
+                }
+
+                setFetchError(getApiErrorMessage(error, 'Impossible de charger vos entreprises.'));
             } finally {
-                if (!cancelled) setFetching(false);
+                if (!cancelled) {
+                    setFetching(false);
+                }
             }
         })();
-        return () => { cancelled = true; };
-    }, []);
+
+        return () => {
+            cancelled = true;
+        };
+    }, [navigate]);
 
     const handleSelectCompany = (company) => {
         setSelectedCompany(company);
@@ -68,16 +96,20 @@ const ChoixRolePage = () => {
         setSelectedRole(role);
         setSubmitError('');
         setSubmitting(true);
+
         try {
-            const ok = await selectRole({ entrepriseId: selectedCompany.id, roleId: role.id });
-            if (ok) {
+            const session = await selectRole({ entrepriseId: selectedCompany.id, roleId: role.id });
+            if (session) {
                 navigate('/application', { replace: true });
-            } else {
-                setSubmitError('Impossible de rejoindre cet espace. Réessayez.');
-                setSelectedRole(null);
             }
-        } catch {
-            setSubmitError('Une erreur est survenue. Vérifiez votre connexion.');
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                resetBrowserStorage();
+                navigate('/login', { replace: true });
+                return;
+            }
+
+            setSubmitError(getApiErrorMessage(error, 'Impossible de rejoindre cet espace. Réessayez.'));
             setSelectedRole(null);
         } finally {
             setSubmitting(false);
@@ -87,22 +119,30 @@ const ChoixRolePage = () => {
     const prenom = user?.prenom ?? 'vous';
 
     return (
-        <div className="choixRolePage-root">
+        <div className="choixRolePage-root" aria-busy={fetching || submitting || contextLoading}>
+            {(fetching || submitting || contextLoading) && (
+                <div className="choixRolePage-overlay" role="status" aria-live="polite">
+                    <div className="choixRolePage-overlayCard">
+                        <LoaderCircle size={26} className="choixRolePage-overlaySpinner" />
+                        <p className="choixRolePage-overlayText">
+                            {fetching ? 'Chargement de vos espaces…' : 'Validation du rôle…'}
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <div className="choixRolePage-bg">
                 <div className="choixRolePage-bg__blob choixRolePage-bg__blob--1" />
                 <div className="choixRolePage-bg__blob choixRolePage-bg__blob--2" />
             </div>
 
             <div className="choixRolePage-shell">
-
-                {/* ── Header ──────────────────────────────────────────────── */}
                 <header className="choixRolePage-header">
                     <div className="choixRolePage-logo">
                         <img src={agoraLogo} alt="AGORA" className="choixRolePage-logo__img" />
                     </div>
                 </header>
 
-                {/* ── STEP 1 : Company selection ──────────────────────────── */}
                 {step === STEPS.COMPANY && (
                     <div className="choixRolePage-step" key="company">
                         <div className="choixRolePage-headline">
@@ -112,13 +152,6 @@ const ChoixRolePage = () => {
                                 Sélectionnez l'entreprise dans laquelle vous souhaitez travailler.
                             </p>
                         </div>
-
-                        {fetching && (
-                            <div className="choixRolePage-loader">
-                                <LoaderCircle size={24} className="choixRolePage-spinner" />
-                                <span>Chargement de vos espaces…</span>
-                            </div>
-                        )}
 
                         {fetchError && !fetching && (
                             <div className="choixRolePage-error" role="alert">
@@ -136,6 +169,7 @@ const ChoixRolePage = () => {
                                             className="choixRolePage-companyRow"
                                             onClick={() => handleSelectCompany(company)}
                                             aria-label={`Accéder à ${company.nom}`}
+                                            disabled={fetching || submitting}
                                         >
                                             <div
                                                 className="choixRolePage-companyAvatar"
@@ -166,7 +200,7 @@ const ChoixRolePage = () => {
                         )}
 
                         <div className="choixRolePage-createRow">
-                            <Link to="/create-entreprise" className="choixRolePage-createBtn">
+                            <Link to="/create-entreprise" className="choixRolePage-createBtn" aria-disabled={fetching || submitting}>
                                 <Plus size={16} strokeWidth={2.5} />
                                 Créer une entreprise
                             </Link>
@@ -174,7 +208,6 @@ const ChoixRolePage = () => {
                     </div>
                 )}
 
-                {/* ── STEP 2 : Role selection ─────────────────────────────── */}
                 {step === STEPS.ROLE && selectedCompany && (
                     <div className="choixRolePage-step" key="role">
                         <button
@@ -182,6 +215,7 @@ const ChoixRolePage = () => {
                             className="choixRolePage-backBtn"
                             onClick={() => { setStep(STEPS.COMPANY); setSelectedRole(null); setSubmitError(''); }}
                             aria-label="Retour à la sélection d'entreprise"
+                            disabled={submitting}
                         >
                             <ArrowLeft size={18} strokeWidth={2} />
                         </button>
@@ -242,7 +276,7 @@ const ChoixRolePage = () => {
                         </ul>
 
                         <div className="choixRolePage-createRow">
-                            <Link to="/create-entreprise" className="choixRolePage-createBtn">
+                            <Link to="/create-entreprise" className="choixRolePage-createBtn" aria-disabled={submitting}>
                                 <Building2 size={15} strokeWidth={2} />
                                 Ajouter une autre entreprise
                             </Link>

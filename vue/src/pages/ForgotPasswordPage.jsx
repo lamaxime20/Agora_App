@@ -1,97 +1,266 @@
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, Eye, EyeOff, LoaderCircle,
-    AlertCircle, KeyRound, CheckCircle,
+    AlertCircle,
+    ArrowLeft,
+    Eye,
+    EyeOff,
+    KeyRound,
+    LoaderCircle,
 } from 'lucide-react';
 
 import AuthLayout from '../components/auth/AuthLayout';
 import OTPInput from '../components/auth/OTPInput';
 import PasswordStrength from '../components/auth/PasswordStrength';
-import { simulateSignupStep, validatePassword } from '../services/signupFlow';
+import {
+    changePasswordFromApi,
+    requestPasswordResetCodeFromApi,
+    verifyPasswordResetCodeFromApi,
+} from '../utils/auth';
+import { getApiErrorMessage, isUnauthorizedError } from '../utils/mockApi';
+import { resetBrowserStorage } from '../utils/session';
+import {
+    clearPasswordResetDraft,
+    getPasswordResetDraft,
+    isVerificationCodeStillValid,
+    savePasswordResetDraft,
+    validatePassword,
+} from '../services/signupFlow';
 import '../assets/styles/pages/ForgotPasswordPage.css';
 
-const STEPS = { EMAIL: 'email', OTP: 'otp', PASSWORD: 'password', SUCCESS: 'success' };
-const OTP_TIMER = 59;
+const STEPS = { EMAIL: 'email', OTP: 'otp', PASSWORD: 'password' };
+
+const createInitialDraft = () => getPasswordResetDraft() || {};
 
 const ForgotPasswordPage = () => {
     const navigate = useNavigate();
+    const initialDraft = useMemo(createInitialDraft, []);
 
-    const [step, setStep]       = useState(STEPS.EMAIL);
+    const [step, setStep] = useState(initialDraft.stage || STEPS.EMAIL);
     const [loading, setLoading] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [globalError, setGlobalError] = useState('');
 
-    const [email, setEmail]     = useState('');
-    const [emailError, setEmailError] = useState('');
+    const [email, setEmail] = useState(initialDraft.email || '');
+    const [requestedEmail, setRequestedEmail] = useState(initialDraft.requestedEmail || initialDraft.email || '');
+    const [otp, setOtp] = useState(initialDraft.otp || '');
+    const [codeExpiresAt, setCodeExpiresAt] = useState(initialDraft.codeExpiresAt || null);
+    const [resendAt, setResendAt] = useState(initialDraft.resendAt || 0);
+    const [timer, setTimer] = useState(0);
+    const [canResend, setCanResend] = useState(Boolean(!initialDraft.resendAt || Date.now() >= initialDraft.resendAt));
 
-    const [otp, setOtp]         = useState('');
-    const [otpError, setOtpError] = useState(false);
-    const [timer, setTimer]     = useState(OTP_TIMER);
-    const [canResend, setCanResend] = useState(false);
+    const [password, setPassword] = useState(initialDraft.password || '');
+    const [confirmPassword, setConfirmPassword] = useState(initialDraft.confirmPassword || '');
+    const [showPass, setShowPass] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
-    const [password, setPassword]         = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [passwordErrors, setPasswordErrors]   = useState({});
-    const [showPass, setShowPass]         = useState(false);
-    const [showConfirm, setShowConfirm]   = useState(false);
+    useEffect(() => {
+        savePasswordResetDraft({
+            stage: step,
+            email,
+            requestedEmail,
+            otp,
+            codeExpiresAt,
+            resendAt,
+            password,
+            confirmPassword,
+        });
+    }, [codeExpiresAt, confirmPassword, email, otp, password, requestedEmail, resendAt, step]);
 
-    const timerRef = useRef(null);
+    useEffect(() => {
+        if (step !== STEPS.OTP) {
+            return undefined;
+        }
 
-    const startTimer = () => {
-        setTimer(OTP_TIMER);
-        setCanResend(false);
-        clearInterval(timerRef.current);
-        timerRef.current = setInterval(() => {
-            setTimer(t => {
-                if (t <= 1) { clearInterval(timerRef.current); setCanResend(true); return 0; }
-                return t - 1;
-            });
-        }, 1000);
+        const refreshTimer = () => {
+            const remaining = Math.max(resendAt - Date.now(), 0);
+            setTimer(Math.ceil(remaining / 1000));
+            setCanResend(remaining === 0);
+            return remaining;
+        };
+
+        const remaining = refreshTimer();
+        if (remaining === 0) {
+            return undefined;
+        }
+
+        const intervalId = window.setInterval(refreshTimer, 1000);
+        return () => window.clearInterval(intervalId);
+    }, [resendAt, step]);
+
+    const setApiProblem = (message) => {
+        setGlobalError(message);
+        setLoading(false);
     };
 
-    const formatTimer = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    const handleUnauthorized = () => {
+        resetBrowserStorage();
+        navigate('/login', { replace: true });
+    };
+
+    const requestCode = async ({ preserveStep = false } = {}) => {
+        const response = await requestPasswordResetCodeFromApi({ email });
+        const nextResendAt = Date.now() + (response.canResendAfterSeconds * 1000);
+
+        setCodeExpiresAt(response.expiresAt);
+        setRequestedEmail(email);
+        setResendAt(nextResendAt);
+        setOtp('');
+        setFieldErrors({});
+        setGlobalError('');
+
+        if (!preserveStep) {
+            setStep(STEPS.OTP);
+        }
+
+        return response;
+    };
 
     const handleEmailSubmit = async (e) => {
         e.preventDefault();
-        if (!email.trim()) { setEmailError("L'adresse e-mail est requise."); return; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError('Adresse e-mail invalide.'); return; }
-        setEmailError('');
+        setFieldErrors({});
+        setGlobalError('');
+
+        if (!email.trim()) {
+            setFieldErrors({ email: "L’adresse e-mail est requise." });
+            return;
+        }
+
+        const storedDraft = getPasswordResetDraft();
+        const nextDraft = {
+            stage: STEPS.OTP,
+            email,
+            requestedEmail,
+            otp,
+            codeExpiresAt,
+            resendAt,
+            password,
+            confirmPassword,
+        };
+
+        savePasswordResetDraft(nextDraft);
+
+        if (storedDraft?.requestedEmail?.trim().toLowerCase() === email.trim().toLowerCase() && isVerificationCodeStillValid({ expiresAt: storedDraft?.codeExpiresAt })) {
+            setStep(STEPS.OTP);
+            return;
+        }
+
         setLoading(true);
-        await simulateSignupStep();
-        setLoading(false);
-        startTimer();
-        setStep(STEPS.OTP);
+        try {
+            await requestCode();
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                handleUnauthorized();
+                return;
+            }
+
+            if (error?.status === 404) {
+                setFieldErrors({ email: error.message });
+            } else {
+                setApiProblem(getApiErrorMessage(error, 'Impossible d’envoyer le code pour le moment.'));
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleOtpSubmit = async (e) => {
         e.preventDefault();
-        if (otp.length < 6) {
-            setOtpError(true);
-            setTimeout(() => setOtpError(false), 600);
+        setGlobalError('');
+        setFieldErrors(previous => ({ ...previous, otp: '' }));
+
+        if (!otp.replace(/\s/g, '').trim() || otp.replace(/\s/g, '').length < 6) {
+            setFieldErrors(previous => ({ ...previous, otp: 'Veuillez saisir les 6 chiffres du code.' }));
             return;
         }
+
         setLoading(true);
-        await simulateSignupStep();
-        setLoading(false);
-        setStep(STEPS.PASSWORD);
+        try {
+            await verifyPasswordResetCodeFromApi({
+                code: otp,
+                draft: {
+                    expiresAt: codeExpiresAt,
+                },
+            });
+            setStep(STEPS.PASSWORD);
+            setFieldErrors({});
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                handleUnauthorized();
+                return;
+            }
+
+            if (error?.status === 410) {
+                setFieldErrors(previous => ({ ...previous, otp: error.message }));
+            } else {
+                setApiProblem(getApiErrorMessage(error, 'La vérification du code a échoué.'));
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResendOtp = async () => {
+        if (!canResend || loading) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await requestCode({ preserveStep: true });
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                handleUnauthorized();
+                return;
+            }
+
+            setApiProblem(getApiErrorMessage(error, 'Impossible de renvoyer le code pour le moment.'));
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
-        const errs = validatePassword(password, confirmPassword);
-        if (Object.keys(errs).length) { setPasswordErrors(errs); return; }
-        setPasswordErrors({});
+        const errors = validatePassword(password, confirmPassword);
+        setFieldErrors(errors);
+        setGlobalError('');
+
+        if (Object.keys(errors).length) {
+            return;
+        }
+
         setLoading(true);
-        await simulateSignupStep(900);
-        setLoading(false);
-        setStep(STEPS.SUCCESS);
-        setTimeout(() => navigate('/login', { replace: true }), 3000);
+        try {
+            await changePasswordFromApi({ email, password });
+            clearPasswordResetDraft();
+            navigate('/login', { replace: true });
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                handleUnauthorized();
+                return;
+            }
+
+            setApiProblem(getApiErrorMessage(error, 'La modification du mot de passe a échoué.'));
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const formatTimer = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 
     return (
         <AuthLayout>
-            <div className="forgotPage-root">
+            <div className="forgotPage-root" aria-busy={loading}>
+                {loading && (
+                    <div className="forgotPage-overlay" role="status" aria-live="polite">
+                        <div className="forgotPage-overlayCard">
+                            <LoaderCircle size={28} className="forgotPage-overlaySpinner" />
+                            <p className="forgotPage-overlayText">Traitement en cours…</p>
+                        </div>
+                    </div>
+                )}
 
-                {/* ── STEP 1 : Email ──────────────────────────────────────── */}
                 {step === STEPS.EMAIL && (
                     <div className="forgotPage-step" key="email">
                         <Link to="/login" className="forgotPage-backBtn" aria-label="Retour à la connexion">
@@ -119,7 +288,7 @@ const ForgotPasswordPage = () => {
                                     <input
                                         id="forgot-email"
                                         type="email"
-                                        className={`forgotPage-input${emailError ? ' forgotPage-input--error' : ''}`}
+                                        className={`forgotPage-input${fieldErrors.email ? ' forgotPage-input--error' : ''}`}
                                         placeholder="vous@exemple.com"
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
@@ -127,12 +296,18 @@ const ForgotPasswordPage = () => {
                                         disabled={loading}
                                         autoFocus
                                     />
-                                    {emailError && (
+                                    {fieldErrors.email && (
                                         <span className="forgotPage-fieldError">
-                                            <AlertCircle size={13} strokeWidth={2} /> {emailError}
+                                            <AlertCircle size={13} strokeWidth={2} /> {fieldErrors.email}
                                         </span>
                                     )}
                                 </div>
+
+                                {globalError && (
+                                    <p className="forgotPage-globalError" role="alert">
+                                        {globalError}
+                                    </p>
+                                )}
 
                                 <button type="submit" className="forgotPage-cta" disabled={loading}>
                                     {loading
@@ -152,10 +327,15 @@ const ForgotPasswordPage = () => {
                     </div>
                 )}
 
-                {/* ── STEP 2 : OTP ────────────────────────────────────────── */}
                 {step === STEPS.OTP && (
                     <div className="forgotPage-step" key="otp">
-                        <button type="button" className="forgotPage-backBtn" onClick={() => { setStep(STEPS.EMAIL); setOtp(''); }} aria-label="Retour">
+                        <button
+                            type="button"
+                            className="forgotPage-backBtn"
+                            onClick={() => setStep(STEPS.EMAIL)}
+                            aria-label="Retour"
+                            disabled={loading}
+                        >
                             <ArrowLeft size={18} strokeWidth={2} />
                         </button>
 
@@ -176,17 +356,23 @@ const ForgotPasswordPage = () => {
                             </div>
 
                             <form className="forgotPage-form forgotPage-form--otp" onSubmit={handleOtpSubmit} noValidate>
-                                <OTPInput value={otp} onChange={setOtp} error={otpError} disabled={loading} />
+                                <OTPInput value={otp} onChange={setOtp} error={Boolean(fieldErrors.otp)} disabled={loading} />
 
-                                {otpError && (
+                                {fieldErrors.otp && (
                                     <p className="forgotPage-otpError" role="alert">
-                                        Code incorrect. Vérifiez et réessayez.
+                                        {fieldErrors.otp}
+                                    </p>
+                                )}
+
+                                {globalError && (
+                                    <p className="forgotPage-globalError" role="alert">
+                                        {globalError}
                                     </p>
                                 )}
 
                                 <div className="forgotPage-timerRow">
                                     {canResend
-                                        ? <button type="button" className="forgotPage-resendBtn" onClick={() => { setOtp(''); startTimer(); }}>Renvoyer le code</button>
+                                        ? <button type="button" className="forgotPage-resendBtn" onClick={handleResendOtp} disabled={loading}>Renvoyer le code</button>
                                         : <span className="forgotPage-timer">Renvoyer dans <strong>{formatTimer(timer)}</strong></span>
                                     }
                                 </div>
@@ -202,10 +388,9 @@ const ForgotPasswordPage = () => {
                     </div>
                 )}
 
-                {/* ── STEP 3 : New password ───────────────────────────────── */}
                 {step === STEPS.PASSWORD && (
                     <div className="forgotPage-step" key="password">
-                        <button type="button" className="forgotPage-backBtn" onClick={() => setStep(STEPS.OTP)} aria-label="Retour">
+                        <button type="button" className="forgotPage-backBtn" onClick={() => setStep(STEPS.OTP)} aria-label="Retour" disabled={loading}>
                             <ArrowLeft size={18} strokeWidth={2} />
                         </button>
 
@@ -229,19 +414,19 @@ const ForgotPasswordPage = () => {
                                         <input
                                             id="forgot-pass"
                                             type={showPass ? 'text' : 'password'}
-                                            className={`forgotPage-input forgotPage-input--withIcon${passwordErrors.password ? ' forgotPage-input--error' : ''}`}
+                                            className={`forgotPage-input forgotPage-input--withIcon${fieldErrors.password ? ' forgotPage-input--error' : ''}`}
                                             placeholder="••••••••"
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}
                                             autoComplete="new-password"
                                             disabled={loading}
                                         />
-                                        <button type="button" className="forgotPage-eyeBtn" onClick={() => setShowPass(v => !v)} tabIndex={-1} aria-label={showPass ? 'Masquer' : 'Afficher'}>
+                                        <button type="button" className="forgotPage-eyeBtn" onClick={() => setShowPass(v => !v)} tabIndex={-1} aria-label={showPass ? 'Masquer' : 'Afficher'} disabled={loading}>
                                             {showPass ? <EyeOff size={18} strokeWidth={1.8} /> : <Eye size={18} strokeWidth={1.8} />}
                                         </button>
                                     </div>
                                     <PasswordStrength password={password} />
-                                    {passwordErrors.password && <span className="forgotPage-fieldError">{passwordErrors.password}</span>}
+                                    {fieldErrors.password && <span className="forgotPage-fieldError">{fieldErrors.password}</span>}
                                 </div>
 
                                 <div className="forgotPage-field">
@@ -250,19 +435,25 @@ const ForgotPasswordPage = () => {
                                         <input
                                             id="forgot-confirm"
                                             type={showConfirm ? 'text' : 'password'}
-                                            className={`forgotPage-input forgotPage-input--withIcon${passwordErrors.confirm ? ' forgotPage-input--error' : ''}`}
+                                            className={`forgotPage-input forgotPage-input--withIcon${fieldErrors.confirm ? ' forgotPage-input--error' : ''}`}
                                             placeholder="••••••••"
                                             value={confirmPassword}
                                             onChange={e => setConfirmPassword(e.target.value)}
                                             autoComplete="new-password"
                                             disabled={loading}
                                         />
-                                        <button type="button" className="forgotPage-eyeBtn" onClick={() => setShowConfirm(v => !v)} tabIndex={-1} aria-label={showConfirm ? 'Masquer' : 'Afficher'}>
+                                        <button type="button" className="forgotPage-eyeBtn" onClick={() => setShowConfirm(v => !v)} tabIndex={-1} aria-label={showConfirm ? 'Masquer' : 'Afficher'} disabled={loading}>
                                             {showConfirm ? <EyeOff size={18} strokeWidth={1.8} /> : <Eye size={18} strokeWidth={1.8} />}
                                         </button>
                                     </div>
-                                    {passwordErrors.confirm && <span className="forgotPage-fieldError">{passwordErrors.confirm}</span>}
+                                    {fieldErrors.confirm && <span className="forgotPage-fieldError">{fieldErrors.confirm}</span>}
                                 </div>
+
+                                {globalError && (
+                                    <p className="forgotPage-globalError" role="alert">
+                                        {globalError}
+                                    </p>
+                                )}
 
                                 <button type="submit" className="forgotPage-cta" disabled={loading}>
                                     {loading
@@ -271,25 +462,6 @@ const ForgotPasswordPage = () => {
                                     }
                                 </button>
                             </form>
-                        </div>
-                    </div>
-                )}
-
-                {/* ── STEP 4 : Success ────────────────────────────────────── */}
-                {step === STEPS.SUCCESS && (
-                    <div className="forgotPage-step forgotPage-step--success" key="success">
-                        <div className="forgotPage-success">
-                            <div className="forgotPage-success__circle">
-                                <div className="forgotPage-success__glow" />
-                                <CheckCircle size={48} strokeWidth={1.5} className="forgotPage-success__icon" />
-                            </div>
-                            <h1 className="forgotPage-success__title">Mot de passe réinitialisé</h1>
-                            <p className="forgotPage-success__desc">
-                                Votre mot de passe a été mis à jour. Redirection vers la connexion…
-                            </p>
-                            <div className="forgotPage-success__loader">
-                                <div className="forgotPage-success__loaderBar" />
-                            </div>
                         </div>
                     </div>
                 )}

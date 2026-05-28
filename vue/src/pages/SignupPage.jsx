@@ -1,27 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, Eye, EyeOff, LoaderCircle,
-    AlertCircle, ShieldCheck, Mail, CheckCircle,
+    AlertCircle,
+    ArrowLeft,
+    Eye,
+    EyeOff,
+    LoaderCircle,
+    Mail,
+    ShieldCheck,
 } from 'lucide-react';
 
 import AuthLayout from '../components/auth/AuthLayout';
 import OTPInput from '../components/auth/OTPInput';
 import PasswordStrength from '../components/auth/PasswordStrength';
+import { useAuth } from '../hooks/useAuth';
+import {
+    createSignupAccountFromApi,
+    requestSignupCodeFromApi,
+    verifySignupCodeFromApi,
+} from '../utils/auth';
+import { getApiErrorMessage, isUnauthorizedError } from '../utils/mockApi';
+import { resetBrowserStorage } from '../utils/session';
 import {
     clearSignupDraft,
     getSignupDraft,
     saveSignupDraft,
-    simulateSignupStep,
+    shouldRequestNewVerificationCode,
     validatePassword,
     validateSignupInfo,
 } from '../services/signupFlow';
 import agoraLogo from '../assets/images/logo_sans_background.svg';
 import '../assets/styles/pages/SignupPage.css';
 
-const STEPS = { INFO: 'info', OTP: 'otp', PASSWORD: 'password', SUCCESS: 'success' };
-
-const OTP_TIMER = 59;
+const STEPS = { INFO: 'info', OTP: 'otp', PASSWORD: 'password' };
 
 const GoogleIcon = () => (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -32,106 +43,256 @@ const GoogleIcon = () => (
     </svg>
 );
 
+const createInitialDraft = () => getSignupDraft() || {};
+
 const SignupPage = () => {
     const navigate = useNavigate();
+    const { loginAuth, isLoading: authLoading } = useAuth();
 
-    const [step, setStep]     = useState(STEPS.INFO);
+    const initialDraft = useMemo(createInitialDraft, []);
+
+    const [step, setStep] = useState(initialDraft.stage || STEPS.INFO);
     const [loading, setLoading] = useState(false);
-    const [errors, setErrors]  = useState({});
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [globalError, setGlobalError] = useState('');
 
-    const [prenom, setPrenom] = useState('');
-    const [nom, setNom]       = useState('');
-    const [email, setEmail]   = useState('');
+    const [prenom, setPrenom] = useState(initialDraft.prenom || '');
+    const [nom, setNom] = useState(initialDraft.nom || '');
+    const [email, setEmail] = useState(initialDraft.email || '');
+    const [requestedEmail, setRequestedEmail] = useState(initialDraft.requestedEmail || initialDraft.email || '');
 
-    const [otp, setOtp]         = useState('');
-    const [otpError, setOtpError] = useState(false);
-    const [timer, setTimer]     = useState(OTP_TIMER);
-    const [canResend, setCanResend] = useState(false);
+    const [otp, setOtp] = useState(initialDraft.otp || '');
+    const [verificationCode, setVerificationCode] = useState(initialDraft.verificationCode || '');
+    const [codeExpiresAt, setCodeExpiresAt] = useState(initialDraft.codeExpiresAt || null);
+    const [resendAt, setResendAt] = useState(initialDraft.resendAt || 0);
+    const [timer, setTimer] = useState(0);
+    const [canResend, setCanResend] = useState(Boolean(!initialDraft.resendAt || Date.now() >= initialDraft.resendAt));
 
-    const [password, setPassword]         = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [showPass, setShowPass]         = useState(false);
-    const [showConfirm, setShowConfirm]   = useState(false);
-
-    const timerRef = useRef(null);
+    const [password, setPassword] = useState(initialDraft.password || '');
+    const [confirmPassword, setConfirmPassword] = useState(initialDraft.confirmPassword || '');
+    const [showPass, setShowPass] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     useEffect(() => {
-        const draft = getSignupDraft();
-        if (draft) {
-            if (draft.prenom) setPrenom(draft.prenom);
-            if (draft.nom) setNom(draft.nom);
-            if (draft.email) setEmail(draft.email);
-        }
-    }, []);
+        saveSignupDraft({
+            stage: step,
+            prenom,
+            nom,
+            email,
+            requestedEmail,
+            otp,
+            verificationCode,
+            codeExpiresAt,
+            resendAt,
+            password,
+            confirmPassword,
+        });
+    }, [confirmPassword, codeExpiresAt, email, nom, otp, password, prenom, requestedEmail, resendAt, step, verificationCode]);
 
-    const startOtpTimer = () => {
-        setTimer(OTP_TIMER);
-        setCanResend(false);
-        clearInterval(timerRef.current);
-        timerRef.current = setInterval(() => {
-            setTimer(t => {
-                if (t <= 1) {
-                    clearInterval(timerRef.current);
-                    setCanResend(true);
-                    return 0;
-                }
-                return t - 1;
-            });
-        }, 1000);
+    useEffect(() => {
+        if (step !== STEPS.OTP) {
+            return undefined;
+        }
+
+        const refreshTimer = () => {
+            const remaining = Math.max(resendAt - Date.now(), 0);
+            setTimer(Math.ceil(remaining / 1000));
+            setCanResend(remaining === 0);
+            return remaining;
+        };
+
+        const remaining = refreshTimer();
+        if (remaining === 0) {
+            return undefined;
+        }
+
+        const intervalId = window.setInterval(refreshTimer, 1000);
+        return () => window.clearInterval(intervalId);
+    }, [resendAt, step]);
+
+    const setApiProblem = (message) => {
+        setGlobalError(message);
+        setLoading(false);
+    };
+
+    const handleUnauthorized = () => {
+        resetBrowserStorage();
+        navigate('/login', { replace: true });
+    };
+
+    const requestCode = async ({ preserveStep = false } = {}) => {
+        const response = await requestSignupCodeFromApi({ prenom, nom, email });
+        const nextExpiresAt = response.expiresAt;
+        const nextResendAt = Date.now() + (response.canResendAfterSeconds * 1000);
+
+        setVerificationCode(response.verificationCode);
+        setRequestedEmail(email);
+        setCodeExpiresAt(nextExpiresAt);
+        setResendAt(nextResendAt);
+        setOtp('');
+        setFieldErrors({});
+        setGlobalError('');
+
+        if (!preserveStep) {
+            setStep(STEPS.OTP);
+        }
+
+        return response;
     };
 
     const handleInfoSubmit = async (e) => {
         e.preventDefault();
-        const errs = validateSignupInfo({ prenom, nom, email });
-        if (Object.keys(errs).length) { setErrors(errs); return; }
-        setErrors({});
+        const errors = validateSignupInfo({ prenom, nom, email });
+        setFieldErrors(errors);
+        setGlobalError('');
+
+        if (Object.keys(errors).length) {
+            return;
+        }
+
+        const storedDraft = getSignupDraft();
+        const nextDraft = {
+            stage: STEPS.OTP,
+            prenom,
+            nom,
+            email,
+            requestedEmail,
+            otp,
+            verificationCode,
+            codeExpiresAt,
+            resendAt,
+            password,
+            confirmPassword,
+        };
+
+        saveSignupDraft(nextDraft);
+
+        if (!shouldRequestNewVerificationCode(storedDraft, email) && storedDraft?.verificationCode) {
+            setStep(STEPS.OTP);
+            return;
+        }
+
         setLoading(true);
-        saveSignupDraft({ prenom, nom, email });
-        await simulateSignupStep();
-        setLoading(false);
-        startOtpTimer();
-        setStep(STEPS.OTP);
+        try {
+            await requestCode();
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                handleUnauthorized();
+                return;
+            }
+
+            if (error?.status === 409) {
+                setFieldErrors(previous => ({ ...previous, email: error.message }));
+            } else {
+                setApiProblem(getApiErrorMessage(error, 'Impossible d’envoyer le code pour le moment.'));
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleOtpSubmit = async (e) => {
         e.preventDefault();
-        if (otp.replace(/\s/g, '').length < 6) {
-            setOtpError(true);
-            setTimeout(() => setOtpError(false), 600);
+        setGlobalError('');
+        setFieldErrors(previous => ({ ...previous, otp: '' }));
+
+        if (!otp.replace(/\s/g, '').trim() || otp.replace(/\s/g, '').length < 6) {
+            setFieldErrors(previous => ({ ...previous, otp: 'Veuillez saisir les 6 chiffres du code.' }));
             return;
         }
+
         setLoading(true);
-        await simulateSignupStep();
-        setLoading(false);
-        setStep(STEPS.PASSWORD);
+        try {
+            await verifySignupCodeFromApi({
+                code: otp,
+                draft: {
+                    expiresAt: codeExpiresAt,
+                },
+            });
+            setStep(STEPS.PASSWORD);
+            setFieldErrors({});
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                handleUnauthorized();
+                return;
+            }
+
+            if (error?.status === 410) {
+                setFieldErrors(previous => ({ ...previous, otp: error.message }));
+            } else {
+                setApiProblem(getApiErrorMessage(error, 'La vérification du code a échoué.'));
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleResendOtp = async () => {
-        if (!canResend) return;
-        setOtp('');
-        startOtpTimer();
+        if (!canResend || loading) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await requestCode({ preserveStep: true });
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                handleUnauthorized();
+                return;
+            }
+
+            setApiProblem(getApiErrorMessage(error, 'Impossible de renvoyer le code pour le moment.'));
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
-        const errs = validatePassword(password, confirmPassword);
-        if (Object.keys(errs).length) { setErrors(errs); return; }
-        setErrors({});
+        const errors = validatePassword(password, confirmPassword);
+        setFieldErrors(errors);
+        setGlobalError('');
+
+        if (Object.keys(errors).length) {
+            return;
+        }
+
         setLoading(true);
-        await simulateSignupStep(900);
-        clearSignupDraft();
-        setLoading(false);
-        setStep(STEPS.SUCCESS);
-        setTimeout(() => navigate('/login', { replace: true }), 3200);
+        try {
+            await createSignupAccountFromApi({ prenom, nom, email, password });
+            const loginSession = await loginAuth({ email, password });
+            if (loginSession) {
+                clearSignupDraft();
+                navigate('/choix-role', { replace: true });
+            }
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                handleUnauthorized();
+                return;
+            }
+
+            setApiProblem(getApiErrorMessage(error, 'La création du compte a échoué.'));
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const formatTimer = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    const formatTimer = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 
     return (
         <AuthLayout>
-            <div className="signupPage-root">
+            <div className="signupPage-root" aria-busy={loading || authLoading}>
+                {(loading || authLoading) && (
+                    <div className="signupPage-overlay" role="status" aria-live="polite">
+                        <div className="signupPage-overlayCard">
+                            <LoaderCircle size={28} className="signupPage-overlaySpinner" />
+                            <p className="signupPage-overlayText">
+                                {step === STEPS.PASSWORD ? 'Création du compte…' : 'Traitement en cours…'}
+                            </p>
+                        </div>
+                    </div>
+                )}
 
-                {/* ── STEP 1 : Info ───────────────────────────────────────── */}
                 {step === STEPS.INFO && (
                     <div className="signupPage-step" key="info">
                         <header className="signupPage-header">
@@ -155,28 +316,28 @@ const SignupPage = () => {
                                         <input
                                             id="signup-prenom"
                                             type="text"
-                                            className={`signupPage-input${errors.prenom ? ' signupPage-input--error' : ''}`}
+                                            className={`signupPage-input${fieldErrors.prenom ? ' signupPage-input--error' : ''}`}
                                             placeholder="Marie"
                                             value={prenom}
                                             onChange={e => setPrenom(e.target.value)}
                                             autoComplete="given-name"
-                                            disabled={loading}
+                                            disabled={loading || authLoading}
                                         />
-                                        {errors.prenom && <span className="signupPage-fieldError">{errors.prenom}</span>}
+                                        {fieldErrors.prenom && <span className="signupPage-fieldError">{fieldErrors.prenom}</span>}
                                     </div>
                                     <div className="signupPage-field">
                                         <label className="signupPage-label" htmlFor="signup-nom">Nom</label>
                                         <input
                                             id="signup-nom"
                                             type="text"
-                                            className={`signupPage-input${errors.nom ? ' signupPage-input--error' : ''}`}
+                                            className={`signupPage-input${fieldErrors.nom ? ' signupPage-input--error' : ''}`}
                                             placeholder="Dupont"
                                             value={nom}
                                             onChange={e => setNom(e.target.value)}
                                             autoComplete="family-name"
-                                            disabled={loading}
+                                            disabled={loading || authLoading}
                                         />
-                                        {errors.nom && <span className="signupPage-fieldError">{errors.nom}</span>}
+                                        {fieldErrors.nom && <span className="signupPage-fieldError">{fieldErrors.nom}</span>}
                                     </div>
                                 </div>
 
@@ -185,21 +346,27 @@ const SignupPage = () => {
                                     <input
                                         id="signup-email"
                                         type="email"
-                                        className={`signupPage-input${errors.email ? ' signupPage-input--error' : ''}`}
+                                        className={`signupPage-input${fieldErrors.email ? ' signupPage-input--error' : ''}`}
                                         placeholder="vous@exemple.com"
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
                                         autoComplete="email"
-                                        disabled={loading}
+                                        disabled={loading || authLoading}
                                     />
-                                    {errors.email && (
+                                    {fieldErrors.email && (
                                         <span className="signupPage-fieldError">
-                                            <AlertCircle size={13} strokeWidth={2} /> {errors.email}
+                                            <AlertCircle size={13} strokeWidth={2} /> {fieldErrors.email}
                                         </span>
                                     )}
                                 </div>
 
-                                <button type="submit" className="signupPage-cta" disabled={loading}>
+                                {globalError && (
+                                    <p className="signupPage-globalError" role="alert">
+                                        {globalError}
+                                    </p>
+                                )}
+
+                                <button type="submit" className="signupPage-cta" disabled={loading || authLoading}>
                                     {loading
                                         ? <><LoaderCircle size={18} className="signupPage-spinner" /> Envoi du code…</>
                                         : 'Continuer'
@@ -212,7 +379,7 @@ const SignupPage = () => {
                                     <span className="signupPage-divider__line" />
                                 </div>
 
-                                <button type="button" className="signupPage-googleBtn" aria-label="Continuer avec Google">
+                                <button type="button" className="signupPage-googleBtn" aria-label="Continuer avec Google" disabled={loading || authLoading}>
                                     <GoogleIcon />
                                     <span>Continuer avec Google</span>
                                 </button>
@@ -220,20 +387,22 @@ const SignupPage = () => {
 
                             <p className="signupPage-loginRow">
                                 Vous avez déjà un compte ?{' '}
-                                <Link to="/login" className="signupPage-loginLink">Se connecter</Link>
+                                <Link to="/login" className="signupPage-loginLink">
+                                    Se connecter
+                                </Link>
                             </p>
                         </div>
                     </div>
                 )}
 
-                {/* ── STEP 2 : OTP ────────────────────────────────────────── */}
                 {step === STEPS.OTP && (
                     <div className="signupPage-step" key="otp">
                         <button
                             type="button"
                             className="signupPage-backBtn"
-                            onClick={() => { setStep(STEPS.INFO); setOtp(''); }}
+                            onClick={() => setStep(STEPS.INFO)}
                             aria-label="Retour"
+                            disabled={loading || authLoading}
                         >
                             <ArrowLeft size={18} strokeWidth={2} />
                         </button>
@@ -256,20 +425,26 @@ const SignupPage = () => {
                                 <OTPInput
                                     value={otp}
                                     onChange={setOtp}
-                                    error={otpError}
-                                    disabled={loading}
+                                    error={Boolean(fieldErrors.otp)}
+                                    disabled={loading || authLoading}
                                 />
 
-                                {otpError && (
+                                {fieldErrors.otp && (
                                     <p className="signupPage-otpError" role="alert">
-                                        Code incorrect. Vérifiez et réessayez.
+                                        {fieldErrors.otp}
+                                    </p>
+                                )}
+
+                                {globalError && (
+                                    <p className="signupPage-globalError" role="alert">
+                                        {globalError}
                                     </p>
                                 )}
 
                                 <div className="signupPage-timerRow">
                                     {canResend
                                         ? (
-                                            <button type="button" className="signupPage-resendBtn" onClick={handleResendOtp}>
+                                            <button type="button" className="signupPage-resendBtn" onClick={handleResendOtp} disabled={loading || authLoading}>
                                                 Renvoyer le code
                                             </button>
                                         )
@@ -281,7 +456,7 @@ const SignupPage = () => {
                                     }
                                 </div>
 
-                                <button type="submit" className="signupPage-cta" disabled={loading || otp.length < 6}>
+                                <button type="submit" className="signupPage-cta" disabled={loading || authLoading || otp.length < 6}>
                                     {loading
                                         ? <><LoaderCircle size={18} className="signupPage-spinner" /> Vérification…</>
                                         : 'Vérifier le code'
@@ -292,7 +467,6 @@ const SignupPage = () => {
                     </div>
                 )}
 
-                {/* ── STEP 3 : Password ───────────────────────────────────── */}
                 {step === STEPS.PASSWORD && (
                     <div className="signupPage-step" key="password">
                         <button
@@ -300,6 +474,7 @@ const SignupPage = () => {
                             className="signupPage-backBtn"
                             onClick={() => setStep(STEPS.OTP)}
                             aria-label="Retour"
+                            disabled={loading || authLoading}
                         >
                             <ArrowLeft size={18} strokeWidth={2} />
                         </button>
@@ -313,7 +488,7 @@ const SignupPage = () => {
                             <div className="signupPage-headline">
                                 <h1 className="signupPage-title">Sécurisez votre compte</h1>
                                 <p className="signupPage-desc">
-                                    Dernière étape avant d'entrer dans votre espace.
+                                    Dernière étape avant d’entrer dans votre espace.
                                 </p>
                             </div>
 
@@ -324,19 +499,26 @@ const SignupPage = () => {
                                         <input
                                             id="signup-pass"
                                             type={showPass ? 'text' : 'password'}
-                                            className={`signupPage-input signupPage-input--withIcon${errors.password ? ' signupPage-input--error' : ''}`}
+                                            className={`signupPage-input signupPage-input--withIcon${fieldErrors.password ? ' signupPage-input--error' : ''}`}
                                             placeholder="••••••••"
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}
                                             autoComplete="new-password"
-                                            disabled={loading}
+                                            disabled={loading || authLoading}
                                         />
-                                        <button type="button" className="signupPage-eyeBtn" onClick={() => setShowPass(v => !v)} tabIndex={-1} aria-label={showPass ? 'Masquer' : 'Afficher'}>
+                                        <button
+                                            type="button"
+                                            className="signupPage-eyeBtn"
+                                            onClick={() => setShowPass(v => !v)}
+                                            tabIndex={-1}
+                                            aria-label={showPass ? 'Masquer' : 'Afficher'}
+                                            disabled={loading || authLoading}
+                                        >
                                             {showPass ? <EyeOff size={18} strokeWidth={1.8} /> : <Eye size={18} strokeWidth={1.8} />}
                                         </button>
                                     </div>
                                     <PasswordStrength password={password} />
-                                    {errors.password && <span className="signupPage-fieldError">{errors.password}</span>}
+                                    {fieldErrors.password && <span className="signupPage-fieldError">{fieldErrors.password}</span>}
                                 </div>
 
                                 <div className="signupPage-field">
@@ -345,52 +527,40 @@ const SignupPage = () => {
                                         <input
                                             id="signup-confirm"
                                             type={showConfirm ? 'text' : 'password'}
-                                            className={`signupPage-input signupPage-input--withIcon${errors.confirm ? ' signupPage-input--error' : ''}`}
+                                            className={`signupPage-input signupPage-input--withIcon${fieldErrors.confirm ? ' signupPage-input--error' : ''}`}
                                             placeholder="••••••••"
                                             value={confirmPassword}
                                             onChange={e => setConfirmPassword(e.target.value)}
                                             autoComplete="new-password"
-                                            disabled={loading}
+                                            disabled={loading || authLoading}
                                         />
-                                        <button type="button" className="signupPage-eyeBtn" onClick={() => setShowConfirm(v => !v)} tabIndex={-1} aria-label={showConfirm ? 'Masquer' : 'Afficher'}>
+                                        <button
+                                            type="button"
+                                            className="signupPage-eyeBtn"
+                                            onClick={() => setShowConfirm(v => !v)}
+                                            tabIndex={-1}
+                                            aria-label={showConfirm ? 'Masquer' : 'Afficher'}
+                                            disabled={loading || authLoading}
+                                        >
                                             {showConfirm ? <EyeOff size={18} strokeWidth={1.8} /> : <Eye size={18} strokeWidth={1.8} />}
                                         </button>
                                     </div>
-                                    {errors.confirm && <span className="signupPage-fieldError">{errors.confirm}</span>}
+                                    {fieldErrors.confirm && <span className="signupPage-fieldError">{fieldErrors.confirm}</span>}
                                 </div>
 
-                                <button type="submit" className="signupPage-cta" disabled={loading}>
+                                {globalError && (
+                                    <p className="signupPage-globalError" role="alert">
+                                        {globalError}
+                                    </p>
+                                )}
+
+                                <button type="submit" className="signupPage-cta" disabled={loading || authLoading}>
                                     {loading
                                         ? <><LoaderCircle size={18} className="signupPage-spinner" /> Création…</>
                                         : 'Créer mon compte'
                                     }
                                 </button>
                             </form>
-                        </div>
-                    </div>
-                )}
-
-                {/* ── STEP 4 : Success ────────────────────────────────────── */}
-                {step === STEPS.SUCCESS && (
-                    <div className="signupPage-step signupPage-step--success" key="success">
-                        <div className="signupPage-success">
-                            <div className="signupPage-success__circle">
-                                <div className="signupPage-success__glow" />
-                                <CheckCircle size={48} strokeWidth={1.5} className="signupPage-success__icon" />
-                                <div className="signupPage-success__particle signupPage-success__particle--1" />
-                                <div className="signupPage-success__particle signupPage-success__particle--2" />
-                                <div className="signupPage-success__particle signupPage-success__particle--3" />
-                                <div className="signupPage-success__particle signupPage-success__particle--4" />
-                                <div className="signupPage-success__particle signupPage-success__particle--5" />
-                                <div className="signupPage-success__particle signupPage-success__particle--6" />
-                            </div>
-                            <h1 className="signupPage-success__title">Compte créé avec succès</h1>
-                            <p className="signupPage-success__desc">
-                                Préparation de votre espace de travail…
-                            </p>
-                            <div className="signupPage-success__loader">
-                                <div className="signupPage-success__loaderBar" />
-                            </div>
                         </div>
                     </div>
                 )}

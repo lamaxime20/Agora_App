@@ -1,4 +1,5 @@
 const SIGNUP_DRAFT_KEY = 'signup_draft';
+const PASSWORD_RESET_DRAFT_KEY = 'password_reset_draft';
 
 export function saveSignupDraft(data) {
     try {
@@ -19,6 +20,27 @@ export function getSignupDraft() {
 
 export function clearSignupDraft() {
     window.localStorage.removeItem(SIGNUP_DRAFT_KEY);
+}
+
+export function savePasswordResetDraft(data) {
+    try {
+        window.localStorage.setItem(PASSWORD_RESET_DRAFT_KEY, JSON.stringify(data));
+    } catch {
+        // ignore storage errors
+    }
+}
+
+export function getPasswordResetDraft() {
+    try {
+        const raw = window.localStorage.getItem(PASSWORD_RESET_DRAFT_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+export function clearPasswordResetDraft() {
+    window.localStorage.removeItem(PASSWORD_RESET_DRAFT_KEY);
 }
 
 export function validateSignupInfo({ prenom, nom, email }) {
@@ -59,4 +81,17 @@ export function getPasswordStrength(password) {
 
 export function simulateSignupStep(ms = 700) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function isVerificationCodeStillValid(draft) {
+    if (!draft?.expiresAt) return false;
+    return Date.now() < draft.expiresAt;
+}
+
+export function shouldRequestNewVerificationCode(draft, email) {
+    if (!draft) return true;
+    const requestedEmail = draft.requestedEmail ?? draft.email;
+    if (!requestedEmail) return true;
+    if (requestedEmail.trim().toLowerCase() !== String(email || '').trim().toLowerCase()) return true;
+    return !isVerificationCodeStillValid(draft);
 }

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, LoaderCircle, AlertCircle } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 
 import AuthLayout from '../components/auth/AuthLayout';
 import { useAuth } from '../hooks/useAuth';
+import { getApiErrorMessage } from '../utils/mockApi';
 import agoraLogo from '../assets/images/logo_sans_background.svg';
 import '../assets/styles/pages/LoginPage.css';
 
@@ -20,31 +21,49 @@ const LoginPage = () => {
     const { loginAuth, isLoading } = useAuth();
     const navigate = useNavigate();
 
-    const [email, setEmail]           = useState(() => window.localStorage.getItem('auth_last_email') || '');
-    const [password, setPassword]     = useState('');
+    const [email, setEmail] = useState(() => window.localStorage.getItem('auth_last_email') || '');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [error, setError]           = useState('');
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
-        if (!email.trim()) { setError('Veuillez saisir votre adresse e-mail.'); return; }
-        if (!password)     { setError('Veuillez saisir votre mot de passe.'); return; }
+        if (!email.trim()) {
+            setError('Veuillez saisir votre adresse e-mail.');
+            return;
+        }
+
+        if (!password) {
+            setError('Veuillez saisir votre mot de passe.');
+            return;
+        }
 
         window.localStorage.setItem('auth_last_email', email.trim());
 
-        const ok = await loginAuth({ email: email.trim(), password });
-        if (ok) {
-            navigate('/choix-role', { replace: true });
-        } else {
-            setError('Identifiants incorrects. Vérifiez votre e-mail et votre mot de passe.');
+        try {
+            const session = await loginAuth({ email: email.trim(), password });
+            if (session) {
+                navigate('/choix-role', { replace: true });
+            }
+        } catch (apiError) {
+            setError(getApiErrorMessage(apiError, 'Connexion impossible pour le moment.'));
         }
     };
 
     return (
         <AuthLayout>
-            <div className="loginPage-root">
+            <div className="loginPage-root" aria-busy={isLoading}>
+                {isLoading && (
+                    <div className="loginPage-overlay" role="status" aria-live="polite">
+                        <div className="loginPage-overlayCard">
+                            <LoaderCircle size={28} className="loginPage-overlaySpinner" />
+                            <p className="loginPage-overlayText">Connexion en cours…</p>
+                        </div>
+                    </div>
+                )}
+
                 <header className="loginPage-header">
                     <div className="loginPage-logo">
                         <img src={agoraLogo} alt="AGORA" className="loginPage-logo__img" />
@@ -99,6 +118,7 @@ const LoginPage = () => {
                                     onClick={() => setShowPassword(v => !v)}
                                     aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                                     tabIndex={-1}
+                                    disabled={isLoading}
                                 >
                                     {showPassword
                                         ? <EyeOff size={18} strokeWidth={1.8} />
@@ -109,7 +129,7 @@ const LoginPage = () => {
                         </div>
 
                         <div className="loginPage-forgotRow">
-                            <Link to="/forgot-password" className="loginPage-forgotLink">
+                            <Link to="/forgot-password" className="loginPage-forgotLink" aria-disabled={isLoading}>
                                 Mot de passe oublié ?
                             </Link>
                         </div>
@@ -138,7 +158,7 @@ const LoginPage = () => {
                             <span className="loginPage-divider__line" />
                         </div>
 
-                        <button type="button" className="loginPage-googleBtn" aria-label="Continuer avec Google">
+                        <button type="button" className="loginPage-googleBtn" aria-label="Continuer avec Google" disabled={isLoading}>
                             <GoogleIcon />
                             <span>Continuer avec Google</span>
                         </button>
@@ -146,7 +166,7 @@ const LoginPage = () => {
 
                     <p className="loginPage-signupRow">
                         Pas encore de compte ?{' '}
-                        <Link to="/signup" className="loginPage-signupLink">
+                        <Link to="/signup" className="loginPage-signupLink" aria-disabled={isLoading}>
                             Créer un compte
                         </Link>
                     </p>

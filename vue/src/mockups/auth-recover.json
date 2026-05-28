@@ -1,0 +1,11 @@
+{
+    "ok": true,
+    "message": "Session récupérée",
+    "user": {
+        "email": "john.doe@example.com",
+        "nom": "Doe",
+        "prenom": "John",
+        "expires_at": "2026-05-29T10:00:00.000Z"
+    }
+}
+

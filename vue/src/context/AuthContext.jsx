@@ -11,6 +11,8 @@ import {
     recoverAuthSessionFromApi,
     wasAuthSessionActive,
 } from '../utils/auth';
+import { isUnauthorizedError } from '../utils/mockApi';
+import { onSessionReset } from '../utils/session';
 
 import '../assets/styles/components/AuthContext.css';
 
@@ -38,6 +40,7 @@ export const AuthProvider = ({ children }) => {
         }
         setIsAuthenticated(false);
         setUser(null);
+        setLogoutError(null);
     }, []);
 
     const applySession = useCallback((session) => {
@@ -62,6 +65,10 @@ export const AuthProvider = ({ children }) => {
     }, [clearState, navigate]);
 
     useEffect(() => {
+        const unsubscribeSessionReset = onSessionReset(() => {
+            clearState();
+        });
+
         async function initSession() {
             const stored = getAuthSession();
 
@@ -82,7 +89,14 @@ export const AuthProvider = ({ children }) => {
                 try {
                     const recovered = await recoverAuthSessionFromApi();
                     applySession(recovered);
-                } catch {
+                } catch (error) {
+                    if (isUnauthorizedError(error)) {
+                        clearAuthSession();
+                        clearState();
+                        navigate('/login', { replace: true });
+                        setIsLoading(false);
+                        return;
+                    }
                     clearState();
                 }
             }
@@ -91,17 +105,23 @@ export const AuthProvider = ({ children }) => {
         }
 
         initSession();
-    }, []);
+
+        return () => {
+            unsubscribeSessionReset();
+        };
+    }, [applySession, clearState, navigate]);
 
     const loginAuth = async (credentials) => {
         setIsLoading(true);
         try {
             const session = await loginAuthFromApi(credentials);
-            const success = applySession(session);
-            return success;
-        } catch {
-            clearState();
-            return false;
+            return applySession(session) ? session : null;
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                clearAuthSession();
+                clearState();
+            }
+            throw error;
         } finally {
             setIsLoading(false);
         }
@@ -113,11 +133,17 @@ export const AuthProvider = ({ children }) => {
             await logoutAuthFromApi();
             clearState();
             return true;
-        } catch {
+        } catch (error) {
+            if (isUnauthorizedError(error)) {
+                clearAuthSession();
+                clearState();
+                navigate('/login', { replace: true });
+                return false;
+            }
             setLogoutError('Déconnexion impossible, vérifiez votre connexion.');
             return false;
         }
-    }, [clearState]);
+    }, [clearState, navigate]);
 
     const dismissLogoutError = useCallback(() => setLogoutError(null), []);
 

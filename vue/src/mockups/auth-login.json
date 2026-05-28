@@ -1,0 +1,14 @@
+{
+    "ok": true,
+    "message": "Authentification réussie",
+    "users": [
+        {
+            "email": "john.doe@example.com",
+            "password": "Password123!",
+            "nom": "Doe",
+            "prenom": "John",
+            "expires_at": "2026-05-29T10:00:00.000Z"
+        }
+    ]
+}
+

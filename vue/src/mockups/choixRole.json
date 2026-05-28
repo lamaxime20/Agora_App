@@ -1,6 +1,44 @@
 {
     "ok": true,
     "message": "Rôle sélectionné avec succès",
+    "entreprises": [
+        {
+            "id": 1,
+            "nom": "Bytes Corp",
+            "secteur": "Technologie",
+            "initiales": "BC",
+            "couleur": "#2563EB",
+            "roles": [
+                {
+                    "id": "manager",
+                    "nom": "Manager",
+                    "description": "Gérez ventes, stocks et équipes",
+                    "icone": "LayoutDashboard"
+                },
+                {
+                    "id": "comptable",
+                    "nom": "Comptable",
+                    "description": "Suivez les finances et la trésorerie",
+                    "icone": "Wallet"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "nom": "Market Pro",
+            "secteur": "Commerce",
+            "initiales": "MP",
+            "couleur": "#F39C12",
+            "roles": [
+                {
+                    "id": "vendeur",
+                    "nom": "Vendeur",
+                    "description": "Gérez les commandes et les clients",
+                    "icone": "ShoppingCart"
+                }
+            ]
+        }
+    ],
     "user": {
         "email": "john.doe@example.com",
         "nom": "Doe",

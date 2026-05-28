@@ -1,6 +1,7 @@
 /* ─── SignupPage ──────────────────────────────────────────────────────────── */
 
 .signupPage-root {
+    position: relative;
     width: 100%;
     max-width: 440px;
 }
@@ -170,6 +171,13 @@
     transform: translateY(-1px);
 }
 
+.signupPage-googleBtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow-xs);
+}
+
 /* ─── Divider ─────────────────────────────────────────────────────────────── */
 
 .signupPage-divider {
@@ -284,6 +292,17 @@
     color: #DC2626;
     text-align: center;
     animation: fadeInUp 0.2s var(--ease-out);
+}
+
+.signupPage-globalError {
+    padding: 12px 16px;
+    background: rgba(231, 76, 60, 0.06);
+    border: 1px solid rgba(231, 76, 60, 0.18);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #DC2626;
+    line-height: 1.5;
 }
 
 /* ─── Timer / resend ──────────────────────────────────────────────────────── */
@@ -478,4 +497,42 @@
 
 @media (min-width: 769px) and (max-width: 1024px) {
     .signupPage-root { max-width: 400px; margin: 0 auto; }
+}
+
+.signupPage-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(10px);
+    border-radius: 28px;
+}
+
+.signupPage-overlayCard {
+    width: min(240px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 18px;
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+}
+
+.signupPage-overlaySpinner {
+    animation: timerSpin 0.8s linear infinite;
+    color: var(--color-primary);
+}
+
+.signupPage-overlayText {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
 }
