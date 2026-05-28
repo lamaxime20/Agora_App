@@ -140,6 +140,44 @@
     line-height: 1.6;
 }
 
+.choixRolePage-actionRow {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.choixRolePage-changeEmailBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+    background: var(--auth-input-bg);
+    border: 1.5px solid var(--auth-input-border);
+    border-radius: 999px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text);
+    cursor: pointer;
+    transition:
+        border-color 200ms var(--ease-out),
+        background 200ms var(--ease-out),
+        transform 150ms var(--ease-out),
+        opacity 150ms var(--ease-out);
+}
+
+.choixRolePage-changeEmailBtn:hover:not(:disabled) {
+    background: rgba(243, 156, 18, 0.06);
+    border-color: rgba(243, 156, 18, 0.28);
+    transform: translateY(-1px);
+}
+
+.choixRolePage-changeEmailBtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
 /* ─── Company context (above role list) ───────────────────────────────────── */
 
 .choixRolePage-companyContext {
@@ -149,17 +187,6 @@
     margin-bottom: 4px;
 }
 
-.choixRolePage-companyContext__avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 800;
-    color: #ffffff;
-}
 
 .choixRolePage-companyContext__name {
     font-size: 14px;
@@ -207,18 +234,36 @@
 /* ─── Company avatar ──────────────────────────────────────────────────────── */
 
 .choixRolePage-companyAvatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 14px;
     font-family: var(--font-display);
-    font-size: 17px;
     font-weight: 700;
     color: #ffffff;
     flex-shrink: 0;
     letter-spacing: 0.02em;
+    overflow: hidden;
+}
+
+.choixRolePage-companyAvatar--md {
+    width: 48px;
+    height: 48px;
+    font-size: 17px;
+}
+
+.choixRolePage-companyAvatar--sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+.choixRolePage-companyAvatar__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: inherit;
 }
 
 /* ─── Company info ────────────────────────────────────────────────────────── */
@@ -227,7 +272,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 6px;
     min-width: 0;
 }
 
@@ -238,12 +283,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.choixRolePage-companySector {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--color-text-muted);
 }
 
 /* ─── Role badges ─────────────────────────────────────────────────────────── */
@@ -324,13 +363,15 @@
     width: 48px;
     height: 48px;
     border-radius: 14px;
-    background: var(--auth-accent);
+    /* background set via inline style with company's couleur_primaire */
+    background: var(--color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(44, 62, 80, 0.25);
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.28);
+    flex-shrink: 0;
 }
 
 /* ─── Role info ───────────────────────────────────────────────────────────── */

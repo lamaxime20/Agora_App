@@ -12,6 +12,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ChoixRolePage from './pages/ChoixRolePage';
+import ApplicationPage from './pages/ApplicationPage';
 
 import './App.css';
 
@@ -37,7 +38,7 @@ function App() {
                         </Route>
 
                         <Route element={<RouteGuardAuthorization />}>
-                            <Route path="/application" element={<div>Page Application</div>} />
+                            <Route path="/application" element={<ApplicationPage />} />
                         </Route>
 
                         <Route path="/404" element={<div>Page 404</div>} />

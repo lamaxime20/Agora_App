@@ -2,20 +2,22 @@
     "ok": true,
     "entreprises": [
         {
-            "id": 1,
+            "id": "11111111-1111-1111-1111-111111111111",
             "nom": "Bytes Corp",
-            "secteur": "Technologie",
-            "initiales": "BC",
-            "couleur": "#2563EB",
+            "logo": null,
+            "couleur_primaire": "#F39C12",
+            "couleur_secondaire": "#2C3E50",
+            "couleur_tertiaire": "#FFF8F0",
+            "statut": "actif",
             "roles": [
                 {
-                    "id": "manager",
+                    "id": "aaaa0001-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                     "nom": "Manager",
                     "description": "Gérez ventes, stocks et équipes",
                     "icone": "LayoutDashboard"
                 },
                 {
-                    "id": "comptable",
+                    "id": "aaaa0002-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                     "nom": "Comptable",
                     "description": "Suivez les finances et la trésorerie",
                     "icone": "Wallet"
@@ -23,17 +25,25 @@
             ]
         },
         {
-            "id": 2,
+            "id": "22222222-2222-2222-2222-222222222222",
             "nom": "Market Pro",
-            "secteur": "Commerce",
-            "initiales": "MP",
-            "couleur": "#F39C12",
+            "logo": null,
+            "couleur_primaire": "#27AE60",
+            "couleur_secondaire": "#1A5C38",
+            "couleur_tertiaire": "#F0FFF6",
+            "statut": "actif",
             "roles": [
                 {
-                    "id": "vendeur",
+                    "id": "bbbb0001-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
                     "nom": "Vendeur",
                     "description": "Gérez les commandes et les clients",
                     "icone": "ShoppingCart"
+                },
+                {
+                    "id": "bbbb0002-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+                    "nom": "Livreur",
+                    "description": "Assurez la livraison des commandes",
+                    "icone": "Truck"
                 }
             ]
         }

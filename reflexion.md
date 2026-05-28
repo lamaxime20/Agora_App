@@ -41,7 +41,7 @@ Au form 2, il y a possibilité de renvoyer le code, mais uniquement selon un tim
 Lorsqu'on rentre au form 1 après l'envoit du premier code, on ne rappelle le lien API que dans deux conditions : soit, on a changé l'email, soit le code a expiré
 
 ### Logique login
-l'utilisateur entre son email et son mot de passe, on fait un appel API vers le backend, et ensuite on récupère sa réponse.
+l'utilisateur entre son email et son mot de passe, on fait un appel API vers le backend, et ensuite on récupère sa réponse et si c'est bon, on envoit vers "/application" en respectant les règles des contexts
 Il doit y avoir un bouton continuer avec Google.
 
 ### Logique choix de role

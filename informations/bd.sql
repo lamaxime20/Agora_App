@@ -1116,6 +1116,58 @@ CREATE TABLE IF NOT EXISTS token_choix_role (
 );
 
 -- =========================================================
+-- TABLE codes_otp
+-- Codes de vérification envoyés par e-mail lors de l'inscription
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS codes_otp (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  code VARCHAR(10) NOT NULL,
+
+  email Email NOT NULL,
+
+  date_creation TIMESTAMP DEFAULT NOW(),
+
+  date_expiration TIMESTAMP NOT NULL,
+
+  utilise BOOLEAN DEFAULT FALSE,
+
+  actif BOOLEAN DEFAULT TRUE,
+
+  CONSTRAINT codes_otp_cc0 PRIMARY KEY(id)
+);
+
+-- =========================================================
+-- TABLE codes_reinitialisation
+-- Codes de réinitialisation de mot de passe (valables 1 heure)
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS codes_reinitialisation (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  code VARCHAR(10) NOT NULL,
+
+  date_creation TIMESTAMP DEFAULT NOW(),
+
+  date_expiration TIMESTAMP NOT NULL,
+
+  utilise BOOLEAN DEFAULT FALSE,
+
+  actif BOOLEAN DEFAULT TRUE,
+
+  utilisateur UUID NOT NULL,
+
+  CONSTRAINT codes_reinitialisation_cc0 PRIMARY KEY(id),
+
+  CONSTRAINT codes_reinitialisation_cr0
+    FOREIGN KEY (utilisateur)
+    REFERENCES utilisateurs(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+-- =========================================================
 -- INDEX
 -- =========================================================
 
@@ -1163,3 +1215,15 @@ ON sessions(token);
 
 CREATE INDEX token_choix_role_token_index
 ON token_choix_role(token);
+
+CREATE INDEX codes_otp_email_index
+ON codes_otp(email);
+
+CREATE INDEX codes_otp_expiration_index
+ON codes_otp(date_expiration);
+
+CREATE INDEX codes_reinitialisation_utilisateur_index
+ON codes_reinitialisation(utilisateur);
+
+CREATE INDEX codes_reinitialisation_expiration_index
+ON codes_reinitialisation(date_expiration);

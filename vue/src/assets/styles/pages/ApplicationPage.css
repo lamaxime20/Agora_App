@@ -1,0 +1,276 @@
+/* ─── ApplicationPage ─────────────────────────────────────────────────────── */
+
+.applicationPage-root {
+    position: relative;
+    min-height: 100dvh;
+    padding: 24px 16px 32px;
+    background:
+        radial-gradient(circle at top left, rgba(243, 156, 18, 0.10), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(44, 62, 80, 0.08), transparent 28%),
+        var(--color-bg);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: hidden;
+}
+
+.applicationPage-shell {
+    width: 100%;
+    max-width: 1120px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.applicationPage-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.applicationPage-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.applicationPage-brand__logo {
+    height: 32px;
+    width: auto;
+}
+
+.applicationPage-brand__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.applicationPage-kicker {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.applicationPage-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.applicationPage-logoutBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1.5px solid rgba(231, 76, 60, 0.18);
+    border-radius: 999px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 700;
+    color: #C0392B;
+    cursor: pointer;
+    transition:
+        background 200ms var(--ease-out),
+        border-color 200ms var(--ease-out),
+        transform 150ms var(--ease-out),
+        opacity 150ms var(--ease-out);
+}
+
+.applicationPage-logoutBtn:hover:not(:disabled) {
+    background: rgba(231, 76, 60, 0.12);
+    border-color: rgba(231, 76, 60, 0.28);
+    transform: translateY(-1px);
+}
+
+.applicationPage-logoutBtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.applicationPage-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 22px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+}
+
+.applicationPage-hero__icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: rgba(44, 62, 80, 0.08);
+    color: var(--auth-accent);
+}
+
+.applicationPage-hero__content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.applicationPage-hero__eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.applicationPage-hero__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+}
+
+.applicationPage-hero__desc {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
+.applicationPage-hero__desc strong {
+    color: var(--color-text);
+    font-weight: 700;
+}
+
+.applicationPage-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+
+.applicationPage-card {
+    display: flex;
+    gap: 14px;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.applicationPage-card__icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 14px;
+    background: rgba(243, 156, 18, 0.10);
+    color: var(--color-primary);
+}
+
+.applicationPage-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.applicationPage-card__label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.applicationPage-card__value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.applicationPage-card__meta {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.applicationPage-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(10px);
+}
+
+.applicationPage-overlayCard {
+    width: min(260px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 18px;
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+}
+
+.applicationPage-overlaySpinner {
+    animation: timerSpin 0.8s linear infinite;
+    color: var(--color-primary);
+}
+
+.applicationPage-overlayText {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+@media (min-width: 769px) {
+    .applicationPage-root {
+        padding: 32px 24px 40px;
+    }
+
+    .applicationPage-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .applicationPage-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1201px) {
+    .applicationPage-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .applicationPage-card {
+        min-height: 100%;
+    }
+}
