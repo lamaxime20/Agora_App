@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthorization } from '../../hooks/useAuthorization';
@@ -6,18 +6,17 @@ import { useAuthorization } from '../../hooks/useAuthorization';
 const RouteGuardGuest = () => {
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     const { isAuthorized, isLoading: authorizationLoading } = useAuthorization();
-    const location = useLocation();
 
     if (authLoading || authorizationLoading) {
         return null;
     }
 
     if (isAuthorized) {
-        return <Navigate to="/404" replace state={{ from: location, fallback: '/application' }} />;
+        return <Navigate to="/application" replace />;
     }
 
     if (isAuthenticated) {
-        return <Navigate to="/404" replace state={{ from: location, fallback: '/choix-role' }} />;
+        return <Navigate to="/choix-role" replace />;
     }
 
     return <Outlet />;
