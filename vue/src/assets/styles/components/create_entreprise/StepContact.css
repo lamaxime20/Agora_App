@@ -125,8 +125,9 @@
     color: var(--color-primary);
 }
 
+/* left = 50px (margin prefix) + 68px (input préfixe) + 1px (divider) + 12px (gap) */
 .stepContact-floatLabel--phone {
-    left: 116px;
+    left: 132px;
 }
 
 .stepContact-required { color: var(--color-primary); }
@@ -196,34 +197,24 @@
     margin-left: 50px;
 }
 
-.prefixSelector-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 18px 12px 6px 4px;
+.prefixSelector-input {
+    width: 68px;
+    height: 56px;
+    padding: 22px 8px 8px 4px;
     background: none;
     border: none;
-    cursor: pointer;
+    outline: none;
     font-family: var(--font-ui);
     font-size: 15px;
     font-weight: var(--weight-medium);
     color: var(--color-text);
-    white-space: nowrap;
+    caret-color: var(--color-primary);
+    letter-spacing: 0.02em;
 }
 
-.prefixSelector-code {
-    font-size: 15px;
-    font-weight: var(--weight-medium);
-    color: var(--color-text);
-}
-
-.prefixSelector-chevron {
-    color: var(--color-text-muted);
-    transition: transform 200ms var(--ease-out);
-}
-
-.prefixSelector-chevron--open {
-    transform: rotate(180deg);
+.prefixSelector-input::placeholder {
+    color: var(--color-text-light);
+    font-weight: var(--weight-regular);
 }
 
 .prefixSelector-dropdown {
@@ -231,7 +222,7 @@
     top: calc(100% + 4px);
     left: -50px;
     z-index: var(--z-dropdown);
-    width: 200px;
+    min-width: 220px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 14px;

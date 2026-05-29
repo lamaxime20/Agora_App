@@ -1,47 +1,58 @@
-import { useState, useRef, useEffect } from 'react';
-import { Mail, Phone, Globe, Check, ChevronDown, X } from 'lucide-react';
+import { useState } from 'react';
+import { Mail, Phone, Globe, Check } from 'lucide-react';
 import { PREFIXES_TELEPHONE } from '../../services/createEntreprise';
 import '../../assets/styles/components/create_entreprise/StepContact.css';
 
-// ─── Sélecteur préfixe téléphone ──────────────────────────────────────────────
+// ─── Autocomplete préfixe téléphonique ────────────────────────────────────────
 
 const PrefixSelector = ({ value, onChange }) => {
     const [open, setOpen] = useState(false);
-    const wrapRef = useRef(null);
 
-    useEffect(() => {
-        if (!open) return;
-        const handler = (e) => {
-            if (!wrapRef.current?.contains(e.target)) setOpen(false);
-        };
-        const t = setTimeout(() => document.addEventListener('pointerdown', handler), 50);
-        return () => { clearTimeout(t); document.removeEventListener('pointerdown', handler); };
-    }, [open]);
+    // 5 préfixes aléatoires stables pour toute la session
+    const [initialSuggestions] = useState(
+        () => [...PREFIXES_TELEPHONE].sort(() => Math.random() - 0.5).slice(0, 5)
+    );
 
-    const current = PREFIXES_TELEPHONE.find(p => p.code === value) || PREFIXES_TELEPHONE[0];
+    const trimmed = String(value || '').trim();
+    const suggestions = trimmed
+        ? PREFIXES_TELEPHONE.filter(p =>
+            p.code.includes(trimmed) ||
+            p.pays.toLowerCase().includes(trimmed.toLowerCase())
+          ).slice(0, 8)
+        : initialSuggestions;
+
+    const handleSelect = (p) => {
+        onChange(p.code);
+        setOpen(false);
+    };
 
     return (
-        <div className="prefixSelector-root" ref={wrapRef}>
-            <button
-                type="button"
-                className="prefixSelector-btn"
-                onClick={() => setOpen(prev => !prev)}
+        <div className="prefixSelector-root">
+            <input
+                type="text"
+                className="prefixSelector-input"
+                value={value}
+                onChange={e => { onChange(e.target.value); setOpen(true); }}
+                onFocus={() => setOpen(true)}
+                onBlur={() => setTimeout(() => setOpen(false), 150)}
+                onKeyDown={e => e.key === 'Escape' && setOpen(false)}
+                aria-label="Indicatif téléphonique"
+                aria-autocomplete="list"
                 aria-expanded={open}
-                aria-haspopup="listbox"
-                aria-label={`Indicatif téléphonique : ${current.pays} ${current.code}`}
-            >
-                <span className="prefixSelector-code">{current.code}</span>
-                <ChevronDown size={13} strokeWidth={2.5} className={`prefixSelector-chevron${open ? ' prefixSelector-chevron--open' : ''}`} />
-            </button>
+                autoComplete="off"
+                inputMode="tel"
+                maxLength={8}
+                placeholder="+237"
+            />
 
-            {open && (
+            {open && suggestions.length > 0 && (
                 <ul className="prefixSelector-dropdown" role="listbox" aria-label="Indicatifs téléphoniques">
-                    {PREFIXES_TELEPHONE.map(p => (
-                        <li key={p.code} role="option" aria-selected={p.code === value}>
+                    {suggestions.map(p => (
+                        <li key={p.code} role="option" aria-selected={value === p.code}>
                             <button
                                 type="button"
-                                className={`prefixSelector-item${p.code === value ? ' prefixSelector-item--active' : ''}`}
-                                onClick={() => { onChange(p.code); setOpen(false); }}
+                                className={`prefixSelector-item${value === p.code ? ' prefixSelector-item--active' : ''}`}
+                                onMouseDown={e => { e.preventDefault(); handleSelect(p); }}
                             >
                                 <span className="prefixSelector-item__pays">{p.pays}</span>
                                 <span className="prefixSelector-item__code">{p.code}</span>
@@ -63,7 +74,6 @@ function isEmailValid(email) {
 // ─── StepContact ──────────────────────────────────────────────────────────────
 
 const StepContact = ({ formData, onChange, onNext, onPrev, errors }) => {
-    const [emailTouched, setEmailTouched] = useState(false);
     const emailValid = formData.email && isEmailValid(formData.email);
 
     return (
@@ -85,7 +95,6 @@ const StepContact = ({ formData, onChange, onNext, onPrev, errors }) => {
                                 className="stepContact-input"
                                 value={formData.email}
                                 onChange={e => onChange('email', e.target.value)}
-                                onBlur={() => setEmailTouched(true)}
                                 aria-label="Adresse email de l'entreprise"
                                 aria-invalid={!!errors.email}
                                 autoComplete="email"
