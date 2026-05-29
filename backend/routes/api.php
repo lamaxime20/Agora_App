@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EntrepriseController;
 use App\Http\Controllers\Api\PasswordController;
 use App\Http\Controllers\Api\SignupController;
+use App\Http\Middleware\MiddlewareTokenEntrepriseCreation;
 use App\Http\Middleware\MiddlewareTokenAuth;
 use App\Http\Middleware\MiddlewareTokenAuthorization;
 use Illuminate\Support\Facades\Route;
@@ -35,3 +36,8 @@ Route::middleware(MiddlewareTokenAuthorization::class)->group(function () {
     Route::get('auth/me/application',      [AuthController::class, 'meApplication']);
     Route::post('auth/logout/application', [AuthController::class, 'logoutApplication']);
 });
+
+// ─── Route création d'entreprise ────────────────────────────────────────────
+
+Route::post('entreprises', [EntrepriseController::class, 'store'])
+    ->middleware(MiddlewareTokenEntrepriseCreation::class);
