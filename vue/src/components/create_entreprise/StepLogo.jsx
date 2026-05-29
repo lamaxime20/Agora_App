@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react';
-import { Upload, Image, X, RefreshCw } from 'lucide-react';
+import { Upload, X, RefreshCw } from 'lucide-react';
 import '../../assets/styles/components/create_entreprise/StepLogo.css';
 
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
 const MAX_SIZE_MB = 5;
 
-const StepLogo = ({ formData, onChange, onNext, onPrev, onLogoFile }) => {
+const StepLogo = ({ formData, onChange, onNext, onPrev, onLogoFile, errors = {} }) => {
     const [dragging, setDragging] = useState(false);
     const [sizeError, setSizeError] = useState('');
     const inputRef = useRef(null);
@@ -124,6 +124,10 @@ const StepLogo = ({ formData, onChange, onNext, onPrev, onLogoFile }) => {
 
                 {sizeError && (
                     <p className="stepLogo-error" role="alert">{sizeError}</p>
+                )}
+
+                {errors.logo && (
+                    <p className="stepLogo-error" role="alert">{errors.logo}</p>
                 )}
 
                 <input

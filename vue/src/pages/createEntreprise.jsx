@@ -14,12 +14,11 @@ import CreateEntrepriseSuccess from '../components/create_entreprise/CreateEntre
 import {
     getDraft,
     saveDraft,
-    clearDraft,
     validateStep,
     submitCreateEntreprise,
 } from '../services/createEntreprise';
 
-import { getApiErrorMessage } from '../utils/mockApi';
+import { getApiErrorMessage, isUnauthorizedError } from '../utils/mockApi';
 import { resetBrowserStorage } from '../utils/session';
 
 import agoraLogo from '../assets/images/logo_sans_background.svg';
@@ -83,6 +82,24 @@ const BrandingPanel = ({ step }) => {
 
 const TOTAL_STEPS = 6;
 
+const SERVER_TO_CLIENT_ERRORS = {
+    couleur_primaire: 'couleur1',
+    couleur_secondaire: 'couleur2',
+    couleur_tertiaire: 'couleur3',
+    telephone: 'telephoneNumber',
+    site_web: 'siteWeb',
+};
+
+function normalizeApiErrors(apiErrors = {}) {
+    return Object.fromEntries(
+        Object.entries(apiErrors).map(([key, value]) => {
+            const clientKey = SERVER_TO_CLIENT_ERRORS[key] || key;
+            const message = Array.isArray(value) ? value[0] : value;
+            return [clientKey, message];
+        })
+    );
+}
+
 const CreateEntreprisePage = () => {
     const navigate = useNavigate();
 
@@ -108,6 +125,9 @@ const CreateEntreprisePage = () => {
     const handleChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
+        if (field === 'logoPreview' && errors.logo) {
+            setErrors(prev => ({ ...prev, logo: '' }));
+        }
     };
 
     const handleLogoFile = (file) => {
@@ -148,13 +168,21 @@ const CreateEntreprisePage = () => {
 
         try {
             await submitCreateEntreprise({ ...formData, logoFile: logoFileRef.current });
-
-            // Clear localStorage as per flow spec (cookie-based new token set by server)
-            clearDraft();
-            // resetBrowserStorage() — uncomment in production after real API is wired
-
+            resetBrowserStorage();
             setStatus('success');
         } catch (err) {
+            if (isUnauthorizedError(err)) {
+                resetBrowserStorage();
+                navigate('/login', { replace: true });
+                return;
+            }
+
+            if (err?.code === 'VALIDATION_ERROR' && err?.details?.errors) {
+                setErrors(normalizeApiErrors(err.details.errors));
+                setStatus('form');
+                return;
+            }
+
             setStatus('form');
             setSubmitError(getApiErrorMessage(err, 'Une erreur est survenue. Réessayez.'));
         }
@@ -207,14 +235,12 @@ const CreateEntreprisePage = () => {
                         key={`${currentStep}-${direction}`}
                     >
                         {currentStep === 1 && <StepIdentite {...stepProps} />}
-                        {currentStep === 2 && (
-                            <StepLogo {...stepProps} onLogoFile={handleLogoFile} />
-                        )}
+                        {currentStep === 2 && <StepLogo {...stepProps} onLogoFile={handleLogoFile} />}
                         {currentStep === 3 && <StepCouleurs {...stepProps} />}
                         {currentStep === 4 && <StepContact {...stepProps} />}
                         {currentStep === 5 && <StepLocalisation {...stepProps} />}
                         {currentStep === 6 && (
-                            <StepPolitique {...stepProps} onNext={handleSubmit} />
+                            <StepPolitique {...stepProps} onNext={handleSubmit} submitting={status === 'loading'} />
                         )}
                     </div>
                 </div>

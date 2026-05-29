@@ -1,4 +1,5 @@
-import mockResponse from '../mockups/create-entreprise.json';
+import { apiFetchMultipart } from './api';
+import { ApiError } from '../utils/mockApi';
 
 // ─── Constantes métier ─────────────────────────────────────────────────────────
 
@@ -185,10 +186,10 @@ export function validateStep(step, data) {
     }
 
     if (step === 6) {
-        if (!String(data.politique || '').trim())
-            errors.politique = "Décrivez la politique de l'entreprise";
-        if (!String(data.description || '').trim())
-            errors.description = "Décrivez votre entreprise";
+        if (String(data.politique || '').trim().length < 10)
+            errors.politique = "La politique doit contenir au moins 10 caractères";
+        if (String(data.description || '').trim().length < 10)
+            errors.description = "La description doit contenir au moins 10 caractères";
     }
 
     return errors;
@@ -267,19 +268,73 @@ export function isValidHexColor(hex) {
     return isValidHex(hex);
 }
 
-// ─── Appel API (mockup) ────────────────────────────────────────────────────────
+function dataUrlToFile(dataUrl, filename = 'logo.png') {
+    if (!dataUrl || typeof dataUrl !== 'string') return null;
+
+    const parts = dataUrl.split(',');
+    if (parts.length !== 2) return null;
+
+    const match = parts[0].match(/data:(.*?);base64/);
+    const mimeType = match?.[1] || 'image/png';
+
+    const binary = atob(parts[1]);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+
+    return new File([bytes], filename, { type: mimeType });
+}
+
+function normalizePhoneValue(prefix, number) {
+    const cleanPrefix = String(prefix || '').trim();
+    const cleanNumber = String(number || '').trim().replace(/\s+/g, '');
+    return `${cleanPrefix}${cleanNumber}`;
+}
 
 export async function submitCreateEntreprise(formData) {
-    // TODO: remplacer par l'appel API réel :
-    // const form = new FormData();
-    // Object.entries(formData).forEach(([k, v]) => v && form.append(k, v));
-    // if (formData.logoFile) form.append('logo', formData.logoFile);
-    // return await apiFetchMultipart('entreprises/create', form);
+    const payload = new FormData();
 
-    await new Promise(resolve => setTimeout(resolve, 2800));
+    payload.append('nom', String(formData.nom || '').trim());
+    payload.append('secteur', String(formData.secteur || '').trim());
+    payload.append('email', String(formData.email || '').trim());
+    payload.append('telephone', normalizePhoneValue(formData.telephonePrefix, formData.telephoneNumber));
+    payload.append('pays', String(formData.pays || '').trim());
+    payload.append('ville', String(formData.ville || '').trim());
+    payload.append('adresse', String(formData.adresse || '').trim());
+    payload.append('politique', String(formData.politique || '').trim());
+    payload.append('description', String(formData.description || '').trim());
 
-    // Simule aléatoirement une erreur réseau (5 % de chance) pour tester le flux
-    // if (Math.random() < 0.05) throw new Error('Erreur réseau simulée');
+    if (formData.siteWeb?.trim()) {
+        payload.append('site_web', formData.siteWeb.trim());
+    }
 
-    return { ...mockResponse };
+    if (formData.couleur1?.trim()) {
+        payload.append('couleur_primaire', formData.couleur1.trim());
+    }
+    if (formData.couleur2?.trim()) {
+        payload.append('couleur_secondaire', formData.couleur2.trim());
+    }
+    if (formData.couleur3?.trim()) {
+        payload.append('couleur_tertiaire', formData.couleur3.trim());
+    }
+
+    const logoFile = formData.logoFile || dataUrlToFile(formData.logoPreview);
+    if (logoFile) {
+        payload.append('logo', logoFile);
+    }
+
+    try {
+        return await apiFetchMultipart('entreprises', payload);
+    } catch (error) {
+        if (error instanceof ApiError) {
+            throw error;
+        }
+
+        throw new ApiError('Une erreur est survenue.', {
+            status: 500,
+            code: 'API_ERROR',
+            details: error,
+        });
+    }
 }
