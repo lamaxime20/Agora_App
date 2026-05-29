@@ -1,0 +1,67 @@
+collect([["email"=>"amina.diop@agora.local","name"=>"Diop","prename"=>"Amina","password"=>"Agora@12345!A"],["email"=>"benoit.martin@agora.local","name"=>"Martin","prename"=>"Benoît","password"=>"Agora@12345!B"],["email"=>"chloe.bernard@agora.local","name"=>"Bernard","prename"=>"Chloé","password"=>"Agora@12345!C"],["email"=>"david.kouassi@agora.local","name"=>"Kouassi","prename"=>"David","password"=>"Agora@12345!D"],["email"=>"elodie.nguessan@agora.local","name"=>"N'Guessan","prename"=>"Élodie","password"=>"Agora@12345!E"],["email"=>"farid.benali@agora.local","name"=>"Benali","prename"=>"Farid","password"=>"Agora@12345!F"],["email"=>"gabrielle.traore@agora.local","name"=>"Traoré","prename"=>"Gabrielle","password"=>"Agora@12345!G"],["email"=>"hugo.pereira@agora.local","name"=>"Pereira","prename"=>"Hugo","password"=>"Agora@12345!H"],["email"=>"ines.diallo@agora.local","name"=>"Diallo","prename"=>"Inès","password"=>"Agora@12345!I"],["email"=>"jules.okonkwo@agora.local","name"=>"Okonkwo","prename"=>"Jules","password"=>"Agora@12345!J"]])->each(fn($u)=>App\Models\Utilisateur::updateOrCreate(["email"=>$u["email"]],["name"=>$u["name"],"prename"=>$u["prename"],"password_hash"=>Illuminate\Support\Facades\Hash::make($u["password"]),"statut"=>"actif"]));
+
+
+all: [
+      [
+        "email" => "amina.diop@agora.local",
+        "name" => "Diop",
+        "prename" => "Amina",
+        "password" => "Agora@12345!A",
+      ],
+      [
+        "email" => "benoit.martin@agora.local",
+        "name" => "Martin",
+        "prename" => "Benoît",
+        "password" => "Agora@12345!B",
+      ],
+      [
+        "email" => "chloe.bernard@agora.local",
+        "name" => "Bernard",
+        "prename" => "Chloé",
+        "password" => "Agora@12345!C",
+      ],
+      [
+        "email" => "david.kouassi@agora.local",
+        "name" => "Kouassi",
+        "prename" => "David",
+        "password" => "Agora@12345!D",
+      ],
+      [
+        "email" => "elodie.nguessan@agora.local",
+        "name" => "N'Guessan",
+        "prename" => "Élodie",
+        "password" => "Agora@12345!E",
+      ],
+      [
+        "email" => "farid.benali@agora.local",
+        "name" => "Benali",
+        "prename" => "Farid",
+        "password" => "Agora@12345!F",
+      ],
+      [
+        "email" => "gabrielle.traore@agora.local",
+        "name" => "Traoré",
+        "prename" => "Gabrielle",
+        "password" => "Agora@12345!G",
+      ],
+      [
+        "email" => "hugo.pereira@agora.local",
+        "name" => "Pereira",
+        "prename" => "Hugo",
+        "password" => "Agora@12345!H",
+      ],
+      [
+        "email" => "ines.diallo@agora.local",
+        "name" => "Diallo",
+        "prename" => "Inès",
+        "password" => "Agora@12345!I",
+      ],
+      [
+        "email" => "jules.okonkwo@agora.local",
+        "name" => "Okonkwo",
+        "prename" => "Jules",
+        "password" => "Agora@12345!J",
+      ],
+    ],
+  }
+]
