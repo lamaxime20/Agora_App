@@ -111,6 +111,15 @@ BEGIN
         nom,
         logo,
         code_couleur,
+        email,
+        telephone,
+        site_web,
+        pays,
+        ville,
+        adresse,
+        secteur_activite,
+        description,
+        politique_entreprise,
         argent_virtuel,
         statut,
         directeur
@@ -123,6 +132,23 @@ BEGIN
           WHEN 2 THEN '#0F766E'
           ELSE '#B45309'
         END,
+        format('contact.%s.%s.%s@agora.local', i, j, lower(regexp_replace(noms[i], '[^a-zA-Z0-9]+', '', 'g'))),
+        format('+221 77 %s %s', lpad((i * 3 + j)::text, 2, '0'), lpad((i * 7 + j)::text, 2, '0')),
+        format('https://entreprise-%s-%s.agora.local', i, j),
+        'Sénégal',
+        CASE j
+          WHEN 1 THEN 'Dakar'
+          WHEN 2 THEN 'Dakar-Plateau'
+          ELSE 'Dakar'
+        END,
+        format('Rue %s, lot %s', noms[i], j),
+        CASE j
+          WHEN 1 THEN 'Commerce général'
+          WHEN 2 THEN 'Distribution'
+          ELSE 'Services professionnels'
+        END,
+        format('Entreprise de démonstration créée pour %s %s, lot %s.', prenoms[i], noms[i], j),
+        'Notre politique d''entreprise repose sur la transparence, la responsabilité et le respect des équipes.',
         0,
         'actif',
         user_id

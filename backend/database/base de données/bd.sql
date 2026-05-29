@@ -175,6 +175,19 @@ CREATE TABLE IF NOT EXISTS entreprises (
   logo TEXT,
   code_couleur VARCHAR(20),
 
+  email VARCHAR(255) NOT NULL,
+  telephone VARCHAR(30) NOT NULL,
+  site_web TEXT,
+
+  pays VARCHAR(100) NOT NULL,
+  ville VARCHAR(100) NOT NULL,
+  adresse TEXT NOT NULL,
+
+  secteur_activite VARCHAR(150) NOT NULL,
+  description TEXT,
+
+  politique_entreprise TEXT NOT NULL,
+
   argent_virtuel MoneyAmount DEFAULT 0,
 
   statut statut_general DEFAULT 'actif',

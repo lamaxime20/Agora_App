@@ -16,6 +16,19 @@ return new class extends Migration
             $table->text('logo')->nullable();
             $table->string('code_couleur', 20)->nullable();
 
+            $table->string('email', 255);
+            $table->string('telephone', 30);
+            $table->text('site_web')->nullable();
+
+            $table->string('pays', 100);
+            $table->string('ville', 100);
+            $table->text('adresse');
+
+            $table->string('secteur_activite', 150);
+            $table->text('description')->nullable();
+
+            $table->text('politique_entreprise');
+
             $table->decimal('argent_virtuel', 15, 2)->default(0);
 
             $table->enum('statut', ['actif', 'archive'])->default('actif');
