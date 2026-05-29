@@ -1,0 +1,137 @@
+/* ─── CreateEntrepriseLoading ────────────────────────────────────────────────── */
+
+.ceLoading-root {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg);
+    z-index: var(--z-overlay);
+}
+
+.ceLoading-backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.ceLoading-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.25;
+    animation: blobFloat 8s ease-in-out infinite;
+}
+
+.ceLoading-blob--1 {
+    width: 300px;
+    height: 300px;
+    background: var(--color-primary);
+    top: -80px;
+    right: -80px;
+    animation-delay: 0s;
+}
+
+.ceLoading-blob--2 {
+    width: 240px;
+    height: 240px;
+    background: var(--color-accent);
+    bottom: -60px;
+    left: -60px;
+    animation-delay: 4s;
+}
+
+/* ─── Centre ─────────────────────────────────────────────────────────────────── */
+
+.ceLoading-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    position: relative;
+    z-index: 1;
+}
+
+/* ─── Anneau animé ───────────────────────────────────────────────────────────── */
+
+.ceLoading-ring {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.ceLoading-ring__track,
+.ceLoading-ring__fill {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+}
+
+.ceLoading-ring__track {
+    border-color: var(--color-border);
+}
+
+.ceLoading-ring__fill {
+    border-top-color: var(--color-primary);
+    border-right-color: rgba(243, 156, 18, 0.4);
+    animation: timerSpin 1.2s linear infinite;
+}
+
+.ceLoading-ring__logo {
+    position: absolute;
+    inset: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.ceLoading-ring__logoImg {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+/* ─── Message ────────────────────────────────────────────────────────────────── */
+
+.ceLoading-message {
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    text-align: center;
+    animation: fadeInUp 300ms var(--ease-out);
+    min-height: 1.5em;
+}
+
+/* ─── Points de chargement ───────────────────────────────────────────────────── */
+
+.ceLoading-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.ceLoading-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    opacity: 0.3;
+    animation: pulse 1.4s ease-in-out infinite;
+}
+
+.ceLoading-dot:nth-child(2) { animation-delay: 0.2s; }
+.ceLoading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* ─── Dark mode ──────────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+    .ceLoading-blob--1 { opacity: 0.15; }
+    .ceLoading-blob--2 { opacity: 0.1; }
+}

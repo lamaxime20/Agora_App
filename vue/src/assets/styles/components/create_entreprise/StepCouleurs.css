@@ -1,0 +1,338 @@
+/* ─── StepCouleurs ───────────────────────────────────────────────────────────── */
+
+.stepCouleurs-root {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.stepCouleurs-content {
+    flex: 1;
+    padding-top: var(--space-8);
+}
+
+.stepCouleurs-label {
+    font-size: 11px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-4);
+}
+
+.stepCouleurs-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    font-weight: var(--weight-semibold);
+    line-height: 1.2;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-3);
+    max-width: 90%;
+}
+
+.stepCouleurs-desc {
+    font-size: 15px;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin-bottom: var(--space-8);
+}
+
+.stepCouleurs-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ─── ColorField ─────────────────────────────────────────────────────────────── */
+
+.colorField-root {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.colorField-label {
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.colorField-control {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 52px;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
+}
+
+.colorField-control:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+}
+
+.colorField-control--error {
+    border-color: var(--color-error);
+}
+
+.colorField-control--error:focus-within {
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+}
+
+.colorField-preview {
+    flex-shrink: 0;
+    width: 52px;
+    height: 100%;
+    background: var(--color-border);
+    border: none;
+    border-right: 1px solid var(--color-border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 150ms var(--ease-out);
+    position: relative;
+}
+
+.colorField-preview:hover {
+    opacity: 0.9;
+}
+
+.colorField-preview__icon {
+    color: var(--color-text-muted);
+}
+
+.colorField-hexWrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 6px;
+}
+
+.colorField-hashIcon {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.colorField-hexInput {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 15px;
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.colorField-hexInput::placeholder {
+    color: var(--color-text-light);
+    font-weight: var(--weight-regular);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.colorField-error {
+    font-size: 12px;
+    color: var(--color-error);
+    padding-left: 4px;
+}
+
+/* ─── Color Picker Popup ─────────────────────────────────────────────────────── */
+
+.colorPickerPopup-root {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+    z-index: var(--z-dropdown);
+    width: min(100%, 260px);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: scaleIn 180ms var(--ease-out);
+    transform-origin: top left;
+    user-select: none;
+}
+
+/* Carré saturation / valeur */
+.colorPickerPopup-square {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.4;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.colorPickerPopup-square__saturation {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, #fff, var(--picker-hue, #f00));
+}
+
+.colorPickerPopup-square__value {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent, #000);
+}
+
+.colorPickerPopup-square__cursor {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2.5px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+/* Barre de teinte */
+.colorPickerPopup-hue {
+    position: relative;
+    height: 14px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(
+        to right,
+        hsl(0, 100%, 50%),
+        hsl(30, 100%, 50%),
+        hsl(60, 100%, 50%),
+        hsl(90, 100%, 50%),
+        hsl(120, 100%, 50%),
+        hsl(150, 100%, 50%),
+        hsl(180, 100%, 50%),
+        hsl(210, 100%, 50%),
+        hsl(240, 100%, 50%),
+        hsl(270, 100%, 50%),
+        hsl(300, 100%, 50%),
+        hsl(330, 100%, 50%),
+        hsl(360, 100%, 50%)
+    );
+    cursor: pointer;
+    touch-action: none;
+}
+
+.colorPickerPopup-hue__thumb {
+    position: absolute;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2.5px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 1px 6px rgba(0, 0, 0, 0.25);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+/* Pied du picker */
+.colorPickerPopup-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.colorPickerPopup-preview {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.colorPickerPopup-hexDisplay {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    letter-spacing: 0.06em;
+}
+
+/* ─── Actions ────────────────────────────────────────────────────────────────── */
+
+.stepCouleurs-actions {
+    position: sticky;
+    bottom: 0;
+    padding: 20px 0 max(24px, env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--color-bg) 70%, transparent);
+    flex-shrink: 0;
+}
+
+.stepCouleurs-actions__row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--space-3);
+}
+
+.stepCouleurs-btnSecondary {
+    height: 56px;
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+}
+
+.stepCouleurs-btnSecondary:hover {
+    background: var(--color-surface);
+    border-color: var(--color-border-strong);
+}
+
+.stepCouleurs-btnSecondary:active { transform: scale(0.98); }
+
+.stepCouleurs-btnPrimary {
+    height: 56px;
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: 18px;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+
+.stepCouleurs-btnPrimary:hover {
+    background: var(--color-primary-hover);
+    box-shadow: 0 4px 20px rgba(243, 156, 18, 0.35);
+}
+
+.stepCouleurs-btnPrimary:active { transform: scale(0.98); }
+
+/* ─── Dark mode ajustements ──────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+    .colorField-preview {
+        border-right-color: var(--color-border);
+    }
+}
+
+/* ─── Desktop ────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .colorPickerPopup-root {
+        width: 240px;
+    }
+}

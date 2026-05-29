@@ -1,0 +1,109 @@
+/* ─── CreateEntrepriseHeader ─────────────────────────────────────────────────── */
+
+.ceHeader-root {
+    padding: 0 0 0;
+    flex-shrink: 0;
+}
+
+.ceHeader-topRow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: max(16px, env(safe-area-inset-top)) 0 12px;
+}
+
+.ceHeader-cancelBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    padding: 6px 0;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+    justify-self: start;
+}
+
+.ceHeader-cancelBtn:hover {
+    opacity: 1;
+    color: var(--color-text);
+}
+
+.ceHeader-title {
+    font-family: var(--font-ui);
+    font-size: 17px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.ceHeader-autosave {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    justify-self: end;
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+    color: var(--color-success);
+    opacity: 0;
+    transform: translateY(3px);
+    transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out);
+    pointer-events: none;
+}
+
+.ceHeader-autosave--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ─── Progress bar ───────────────────────────────────────────────────────────── */
+
+.ceHeader-progress {
+    display: flex;
+    gap: 5px;
+    padding-bottom: 4px;
+}
+
+.ceHeader-progress__segment {
+    flex: 1;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: rgba(243, 156, 18, 0.15);
+    transition: background-color 350ms var(--ease-out);
+}
+
+.ceHeader-progress__segment--active,
+.ceHeader-progress__segment--done {
+    background: var(--color-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+    .ceHeader-progress__segment {
+        background: rgba(243, 156, 18, 0.1);
+    }
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .ceHeader-title {
+        font-size: 15px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .ceHeader-root {
+        padding: 0;
+    }
+
+    .ceHeader-topRow {
+        padding-top: 0;
+    }
+}

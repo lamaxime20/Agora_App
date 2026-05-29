@@ -71,3 +71,22 @@ Si l'utilisateur essaye d'accéder à une page interdite, on l'ammène à "/404 
 - Si par erreur, les données de l'utilisateur dans le localStorage ont été effacé, il doit avoir un lien API pour récupérer ces informations juste avec les credentials (donc le token contenu dans le cookie HTTPOnly)
 
 L'objectif est de restreindre au maximum les accès non désirés
+
+
+### Logique de la creation d'entreprise
+Il y aura 6 formulaires
+- Sur le premier formulaire, le visiteur devra remplir le nom, et le secteur d'entreprise de l'entreprise (les deux champs sont obligatoires) avec un bouton suivant.
+- Sur le second formulaire, l'utilisateur devra mettre le logo de son entreprise (champ non obligatoire) avec un bouton précédent, un bouton skip et un bouton suivant
+- Sur le troisième formulaire, l'utilisateur devra mettre les couleurs de l'entreprise (en formation hexadécimal).
+Pour lui faciliter la tâche, il y aura comme dans VSCODE un cardre pour sélectionner la couleur (je vais donner le cardre en image)
+Il y aura trois champ pour les trois couleurs (tous non obligatoire)
+- Sur le quatrième formulaire, l'utilisateur devra remplir l'email, le numéro de téléphone et le site web du site. L'email obligatoire, le numéro de téléphone obligatoire, le site web non obligatoire.
+Avec deux boutons suivant et précédent.
+- Sur le cinquième formulaire, l'utilisateur devra remplir le pays, la ville, et l'adresse street de son entreprise. Tous les champs sont obligatoires, avec deux boutons suivant et précédent.
+- Sur le dernier formulaire, l'utilisateur devra remplir la politique de son entreprise, avec la description de son entreprise. Tous les deux champs sont obligatoires, avec un bouton précédent et un bouton créer l'entreprise.
+Tout le long des 06 formulaires, les données devront être enregistrées dans le localStorage afin que l'utilisateur ne perde pas les champs déjà remplis et sa position dans les formulaires.
+Du premier au sixième formulaire, il doit y avoir un bouton annuler en haut à gauche qui va diriger vers le dernier lien où était l'utilisateur avant d'arriver à "/create-entreprise" à défaut.
+Le champ du logo doit être un champ de drag and drop avec possibilité de choisir une image spécifique de son appareil avec possibilité de retirer une image si l'utilisateur en a mis une qui ne lui plait pas.
+Quand sur le dernier formulaire, on va cliquer sur le bouton créer son entreprise, on va envoyer toutes les données avec le credentials via un lien API, ensuite le backend va créer l'entreprise, trouver l'id de l'utilisateur à l'aide du token, puis avec l'id de l'utilisateur et l'id de l'entreprise, il va mettre l'utilisateur directeur dans la table appartenir_entreprise.
+Puis, il va désactiver le token qui a été envoyé par les crédentials (que ce soit le token session ou le token choix role) et créer un nouveau token session avec l'entreprise crée et le rôle directeur, puis envoyer ce token.
+Quand le token va arriver au niveau du frontend avec HTTPOnly, le frontend va d'abord effacer complètement le localStorage puis, l'interface "/create-entreprise" va afficher entreprise créer avec succès, voir le dashboard, avec un bouton voir le dashboard qui va renvoyer vers "/application".

@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "message": "Entreprise créée avec succès.",
+  "entreprise": {
+    "id": 42,
+    "nom": "Demo Corp",
+    "secteur": "Informatique & Technologie",
+    "email": "contact@democorp.cm",
+    "telephone": "+237 677000000",
+    "site_web": "https://democorp.cm",
+    "pays": "Cameroun",
+    "ville": "Douala",
+    "adresse": "Avenue de la Liberté, Akwa",
+    "couleur_primaire": "#F39C12",
+    "couleur_secondaire": "#2C3E50",
+    "couleur_tertiaire": "#FFF8F0",
+    "politique": "Nous nous engageons à protéger les données de nos clients.",
+    "description": "Une entreprise moderne dédiée à l'innovation technologique en Afrique.",
+    "created_at": "2024-01-15T10:30:00Z"
+  },
+  "user_role": {
+    "role": "Directeur",
+    "entreprise_id": 42
+  }
+}

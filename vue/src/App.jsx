@@ -13,6 +13,7 @@ import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ChoixRolePage from './pages/ChoixRolePage';
 import ApplicationPage from './pages/ApplicationPage';
+import CreateEntreprisePage from './pages/createEntreprise';
 
 import './App.css';
 
@@ -34,7 +35,7 @@ function App() {
                         </Route>
 
                         <Route element={<RouteGuardShared />}>
-                            <Route path="/create-entreprise" element={<div>Page Créer une entreprise</div>} />
+                            <Route path="/create-entreprise" element={<CreateEntreprisePage />} />
                         </Route>
 
                         <Route element={<RouteGuardAuthorization />}>

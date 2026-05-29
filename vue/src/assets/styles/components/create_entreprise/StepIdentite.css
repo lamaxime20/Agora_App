@@ -1,0 +1,432 @@
+/* ─── StepIdentite ───────────────────────────────────────────────────────────── */
+
+.stepIdentite-root {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.stepIdentite-content {
+    flex: 1;
+    padding-top: var(--space-8);
+}
+
+.stepIdentite-label {
+    font-size: 11px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-4);
+}
+
+.stepIdentite-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    font-weight: var(--weight-semibold);
+    line-height: 1.2;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-3);
+    max-width: 90%;
+}
+
+.stepIdentite-desc {
+    font-size: 15px;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin-bottom: var(--space-10);
+}
+
+.stepIdentite-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.stepIdentite-fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+/* ─── Champ avec label flottant ──────────────────────────────────────────────── */
+
+.stepIdentite-field {
+    position: relative;
+}
+
+.stepIdentite-inputWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.stepIdentite-inputIcon {
+    position: absolute;
+    left: 18px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+    z-index: 1;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.stepIdentite-input {
+    width: 100%;
+    height: 56px;
+    padding: 18px 18px 6px 50px;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: var(--weight-regular);
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    outline: none;
+    transition:
+        border-color 150ms var(--ease-out),
+        box-shadow   150ms var(--ease-out),
+        background   150ms var(--ease-out);
+    -webkit-appearance: none;
+}
+
+.stepIdentite-input::placeholder {
+    color: transparent;
+}
+
+.stepIdentite-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.12);
+    background: var(--color-surface);
+}
+
+.stepIdentite-input:focus + .stepIdentite-floatLabel,
+.stepIdentite-floatLabel--raised {
+    top: 9px;
+    font-size: 11px;
+    color: var(--color-primary);
+    font-weight: var(--weight-medium);
+}
+
+.stepIdentite-floatLabel {
+    position: absolute;
+    left: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    font-weight: var(--weight-regular);
+    color: var(--color-text-light);
+    pointer-events: none;
+    transition:
+        top       150ms var(--ease-out),
+        font-size 150ms var(--ease-out),
+        color     150ms var(--ease-out);
+}
+
+.stepIdentite-floatLabel--sector {
+    top: 50%;
+}
+
+.stepIdentite-required {
+    color: var(--color-primary);
+}
+
+/* ─── Bouton secteur ─────────────────────────────────────────────────────────── */
+
+.stepIdentite-sectorBtn {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    height: 56px;
+    padding: 18px 18px 6px 50px;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    cursor: pointer;
+    transition:
+        border-color 150ms var(--ease-out),
+        box-shadow   150ms var(--ease-out),
+        background   150ms var(--ease-out);
+}
+
+.stepIdentite-sectorBtn:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.12);
+    background: var(--color-surface);
+}
+
+.stepIdentite-sectorBtn:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface);
+}
+
+.stepIdentite-sectorValue {
+    flex: 1;
+    text-align: left;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: var(--weight-regular);
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stepIdentite-sectorValue--placeholder {
+    color: transparent;
+}
+
+.stepIdentite-sectorChevron {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    margin-left: 8px;
+    transition: transform 200ms var(--ease-out);
+}
+
+.stepIdentite-sectorBtn:hover .stepIdentite-sectorChevron {
+    transform: translateY(2px);
+}
+
+/* ─── Erreurs ────────────────────────────────────────────────────────────────── */
+
+.stepIdentite-field--error .stepIdentite-input,
+.stepIdentite-field--error .stepIdentite-sectorBtn {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+}
+
+.stepIdentite-error {
+    display: block;
+    margin-top: 6px;
+    padding-left: 4px;
+    font-size: 13px;
+    color: var(--color-error);
+    opacity: 0.9;
+}
+
+/* ─── Bottom sheet secteur ───────────────────────────────────────────────────── */
+
+.secteurSheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: flex-end;
+    animation: fadeIn 200ms var(--ease-out);
+}
+
+.secteurSheet-panel {
+    width: 100%;
+    background: var(--color-bg);
+    border-radius: 24px 24px 0 0;
+    padding: 0 0 max(24px, env(safe-area-inset-bottom));
+    max-height: 80dvh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUpSheet 280ms var(--ease-out);
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes slideUpSheet {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.secteurSheet-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--color-border-strong);
+    margin: 12px auto 0;
+    flex-shrink: 0;
+}
+
+.secteurSheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    flex-shrink: 0;
+}
+
+.secteurSheet-title {
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.secteurSheet-closeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--color-surface-alt);
+    border: none;
+    border-radius: var(--radius-full);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out);
+}
+
+.secteurSheet-closeBtn:hover {
+    background: var(--color-border);
+}
+
+.secteurSheet-search {
+    position: relative;
+    padding: 0 20px 12px;
+    flex-shrink: 0;
+}
+
+.secteurSheet-searchIcon {
+    position: absolute;
+    left: 36px;
+    top: 50%;
+    transform: translateY(-60%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.secteurSheet-searchInput {
+    width: 100%;
+    height: 44px;
+    padding: 0 16px 0 42px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
+}
+
+.secteurSheet-searchInput:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+}
+
+.secteurSheet-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 4px 20px 0;
+    list-style: none;
+    overscroll-behavior: contain;
+}
+
+.secteurSheet-empty {
+    padding: 24px 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--color-text-muted);
+}
+
+.secteurSheet-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 13px 0;
+    border: none;
+    background: none;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: var(--weight-regular);
+    color: var(--color-text);
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.secteurSheet-item:last-child {
+    border-bottom: none;
+}
+
+.secteurSheet-item--selected {
+    color: var(--color-primary);
+    font-weight: var(--weight-medium);
+}
+
+.secteurSheet-item:hover {
+    color: var(--color-primary);
+}
+
+.secteurSheet-check {
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+/* ─── Actions ────────────────────────────────────────────────────────────────── */
+
+.stepIdentite-actions {
+    position: sticky;
+    bottom: 0;
+    padding: 20px 0 max(24px, env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--color-bg) 70%, transparent);
+    flex-shrink: 0;
+}
+
+.stepIdentite-btnPrimary {
+    width: 100%;
+    height: 56px;
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: 18px;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.stepIdentite-btnPrimary:hover {
+    background: var(--color-primary-hover);
+    box-shadow: 0 4px 20px rgba(243, 156, 18, 0.35);
+}
+
+.stepIdentite-btnPrimary:active {
+    transform: scale(0.98);
+}
+
+/* ─── Desktop ────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .secteurSheet-overlay {
+        position: absolute;
+        inset: auto;
+        background: transparent;
+        z-index: var(--z-dropdown);
+        align-items: flex-start;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        bottom: auto;
+        animation: none;
+    }
+
+    .secteurSheet-panel {
+        width: 100%;
+        border-radius: 16px;
+        max-height: 320px;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        box-shadow: var(--shadow-lg);
+        animation: scaleIn 200ms var(--ease-out);
+        padding-bottom: 8px;
+    }
+
+    .secteurSheet-handle {
+        display: none;
+    }
+
+    .secteurSheet-header {
+        padding: 14px 16px 8px;
+    }
+}

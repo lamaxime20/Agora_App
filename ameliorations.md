@@ -35,3 +35,15 @@ Afin qu'ils respectent le branding d'AGORA
 remplacer le message "Impossible de joindre le serveur." par le message "vérifier votre connexion"
 
 # Rendre Actif le bouton continuer avec Google
+
+# Services d'envoi de mail
+Je veux configurer l'envoi de mail normal avec les variables d'environnement "MAIL_MAILER=log
+MAIL_SCHEME=null
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}""
+Et il y aussi Brevo.
+En temps normal, ce sera le système d'envoi normal avec SMTP qui sera en fonctionnement, puis lorsque ce système va tomber en panne ou ne plus marcher à cause d'une restriction, brevo va prendre le relais et à partir de là, on va d'abord m'envoyer un email pour indiquer que le système SMTP ne fonctionne plus.

@@ -1,0 +1,281 @@
+/* ─── createEntreprisePage ───────────────────────────────────────────────────── */
+
+.cePage-root {
+    min-height: 100dvh;
+    display: flex;
+    background: var(--color-bg);
+    font-family: var(--font-ui);
+}
+
+/* ─── Panneau branding (desktop uniquement) ──────────────────────────────────── */
+
+.cePage-branding {
+    display: none;
+}
+
+/* ─── Zone formulaire ────────────────────────────────────────────────────────── */
+
+.cePage-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    overflow-x: hidden;
+}
+
+.cePage-shell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 24px;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* ─── Erreur de soumission ───────────────────────────────────────────────────── */
+
+.cePage-submitError {
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    border-radius: 12px;
+    font-size: 14px;
+    color: var(--color-error);
+    text-align: center;
+    animation: fadeInUp 200ms var(--ease-out);
+}
+
+/* ─── Conteneur d'étape animé ────────────────────────────────────────────────── */
+
+.cePage-stepWrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cePage-stepWrap--forward {
+    animation: stepForward 280ms var(--ease-out);
+}
+
+.cePage-stepWrap--back {
+    animation: stepBack 280ms var(--ease-out);
+}
+
+@keyframes stepForward {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes stepBack {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── Panneau branding ───────────────────────────────────────────────────────── */
+
+.ceBranding-root {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #1A252F 0%, #2C3E50 55%, #243342 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ceBranding-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    animation: blobFloat 10s ease-in-out infinite;
+}
+
+.ceBranding-glow--1 {
+    width: 300px;
+    height: 300px;
+    background: rgba(243, 156, 18, 0.2);
+    top: -80px;
+    right: -80px;
+    animation-delay: 0s;
+}
+
+.ceBranding-glow--2 {
+    width: 200px;
+    height: 200px;
+    background: rgba(243, 156, 18, 0.12);
+    bottom: 100px;
+    left: -50px;
+    animation-delay: 4s;
+}
+
+.ceBranding-glow--3 {
+    width: 160px;
+    height: 160px;
+    background: rgba(52, 152, 219, 0.1);
+    bottom: -40px;
+    right: 60px;
+    animation-delay: 7s;
+}
+
+.ceBranding-content {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    flex: 1;
+    justify-content: center;
+}
+
+.ceBranding-logo {
+    flex-shrink: 0;
+    position: absolute;
+    top: 40px;
+    left: 40px;
+}
+
+.ceBranding-logo__img {
+    width: 100px;
+    height: auto;
+}
+
+.ceBranding-headline {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: fadeInUp 350ms var(--ease-out);
+}
+
+.ceBranding-heading {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: var(--weight-semibold);
+    line-height: 1.25;
+    color: #FFFFFF;
+    letter-spacing: -0.02em;
+}
+
+.ceBranding-sub {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.6;
+    max-width: 320px;
+}
+
+/* ─── Abstract cards decoration ──────────────────────────────────────────────── */
+
+.ceBranding-abstract {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 320px;
+}
+
+.ceBranding-abstract__card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: widgetFloat 6s ease-in-out infinite;
+}
+
+.ceBranding-abstract__card--2 {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    animation-delay: 3s;
+}
+
+.ceBranding-abstract__bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-full);
+}
+
+.ceBranding-abstract__dot {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.ceBranding-abstract__dot--orange {
+    background: rgba(243, 156, 18, 0.6);
+}
+
+.ceBranding-abstract__dotLabel {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.ceBranding-footer {
+    flex-shrink: 0;
+}
+
+.ceBranding-footer__text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* ─── Responsive — Mobile ────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .cePage-shell {
+        padding: 0 20px;
+    }
+}
+
+/* ─── Responsive — Tablette ──────────────────────────────────────────────────── */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .cePage-shell {
+        padding: 0 40px;
+        max-width: 600px;
+        margin-inline: auto;
+    }
+}
+
+/* ─── Responsive — Desktop ───────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .cePage-root {
+        flex-direction: row;
+    }
+
+    .cePage-branding {
+        display: flex;
+        flex: 0 0 40%;
+        position: sticky;
+        top: 0;
+        height: 100dvh;
+        overflow: hidden;
+        align-self: flex-start;
+    }
+
+    .cePage-main {
+        flex: 0 0 60%;
+        overflow-y: auto;
+    }
+
+    .cePage-shell {
+        padding: 48px 64px;
+        max-width: 580px;
+        margin-inline: auto;
+    }
+}
+
+/* ─── Responsive — Grand desktop ─────────────────────────────────────────────── */
+
+@media (min-width: 1201px) {
+    .cePage-shell {
+        padding: 56px 80px;
+        max-width: 600px;
+    }
+}
