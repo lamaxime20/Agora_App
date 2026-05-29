@@ -228,10 +228,10 @@ class SignupController extends Controller
                 $ttlMinutes,
                 '/',
                 null,
-                $request->secure(),
+                (bool) config('session.secure', $request->isSecure()),
                 true,
                 false,
-                'lax'
+                config('session.same_site', 'none')
             );
 
             return response()->json([

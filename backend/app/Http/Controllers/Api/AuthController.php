@@ -87,10 +87,10 @@ class AuthController extends Controller
                 $ttlMinutes,
                 '/',
                 null,
-                $request->secure(),
+                (bool) config('session.secure', $request->isSecure()),
                 true,
                 false,
-                'lax'
+                config('session.same_site', 'none')
             );
 
             return response()->json([
@@ -149,7 +149,17 @@ class AuthController extends Controller
             ], 500);
         }
 
-        $expiredCookie = cookie('tokenAuth', '', -1, '/', null, $request->secure(), true, false, 'lax');
+        $expiredCookie = cookie(
+            'tokenAuth',
+            '',
+            -1,
+            '/',
+            null,
+            (bool) config('session.secure', $request->isSecure()),
+            true,
+            false,
+            config('session.same_site', 'none')
+        );
 
         return response()->json([
             'ok'      => true,
@@ -229,7 +239,17 @@ class AuthController extends Controller
 
             $roleName = RoleUtilisateur::find($request->role_id)?->role ?? '';
 
-            $expiredAuthCookie = cookie('tokenAuth', '', -1, '/', null, $request->secure(), true, false, 'lax');
+            $expiredAuthCookie = cookie(
+                'tokenAuth',
+                '',
+                -1,
+                '/',
+                null,
+                (bool) config('session.secure', $request->isSecure()),
+                true,
+                false,
+                config('session.same_site', 'none')
+            );
 
             $authorizationCookie = cookie(
                 'tokenAuthorization',
@@ -237,10 +257,10 @@ class AuthController extends Controller
                 $ttlMinutes,
                 '/',
                 null,
-                $request->secure(),
+                (bool) config('session.secure', $request->isSecure()),
                 true,
                 false,
-                'lax'
+                config('session.same_site', 'none')
             );
 
             return response()->json([
@@ -315,7 +335,17 @@ class AuthController extends Controller
             ], 500);
         }
 
-        $expiredCookie = cookie('tokenAuthorization', '', -1, '/', null, $request->secure(), true, false, 'lax');
+        $expiredCookie = cookie(
+            'tokenAuthorization',
+            '',
+            -1,
+            '/',
+            null,
+            (bool) config('session.secure', $request->isSecure()),
+            true,
+            false,
+            config('session.same_site', 'none')
+        );
 
         return response()->json([
             'ok'      => true,
