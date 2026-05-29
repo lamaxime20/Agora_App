@@ -45,7 +45,7 @@
     gap: var(--space-5);
 }
 
-/* ─── Champs ─────────────────────────────────────────────────────────────────── */
+/* ─── Champ générique ────────────────────────────────────────────────────────── */
 
 .stepLocalisation-field {
     position: relative;
@@ -76,7 +76,7 @@
 .stepLocalisation-input {
     width: 100%;
     height: 56px;
-    padding: 18px 18px 6px 50px;
+    padding: 22px 18px 8px 50px;
     font-family: var(--font-ui);
     font-size: 16px;
     color: var(--color-text);
@@ -91,8 +91,6 @@
     -webkit-appearance: none;
 }
 
-.stepLocalisation-input::placeholder { color: transparent; }
-
 .stepLocalisation-input:focus {
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.12);
@@ -102,7 +100,7 @@
 .stepLocalisation-textarea {
     width: 100%;
     min-height: 90px;
-    padding: 20px 18px 10px 50px;
+    padding: 22px 18px 10px 50px;
     font-family: var(--font-ui);
     font-size: 15px;
     line-height: 1.5;
@@ -112,16 +110,19 @@
     border-radius: 18px;
     outline: none;
     resize: none;
-    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out), background 150ms var(--ease-out);
+    transition:
+        border-color 150ms var(--ease-out),
+        box-shadow   150ms var(--ease-out),
+        background   150ms var(--ease-out);
 }
-
-.stepLocalisation-textarea::placeholder { color: transparent; }
 
 .stepLocalisation-textarea:focus {
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.12);
     background: var(--color-surface);
 }
+
+/* ─── Label flottant ─────────────────────────────────────────────────────────── */
 
 .stepLocalisation-floatLabel {
     position: absolute;
@@ -132,36 +133,47 @@
     font-weight: var(--weight-regular);
     color: var(--color-text-light);
     pointer-events: none;
-    transition: top 150ms var(--ease-out), font-size 150ms var(--ease-out), color 150ms var(--ease-out);
+    transition:
+        top        150ms var(--ease-out),
+        transform  150ms var(--ease-out),
+        font-size  150ms var(--ease-out),
+        color      150ms var(--ease-out);
+    white-space: nowrap;
 }
 
+/* Textarea : label ancré en haut (pas centré verticalement) */
 .stepLocalisation-floatLabel--textarea {
-    top: 24px;
-    transform: none;
+    top: 22px;
+    transform: translateY(0);
 }
 
-.stepLocalisation-floatLabel--raised,
-.stepLocalisation-input:focus + .stepLocalisation-floatLabel {
+/*
+  :focus-within sur le champ pour que le label monte dès que l'input
+  (ou la liste autocomplete) reçoit le focus.
+*/
+.stepLocalisation-field:focus-within .stepLocalisation-floatLabel,
+.stepLocalisation-floatLabel--raised {
     top: 9px;
+    transform: translateY(0);
     font-size: 11px;
-    color: var(--color-primary);
     font-weight: var(--weight-medium);
-    transform: none;
+    color: var(--color-primary);
 }
 
-.stepLocalisation-textarea:focus ~ .stepLocalisation-floatLabel--textarea,
+/* Le label textarea se déplace vers le haut lors du focus / valeur */
+.stepLocalisation-field:focus-within .stepLocalisation-floatLabel--textarea,
 .stepLocalisation-floatLabel--textarea.stepLocalisation-floatLabel--raised {
     top: 9px;
+    transform: translateY(0);
     font-size: 11px;
-    color: var(--color-primary);
     font-weight: var(--weight-medium);
+    color: var(--color-primary);
 }
 
 .stepLocalisation-required { color: var(--color-primary); }
 
 .stepLocalisation-field--error .stepLocalisation-input,
-.stepLocalisation-field--error .stepLocalisation-textarea,
-.stepLocalisation-field--error .stepLocalisation-selectorBtn {
+.stepLocalisation-field--error .stepLocalisation-textarea {
     border-color: var(--color-error);
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
 }
@@ -174,191 +186,51 @@
     color: var(--color-error);
 }
 
-/* ─── Bouton pays ────────────────────────────────────────────────────────────── */
+/* ─── Dropdown autocomplete pays ─────────────────────────────────────────────── */
 
-.stepLocalisation-selectorBtn {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 56px;
-    padding: 18px 18px 6px 50px;
-    background: var(--color-surface-alt);
-    border: 1px solid var(--color-border);
-    border-radius: 18px;
-    cursor: pointer;
-    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out), background 150ms var(--ease-out);
-}
-
-.stepLocalisation-selectorBtn:focus-visible {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.12);
-    background: var(--color-surface);
-}
-
-.stepLocalisation-selectorBtn:hover {
-    border-color: var(--color-border-strong);
-    background: var(--color-surface);
-}
-
-.stepLocalisation-selectorValue {
-    flex: 1;
-    text-align: left;
-    font-family: var(--font-ui);
-    font-size: 16px;
-    color: var(--color-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.stepLocalisation-selectorValue--placeholder { color: transparent; }
-
-.stepLocalisation-selectorChevron {
-    color: var(--color-text-muted);
-    flex-shrink: 0;
-}
-
-/* ─── Sheet pays ─────────────────────────────────────────────────────────────── */
-
-.paysSheet-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    z-index: var(--z-modal);
-    display: flex;
-    align-items: flex-end;
-    animation: fadeIn 200ms var(--ease-out);
-}
-
-.paysSheet-panel {
-    width: 100%;
-    background: var(--color-bg);
-    border-radius: 24px 24px 0 0;
-    padding: 0 0 max(24px, env(safe-area-inset-bottom));
-    max-height: 80dvh;
-    display: flex;
-    flex-direction: column;
-    animation: slideUpSheet 280ms var(--ease-out);
-    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
-}
-
-.paysSheet-handle {
-    width: 36px;
-    height: 4px;
-    border-radius: var(--radius-full);
-    background: var(--color-border-strong);
-    margin: 12px auto 0;
-    flex-shrink: 0;
-}
-
-.paysSheet-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px 12px;
-    flex-shrink: 0;
-}
-
-.paysSheet-title {
-    font-family: var(--font-ui);
-    font-size: 16px;
-    font-weight: var(--weight-semibold);
-    color: var(--color-text);
-}
-
-.paysSheet-closeBtn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: var(--color-surface-alt);
-    border: none;
-    border-radius: var(--radius-full);
-    color: var(--color-text-muted);
-    cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-out);
-}
-
-.paysSheet-closeBtn:hover { background: var(--color-border); }
-
-.paysSheet-search {
-    position: relative;
-    padding: 0 20px 12px;
-    flex-shrink: 0;
-}
-
-.paysSheet-searchIcon {
+.stepLocalisation-autocomplete {
     position: absolute;
-    left: 36px;
-    top: 50%;
-    transform: translateY(-60%);
-    color: var(--color-text-muted);
-    pointer-events: none;
-}
-
-.paysSheet-searchInput {
-    width: 100%;
-    height: 44px;
-    padding: 0 16px 0 42px;
-    font-family: var(--font-ui);
-    font-size: 15px;
-    color: var(--color-text);
-    background: var(--color-surface-alt);
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: var(--z-dropdown);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 12px;
-    outline: none;
-    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
-}
-
-.paysSheet-searchInput:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
-}
-
-.paysSheet-list {
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
     overflow-y: auto;
-    flex: 1;
-    padding: 4px 20px 0;
+    max-height: 240px;
     list-style: none;
-    overscroll-behavior: contain;
+    padding: 6px;
+    animation: scaleIn 180ms var(--ease-out);
+    transform-origin: top center;
 }
 
-.paysSheet-empty {
-    padding: 24px 0;
-    text-align: center;
-    font-size: 14px;
-    color: var(--color-text-muted);
-}
-
-.paysSheet-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.stepLocalisation-autocomplete__item {
+    display: block;
     width: 100%;
-    padding: 13px 0;
-    border: none;
+    padding: 11px 14px;
     background: none;
+    border: none;
+    border-radius: 10px;
     font-family: var(--font-ui);
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: var(--weight-regular);
     color: var(--color-text);
-    cursor: pointer;
-    border-bottom: 1px solid var(--color-border);
     text-align: left;
-    transition: color var(--duration-fast) var(--ease-out);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
 
-.paysSheet-item:last-child { border-bottom: none; }
+.stepLocalisation-autocomplete__item:hover {
+    background: var(--color-surface-alt);
+}
 
-.paysSheet-item--selected {
+.stepLocalisation-autocomplete__item--active {
+    background: var(--color-primary-light);
     color: var(--color-primary);
     font-weight: var(--weight-medium);
 }
-
-.paysSheet-item:hover { color: var(--color-primary); }
-
-.paysSheet-check { color: var(--color-primary); }
 
 /* ─── Actions ────────────────────────────────────────────────────────────────── */
 
@@ -386,7 +258,9 @@
     font-size: 15px;
     font-weight: var(--weight-medium);
     cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+    transition:
+        background     var(--duration-fast) var(--ease-out),
+        border-color   var(--duration-fast) var(--ease-out);
 }
 
 .stepLocalisation-btnSecondary:hover { background: var(--color-surface); border-color: var(--color-border-strong); }
@@ -402,38 +276,11 @@
     font-size: 16px;
     font-weight: var(--weight-semibold);
     cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+    transition:
+        background  var(--duration-fast) var(--ease-out),
+        box-shadow  var(--duration-fast) var(--ease-out),
+        transform   var(--duration-fast) var(--ease-out);
 }
 
 .stepLocalisation-btnPrimary:hover { background: var(--color-primary-hover); box-shadow: 0 4px 20px rgba(243, 156, 18, 0.35); }
 .stepLocalisation-btnPrimary:active { transform: scale(0.98); }
-
-/* ─── Desktop ────────────────────────────────────────────────────────────────── */
-
-@media (min-width: 1025px) {
-    .paysSheet-overlay {
-        position: absolute;
-        inset: auto;
-        background: transparent;
-        z-index: var(--z-dropdown);
-        align-items: flex-start;
-        top: calc(100% + 6px);
-        left: 0;
-        right: 0;
-        bottom: auto;
-        animation: none;
-    }
-
-    .paysSheet-panel {
-        width: 100%;
-        border-radius: 16px;
-        max-height: 320px;
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        box-shadow: var(--shadow-lg);
-        animation: scaleIn 200ms var(--ease-out);
-        padding-bottom: 8px;
-    }
-
-    .paysSheet-handle { display: none; }
-}

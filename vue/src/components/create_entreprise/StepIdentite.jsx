@@ -1,80 +1,80 @@
-import { useState, useRef, useEffect } from 'react';
-import { Building2, Briefcase, ChevronDown, Search, X, ChevronRight } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Building2, Briefcase } from 'lucide-react';
 import { SECTEURS } from '../../services/createEntreprise';
 import '../../assets/styles/components/create_entreprise/StepIdentite.css';
 
-const SecteurSheet = ({ value, onSelect, onClose }) => {
-    const [query, setQuery] = useState('');
-    const searchRef = useRef(null);
+// ─── Autocomplete secteur ──────────────────────────────────────────────────────
 
-    useEffect(() => {
-        const t = setTimeout(() => searchRef.current?.focus(), 100);
-        return () => clearTimeout(t);
-    }, []);
+const SecteurAutocomplete = ({ value, onChange, error }) => {
+    const [open, setOpen] = useState(false);
 
-    const filtered = SECTEURS.filter(s =>
-        s.toLowerCase().includes(query.toLowerCase())
+    // 5 secteurs aléatoires stables pour toute la session (suggestions initiales)
+    const initialSuggestions = useMemo(
+        () => [...SECTEURS].sort(() => Math.random() - 0.5).slice(0, 5),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
     );
 
-    const handleOverlayClick = (e) => {
-        if (e.target === e.currentTarget) onClose();
+    const suggestions = value.trim()
+        ? SECTEURS.filter(s => s.toLowerCase().includes(value.toLowerCase())).slice(0, 8)
+        : initialSuggestions;
+
+    const handleSelect = (secteur) => {
+        onChange('secteur', secteur);
+        setOpen(false);
     };
 
     return (
-        <div className="secteurSheet-overlay" onClick={handleOverlayClick} role="dialog" aria-modal="true" aria-label="Choisir un secteur">
-            <div className="secteurSheet-panel">
-                <div className="secteurSheet-handle" />
+        <div
+            className={`stepIdentite-field${error ? ' stepIdentite-field--error' : ''}`}
+        >
+            <div className="stepIdentite-inputWrap">
+                <Briefcase size={18} strokeWidth={1.8} className="stepIdentite-inputIcon" />
+                <input
+                    type="text"
+                    className="stepIdentite-input"
+                    value={value}
+                    onChange={e => { onChange('secteur', e.target.value); setOpen(true); }}
+                    onFocus={() => setOpen(true)}
+                    onBlur={() => setTimeout(() => setOpen(false), 150)}
+                    onKeyDown={e => e.key === 'Escape' && setOpen(false)}
+                    aria-label="Secteur d'activité"
+                    aria-invalid={!!error}
+                    aria-autocomplete="list"
+                    aria-expanded={open}
+                    autoComplete="off"
+                    maxLength={120}
+                />
+            </div>
 
-                <div className="secteurSheet-header">
-                    <span className="secteurSheet-title">Secteur d'activité</span>
-                    <button type="button" className="secteurSheet-closeBtn" onClick={onClose} aria-label="Fermer">
-                        <X size={18} strokeWidth={2} />
-                    </button>
-                </div>
+            <label className={`stepIdentite-floatLabel${value ? ' stepIdentite-floatLabel--raised' : ''}`}>
+                Secteur d'activité <span className="stepIdentite-required" aria-hidden="true">*</span>
+            </label>
 
-                <div className="secteurSheet-search">
-                    <Search size={16} strokeWidth={2} className="secteurSheet-searchIcon" />
-                    <input
-                        ref={searchRef}
-                        type="text"
-                        className="secteurSheet-searchInput"
-                        placeholder="Rechercher un secteur..."
-                        value={query}
-                        onChange={e => setQuery(e.target.value)}
-                        aria-label="Rechercher un secteur"
-                    />
-                </div>
+            {error && <span className="stepIdentite-error" role="alert">{error}</span>}
 
-                <ul className="secteurSheet-list" role="listbox" aria-label="Secteurs d'activité">
-                    {filtered.length === 0 && (
-                        <li className="secteurSheet-empty">Aucun résultat</li>
-                    )}
-                    {filtered.map(s => (
+            {open && suggestions.length > 0 && (
+                <ul className="stepIdentite-autocomplete" role="listbox" aria-label="Suggestions de secteur">
+                    {suggestions.map(s => (
                         <li key={s} role="option" aria-selected={value === s}>
                             <button
                                 type="button"
-                                className={`secteurSheet-item${value === s ? ' secteurSheet-item--selected' : ''}`}
-                                onClick={() => { onSelect(s); onClose(); }}
+                                className={`stepIdentite-autocomplete__item${value === s ? ' stepIdentite-autocomplete__item--active' : ''}`}
+                                onMouseDown={e => { e.preventDefault(); handleSelect(s); }}
                             >
-                                <span>{s}</span>
-                                {value === s && <ChevronRight size={15} strokeWidth={2.5} className="secteurSheet-check" />}
+                                {s}
                             </button>
                         </li>
                     ))}
                 </ul>
-            </div>
+            )}
         </div>
     );
 };
 
+// ─── StepIdentite ─────────────────────────────────────────────────────────────
+
 const StepIdentite = ({ formData, onChange, onNext, errors }) => {
-    const [sheetOpen, setSheetOpen] = useState(false);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onNext();
-    };
-
     return (
         <div className="stepIdentite-root">
             <div className="stepIdentite-content">
@@ -84,77 +84,44 @@ const StepIdentite = ({ formData, onChange, onNext, errors }) => {
                     Donnez un nom et un secteur à votre activité.
                 </p>
 
-                <form className="stepIdentite-form" onSubmit={handleSubmit} noValidate>
-                    <div className="stepIdentite-fieldGroup">
-                        {/* Nom de l'entreprise */}
-                        <div className={`stepIdentite-field${errors.nom ? ' stepIdentite-field--error' : ''}`}>
-                            <div className="stepIdentite-inputWrap">
-                                <Building2 size={18} strokeWidth={1.8} className="stepIdentite-inputIcon" />
-                                <input
-                                    type="text"
-                                    className="stepIdentite-input"
-                                    placeholder="Ex : Boulangerie Moderne"
-                                    value={formData.nom}
-                                    onChange={e => onChange('nom', e.target.value)}
-                                    aria-label="Nom de l'entreprise"
-                                    aria-invalid={!!errors.nom}
-                                    aria-describedby={errors.nom ? 'nom-error' : undefined}
-                                    autoComplete="organization"
-                                    maxLength={120}
-                                />
-                            </div>
-                            <label className={`stepIdentite-floatLabel${formData.nom ? ' stepIdentite-floatLabel--raised' : ''}`}>
-                                Nom de l'entreprise <span className="stepIdentite-required" aria-hidden="true">*</span>
-                            </label>
-                            {errors.nom && (
-                                <span id="nom-error" className="stepIdentite-error" role="alert">{errors.nom}</span>
-                            )}
+                <div className="stepIdentite-fieldGroup">
+                    {/* Nom de l'entreprise */}
+                    <div className={`stepIdentite-field${errors.nom ? ' stepIdentite-field--error' : ''}`}>
+                        <div className="stepIdentite-inputWrap">
+                            <Building2 size={18} strokeWidth={1.8} className="stepIdentite-inputIcon" />
+                            <input
+                                type="text"
+                                className="stepIdentite-input"
+                                value={formData.nom}
+                                onChange={e => onChange('nom', e.target.value)}
+                                aria-label="Nom de l'entreprise"
+                                aria-invalid={!!errors.nom}
+                                autoComplete="organization"
+                                maxLength={120}
+                            />
                         </div>
-
-                        {/* Secteur */}
-                        <div className={`stepIdentite-field${errors.secteur ? ' stepIdentite-field--error' : ''}`}>
-                            <button
-                                type="button"
-                                className="stepIdentite-sectorBtn"
-                                onClick={() => setSheetOpen(true)}
-                                aria-haspopup="dialog"
-                                aria-expanded={sheetOpen}
-                                aria-invalid={!!errors.secteur}
-                            >
-                                <Briefcase size={18} strokeWidth={1.8} className="stepIdentite-inputIcon" />
-                                <span className={`stepIdentite-sectorValue${!formData.secteur ? ' stepIdentite-sectorValue--placeholder' : ''}`}>
-                                    {formData.secteur || "Secteur d'activité"}
-                                </span>
-                                <ChevronDown size={16} strokeWidth={2} className="stepIdentite-sectorChevron" />
-                            </button>
-                            <label className={`stepIdentite-floatLabel stepIdentite-floatLabel--sector${formData.secteur ? ' stepIdentite-floatLabel--raised' : ''}`}>
-                                Secteur d'activité <span className="stepIdentite-required" aria-hidden="true">*</span>
-                            </label>
-                            {errors.secteur && (
-                                <span className="stepIdentite-error" role="alert">{errors.secteur}</span>
-                            )}
-                        </div>
+                        <label className={`stepIdentite-floatLabel${formData.nom ? ' stepIdentite-floatLabel--raised' : ''}`}>
+                            Nom de l'entreprise <span className="stepIdentite-required" aria-hidden="true">*</span>
+                        </label>
+                        {errors.nom && (
+                            <span className="stepIdentite-error" role="alert">{errors.nom}</span>
+                        )}
                     </div>
-                </form>
+
+                    {/* Secteur — autocomplete libre */}
+                    <SecteurAutocomplete
+                        value={formData.secteur}
+                        onChange={onChange}
+                        error={errors.secteur}
+                    />
+                </div>
             </div>
 
             <div className="stepIdentite-actions">
-                <button
-                    type="button"
-                    className="stepIdentite-btnPrimary"
-                    onClick={onNext}
-                >
+                <button type="button" className="stepIdentite-btnPrimary" onClick={onNext}>
                     Continuer
                 </button>
             </div>
-
-            {sheetOpen && (
-                <SecteurSheet
-                    value={formData.secteur}
-                    onSelect={val => onChange('secteur', val)}
-                    onClose={() => setSheetOpen(false)}
-                />
-            )}
         </div>
     );
 };

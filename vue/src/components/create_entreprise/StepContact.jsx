@@ -83,7 +83,6 @@ const StepContact = ({ formData, onChange, onNext, onPrev, errors }) => {
                             <input
                                 type="email"
                                 className="stepContact-input"
-                                placeholder="contact@entreprise.com"
                                 value={formData.email}
                                 onChange={e => onChange('email', e.target.value)}
                                 onBlur={() => setEmailTouched(true)}
@@ -113,7 +112,6 @@ const StepContact = ({ formData, onChange, onNext, onPrev, errors }) => {
                             <input
                                 type="tel"
                                 className="stepContact-input stepContact-input--phone"
-                                placeholder="677 000 000"
                                 value={formData.telephoneNumber}
                                 onChange={e => onChange('telephoneNumber', e.target.value)}
                                 aria-label="Numéro de téléphone"
@@ -135,7 +133,6 @@ const StepContact = ({ formData, onChange, onNext, onPrev, errors }) => {
                             <input
                                 type="url"
                                 className="stepContact-input"
-                                placeholder="https://votre-site.com"
                                 value={formData.siteWeb}
                                 onChange={e => onChange('siteWeb', e.target.value)}
                                 aria-label="Site web de l'entreprise (optionnel)"

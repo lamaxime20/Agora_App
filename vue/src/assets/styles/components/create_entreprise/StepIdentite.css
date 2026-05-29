@@ -39,18 +39,13 @@
     margin-bottom: var(--space-10);
 }
 
-.stepIdentite-form {
-    display: flex;
-    flex-direction: column;
-}
-
 .stepIdentite-fieldGroup {
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
 }
 
-/* ─── Champ avec label flottant ──────────────────────────────────────────────── */
+/* ─── Champ générique ────────────────────────────────────────────────────────── */
 
 .stepIdentite-field {
     position: relative;
@@ -74,7 +69,8 @@
 .stepIdentite-input {
     width: 100%;
     height: 56px;
-    padding: 18px 18px 6px 50px;
+    /* padding-top 22px + padding-bottom 8px pour laisser la place au label flottant */
+    padding: 22px 18px 8px 50px;
     font-family: var(--font-ui);
     font-size: 16px;
     font-weight: var(--weight-regular);
@@ -90,27 +86,18 @@
     -webkit-appearance: none;
 }
 
-.stepIdentite-input::placeholder {
-    color: transparent;
-}
-
 .stepIdentite-input:focus {
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.12);
     background: var(--color-surface);
 }
 
-.stepIdentite-input:focus + .stepIdentite-floatLabel,
-.stepIdentite-floatLabel--raised {
-    top: 9px;
-    font-size: 11px;
-    color: var(--color-primary);
-    font-weight: var(--weight-medium);
-}
+/* ─── Label flottant ─────────────────────────────────────────────────────────── */
 
 .stepIdentite-floatLabel {
     position: absolute;
     left: 50px;
+    /* centre vertical du champ 56px */
     top: 50%;
     transform: translateY(-50%);
     font-size: 15px;
@@ -118,83 +105,41 @@
     color: var(--color-text-light);
     pointer-events: none;
     transition:
-        top       150ms var(--ease-out),
-        font-size 150ms var(--ease-out),
-        color     150ms var(--ease-out);
+        top        150ms var(--ease-out),
+        transform  150ms var(--ease-out),
+        font-size  150ms var(--ease-out),
+        color      150ms var(--ease-out);
+    white-space: nowrap;
 }
 
-.stepIdentite-floatLabel--sector {
-    top: 50%;
+/*
+  Utilise :focus-within sur .stepIdentite-field pour que le label monte
+  dès que n'importe quel enfant (input ou dropdown) reçoit le focus.
+  La classe --raised garde le label en haut quand la valeur est présente.
+*/
+.stepIdentite-field:focus-within .stepIdentite-floatLabel,
+.stepIdentite-floatLabel--raised {
+    top: 9px;
+    transform: translateY(0);
+    font-size: 11px;
+    font-weight: var(--weight-medium);
+    color: var(--color-primary);
 }
 
 .stepIdentite-required {
     color: var(--color-primary);
 }
 
-/* ─── Bouton secteur ─────────────────────────────────────────────────────────── */
+/* ─── États d'erreur ─────────────────────────────────────────────────────────── */
 
-.stepIdentite-sectorBtn {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    width: 100%;
-    height: 56px;
-    padding: 18px 18px 6px 50px;
-    background: var(--color-surface-alt);
-    border: 1px solid var(--color-border);
-    border-radius: 18px;
-    cursor: pointer;
-    transition:
-        border-color 150ms var(--ease-out),
-        box-shadow   150ms var(--ease-out),
-        background   150ms var(--ease-out);
-}
-
-.stepIdentite-sectorBtn:focus-visible {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.12);
-    background: var(--color-surface);
-}
-
-.stepIdentite-sectorBtn:hover {
-    border-color: var(--color-border-strong);
-    background: var(--color-surface);
-}
-
-.stepIdentite-sectorValue {
-    flex: 1;
-    text-align: left;
-    font-family: var(--font-ui);
-    font-size: 16px;
-    font-weight: var(--weight-regular);
-    color: var(--color-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.stepIdentite-sectorValue--placeholder {
-    color: transparent;
-}
-
-.stepIdentite-sectorChevron {
-    color: var(--color-text-muted);
-    flex-shrink: 0;
-    margin-left: 8px;
-    transition: transform 200ms var(--ease-out);
-}
-
-.stepIdentite-sectorBtn:hover .stepIdentite-sectorChevron {
-    transform: translateY(2px);
-}
-
-/* ─── Erreurs ────────────────────────────────────────────────────────────────── */
-
-.stepIdentite-field--error .stepIdentite-input,
-.stepIdentite-field--error .stepIdentite-sectorBtn {
+.stepIdentite-field--error .stepIdentite-input {
     border-color: var(--color-error);
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+}
+
+.stepIdentite-field--error .stepIdentite-field:focus-within .stepIdentite-floatLabel,
+.stepIdentite-field--error .stepIdentite-floatLabel--raised {
+    color: var(--color-error);
 }
 
 .stepIdentite-error {
@@ -206,160 +151,50 @@
     opacity: 0.9;
 }
 
-/* ─── Bottom sheet secteur ───────────────────────────────────────────────────── */
+/* ─── Dropdown autocomplete ──────────────────────────────────────────────────── */
 
-.secteurSheet-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    z-index: var(--z-modal);
-    display: flex;
-    align-items: flex-end;
-    animation: fadeIn 200ms var(--ease-out);
-}
-
-.secteurSheet-panel {
-    width: 100%;
-    background: var(--color-bg);
-    border-radius: 24px 24px 0 0;
-    padding: 0 0 max(24px, env(safe-area-inset-bottom));
-    max-height: 80dvh;
-    display: flex;
-    flex-direction: column;
-    animation: slideUpSheet 280ms var(--ease-out);
-    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
-}
-
-@keyframes slideUpSheet {
-    from { transform: translateY(100%); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-}
-
-.secteurSheet-handle {
-    width: 36px;
-    height: 4px;
-    border-radius: var(--radius-full);
-    background: var(--color-border-strong);
-    margin: 12px auto 0;
-    flex-shrink: 0;
-}
-
-.secteurSheet-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px 12px;
-    flex-shrink: 0;
-}
-
-.secteurSheet-title {
-    font-family: var(--font-ui);
-    font-size: 16px;
-    font-weight: var(--weight-semibold);
-    color: var(--color-text);
-}
-
-.secteurSheet-closeBtn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: var(--color-surface-alt);
-    border: none;
-    border-radius: var(--radius-full);
-    color: var(--color-text-muted);
-    cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-out);
-}
-
-.secteurSheet-closeBtn:hover {
-    background: var(--color-border);
-}
-
-.secteurSheet-search {
-    position: relative;
-    padding: 0 20px 12px;
-    flex-shrink: 0;
-}
-
-.secteurSheet-searchIcon {
+.stepIdentite-autocomplete {
     position: absolute;
-    left: 36px;
-    top: 50%;
-    transform: translateY(-60%);
-    color: var(--color-text-muted);
-    pointer-events: none;
-}
-
-.secteurSheet-searchInput {
-    width: 100%;
-    height: 44px;
-    padding: 0 16px 0 42px;
-    font-family: var(--font-ui);
-    font-size: 15px;
-    color: var(--color-text);
-    background: var(--color-surface-alt);
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: var(--z-dropdown);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 12px;
-    outline: none;
-    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
-}
-
-.secteurSheet-searchInput:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
-}
-
-.secteurSheet-list {
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
     overflow-y: auto;
-    flex: 1;
-    padding: 4px 20px 0;
+    max-height: 240px;
     list-style: none;
-    overscroll-behavior: contain;
+    padding: 6px;
+    animation: scaleIn 180ms var(--ease-out);
+    transform-origin: top center;
 }
 
-.secteurSheet-empty {
-    padding: 24px 0;
-    text-align: center;
-    font-size: 14px;
-    color: var(--color-text-muted);
-}
-
-.secteurSheet-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.stepIdentite-autocomplete__item {
+    display: block;
     width: 100%;
-    padding: 13px 0;
-    border: none;
+    padding: 11px 14px;
     background: none;
+    border: none;
+    border-radius: 10px;
     font-family: var(--font-ui);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: var(--weight-regular);
     color: var(--color-text);
-    cursor: pointer;
-    border-bottom: 1px solid var(--color-border);
     text-align: left;
-    transition: color var(--duration-fast) var(--ease-out);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
 
-.secteurSheet-item:last-child {
-    border-bottom: none;
+.stepIdentite-autocomplete__item:hover {
+    background: var(--color-surface-alt);
 }
 
-.secteurSheet-item--selected {
+.stepIdentite-autocomplete__item--active {
+    background: var(--color-primary-light);
     color: var(--color-primary);
     font-weight: var(--weight-medium);
-}
-
-.secteurSheet-item:hover {
-    color: var(--color-primary);
-}
-
-.secteurSheet-check {
-    color: var(--color-primary);
-    flex-shrink: 0;
 }
 
 /* ─── Actions ────────────────────────────────────────────────────────────────── */
@@ -383,7 +218,10 @@
     font-size: 16px;
     font-weight: var(--weight-semibold);
     cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+    transition:
+        background var(--duration-fast) var(--ease-out),
+        box-shadow  var(--duration-fast) var(--ease-out),
+        transform   var(--duration-fast) var(--ease-out);
 }
 
 .stepIdentite-btnPrimary:hover {
@@ -393,40 +231,4 @@
 
 .stepIdentite-btnPrimary:active {
     transform: scale(0.98);
-}
-
-/* ─── Desktop ────────────────────────────────────────────────────────────────── */
-
-@media (min-width: 1025px) {
-    .secteurSheet-overlay {
-        position: absolute;
-        inset: auto;
-        background: transparent;
-        z-index: var(--z-dropdown);
-        align-items: flex-start;
-        top: calc(100% + 6px);
-        left: 0;
-        right: 0;
-        bottom: auto;
-        animation: none;
-    }
-
-    .secteurSheet-panel {
-        width: 100%;
-        border-radius: 16px;
-        max-height: 320px;
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        box-shadow: var(--shadow-lg);
-        animation: scaleIn 200ms var(--ease-out);
-        padding-bottom: 8px;
-    }
-
-    .secteurSheet-handle {
-        display: none;
-    }
-
-    .secteurSheet-header {
-        padding: 14px 16px 8px;
-    }
 }

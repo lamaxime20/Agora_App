@@ -1,65 +1,71 @@
-import { useState, useRef, useEffect } from 'react';
-import { MapPin, Building, AlignLeft, Search, ChevronRight, X } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { MapPin, Building, AlignLeft } from 'lucide-react';
 import { PAYS } from '../../services/createEntreprise';
 import '../../assets/styles/components/create_entreprise/StepLocalisation.css';
 
-// ─── Sélecteur pays ────────────────────────────────────────────────────────────
+// ─── Autocomplete pays ─────────────────────────────────────────────────────────
 
-const PaysSheet = ({ value, onSelect, onClose }) => {
-    const [query, setQuery] = useState('');
-    const searchRef = useRef(null);
+const PaysAutocomplete = ({ value, onChange, error }) => {
+    const [open, setOpen] = useState(false);
 
-    useEffect(() => {
-        const t = setTimeout(() => searchRef.current?.focus(), 100);
-        return () => clearTimeout(t);
-    }, []);
-
-    const filtered = PAYS.filter(p =>
-        p.toLowerCase().includes(query.toLowerCase())
+    // 5 pays aléatoires stables pour toute la session
+    const initialSuggestions = useMemo(
+        () => [...PAYS].sort(() => Math.random() - 0.5).slice(0, 5),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
     );
 
+    const suggestions = value.trim()
+        ? PAYS.filter(p => p.toLowerCase().includes(value.toLowerCase())).slice(0, 8)
+        : initialSuggestions;
+
+    const handleSelect = (pays) => {
+        onChange('pays', pays);
+        setOpen(false);
+    };
+
     return (
-        <div className="paysSheet-overlay" onClick={e => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true" aria-label="Choisir un pays">
-            <div className="paysSheet-panel">
-                <div className="paysSheet-handle" />
+        <div className={`stepLocalisation-field${error ? ' stepLocalisation-field--error' : ''}`}>
+            <div className="stepLocalisation-inputWrap">
+                <MapPin size={18} strokeWidth={1.8} className="stepLocalisation-inputIcon" />
+                <input
+                    type="text"
+                    className="stepLocalisation-input"
+                    value={value}
+                    onChange={e => { onChange('pays', e.target.value); setOpen(true); }}
+                    onFocus={() => setOpen(true)}
+                    onBlur={() => setTimeout(() => setOpen(false), 150)}
+                    onKeyDown={e => e.key === 'Escape' && setOpen(false)}
+                    aria-label="Pays"
+                    aria-invalid={!!error}
+                    aria-autocomplete="list"
+                    aria-expanded={open}
+                    autoComplete="off"
+                    maxLength={80}
+                />
+            </div>
 
-                <div className="paysSheet-header">
-                    <span className="paysSheet-title">Pays</span>
-                    <button type="button" className="paysSheet-closeBtn" onClick={onClose} aria-label="Fermer">
-                        <X size={18} strokeWidth={2} />
-                    </button>
-                </div>
+            <label className={`stepLocalisation-floatLabel${value ? ' stepLocalisation-floatLabel--raised' : ''}`}>
+                Pays <span className="stepLocalisation-required" aria-hidden="true">*</span>
+            </label>
 
-                <div className="paysSheet-search">
-                    <Search size={16} strokeWidth={2} className="paysSheet-searchIcon" />
-                    <input
-                        ref={searchRef}
-                        type="text"
-                        className="paysSheet-searchInput"
-                        placeholder="Rechercher un pays..."
-                        value={query}
-                        onChange={e => setQuery(e.target.value)}
-                    />
-                </div>
+            {error && <span className="stepLocalisation-error" role="alert">{error}</span>}
 
-                <ul className="paysSheet-list" role="listbox">
-                    {filtered.length === 0 && (
-                        <li className="paysSheet-empty">Aucun résultat</li>
-                    )}
-                    {filtered.map(p => (
+            {open && suggestions.length > 0 && (
+                <ul className="stepLocalisation-autocomplete" role="listbox" aria-label="Suggestions de pays">
+                    {suggestions.map(p => (
                         <li key={p} role="option" aria-selected={value === p}>
                             <button
                                 type="button"
-                                className={`paysSheet-item${value === p ? ' paysSheet-item--selected' : ''}`}
-                                onClick={() => { onSelect(p); onClose(); }}
+                                className={`stepLocalisation-autocomplete__item${value === p ? ' stepLocalisation-autocomplete__item--active' : ''}`}
+                                onMouseDown={e => { e.preventDefault(); handleSelect(p); }}
                             >
-                                <span>{p}</span>
-                                {value === p && <ChevronRight size={15} strokeWidth={2.5} className="paysSheet-check" />}
+                                {p}
                             </button>
                         </li>
                     ))}
                 </ul>
-            </div>
+            )}
         </div>
     );
 };
@@ -67,8 +73,6 @@ const PaysSheet = ({ value, onSelect, onClose }) => {
 // ─── StepLocalisation ─────────────────────────────────────────────────────────
 
 const StepLocalisation = ({ formData, onChange, onNext, onPrev, errors }) => {
-    const [paysSheetOpen, setPaysSheetOpen] = useState(false);
-
     return (
         <div className="stepLocalisation-root">
             <div className="stepLocalisation-content">
@@ -79,27 +83,12 @@ const StepLocalisation = ({ formData, onChange, onNext, onPrev, errors }) => {
                 </p>
 
                 <div className="stepLocalisation-fields">
-                    {/* Pays */}
-                    <div className={`stepLocalisation-field${errors.pays ? ' stepLocalisation-field--error' : ''}`}>
-                        <button
-                            type="button"
-                            className="stepLocalisation-selectorBtn"
-                            onClick={() => setPaysSheetOpen(true)}
-                            aria-haspopup="dialog"
-                            aria-expanded={paysSheetOpen}
-                            aria-invalid={!!errors.pays}
-                        >
-                            <MapPin size={18} strokeWidth={1.8} className="stepLocalisation-inputIcon" />
-                            <span className={`stepLocalisation-selectorValue${!formData.pays ? ' stepLocalisation-selectorValue--placeholder' : ''}`}>
-                                {formData.pays || 'Pays'}
-                            </span>
-                            <Search size={15} strokeWidth={2} className="stepLocalisation-selectorChevron" />
-                        </button>
-                        <label className={`stepLocalisation-floatLabel${formData.pays ? ' stepLocalisation-floatLabel--raised' : ''}`}>
-                            Pays <span className="stepLocalisation-required" aria-hidden="true">*</span>
-                        </label>
-                        {errors.pays && <span className="stepLocalisation-error" role="alert">{errors.pays}</span>}
-                    </div>
+                    {/* Pays — autocomplete libre */}
+                    <PaysAutocomplete
+                        value={formData.pays}
+                        onChange={onChange}
+                        error={errors.pays}
+                    />
 
                     {/* Ville */}
                     <div className={`stepLocalisation-field${errors.ville ? ' stepLocalisation-field--error' : ''}`}>
@@ -108,7 +97,6 @@ const StepLocalisation = ({ formData, onChange, onNext, onPrev, errors }) => {
                             <input
                                 type="text"
                                 className="stepLocalisation-input"
-                                placeholder="Ex : Douala"
                                 value={formData.ville}
                                 onChange={e => onChange('ville', e.target.value)}
                                 aria-label="Ville"
@@ -128,7 +116,6 @@ const StepLocalisation = ({ formData, onChange, onNext, onPrev, errors }) => {
                             <AlignLeft size={18} strokeWidth={1.8} className="stepLocalisation-inputIcon stepLocalisation-inputIcon--top" />
                             <textarea
                                 className="stepLocalisation-textarea"
-                                placeholder="Ex : Avenue de la Liberté, Akwa"
                                 value={formData.adresse}
                                 onChange={e => onChange('adresse', e.target.value)}
                                 rows={3}
@@ -155,14 +142,6 @@ const StepLocalisation = ({ formData, onChange, onNext, onPrev, errors }) => {
                     </button>
                 </div>
             </div>
-
-            {paysSheetOpen && (
-                <PaysSheet
-                    value={formData.pays}
-                    onSelect={val => onChange('pays', val)}
-                    onClose={() => setPaysSheetOpen(false)}
-                />
-            )}
         </div>
     );
 };
