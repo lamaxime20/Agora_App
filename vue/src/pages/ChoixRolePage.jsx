@@ -5,13 +5,13 @@ import {
     ArrowLeft,
     Building2,
     ChevronRight,
+    Calculator,
+    Crown,
     LayoutDashboard,
     LoaderCircle,
     Package,
     Plus,
     ShoppingCart,
-    Truck,
-    Users,
     Wallet,
 } from 'lucide-react';
 
@@ -24,12 +24,12 @@ import agoraLogo from '../assets/images/logo_sans_background.svg';
 import '../assets/styles/pages/ChoixRolePage.css';
 
 const ROLE_ICONS = {
-    manager:    LayoutDashboard,
-    comptable:  Wallet,
-    vendeur:    ShoppingCart,
-    stock:      Package,
-    rh:         Users,
-    livreur:    Truck,
+    crown:           Crown,
+    package:         Package,
+    layoutdashboard: LayoutDashboard,
+    shoppingcart:    ShoppingCart,
+    wallet:          Wallet,
+    calculator:      Calculator,
 };
 
 const RoleIcon = ({ icone, size = 22 }) => {
@@ -44,13 +44,34 @@ const getCompanyInitials = (nom) => {
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();
 };
 
+const getSafeRoleIconBackground = (company) => {
+    const primary = String(company?.couleur_primaire || '').trim();
+    const secondary = String(company?.couleur_secondaire || '').trim();
+    const fallback = 'var(--color-primary)';
+
+    if (!primary || primary === '#FFF' || primary === '#FFFFFF' || primary.toLowerCase() === 'white') {
+        return secondary || fallback;
+    }
+
+    return primary;
+};
+
 const CompanyAvatar = ({ company, size = 'md' }) => {
-    const bg = company.logo ? 'transparent' : (company.couleur_primaire || '#F39C12');
+    const fallbackPrimary = company.couleur_primaire || '#F39C12';
+    const fallbackSecondary = company.couleur_secondaire || '#2C3E50';
+    const fallbackTertiary = company.couleur_tertiaire || '#FFF8F0';
+    const bg = company.logo
+        ? 'transparent'
+        : `linear-gradient(135deg, ${fallbackPrimary}, ${fallbackSecondary})`;
 
     return (
         <div
             className={`choixRolePage-companyAvatar choixRolePage-companyAvatar--${size}`}
-            style={{ background: bg }}
+            style={{
+                background: bg,
+                color: fallbackTertiary,
+                boxShadow: company.logo ? undefined : '0 10px 24px rgba(44, 62, 80, 0.16)',
+            }}
             aria-hidden="true"
         >
             {company.logo
@@ -303,11 +324,14 @@ const ChoixRolePage = () => {
                                         >
                                             <div
                                                 className="choixRolePage-roleIcon"
-                                                style={{ background: selectedCompany.couleur_primaire || 'var(--color-primary)' }}
+                                                style={{
+                                                    background: getSafeRoleIconBackground(selectedCompany),
+                                                    color: '#FFFFFF',
+                                                }}
                                             >
                                                 {isSelected && submitting
                                                     ? <LoaderCircle size={22} className="choixRolePage-spinner" />
-                                                    : <RoleIcon icone={role.id} size={22} />
+                                                    : <RoleIcon icone={role.icone} size={22} />
                                                 }
                                             </div>
 
