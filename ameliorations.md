@@ -27,3 +27,11 @@ Une commande livrée ne peut plus recevoir de nouvelle livraison en_cours.
 On va calculer dynamiquement les stocks réservés en listant le nombre de commandes validés qui n'ont aucune livraisons successful et donc, on peut calculer le stock_disponible avec le stock actuel - le réservé qu'on a calculé
 Quand la livraison est success, on diminue le stock_actuel
 Comme ça, on évite de modifier les tuples de la table commande à chaque fois
+
+# Personaliser les emails envoyé par Laravel
+Afin qu'ils respectent le branding d'AGORA
+
+# Remplacer le message d'erreur de Login
+remplacer le message "Impossible de joindre le serveur." par le message "vérifier votre connexion"
+
+# Rendre Actif le bouton continuer avec Google
