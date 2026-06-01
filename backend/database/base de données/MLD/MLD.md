@@ -37,6 +37,7 @@ Enum statut_ravitaillement {
   valide
   refuse
   en_cours
+  annule
   termine
 }
 
@@ -211,6 +212,8 @@ Table ravitaillements {
   montant_a_depenser decimal(15,2) [not null]
   date_validation timestamp
   date_execution timestamp
+  date_refus timestamp
+  raison_refus text
   actif boolean [default: true]
   utilisateur_demande uuid [not null]
   user_confirmation uuid

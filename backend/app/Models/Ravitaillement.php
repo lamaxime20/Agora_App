@@ -21,6 +21,8 @@ class Ravitaillement extends Model
         'montant_a_depenser',
         'date_validation',
         'date_execution',
+        'date_refus',
+        'raison_refus',
         'actif',
         'utilisateur_demande',
         'user_confirmation',
