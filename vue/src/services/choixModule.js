@@ -1,37 +1,47 @@
-const roles = [
-    'directeur', 'manager_gestion_stock',
-    'employe_gestion_stock', 'manager_vente',
-    'employe_vente', 'manager_finances',
-    'employe_finances', 'manager_rh',
-    'employe_rh'
-]
-
 export const modules = [
     {
         name: 'Gestion des Stocks',
-        icon: 'mdi-warehouse',
+        description: 'Produits, inventaire et réapprovisionnement',
+        icon: 'Warehouse',
+        color: '#2563EB',
+        colorRgb: '37, 99, 235',
         route: '/application/stock',
-        roles: ['directeur', 'manager_gestion_stock', 'employe_gestion_stock']
+        roles: ['directeur', 'manager_gestion_stock', 'employe_gestion_stock'],
     },
-
     {
         name: 'Ventes',
-        icon: 'mdi-cash-register',
+        description: 'Commandes, clients et paiements',
+        icon: 'ShoppingBag',
+        color: '#10B981',
+        colorRgb: '16, 185, 129',
         route: '/application/vente',
-        roles: ['directeur', 'manager_vente', 'employe_vente']
+        roles: ['directeur', 'manager_vente', 'employe_vente'],
     },
-
     {
         name: 'Finances',
-        icon: 'mdi-chart-line',
+        description: 'Dépenses, revenus et trésorerie',
+        icon: 'Wallet',
+        color: '#7C3AED',
+        colorRgb: '124, 58, 237',
         route: '/application/finances',
-        roles: ['directeur', 'manager_finances', 'employe_finances']
+        roles: ['directeur', 'manager_finances', 'employe_finances'],
     },
-
     {
         name: 'Ressources Humaines',
-        icon: 'mdi-account-group',
+        description: 'Employés, rôles et tâches',
+        icon: 'Users',
+        color: '#F97316',
+        colorRgb: '249, 115, 22',
         route: '/application/ressources-humaines',
-        roles: ['directeur', 'manager_rh', 'employe_rh']
-    }
-]
+        roles: ['directeur', 'manager_rh', 'employe_rh'],
+    },
+    {
+        name: 'Paramètres',
+        description: "Configuration de l'entreprise",
+        icon: 'Settings',
+        color: '#6B7280',
+        colorRgb: '107, 114, 128',
+        route: '/application/parametres-entreprise',
+        roles: ['directeur'],
+    },
+];

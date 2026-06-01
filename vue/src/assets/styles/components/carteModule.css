@@ -1,0 +1,159 @@
+/* ─── CarteModule ───────────────────────────────────────────────────────────── */
+
+.carteModule-root {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    animation: fadeInUp 0.4s var(--ease-out) calc(var(--card-index, 0) * 55ms) both;
+    transition:
+        border-color 220ms var(--ease-out),
+        box-shadow   220ms var(--ease-out),
+        transform    180ms var(--ease-out);
+}
+
+.carteModule-root:hover,
+.carteModule-root:focus-visible {
+    border-color: rgba(var(--module-color-rgb), 0.32);
+    box-shadow: 0 8px 28px rgba(var(--module-color-rgb), 0.10);
+    transform: translateY(-2px);
+    outline: none;
+}
+
+.carteModule-root:active {
+    transform: translateY(0);
+    transition-duration: 80ms;
+}
+
+/* ─── Icône ─────────────────────────────────────────────────────────────────── */
+
+.carteModule-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background: rgba(var(--module-color-rgb), 0.10);
+    color: var(--module-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition:
+        background 220ms var(--ease-out),
+        transform  220ms var(--ease-out);
+}
+
+.carteModule-root:hover .carteModule-icon {
+    background: rgba(var(--module-color-rgb), 0.16);
+    transform: scale(1.06);
+}
+
+/* ─── Corps ─────────────────────────────────────────────────────────────────── */
+
+.carteModule-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.carteModule-name {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.carteModule-desc {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-text-muted);
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ─── Flèche ────────────────────────────────────────────────────────────────── */
+
+.carteModule-arrow {
+    color: var(--color-text-light);
+    flex-shrink: 0;
+    transition:
+        transform 220ms var(--ease-out),
+        color     220ms var(--ease-out);
+}
+
+.carteModule-root:hover .carteModule-arrow {
+    transform: translateX(3px);
+    color: var(--module-color);
+}
+
+/* ─── Dark mode ─────────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+    .carteModule-root { background: var(--color-surface); }
+}
+
+/* ─── Tablettes — layout vertical ──────────────────────────────────────────── */
+
+@media (min-width: 769px) {
+    .carteModule-root {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 22px;
+        gap: 14px;
+        border-radius: 20px;
+    }
+
+    .carteModule-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+    }
+
+    .carteModule-name { font-size: 15px; }
+
+    .carteModule-desc {
+        white-space: normal;
+        line-height: 1.5;
+    }
+
+    .carteModule-arrow { display: none; }
+}
+
+/* ─── Ordinateurs portables ─────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+    .carteModule-root { padding: 24px; }
+}
+
+/* ─── Desktops, Écrans plats & Téléviseurs ──────────────────────────────────── */
+
+@media (min-width: 1201px) {
+    .carteModule-root {
+        padding: 26px;
+        gap: 16px;
+        border-radius: 22px;
+    }
+
+    .carteModule-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+    }
+
+    .carteModule-name { font-size: 16px; }
+}

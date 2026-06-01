@@ -1,9 +1,8 @@
-/* ─── ApplicationPage ─────────────────────────────────────────────────────── */
+/* ─── ApplicationPage ───────────────────────────────────────────────────────── */
 
 .applicationPage-root {
     position: relative;
     min-height: 100dvh;
-    padding: 24px 16px 32px;
     background:
         radial-gradient(circle at top left, rgba(243, 156, 18, 0.10), transparent 30%),
         radial-gradient(circle at bottom right, rgba(44, 62, 80, 0.08), transparent 28%),
@@ -11,217 +10,152 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    padding: 24px 20px 64px;
     overflow: hidden;
 }
 
+/* ─── Background blobs ──────────────────────────────────────────────────────── */
+
+.applicationPage-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.applicationPage-bg__blob {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.applicationPage-bg__blob--1 {
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(circle, rgba(243, 156, 18, 0.055) 0%, transparent 70%);
+    top: -180px;
+    right: -100px;
+    animation: blobFloat 14s ease-in-out infinite;
+}
+
+.applicationPage-bg__blob--2 {
+    width: 440px;
+    height: 440px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.04) 0%, transparent 70%);
+    bottom: -130px;
+    left: -80px;
+    animation: blobFloat 11s ease-in-out infinite reverse;
+}
+
+/* ─── Shell ─────────────────────────────────────────────────────────────────── */
+
 .applicationPage-shell {
+    position: relative;
+    z-index: 1;
     width: 100%;
-    max-width: 1120px;
+    max-width: 560px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 52px;
+    animation: fadeIn 0.45s var(--ease-out) both;
 }
+
+/* ─── Header ────────────────────────────────────────────────────────────────── */
 
 .applicationPage-header {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
-}
-
-.applicationPage-brand {
-    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 14px;
 }
 
-.applicationPage-brand__logo {
-    height: 32px;
+.applicationPage-logo {
+    height: 28px;
     width: auto;
-}
-
-.applicationPage-brand__copy {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.applicationPage-kicker {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--color-primary);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.applicationPage-title {
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 4vw, 2.2rem);
-    font-weight: 700;
-    color: var(--color-text);
-    letter-spacing: -0.03em;
-    line-height: 1.1;
 }
 
 .applicationPage-logoutBtn {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 44px;
-    padding: 0 18px;
-    background: rgba(231, 76, 60, 0.08);
-    border: 1.5px solid rgba(231, 76, 60, 0.18);
+    gap: 6px;
+    height: 36px;
+    padding: 0 14px;
+    background: transparent;
+    border: 1px solid var(--color-border);
     border-radius: 999px;
     font-family: var(--font-ui);
-    font-size: 14px;
-    font-weight: 700;
-    color: #C0392B;
-    cursor: pointer;
-    transition:
-        background 200ms var(--ease-out),
-        border-color 200ms var(--ease-out),
-        transform 150ms var(--ease-out),
-        opacity 150ms var(--ease-out);
-}
-
-.applicationPage-logoutBtn:hover:not(:disabled) {
-    background: rgba(231, 76, 60, 0.12);
-    border-color: rgba(231, 76, 60, 0.28);
-    transform: translateY(-1px);
-}
-
-.applicationPage-logoutBtn:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.applicationPage-hero {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 22px;
-    background: rgba(255, 255, 255, 0.78);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    border-radius: 24px;
-    box-shadow: var(--shadow-lg);
-    backdrop-filter: blur(10px);
-}
-
-.applicationPage-hero__icon {
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 18px;
-    background: rgba(44, 62, 80, 0.08);
-    color: var(--auth-accent);
-}
-
-.applicationPage-hero__content {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.applicationPage-hero__eyebrow {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--color-primary);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.applicationPage-hero__title {
-    font-family: var(--font-display);
-    font-size: clamp(1.4rem, 4vw, 2rem);
-    font-weight: 700;
-    color: var(--color-text);
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-}
-
-.applicationPage-hero__desc {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--color-text-muted);
-    line-height: 1.6;
-}
-
-.applicationPage-hero__desc strong {
-    color: var(--color-text);
-    font-weight: 700;
-}
-
-.applicationPage-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
-}
-
-.applicationPage-card {
-    display: flex;
-    gap: 14px;
-    padding: 18px;
-    background: rgba(255, 255, 255, 0.82);
-    border: 1px solid var(--color-border);
-    border-radius: 20px;
-    box-shadow: var(--shadow-sm);
-}
-
-.applicationPage-card__icon {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border-radius: 14px;
-    background: rgba(243, 156, 18, 0.10);
-    color: var(--color-primary);
-}
-
-.applicationPage-card__content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-
-.applicationPage-card__label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--color-primary);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.applicationPage-card__value {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--color-text);
-}
-
-.applicationPage-card__meta {
     font-size: 13px;
     font-weight: 500;
     color: var(--color-text-muted);
-    line-height: 1.5;
-    word-break: break-word;
+    cursor: pointer;
+    transition:
+        border-color 200ms var(--ease-out),
+        color        200ms var(--ease-out),
+        background   200ms var(--ease-out);
 }
 
+.applicationPage-logoutBtn:hover:not(:disabled) {
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+    background: rgba(0, 0, 0, 0.025);
+}
+
+.applicationPage-logoutBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ─── Launcher ──────────────────────────────────────────────────────────────── */
+
+.applicationPage-launcher {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* ─── Headline ──────────────────────────────────────────────────────────────── */
+
+.applicationPage-headline {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.applicationPage-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+
+.applicationPage-subtitle {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+}
+
+/* ─── Grille des modules ────────────────────────────────────────────────────── */
+
+.applicationPage-modules {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+/* ─── Overlay chargement ────────────────────────────────────────────────────── */
+
 .applicationPage-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: 20;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
 }
 
 .applicationPage-overlayCard {
@@ -230,11 +164,11 @@
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    padding: 20px 18px;
+    padding: 24px 20px;
     background: var(--color-surface, #fff);
     border: 1px solid var(--color-border);
-    border-radius: 20px;
-    box-shadow: var(--shadow-md);
+    border-radius: 22px;
+    box-shadow: var(--shadow-lg);
     text-align: center;
 }
 
@@ -244,33 +178,55 @@
 }
 
 .applicationPage-overlayText {
+    font-family: var(--font-ui);
     font-size: 14px;
     font-weight: 600;
     color: var(--color-text);
 }
 
-@media (min-width: 769px) {
+/* ─── Dark mode ─────────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
     .applicationPage-root {
-        padding: 32px 24px 40px;
+        background: linear-gradient(160deg, #181818 0%, #111111 100%);
     }
 
-    .applicationPage-header {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .applicationPage-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .applicationPage-overlay {
+        background: rgba(18, 18, 18, 0.80);
     }
 }
 
-@media (min-width: 1201px) {
-    .applicationPage-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
+/* ─── Mobiles & Smartwatches ────────────────────────────────────────────────── */
 
-    .applicationPage-card {
-        min-height: 100%;
+@media (max-width: 480px) {
+    .applicationPage-root  { padding: 20px 16px 56px; }
+    .applicationPage-shell { gap: 40px; }
+    .applicationPage-title { font-size: clamp(1.35rem, 6vw, 1.7rem); }
+}
+
+/* ─── Tablettes ─────────────────────────────────────────────────────────────── */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .applicationPage-root    { padding: 32px 28px 72px; }
+    .applicationPage-shell   { max-width: 720px; gap: 56px; }
+    .applicationPage-modules { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+}
+
+/* ─── Ordinateurs portables ─────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+    .applicationPage-root    { padding: 36px 40px 80px; }
+    .applicationPage-shell   { max-width: 800px; gap: 60px; }
+    .applicationPage-modules { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+
+/* ─── Desktops, Écrans plats & Téléviseurs ──────────────────────────────────── */
+
+@media (min-width: 1201px) {
+    .applicationPage-root    { padding: 40px 48px 96px; }
+    .applicationPage-shell   { max-width: 960px; gap: 64px; }
+    .applicationPage-modules {
+        grid-template-columns: repeat(var(--col-count, 4), 1fr);
+        gap: 16px;
     }
 }
