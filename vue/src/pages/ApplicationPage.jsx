@@ -9,7 +9,9 @@ import {
     UserCircle,
 } from 'lucide-react';
 
+import CarteModule from '../components/carteModule';
 import { useAuthorization } from '../hooks/useAuthorization';
+import { modules } from '../services/choixModule';
 import agoraLogo from '../assets/images/logo_sans_background.svg';
 import '../assets/styles/pages/ApplicationPage.css';
 
@@ -88,65 +90,28 @@ const ApplicationPage = () => {
                     </button>
                 </header>
 
-                <section className="applicationPage-hero">
-                    <div className="applicationPage-hero__icon" aria-hidden="true">
-                        <ShieldCheck size={30} strokeWidth={1.6} />
+                <section className="applicationPage-choixModule">
+                    <h2 className="applicationPage-choixModuleTitle">
+                        Sur quel module souhaitez-vous travailler aujourd'hui ?
+                    </h2>
+                    <div className="applicationPage-choixModuleList">
+                        {modules.map((module) => (
+                            <CarteModule key={module.name} module={module} />
+                        ))}
+                        {user?.role === 'directeur' && (
+                            <a 
+                                href="/application/parametres-entreprise"
+                                className="applicationPage-parametresEntreprise"
+                            >
+                                <div className="applicationPage-parametresEntrepriseIcon">
+                                    <ShieldCheck size={24} />
+                                </div>
+                                <h3 className="applicationPage-parametresEntrepriseTitle">
+                                    Paramètres de l'entreprise
+                                </h3>
+                            </a>
+                        )}
                     </div>
-                    <div className="applicationPage-hero__content">
-                        <p className="applicationPage-hero__eyebrow">Session active</p>
-                        <h2 className="applicationPage-hero__title">
-                            Bonjour, {identity.fullName}
-                        </h2>
-                        <p className="applicationPage-hero__desc">
-                            Vous êtes connecté sur l'entreprise <strong>{identity.company}</strong> en tant que <strong>{identity.role}</strong>.
-                        </p>
-                    </div>
-                </section>
-
-                <section className="applicationPage-grid" aria-label="Informations de session">
-                    <article className="applicationPage-card">
-                        <div className="applicationPage-card__icon" aria-hidden="true">
-                            <UserCircle size={20} />
-                        </div>
-                        <div className="applicationPage-card__content">
-                            <p className="applicationPage-card__label">Utilisateur</p>
-                            <p className="applicationPage-card__value">{identity.fullName}</p>
-                            <p className="applicationPage-card__meta">{identity.email}</p>
-                        </div>
-                    </article>
-
-                    <article className="applicationPage-card">
-                        <div className="applicationPage-card__icon" aria-hidden="true">
-                            <Building2 size={20} />
-                        </div>
-                        <div className="applicationPage-card__content">
-                            <p className="applicationPage-card__label">Entreprise</p>
-                            <p className="applicationPage-card__value">{identity.company}</p>
-                            <p className="applicationPage-card__meta">Espace de travail actif</p>
-                        </div>
-                    </article>
-
-                    <article className="applicationPage-card">
-                        <div className="applicationPage-card__icon" aria-hidden="true">
-                            <ShieldCheck size={20} />
-                        </div>
-                        <div className="applicationPage-card__content">
-                            <p className="applicationPage-card__label">Rôle</p>
-                            <p className="applicationPage-card__value">{identity.role}</p>
-                            <p className="applicationPage-card__meta">Accès en cours</p>
-                        </div>
-                    </article>
-
-                    <article className="applicationPage-card">
-                        <div className="applicationPage-card__icon" aria-hidden="true">
-                            <Clock3 size={20} />
-                        </div>
-                        <div className="applicationPage-card__content">
-                            <p className="applicationPage-card__label">Expiration</p>
-                            <p className="applicationPage-card__value">{identity.expiration}</p>
-                            <p className="applicationPage-card__meta">Fin de session côté serveur</p>
-                        </div>
-                    </article>
                 </section>
             </div>
         </main>

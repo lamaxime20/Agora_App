@@ -3,8 +3,8 @@ import { ApiError } from '../utils/mockApi';
 // ─── URL de base du backend ───────────────────────────────────────────────────
 // Changez cette valeur pour pointer vers votre environnement (staging, production, etc.)
 
-//export const BASE_URL = 'http://localhost:8000';
-export const BASE_URL = 'https://agora-app-fm8r.onrender.com';
+export const BASE_URL = 'http://localhost:8000';
+// export const BASE_URL = 'https://agora-app-fm8r.onrender.com';
 
 // ─── Client HTTP central ──────────────────────────────────────────────────────
 // Toutes les requêtes vers l'API passent par cette fonction.

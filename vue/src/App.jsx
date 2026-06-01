@@ -14,6 +14,10 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ChoixRolePage from './pages/ChoixRolePage';
 import ApplicationPage from './pages/ApplicationPage';
 import CreateEntreprisePage from './pages/createEntreprise';
+import GestionStock from './pages/modules/gestionStock';
+import Ventes from './pages/modules/ventes';
+import Finances from './pages/modules/finances';
+import RessourcesHumaines from './pages/modules/ressourcesHumaines';
 
 import './App.css';
 
@@ -40,6 +44,10 @@ function App() {
 
                         <Route element={<RouteGuardAuthorization />}>
                             <Route path="/application" element={<ApplicationPage />} />
+                            <Route path="/application/stock" element={<GestionStock />} />
+                            <Route path="/application/vente" element={<Ventes />} />
+                            <Route path="/application/finances" element={<Finances />} />
+                            <Route path="/application/ressources-humaines" element={<RessourcesHumaines />} />
                         </Route>
 
                         <Route path="/404" element={<div>Page 404</div>} />

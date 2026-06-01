@@ -6,5 +6,7 @@ INSERT INTO roles_utilisateur (role, description) VALUES
 ('employe_vente', 'L''employé de vente est chargé d''interagir avec les clients, de promouvoir les produits et de conclure des ventes. Il fournit un excellent service client et travaille en étroite collaboration avec le manager de vente pour atteindre les objectifs de vente.'),
 ('manager_finances', 'Le manager de finances est responsable de la gestion financière de l''entreprise. Il supervise les budgets, analyse les performances financières, et prend des décisions pour assurer la santé financière de l''entreprise.'),
 ('employe_finances', 'L''employé de finances est chargé de la tenue des registres financiers, de la préparation des rapports financiers et de l''assistance dans la gestion des budgets. Il travaille en étroite collaboration avec le manager de finances pour assurer une gestion financière efficace.')
+('manager_rh', 'Le manager des ressources humaines est responsable de la gestion du personnel. Il supervise le recrutement, la formation, la gestion des performances et les relations avec les employés pour assurer un environnement de travail positif et productif.'),
+('employe_rh', 'L''employé des ressources humaines est chargé de soutenir les activités liées à la gestion du personnel. Il assiste dans le recrutement, la formation, la gestion des performances et les relations avec les employés pour contribuer à un environnement de travail positif.')
 ON CONFLICT (role) DO UPDATE
 SET description = EXCLUDED.description;
