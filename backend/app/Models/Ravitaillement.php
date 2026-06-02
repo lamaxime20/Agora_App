@@ -25,8 +25,10 @@ class Ravitaillement extends Model
         'raison_annulation',
         'actif',
         'utilisateur_demande',
+        'utilisateur_annulation',
         'user_confirmation',
         'produit',
+        'entreprise',
     ];
 
     public function utilisateurDemande(): BelongsTo
@@ -39,8 +41,18 @@ class Ravitaillement extends Model
         return $this->belongsTo(Utilisateur::class, 'user_confirmation');
     }
 
+    public function utilisateurAnnulation(): BelongsTo
+    {
+        return $this->belongsTo(Utilisateur::class, 'utilisateur_annulation');
+    }
+
     public function produit(): BelongsTo
     {
         return $this->belongsTo(Produit::class, 'produit');
+    }
+
+    public function entreprise(): BelongsTo
+    {
+        return $this->belongsTo(Entreprise::class, 'entreprise');
     }
 }

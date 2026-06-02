@@ -21,6 +21,7 @@ return new class extends Migration
 
             $table->uuid('user_signale');
             $table->uuid('produit');
+            $table->uuid('entreprise');
 
             $table->foreign('user_signale')
                 ->references('id')->on('utilisateurs')
@@ -29,6 +30,11 @@ return new class extends Migration
 
             $table->foreign('produit')
                 ->references('id')->on('produits')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('entreprise')
+                ->references('id')->on('entreprises')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });

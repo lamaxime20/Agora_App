@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('image')->nullable();
 
             $table->decimal('prix_unitaire', 15, 2);
+            $table->decimal('seuil_alerte', 15, 2)->default(0);
 
             $table->enum('type_produit', ['physique', 'service']);
 

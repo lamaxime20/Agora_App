@@ -58,6 +58,7 @@ date_creation
 date_modification
 image
 prix_unitaire
+seuil_alerte
 type_produit (physique/service)
 stock_actuel
 unite_mesure
@@ -76,12 +77,15 @@ date_execution
 date_annulation
 raison_annulation
 actif
+utilisateur_annulation
+entreprise
 
 pertes_produits
 id
 quantite_perdu
 motif_perte
 date_perte
+entreprise
 
 
 commandes

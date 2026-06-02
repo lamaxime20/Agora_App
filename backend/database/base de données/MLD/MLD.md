@@ -189,6 +189,7 @@ Table produits {
   date_modification timestamp
   image text
   prix_unitaire decimal(15,2) [not null]
+  seuil_alerte decimal(15,2) [default: 0]
   type_produit type_produit [not null]
   stock_actuel decimal(15,2) [default: 0]
   unite_mesure varchar(50)
@@ -215,13 +216,17 @@ Table ravitaillements {
   raison_annulation text
   actif boolean [default: true]
   utilisateur_demande uuid [not null]
+  utilisateur_annulation uuid
   user_confirmation uuid
   produit uuid [not null]
+  entreprise uuid [not null]
 }
 
 ref: ravitaillements.utilisateur_demande > utilisateurs.id
+ref: ravitaillements.utilisateur_annulation > utilisateurs.id
 ref: ravitaillements.user_confirmation > utilisateurs.id
 ref: ravitaillements.produit > produits.id
+ref: ravitaillements.entreprise > entreprises.id
 
 Table pertes_produits {
   id uuid [pk]
@@ -230,10 +235,12 @@ Table pertes_produits {
   date_perte timestamp [default: `now()`]
   user_signale uuid [not null]
   produit uuid [not null]
+  entreprise uuid [not null]
 }
 
 ref: pertes_produits.user_signale > utilisateurs.id
 ref: pertes_produits.produit > produits.id
+ref: pertes_produits.entreprise > entreprises.id
 
 
 Table commandes {

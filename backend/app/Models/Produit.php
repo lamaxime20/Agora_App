@@ -22,6 +22,7 @@ class Produit extends Model
         'date_modification',
         'image',
         'prix_unitaire',
+        'seuil_alerte',
         'type_produit',
         'stock_actuel',
         'unite_mesure',

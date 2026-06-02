@@ -76,6 +76,16 @@ class Entreprise extends Model
         return $this->hasMany(Produit::class, 'entreprise');
     }
 
+    public function ravitaillements(): HasMany
+    {
+        return $this->hasMany(Ravitaillement::class, 'entreprise');
+    }
+
+    public function pertesProduits(): HasMany
+    {
+        return $this->hasMany(PerteProduit::class, 'entreprise');
+    }
+
     public function commandes(): HasMany
     {
         return $this->hasMany(Commande::class, 'entreprise');

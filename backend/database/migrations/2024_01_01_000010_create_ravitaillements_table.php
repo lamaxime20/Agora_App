@@ -28,8 +28,10 @@ return new class extends Migration
             $table->boolean('actif')->default(true);
 
             $table->uuid('utilisateur_demande');
+            $table->uuid('utilisateur_annulation')->nullable();
             $table->uuid('user_confirmation')->nullable();
             $table->uuid('produit');
+            $table->uuid('entreprise');
 
             $table->foreign('utilisateur_demande')
                 ->references('id')->on('utilisateurs')
@@ -41,8 +43,18 @@ return new class extends Migration
                 ->onDelete('set null')
                 ->onUpdate('cascade');
 
+            $table->foreign('utilisateur_annulation')
+                ->references('id')->on('utilisateurs')
+                ->onDelete('set null')
+                ->onUpdate('cascade');
+
             $table->foreign('produit')
                 ->references('id')->on('produits')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('entreprise')
+                ->references('id')->on('entreprises')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });

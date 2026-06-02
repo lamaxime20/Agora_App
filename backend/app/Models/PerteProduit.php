@@ -20,6 +20,7 @@ class PerteProduit extends Model
         'date_perte',
         'user_signale',
         'produit',
+        'entreprise',
     ];
 
     public function utilisateurSignale(): BelongsTo
@@ -30,5 +31,10 @@ class PerteProduit extends Model
     public function produit(): BelongsTo
     {
         return $this->belongsTo(Produit::class, 'produit');
+    }
+
+    public function entreprise(): BelongsTo
+    {
+        return $this->belongsTo(Entreprise::class, 'entreprise');
     }
 }

@@ -107,15 +107,22 @@ Quand on clique sur le bouton Ajoute un nouveau produit, une interface va s'ouvr
 - drag an drop pour l'image
 - prix unitaire
 - deux radio à unique selection pour le type de produit (physique ou service)
+Si le type sélectionné est "service", les champs stock actuel, seuil d'alerte et unité de mesure sont masqués car ils ne sont pas applicables aux services.
 - stock actuel
+- seuil d'alerte de stock
 - unité de mesure
 - la description
 - la categorie (qui sera un champ texte avec une liste de toutes les catégories en bas, à chaque entrée utilisateur, la liste se filtre et quand on clique sur un élément de la liste, ça remplace ce qui était dans le champ texte, on va charger les catégories en fonction des catégories de l'entreprise enregistrées dans la BD, donc si l'entreprise n'a enregistré aucune catégorie, on met dans la liste pas de catégorie enregistrée)
+Pour les produits physiques, l'utilisateur doit définir un seuil d'alerte.
+Lorsque le stock disponible devient inférieur ou égal à ce seuil, une notification de stock faible est automatiquement envoyée aux utilisateurs concernés.
 Chaque entrée utilisateur est stockée dans le localStorage afin que si on ferme sans savoir l'interface, qu'on n'ait pas à réremplir tous les champs
 Quand on clique sur le bouton ajouter une catégorie, un formulaire va s'afficher avec les champs :
 - nom de la catégorie
 - Description
 Ici, on va afficher la liste des tous les produits de l'entreprise avec au bout droit de chaque élément produit, un badge qui va montrer la disponibilité du produit (en stock, indisponible, en rupture de stock)
+Lorsqu'un produit atteint son seuil d'alerte, une notification de stock faible est automatiquement créée.
+
+Lorsqu'un produit ne possède plus aucun stock disponible, une notification de rupture de stock est automatiquement créée.
 Quand on clique sur un élément produit, on nous emmène vers une page produit qui comporte :
 - un bouton retour
 - L'image du produit
@@ -137,7 +144,24 @@ Quand on clique sur un élément produit, on nous emmène vers une page produit 
     Quand on clique sur modifier un produit, l'interface d'ajout de produit s'ouvre sauf que là, les informations du produit sont déjà présentes et le champ type de produit est disable (parce qu'on ne peut pas changer le type d'un produit) et le bouton de soumission va appeler un autre lien API.
     Quand on clique sur supprimer un produit, une interface demandant le mot de passe de l'utilisateur et un bouton confirmation de suppression s'affiche. Et quand on supprime, dans la base de donné, le statut passe à archive
 - Des statistiques sur le produit :
-    - A compléter
+
+    - Quantité totale vendue
+    - Chiffre d'affaires généré
+    - Nombre de commandes contenant ce produit
+
+    - Stock actuel
+    - Stock réservé
+    - Stock disponible
+
+    - Nombre total de réapprovisionnements
+    - Quantité totale réapprovisionnée
+    - Coût total des réapprovisionnements
+
+    - Quantité totale perdue
+    - Valeur financière estimée des pertes
+
+    - Evolution des ventes sur les 7 derniers jours
+    - Evolution des ventes sur les 30 derniers jours
 Cette page produit aura sa propre route avec un slug "/application/produit/:slug" avec slug = id du produit
 ##### historique de transaction de produit
 Ici, il y aura la liste de toutes les actions qui auront effectuées une modification du stock des produits.
@@ -154,6 +178,9 @@ En dessous, il y aura la liste de tous les réapprovisionnemnent en attente ou b
 Pour chaque ligne, il y aura le statut indiqué à droite et un bouton pour annuler et si le ravitaillement est en cours, il y aura un bouton pour confirmer le ravitaillement (donc le terminer).
 Quand on clique sur annuler, une interface s'ouvre pour demander la raison de l'annulation et avec un bouton pour confirmer l'annulation
 Quand on clique sur confirmer, une interface s'affiche pour que l'utilisateur entre son mot de passe pour valider définitivement que le ravitaillement est effectué.
+Lorsqu'un réapprovisionnement est validé, une notification est automatiquement envoyée aux utilisateurs concernés.
+
+Lorsqu'un réapprovisionnement est refusé ou annulé, une notification est automatiquement envoyée avec la raison du refus ou de l'annulation.
 
 ##### Historique Réapprovisionnement
 Ici, il y aura comme dans historique de transaction, tous les reapprovisionnements.
@@ -163,12 +190,27 @@ Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le ra
 #### Réservations
 Ici, on va afficher la liste des reservations qu'on a faite sur tous les produits.
 Une réservation arrive lorsqu'on enregistre une commande pour un produit. Donc en fait, toutes les commandes sont des réservations pour le produit commandé
+Lorsqu'une commande est validée, le backend vérifie automatiquement que le stock disponible est suffisant pour satisfaire la quantité demandée.
+
+Stock disponible = stock actuel - stock réservé.
+
+Si le stock disponible est insuffisant, la validation de la commande est refusée.
 Une réservation a trois états :
 - en_cours : lorsque la commande n'est pas annulé, et que la livraison associée à la commande n'est pas validée
 - validé : lorsque la livraison liée à la commande est validée et donc le stock a été déduit
 - annulé : lorsque la commande a été annulée
+Le stock réservé n'est jamais stocké dans la base de données.
+
+Il est calculé dynamiquement à partir des commandes validées dont la livraison n'a pas encore été confirmée.
+
+Le stock disponible est également calculé dynamiquement :
+
+stock disponible = stock actuel - stock réservé.
 Quand on clique sur une ligne de réservation, un pane s'ouvre et affiche toutes les informations liées à la réservation.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+La validation d'une commande ne modifie jamais directement le stock actuel.
+
+Le stock actuel est diminué uniquement lorsqu'une livraison associée à cette commande est confirmée avec succès.
 #### Pertes
 Ici, l'interface de droite va montrer deux boutons en haut, un bouton Pertes, et un autre Historique Pertes
 ##### Pertes
@@ -181,9 +223,61 @@ Quand on clique sur signaler une perte, une interface s'ouvre avec les champs :
 - nombre d'item perdus
 - raison de la perte
 - un bouton pour confirmer la perte
+Lorsqu'une perte est enregistrée, une notification est automatiquement envoyée au directeur de l'entreprise avec la quantité perdue et la valeur estimée de la perte.
 ##### Historique Pertes
 Ici, il y aura la liste de toutes les pertes enregistrées et quand une perte respecte les conditions de l'interface pertes, elle aura les boutons associés.
 Quand on clique sur une ligne de perte, un pane va s'ouvrir pour montrer toutes les informations de la perte et aussi, si la perte a été enregistrée il y a moins de 24 heures, il y aura un bouton pour annuler la perte (avec la même logique d'annulation que celle décrite précédement)
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
 #### Statistiques
-Ici, on peut faire plusieurs types de statistiques qui renvoyent vers plusieurs autres pages de statistiques. (décris ce qu'on peut mettre comme statistiques et les pages associées)
+
+Cette section permet d'accéder à plusieurs pages de statistiques spécialisées.
+
+##### Vue Générale
+
+Cette page affiche :
+
+- Nombre total de produits
+- Nombre total de catégories
+- Valeur totale du stock
+- Produits en rupture de stock
+- Produits en stock faible
+- Quantité perdue sur la période
+- Coût des pertes sur la période
+
+##### Produits
+
+Cette page affiche :
+
+- Produits les plus vendus
+- Produits les moins vendus
+- Produits générant le plus de chiffre d'affaires
+- Produits générant le moins de chiffre d'affaires
+
+##### Stock
+
+Cette page affiche :
+
+- Répartition du stock par catégorie
+- Valeur du stock par catégorie
+- Evolution du stock dans le temps
+- Produits les plus stockés
+- Produits les moins stockés
+
+##### Réapprovisionnements
+
+Cette page affiche :
+
+- Nombre de réapprovisionnements par période
+- Coût total des réapprovisionnements
+- Produits les plus réapprovisionnés
+- Produits les moins réapprovisionnés
+
+##### Pertes
+
+Cette page affiche :
+
+- Produits les plus touchés par les pertes
+- Produits les moins touchés par les pertes
+- Valeur financière des pertes
+- Répartition des pertes par catégorie
+- Evolution des pertes dans le temps

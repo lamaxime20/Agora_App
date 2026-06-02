@@ -75,6 +75,11 @@ class Utilisateur extends Authenticatable
         return $this->hasMany(Ravitaillement::class, 'user_confirmation');
     }
 
+    public function ravitaillementsAnnulesParUtilisateur(): HasMany
+    {
+        return $this->hasMany(Ravitaillement::class, 'utilisateur_annulation');
+    }
+
     public function pertesProduitsSignalees(): HasMany
     {
         return $this->hasMany(PerteProduit::class, 'user_signale');

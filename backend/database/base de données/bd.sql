@@ -382,6 +382,7 @@ CREATE TABLE IF NOT EXISTS produits (
   image TEXT,
 
   prix_unitaire MoneyAmount NOT NULL,
+  seuil_alerte DECIMAL(15,2) DEFAULT 0,
 
   type_produit type_produit NOT NULL,
 
@@ -441,9 +442,11 @@ CREATE TABLE IF NOT EXISTS ravitaillements (
   actif BOOLEAN DEFAULT TRUE,
 
   utilisateur_demande UUID NOT NULL,
+  utilisateur_annulation UUID,
   user_confirmation UUID,
 
   produit UUID NOT NULL,
+  entreprise UUID NOT NULL,
 
   CONSTRAINT ravitaillements_cc0 PRIMARY KEY(id),
 
@@ -460,8 +463,20 @@ CREATE TABLE IF NOT EXISTS ravitaillements (
     ON UPDATE CASCADE,
 
   CONSTRAINT ravitaillements_cr2
+    FOREIGN KEY (utilisateur_annulation)
+    REFERENCES utilisateurs(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+
+  CONSTRAINT ravitaillements_cr3
     FOREIGN KEY (produit)
     REFERENCES produits(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+
+  CONSTRAINT ravitaillements_cr4
+    FOREIGN KEY (entreprise)
+    REFERENCES entreprises(id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
@@ -481,6 +496,7 @@ CREATE TABLE IF NOT EXISTS pertes_produits (
 
   user_signale UUID NOT NULL,
   produit UUID NOT NULL,
+  entreprise UUID NOT NULL,
 
   CONSTRAINT pertes_produits_cc0 PRIMARY KEY(id),
 
@@ -493,6 +509,12 @@ CREATE TABLE IF NOT EXISTS pertes_produits (
   CONSTRAINT pertes_produits_cr1
     FOREIGN KEY (produit)
     REFERENCES produits(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+
+  CONSTRAINT pertes_produits_cr2
+    FOREIGN KEY (entreprise)
+    REFERENCES entreprises(id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
