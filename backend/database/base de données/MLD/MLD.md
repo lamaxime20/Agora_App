@@ -34,7 +34,6 @@ Enum type_produit {
 
 Enum statut_ravitaillement {
   en_attente
-  valide
   refuse
   en_cours
   annule
@@ -212,8 +211,8 @@ Table ravitaillements {
   montant_a_depenser decimal(15,2) [not null]
   date_validation timestamp
   date_execution timestamp
-  date_refus timestamp
-  raison_refus text
+  date_annulation timestamp
+  raison_annulation text
   actif boolean [default: true]
   utilisateur_demande uuid [not null]
   user_confirmation uuid

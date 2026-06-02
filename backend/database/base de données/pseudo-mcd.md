@@ -73,6 +73,8 @@ quantite
 montant_a_depenser
 date_validation
 date_execution
+date_annulation
+raison_annulation
 actif
 
 pertes_produits

@@ -15,15 +15,15 @@ return new class extends Migration
 
             $table->timestamp('date_creation')->default(DB::raw('NOW()'));
 
-            $table->enum('statut', ['en_attente', 'valide', 'refuse', 'en_cours', 'annule', 'termine'])->default('en_attente');
+            $table->enum('statut', ['en_attente', 'refuse', 'en_cours', 'annule', 'termine'])->default('en_attente');
 
             $table->decimal('quantite', 15, 2);
             $table->decimal('montant_a_depenser', 15, 2);
 
             $table->timestamp('date_validation')->nullable();
             $table->timestamp('date_execution')->nullable();
-            $table->timestamp('date_refus')->nullable();
-            $table->text('raison_refus')->nullable();
+            $table->timestamp('date_annulation')->nullable();
+            $table->text('raison_annulation')->nullable();
 
             $table->boolean('actif')->default(true);
 
@@ -53,4 +53,3 @@ return new class extends Migration
         Schema::dropIfExists('ravitaillements');
     }
 };
-

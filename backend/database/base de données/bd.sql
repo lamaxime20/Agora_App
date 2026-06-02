@@ -68,7 +68,6 @@ CREATE TYPE type_produit AS ENUM (
 
 CREATE TYPE statut_ravitaillement AS ENUM (
   'en_attente',
-  'valide',
   'refuse',
   'en_cours',
   'annule',
@@ -435,9 +434,9 @@ CREATE TABLE IF NOT EXISTS ravitaillements (
 
   date_validation TIMESTAMP,
   date_execution TIMESTAMP,
-  date_refus TIMESTAMP,
-  
-  raison_refus TEXT,
+
+  date_annulation TIMESTAMP,
+  raison_annulation TEXT,
 
   actif BOOLEAN DEFAULT TRUE,
 

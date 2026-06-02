@@ -91,3 +91,99 @@ Quand sur le dernier formulaire, on va cliquer sur le bouton créer son entrepri
 Puis, il va désactiver le token qui a été envoyé par les crédentials (que ce soit le token session ou le token choix role) et créer un nouveau token session avec l'entreprise crée et le rôle directeur, puis envoyer ce token.
 Pour ce qui est de l'enregistrement de l'image, on va créer une fonction controller qui va enregistrer l'image dans le storage de Laravel puis génerer le lien URL pour accéder à l'image. C'est ce lien URL qu'on va enregistrer dans la Base de données
 Quand le token va arriver au niveau du frontend avec HTTPOnly, le frontend va d'abord effacer complètement le localStorage puis, l'interface "/create-entreprise" va afficher entreprise créer avec succès, voir le dashboard, avec un bouton voir le dashboard qui va renvoyer vers "/application".
+
+### Logique du module Gestion de Stock
+Quand l'utilisateur arrive sur son espace de travail pour la gestion de stock, il y a une sidebar à gauche qui s'ouvre et se ferme et qui va lui permettre de sélectionner les pages sur lesquelles il veut travailler.
+La sideBar aura 06 onglets (Dashboard, Produits, Reapprovisionnement, Réservation, Pertes, Statistiques) et sur le côté droit de la page, c'est l'interface correspondant à l'onglet sélectionné, qui va s'afficher.
+#### Dashboard
+Ici on va réfléchir après sur ce que va contenir le dashboard
+#### Produits
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton Liste de Produits, et un autre Historique transaction de produits
+##### Liste de Produits
+Il y aura une barre de recherche pour rechercher un produit.
+Il y aura deux boutons, un bouton pour ajouter un nouveau produit et un autre pour ajouter une catégorie
+Quand on clique sur le bouton Ajoute un nouveau produit, une interface va s'ouvrir en floutant l'interface de derrière avec les champs :
+- nom
+- drag an drop pour l'image
+- prix unitaire
+- deux radio à unique selection pour le type de produit (physique ou service)
+- stock actuel
+- unité de mesure
+- la description
+- la categorie (qui sera un champ texte avec une liste de toutes les catégories en bas, à chaque entrée utilisateur, la liste se filtre et quand on clique sur un élément de la liste, ça remplace ce qui était dans le champ texte, on va charger les catégories en fonction des catégories de l'entreprise enregistrées dans la BD, donc si l'entreprise n'a enregistré aucune catégorie, on met dans la liste pas de catégorie enregistrée)
+Chaque entrée utilisateur est stockée dans le localStorage afin que si on ferme sans savoir l'interface, qu'on n'ait pas à réremplir tous les champs
+Quand on clique sur le bouton ajouter une catégorie, un formulaire va s'afficher avec les champs :
+- nom de la catégorie
+- Description
+Ici, on va afficher la liste des tous les produits de l'entreprise avec au bout droit de chaque élément produit, un badge qui va montrer la disponibilité du produit (en stock, indisponible, en rupture de stock)
+Quand on clique sur un élément produit, on nous emmène vers une page produit qui comporte :
+- un bouton retour
+- L'image du produit
+- Le nom du produit
+- La description du produit
+- La catégorie du produit
+- Le type du produit (physique ou service)
+- Les indications de disponibilité du produit (ces indications s'affichent uniquement pour les produits physiques) :
+    - En stock
+    - Réservé
+    - Disponible
+- Deux quatre boutons :
+    - Ravitailler produit
+    - Signaler une perte
+    - Modifier produit
+    - Supprimer produit
+    Quand on clique sur ravitailler produit, une interface s'ouvre avec un champ pour indiquer le nombre de d'item de ce produit à ravitailler, et le montant total de ce ravitaillement.
+    Quand on clique sur signaler perte, une interface s'ouvre avec un champ pour indiquer le nombre d'item de ce produit perdu et la raison de la perte
+    Quand on clique sur modifier un produit, l'interface d'ajout de produit s'ouvre sauf que là, les informations du produit sont déjà présentes et le champ type de produit est disable (parce qu'on ne peut pas changer le type d'un produit) et le bouton de soumission va appeler un autre lien API.
+    Quand on clique sur supprimer un produit, une interface demandant le mot de passe de l'utilisateur et un bouton confirmation de suppression s'affiche. Et quand on supprime, dans la base de donné, le statut passe à archive
+- Des statistiques sur le produit :
+    - A compléter
+Cette page produit aura sa propre route avec un slug "/application/produit/:slug" avec slug = id du produit
+##### historique de transaction de produit
+Ici, il y aura la liste de toutes les actions qui auront effectuées une modification du stock des produits.
+Quand on va cliquer sur une liste, un pane va s'ouvrir pour montrer toutes les informations de l'action (que ce soit un ravitaillement, une perte, une commande livrée etc...)
+En haut, il y aura des champs période (début - fin), une barre de recherche, une sélection du type de produit, une selection de la catégorie afin de filtrer la liste en fonction de tous ces paramètres.
+Et il y aura un bouton pour génerer soit un fichier .pdf, .csv ou .docx de la liste filtrée.
+Le fichier soit avoir tous les élements de la liste et tous les détails (ou informations) pour chaque élément. (c'est le backend qui génère le document avant de l'envoyer au frontend)
+
+#### Rapprovisionnement
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton Rapprovisionnement, et un autre Historique Rapprovisionnement
+##### Rapprovisionnement
+Il y aura un bouton Faire un réapprovisionnement
+En dessous, il y aura la liste de tous les réapprovisionnemnent en attente ou bien en cours
+Pour chaque ligne, il y aura le statut indiqué à droite et un bouton pour annuler et si le ravitaillement est en cours, il y aura un bouton pour confirmer le ravitaillement (donc le terminer).
+Quand on clique sur annuler, une interface s'ouvre pour demander la raison de l'annulation et avec un bouton pour confirmer l'annulation
+Quand on clique sur confirmer, une interface s'affiche pour que l'utilisateur entre son mot de passe pour valider définitivement que le ravitaillement est effectué.
+
+##### Historique Réapprovisionnement
+Ici, il y aura comme dans historique de transaction, tous les reapprovisionnements.
+Maintenant, ceux qui respectent les deux conditions de l'interface Rapprovisionnement, auront leurs boutons, sinon, le reste aura juste le statut et quand on clique sur une ligne, tous les détails (informations) s'affichent sur un pane qui va s'ouvrir
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+
+#### Réservations
+Ici, on va afficher la liste des reservations qu'on a faite sur tous les produits.
+Une réservation arrive lorsqu'on enregistre une commande pour un produit. Donc en fait, toutes les commandes sont des réservations pour le produit commandé
+Une réservation a trois états :
+- en_cours : lorsque la commande n'est pas annulé, et que la livraison associée à la commande n'est pas validée
+- validé : lorsque la livraison liée à la commande est validée et donc le stock a été déduit
+- annulé : lorsque la commande a été annulée
+Quand on clique sur une ligne de réservation, un pane s'ouvre et affiche toutes les informations liées à la réservation.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Pertes
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton Pertes, et un autre Historique Pertes
+##### Pertes
+Ici, il y aura un bouton Signaler une perte
+En dessous, il y aura la liste des pertes enregistrées il y a moins de 24 heures avec un bouton annuler la perte (on peut annuler une perte que si elle a été enregistrée il y a moins de 24 heures)
+Quand on clique sur annuler, une interface s'ouvre pour demander le mot de passe de l'utilisateur avec un bouton pour confirmer l'annulation
+Quand on clique sur une ligne, un pane s'ouvre pour montrer toutes les informations de la perte et aussi, si la perte a été enregistrée il y a moins de 24 heures, il y aura un bouton pour annuler la perte (avec la même logique d'annulation que celle décrite précédement)
+Quand on clique sur signaler une perte, une interface s'ouvre avec les champs :
+- selection du produit (avec une barre de recherche pour filtrer les produits)
+- nombre d'item perdus
+- raison de la perte
+- un bouton pour confirmer la perte
+##### Historique Pertes
+Ici, il y aura la liste de toutes les pertes enregistrées et quand une perte respecte les conditions de l'interface pertes, elle aura les boutons associés.
+Quand on clique sur une ligne de perte, un pane va s'ouvrir pour montrer toutes les informations de la perte et aussi, si la perte a été enregistrée il y a moins de 24 heures, il y aura un bouton pour annuler la perte (avec la même logique d'annulation que celle décrite précédement)
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Statistiques
+Ici, on peut faire plusieurs types de statistiques qui renvoyent vers plusieurs autres pages de statistiques. (décris ce qu'on peut mettre comme statistiques et les pages associées)
