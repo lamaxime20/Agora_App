@@ -19,6 +19,13 @@ import Ventes from './pages/modules/ventes';
 import Finances from './pages/modules/finances';
 import RessourcesHumaines from './pages/modules/ressourcesHumaines';
 
+import {
+    GESTION_STOCK_DASHBOARD, GESTION_STOCK_PERTES,
+    GESTION_STOCK_PRODUITS, GESTION_STOCK_REAPPROVISIONNEMENT,
+    GESTION_STOCK_RESERVATIONS,
+    GESTION_STOCK_STATISTIQUES
+} from "./services/gestionStock.js";
+
 import './App.css';
 
 function App() {
@@ -44,7 +51,12 @@ function App() {
 
                         <Route element={<RouteGuardAuthorization />}>
                             <Route path="/application" element={<ApplicationPage />} />
-                            <Route path="/application/stock" element={<GestionStock />} />
+                            <Route path="/application/stock" element={<GestionStock  onglet={GESTION_STOCK_DASHBOARD} />} />
+                            <Route path="/application/stock/produits" element={<GestionStock  onglet={GESTION_STOCK_PRODUITS} />} />
+                            <Route path="/application/stock/reapprovisionnement" element={<GestionStock  onglet={GESTION_STOCK_REAPPROVISIONNEMENT} />} />
+                            <Route path="/application/stock/reservations" element={<GestionStock  onglet={GESTION_STOCK_RESERVATIONS} />} />
+                            <Route path="/application/stock/pertes" element={<GestionStock  onglet={GESTION_STOCK_PERTES} />} />
+                            <Route path="/application/stock/statistiques" element={<GestionStock  onglet={GESTION_STOCK_STATISTIQUES} />} />
                             <Route path="/application/vente" element={<Ventes />} />
                             <Route path="/application/finances" element={<Finances />} />
                             <Route path="/application/ressources-humaines" element={<RessourcesHumaines />} />

@@ -47,3 +47,6 @@ MAIL_FROM_ADDRESS="hello@example.com"
 MAIL_FROM_NAME="${APP_NAME}""
 Et il y aussi Brevo.
 En temps normal, ce sera le système d'envoi normal avec SMTP qui sera en fonctionnement, puis lorsque ce système va tomber en panne ou ne plus marcher à cause d'une restriction, brevo va prendre le relais et à partir de là, on va d'abord m'envoyer un email pour indiquer que le système SMTP ne fonctionne plus.
+
+# La phase de passage entre la page de choix de role et la page de choix de module est lente
+Il faut que je regarde ce qui se passe, et que j'optimise le code pour que ça soit plus rapide ou bien ajouter un loader pour que l'utilisateur puisse patienter pendant le chargement de la page
