@@ -100,6 +100,11 @@ class Utilisateur extends Authenticatable
         return $this->hasMany(Livraison::class, 'livreur');
     }
 
+    public function livraisonsAnnulees(): HasMany
+    {
+        return $this->hasMany(Livraison::class, 'utilisateur_annulation');
+    }
+
     public function payementsEnregistres(): HasMany
     {
         return $this->hasMany(Payement::class, 'user_enregistre');

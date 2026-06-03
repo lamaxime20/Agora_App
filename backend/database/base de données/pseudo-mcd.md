@@ -94,6 +94,9 @@ date_commande
 statut
 etat_payement
 montant_commande
+adresse_livraison
+date_livraison_prevue
+notes_supplementaires
 date_validation
 date_annulation
 raison_annulation
@@ -120,6 +123,9 @@ statut
 motif_echec
 motif_retour
 date_lancement
+date_annulation
+raison_annulation
+utilisateur_annulation
 actif
 
 payements

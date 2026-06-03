@@ -284,15 +284,99 @@ Cette page affiche :
 
 ### Logique du module ventes
 Quand l'utilisateur arrive sur son espace de travail pour la gestion des ventes, il y a une sidebar à gauche qui s'ouvre et se ferme et qui va lui permettre de sélectionner les pages sur lesquelles il veut travailler.
-La sideBar aura 05 onglets (Dashboard, Commandes, Réservations, Livraisons, Statistiques) et sur le côté droit de la page, c'est l'interface correspondant à l'onglet sélectionné, qui va s'afficher.
+La sideBar aura 05 onglets (Dashboard, Commandes, Réservations, Clients, Statistiques) et sur le côté droit de la page, c'est l'interface correspondant à l'onglet sélectionné, qui va s'afficher.
 #### Dashboard
 Ici on va réfléchir après sur ce que va contenir le dashboard
 #### Commandes
-Ici, l'interface de droite va montrer deux boutons en haut, un bouton Liste de Commandes, et un autre Historique de Commandes
-##### Liste de Commandes
-Il y aura une barre de recherche pour rechercher une commande.
-Il y aura un bouton pour ajouter une nouvelle commande
-Quand on clique sur le bouton Ajoute une nouvelle commande, une interface va s'ouvrir en floutant l'interface de derrière avec les champs :
-- client (avec une barre de recherche pour rechercher un client déjà existant, et si le client n'existe pas, on peut entrer son nom et son prénom, son email et son numéro de téléphone pour qu'il soit automatiquement ajouté à la base de données)
-- selection des produits 
-- quantité du produit
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton nouvelle commande, et un autre Historique de Commandes
+##### Nouvelle Commande
+Ici, ça sera un formulaire pour enregistrer une nouvelle commande, avec les champs :
+- Choix du client : qui va ouvrir un pane avec la liste de tous les clients, avec une barre de recherche pour filtrer les clients, et quand on clique sur un client, le pane se ferme et le champ choix du client se remplit avec le nom du client sélectionné. Dans ce même pane, il y aura un bouton pour ajouter un nouveau client qui va ouvrir une interface pour ajouter un client avec les champs nom, prénom, email, numéro de téléphone. Et quand on ajoute le client, le client est ajouté à la base de données, le pane se ferme et le champ choix du client se remplit avec le nom du client ajouté, si un client avec le même email existe déjà, on affiche une erreur "un client avec cet email existe déjà".
+- Choix du produit : qui va ouvrir un pane avec deux zones. La zone du heut va afficher les produits qu'on a déjà sélectionné pour la commande avec leurs quantités, et la zone du bas va afficher la liste de tous les produits avec une barre de recherche pour filtrer les produits. Dans la zone du haut, chaque ligne de produit aura un bouton moins et un bouton plus pour modifier la quantité du produit dans la commande, et un bouton supprimer pour retirer le produit de la commande Quand la quantité atteint zéro, le produit descend automatiquement dans la zone du bas. Dans la zone du bas, quand on clique sur un produit, il s'ajoute à la zone du haut avec une quantité de 1, si le produit est déjà dans la zone du haut, on n'affiche pas ce produit dans la zone du bas.
+- Adresse de livraison
+- Date de livraison souhaitée
+- Un champ de texte pour les notes supplémentaires
+- Un bouton pour confirmer la commande
+Quand on confirme la commande, on vérifie que le stock disponible de chaque produit est suffisant pour satisfaire la quantité demandée. Si le stock disponible est insuffisant pour au moins un produit, on affiche une erreur "stock insuffisant pour le produit X" et la commande n'est pas enregistrée. Si le stock disponible est suffisant pour tous les produits, la commande est enregistrée avec un statut "brouillon" dans la base de données. Ensuite, une notification est automatiquement envoyée aux utilisateurs concernés pour les informer de la nouvelle commande.
+##### Historique de Commandes
+Ici, il y aura la liste de toutes les commandes enregistrées avec leurs statuts respectifs (
+    reçu
+    validé
+    en cours de livraison
+    annulé
+    livré
+)
+INFOS : Bon, le backend aura ses statuts pour les commandes qu'il va envoyer au frontend
+reçu
+validé
+en cours de livraison
+annulé
+livré
+
+Une commande dont le id=x est marquée comme reçu si le statut de la tuple de id x dans la table commandes est marqué comme brouillon
+
+Une commande est marquée comme validé si dans la table commandes, le statut de la tuple de id x est marqué validé, et si dans la table livraisons, il n'y a aucune tuple qui fait référence à la commande de id x ou bien, toutes les tuples de livraisons qui y font référence sont marquées annulé.
+
+Une commande est marqué en cours de livraison si dans la table commandes, le statut de la tuple de id x est marqué validé, état du payement est marqué au moins partiellement, et si dans la table livraisons, il y a une seule tuple qui fait référence à la commande de id x dont le statut est en_cours
+
+Une commande est marquée annulé, lorsque dans la table commandes, le statut de la tuple de id x est marqué annulé.
+
+Une commande de id x est marquée comme livré, si dans la table commandes, la tuple de la commande x doit avoir comme statut validé, état du payement est marqué au moins partiellement, et dans la table livraison, il doit y avoir une seule tuple dont le statut est marqué validé
+
+Dans la table livraisons, pour une commande de id x dont le statut est en cours de livraison, il ne doit y avoir qu'une seule tuple dont le statut est en_cours, tout le reste des livraisons pour la commande x doivent être annulées sinon, on n'ajoute pas de livraison pour la commande x.
+
+Si dans la table commandes, une commande de id x est marquée annulé, toutes les tuples de la table livraisons qui font références à la commande x, doivent être marquées annulé.
+
+Une commande livrée ne peut plus recevoir de nouvelle livraison en_cours.
+Maintenant, en fonction des statuts, il y aura des boutons différents pour chaque commande que l'utilisateur peut cliquer :
+- reçu : un bouton pour annuler la commande
+- validé : un bouton pour annuler la commande
+- en cours de livraison : un bouton pour annuler la commande.
+- annulé : aucun bouton
+- livré : aucun bouton
+Quand on clique sur annuler la commande, une interface s'ouvre pour demander la raison de l'annulation et avec un bouton pour confirmer l'annulation
+Quand on clique sur une ligne de commande, un pane s'ouvre pour montrer toutes les informations de la commande et aussi, en fonction du statut de la commande, les boutons associés (annuler la commande etc...)
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Réservations
+Ici, on va afficher la liste des reservations qu'on a faite sur tous les produits.
+Une réservation arrive lorsqu'on enregistre une commande pour un produit. Donc en fait, toutes les commandes sont des réservations pour le produit commandé
+Lorsqu'une commande est validée, le backend vérifie automatiquement que le stock disponible est suffisant pour satisfaire la quantité demandée.
+Stock disponible = stock actuel - stock réservé.
+Si le stock disponible est insuffisant, la validation de la commande est refusée.
+Une réservation a trois états :
+- en_cours : lorsque la commande n'est pas annulé, et que la livraison associée à la commande n'est pas validée
+- validé : lorsque la livraison liée à la commande est validée et donc le stock a été déduit
+- annulé : lorsque la commande a été annulée
+Le stock réservé n'est jamais stocké dans la base de données.
+Il est calculé dynamiquement à partir des commandes validées dont la livraison n'a pas encore été confirmée.
+Le stock disponible est également calculé dynamiquement :
+stock disponible = stock actuel - stock réservé.
+Quand on clique sur une ligne de réservation, un pane s'ouvre et affiche toutes les informations liées à la réservation.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Clients
+Ici, il y aura la liste de tous les clients avec leurs informations respectives (nom, prénom, email, numéro de téléphone) et quand on clique sur un client, un pane s'ouvre pour montrer toutes les informations du client et aussi, un bouton pour voir toutes les commandes du client. Quand on clique sur ce bouton, une interface s'ouvre avec la liste de toutes les commandes du client avec leurs statuts respectifs (reçu, validé, en cours de livraison, annulé, livré)
+#### Statistiques
+Cette section permet d'accéder à plusieurs pages de statistiques spécialisées.
+##### Vue Générale
+Cette page affiche :
+- Nombre total de clients
+- Nombre total de commandes
+- Nombre total de produits
+- Chiffre d'affaires total
+- Commandes en cours de livraison
+- Commandes livrées
+- Commandes annulées
+- Produits en rupture de stock
+- Produits en stock faible
+##### Clients
+Cette page affiche :
+- Clients les plus actifs (en fonction du nombre de commandes)
+- Clients les moins actifs (en fonction du nombre de commandes)
+- Clients qui génèrent le plus de chiffre d'affaires
+- Clients qui génèrent le moins de chiffre d'affaires
+##### Commandes
+Cette page affiche :
+- Commandes les plus frequentes (en fonction du nombre de commandes)
+- Commandes les moins fréquentes (en fonction du nombre de commandes)
+- Commandes générant le plus de chiffre d'affaires
+- Commandes générant le moins de chiffre d'affaires

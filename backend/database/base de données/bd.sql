@@ -558,6 +558,10 @@ CREATE TABLE IF NOT EXISTS commandes (
   etat_payement etat_payement DEFAULT 'non_paye',
 
   montant_commande MoneyAmount DEFAULT 0,
+  
+  adresse_livraison TEXT,
+  date_livraison_prevue TIMESTAMP,
+  notes_supplementaires TEXT,
 
   date_validation TIMESTAMP,
   date_annulation TIMESTAMP,
@@ -649,6 +653,10 @@ CREATE TABLE IF NOT EXISTS livraisons (
 
   date_lancement TIMESTAMP,
 
+  date_annulation TIMESTAMP,
+  raison_annulation TEXT,
+  utilisateur_annulation UUID,
+
   actif BOOLEAN DEFAULT TRUE,
 
   commande UUID NOT NULL,
@@ -666,6 +674,12 @@ CREATE TABLE IF NOT EXISTS livraisons (
     FOREIGN KEY (livreur)
     REFERENCES utilisateurs(id)
     ON DELETE CASCADE
+    ON UPDATE CASCADE,
+
+  CONSTRAINT livraisons_cr2
+    FOREIGN KEY (utilisateur_annulation)
+    REFERENCES utilisateurs(id)
+    ON DELETE SET NULL
     ON UPDATE CASCADE
 );
 

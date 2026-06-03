@@ -23,6 +23,10 @@ return new class extends Migration
 
             $table->timestamp('date_lancement')->nullable();
 
+            $table->timestamp('date_annulation')->nullable();
+            $table->text('raison_annulation')->nullable();
+            $table->uuid('utilisateur_annulation')->nullable();
+
             $table->boolean('actif')->default(true);
 
             $table->uuid('commande');
@@ -36,6 +40,11 @@ return new class extends Migration
             $table->foreign('livreur')
                 ->references('id')->on('utilisateurs')
                 ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('utilisateur_annulation')
+                ->references('id')->on('utilisateurs')
+                ->nullOnDelete()
                 ->onUpdate('cascade');
 
             $table->index('commande', 'livraisons_commande_index');

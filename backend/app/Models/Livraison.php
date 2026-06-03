@@ -21,6 +21,9 @@ class Livraison extends Model
         'motif_echec',
         'motif_retour',
         'date_lancement',
+        'date_annulation',
+        'raison_annulation',
+        'utilisateur_annulation',
         'actif',
         'commande',
         'livreur',
@@ -34,5 +37,10 @@ class Livraison extends Model
     public function livreur(): BelongsTo
     {
         return $this->belongsTo(Utilisateur::class, 'livreur');
+    }
+
+    public function utilisateurAnnulation(): BelongsTo
+    {
+        return $this->belongsTo(Utilisateur::class, 'utilisateur_annulation');
     }
 }

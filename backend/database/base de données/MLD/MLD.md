@@ -249,6 +249,9 @@ Table commandes {
   statut statut_commande [default: 'brouillon']
   etat_payement etat_payement [default: 'non_paye']
   montant_commande decimal(15,2) [default: 0]
+  adresse_livraison text
+  date_livraison_prevue timestamp
+  notes_supplementaires text
   date_validation timestamp
   date_annulation timestamp
   raison_annulation text
@@ -300,6 +303,9 @@ Table livraisons {
   motif_echec text
   motif_retour text
   date_lancement timestamp
+  date_annulation timestamp
+  raison_annulation text
+  utilisateur_annulation uuid
   actif boolean [default: true]
   commande uuid [not null]
   livreur uuid [not null]
@@ -307,6 +313,7 @@ Table livraisons {
 
 ref: livraisons.commande > commandes.id
 ref: livraisons.livreur > utilisateurs.id
+ref: livraisons.utilisateur_annulation > utilisateurs.id
 
 Table payements {
   id uuid [pk]

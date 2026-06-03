@@ -21,6 +21,10 @@ return new class extends Migration
 
             $table->decimal('montant_commande', 15, 2)->default(0);
 
+            $table->text('adresse_livraison')->nullable();
+            $table->timestamp('date_livraison_prevue')->nullable();
+            $table->text('notes_supplementaires')->nullable();
+
             $table->timestamp('date_validation')->nullable();
             $table->timestamp('date_annulation')->nullable();
 

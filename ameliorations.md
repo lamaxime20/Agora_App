@@ -7,7 +7,7 @@ en cours de livraison
 annulé
 livré
 
-Une commande dont le id=x est marquée comme reçu si le statut de la tuple de id x dans la table commandes est marqué comme reçu
+Une commande dont le id=x est marquée comme reçu si le statut de la tuple de id x dans la table commandes est marqué comme brouillon
 
 Une commande est marquée comme validé si dans la table commandes, le statut de la tuple de id x est marqué validé, et si dans la table livraisons, il n'y a aucune tuple qui fait référence à la commande de id x ou bien, toutes les tuples de livraisons qui y font référence sont marquées annulé.
 
