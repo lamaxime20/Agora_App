@@ -285,3 +285,14 @@ Cette page affiche :
 ### Logique du module ventes
 Quand l'utilisateur arrive sur son espace de travail pour la gestion des ventes, il y a une sidebar à gauche qui s'ouvre et se ferme et qui va lui permettre de sélectionner les pages sur lesquelles il veut travailler.
 La sideBar aura 05 onglets (Dashboard, Commandes, Réservations, Livraisons, Statistiques) et sur le côté droit de la page, c'est l'interface correspondant à l'onglet sélectionné, qui va s'afficher.
+#### Dashboard
+Ici on va réfléchir après sur ce que va contenir le dashboard
+#### Commandes
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton Liste de Commandes, et un autre Historique de Commandes
+##### Liste de Commandes
+Il y aura une barre de recherche pour rechercher une commande.
+Il y aura un bouton pour ajouter une nouvelle commande
+Quand on clique sur le bouton Ajoute une nouvelle commande, une interface va s'ouvrir en floutant l'interface de derrière avec les champs :
+- client (avec une barre de recherche pour rechercher un client déjà existant, et si le client n'existe pas, on peut entrer son nom et son prénom, son email et son numéro de téléphone pour qu'il soit automatiquement ajouté à la base de données)
+- selection des produits 
+- quantité du produit

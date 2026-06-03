@@ -1,25 +1,32 @@
-/* ─── Overlay (mobile) ────────────────────────────────────────────────────────── */
+/* ─── Wrapper — mobile : fixed overlay bottom, desktop : inline ───────────────── */
 
-.paneTransaction-overlay {
+.paneTransaction-wrap {
+    /* mobile : rendu dans un portail via l'overlay */
+}
+
+/* ─── Overlay mobile ──────────────────────────────────────────────────────────── */
+
+.paneTransaction-overlay-mobile {
     position: fixed;
     inset: 0;
     z-index: var(--z-modal);
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: flex-end;
     animation: fadeIn var(--duration-fast) var(--ease-out);
 }
 
-/* ─── Panel — mobile : bottom sheet ──────────────────────────────────────────── */
+/* ─── Panel ───────────────────────────────────────────────────────────────────── */
 
 .paneTransaction-panel {
-    width: 100%;
-    max-height: 80dvh;
     background-color: var(--color-surface);
-    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* mobile */
+    width: 100%;
+    max-height: 88dvh;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     animation: slideUp var(--duration-normal) var(--ease-out);
 }
 
@@ -75,11 +82,49 @@
     flex-direction: column;
     gap: var(--space-5);
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
 }
+
+/* ─── Skeleton (chargement progressif) ───────────────────────────────────────── */
+
+.paneTransaction-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    flex: 1;
+}
+
+.paneTransaction-skeleton__badge {
+    width: 120px;
+    height: 26px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--color-surface-alt) 25%, var(--color-border) 50%, var(--color-surface-alt) 75%);
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+.paneTransaction-skeleton__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.paneTransaction-skeleton__line {
+    height: 12px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, var(--color-surface-alt) 25%, var(--color-border) 50%, var(--color-surface-alt) 75%);
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+.paneTransaction-skeleton__line--full  { width: 100%; }
+.paneTransaction-skeleton__line--half  { width: 55%; }
+.paneTransaction-skeleton__line--third { width: 35%; }
 
 /* ─── Type badge ──────────────────────────────────────────────────────────────── */
 
-.paneTransaction-type {
+.paneTransaction-typeBadge {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -89,27 +134,16 @@
     font-weight: var(--weight-semibold);
 }
 
-.paneTransaction-type--ravitaillement {
-    background-color: rgba(39, 174, 96, 0.12);
-    color: var(--color-success);
-}
+.paneTransaction-typeBadge--ravitaillement               { background: rgba(39,174,96,0.12);  color: var(--color-success); }
+.paneTransaction-typeBadge--perte                        { background: rgba(231,76,60,0.10);  color: var(--color-error);   }
+.paneTransaction-typeBadge--livraison                    { background: rgba(52,152,219,0.12); color: var(--color-info);    }
+.paneTransaction-typeBadge--annulation_perte             { background: rgba(241,196,15,0.15); color: #b8860b;              }
+.paneTransaction-typeBadge--annulation_reapprovisionnement { background: rgba(241,196,15,0.15); color: #b8860b;            }
+.paneTransaction-typeBadge--archivage                    { background: rgba(107,114,128,0.12);color: var(--color-text-muted); }
+.paneTransaction-typeBadge--creation                     { background: rgba(39,174,96,0.08);  color: #1e8449;              }
+.paneTransaction-typeBadge--modification                 { background: rgba(155,89,182,0.12); color: #8e44ad;              }
 
-.paneTransaction-type--perte {
-    background-color: rgba(231, 76, 60, 0.10);
-    color: var(--color-error);
-}
-
-.paneTransaction-type--livraison {
-    background-color: rgba(52, 152, 219, 0.12);
-    color: var(--color-info);
-}
-
-.paneTransaction-type--ajout {
-    background-color: rgba(241, 196, 15, 0.12);
-    color: #b8860b;
-}
-
-/* ─── Section ─────────────────────────────────────────────────────────────────── */
+/* ─── Sections ────────────────────────────────────────────────────────────────── */
 
 .paneTransaction-section {
     display: flex;
@@ -127,13 +161,14 @@
     border-bottom: 1px solid var(--color-border);
 }
 
-/* ─── Ligne d'info ────────────────────────────────────────────────────────────── */
+/* ─── Lignes d'info ───────────────────────────────────────────────────────────── */
 
 .paneTransaction-row {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--space-3);
+    min-height: 20px;
 }
 
 .paneTransaction-row__label {
@@ -141,6 +176,7 @@
     color: var(--color-text-muted);
     font-weight: var(--weight-medium);
     flex-shrink: 0;
+    max-width: 45%;
 }
 
 .paneTransaction-row__value {
@@ -152,9 +188,9 @@
 }
 
 .paneTransaction-row__value--plus  { color: var(--color-success); }
-.paneTransaction-row__value--minus { color: var(--color-error); }
+.paneTransaction-row__value--minus { color: var(--color-error);   }
 
-/* ─── Note ────────────────────────────────────────────────────────────────────── */
+/* ─── Note / raison ───────────────────────────────────────────────────────────── */
 
 .paneTransaction-note {
     padding: var(--space-3) var(--space-4);
@@ -163,28 +199,35 @@
     font-size: var(--text-sm);
     color: var(--color-text);
     line-height: var(--line-height-relaxed);
+    border-left: 3px solid var(--color-border-strong);
     font-style: italic;
 }
 
-/* ─── Desktop : side pane ─────────────────────────────────────────────────────── */
+/* ─── ID Transaction ──────────────────────────────────────────────────────────── */
+
+.paneTransaction-id {
+    font-family: monospace;
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+    word-break: break-all;
+}
+
+/* ─── Desktop : side pane inline ──────────────────────────────────────────────── */
 
 @media (min-width: 1025px) {
-    .paneTransaction-overlay {
-        background-color: transparent;
-        align-items: stretch;
-        position: relative;
-        inset: auto;
-        z-index: auto;
-    }
-
     .paneTransaction-panel {
-        width: 380px;
-        max-height: 100%;
-        max-width: 380px;
+        width: 500px;
+        max-height: none;
         border-radius: 0;
         border-left: 1px solid var(--color-border);
-        animation: slideFromRight var(--duration-normal) var(--ease-out);
+        animation: slideFromRight 300ms var(--ease-out);
         flex-shrink: 0;
+        position: sticky;
+        top: 0;
+        max-height: 80dvh;
     }
 
     @keyframes slideFromRight {
