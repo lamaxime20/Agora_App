@@ -1,0 +1,194 @@
+/* ─── Overlay (mobile) ────────────────────────────────────────────────────────── */
+
+.paneTransaction-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    background-color: rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: flex-end;
+    animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+/* ─── Panel — mobile : bottom sheet ──────────────────────────────────────────── */
+
+.paneTransaction-panel {
+    width: 100%;
+    max-height: 80dvh;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp var(--duration-normal) var(--ease-out);
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────────── */
+
+.paneTransaction-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    gap: var(--space-3);
+}
+
+.paneTransaction-title {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.paneTransaction-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.paneTransaction-close:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+/* ─── Body ────────────────────────────────────────────────────────────────────── */
+
+.paneTransaction-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Type badge ──────────────────────────────────────────────────────────────── */
+
+.paneTransaction-type {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+}
+
+.paneTransaction-type--ravitaillement {
+    background-color: rgba(39, 174, 96, 0.12);
+    color: var(--color-success);
+}
+
+.paneTransaction-type--perte {
+    background-color: rgba(231, 76, 60, 0.10);
+    color: var(--color-error);
+}
+
+.paneTransaction-type--livraison {
+    background-color: rgba(52, 152, 219, 0.12);
+    color: var(--color-info);
+}
+
+.paneTransaction-type--ajout {
+    background-color: rgba(241, 196, 15, 0.12);
+    color: #b8860b;
+}
+
+/* ─── Section ─────────────────────────────────────────────────────────────────── */
+
+.paneTransaction-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.paneTransaction-section__title {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* ─── Ligne d'info ────────────────────────────────────────────────────────────── */
+
+.paneTransaction-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.paneTransaction-row__label {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-medium);
+    flex-shrink: 0;
+}
+
+.paneTransaction-row__value {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+    text-align: right;
+    word-break: break-word;
+}
+
+.paneTransaction-row__value--plus  { color: var(--color-success); }
+.paneTransaction-row__value--minus { color: var(--color-error); }
+
+/* ─── Note ────────────────────────────────────────────────────────────────────── */
+
+.paneTransaction-note {
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-surface-alt);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    line-height: var(--line-height-relaxed);
+    font-style: italic;
+}
+
+/* ─── Desktop : side pane ─────────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .paneTransaction-overlay {
+        background-color: transparent;
+        align-items: stretch;
+        position: relative;
+        inset: auto;
+        z-index: auto;
+    }
+
+    .paneTransaction-panel {
+        width: 380px;
+        max-height: 100%;
+        max-width: 380px;
+        border-radius: 0;
+        border-left: 1px solid var(--color-border);
+        animation: slideFromRight var(--duration-normal) var(--ease-out);
+        flex-shrink: 0;
+    }
+
+    @keyframes slideFromRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to   { transform: translateX(0);    opacity: 1; }
+    }
+}

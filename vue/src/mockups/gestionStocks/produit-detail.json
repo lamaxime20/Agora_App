@@ -1,0 +1,55 @@
+{
+    "success": true,
+    "message": "",
+    "data": {
+        "produit": {
+            "id": "prod-001",
+            "reference": "CAH-GF-001",
+            "nom": "Cahier grand format 200 pages",
+            "categorie": { "id": "cat-001", "nom": "Papeterie" },
+            "type": "physique",
+            "prix_unitaire": 500,
+            "quantite_stock": 0,
+            "stock_reserve": 30,
+            "seuil_alerte": 20,
+            "unite": "pièce",
+            "statut": "rupture",
+            "image_url": null,
+            "description": "Cahier grand format 200 pages, couverture rigide, idéal pour la prise de notes et les cours.",
+            "date_creation": "2025-01-10T08:00:00Z"
+        },
+        "stock": {
+            "stock_actuel": 0,
+            "stock_reserve": 30,
+            "stock_disponible": 0
+        },
+        "statistiques": {
+            "quantite_vendue": 210,
+            "chiffre_affaires": 105000,
+            "nb_commandes": 48,
+            "nb_reapprovisionnements": 5,
+            "quantite_reapprovisionnee": 500,
+            "cout_reapprovisionnements": 250000,
+            "quantite_perdue": 15,
+            "valeur_perdue": 7500
+        },
+        "evolution_7j": [
+            { "date": "2026-05-28", "label": "28 mai",  "ventes": 12 },
+            { "date": "2026-05-29", "label": "29 mai",  "ventes": 8  },
+            { "date": "2026-05-30", "label": "30 mai",  "ventes": 15 },
+            { "date": "2026-05-31", "label": "31 mai",  "ventes": 20 },
+            { "date": "2026-06-01", "label": "1 juin",  "ventes": 5  },
+            { "date": "2026-06-02", "label": "2 juin",  "ventes": 18 },
+            { "date": "2026-06-03", "label": "3 juin",  "ventes": 0  }
+        ],
+        "evolution_30j": [
+            { "date": "2026-05-04", "label": "4 mai",   "ventes": 25 },
+            { "date": "2026-05-09", "label": "9 mai",   "ventes": 18 },
+            { "date": "2026-05-14", "label": "14 mai",  "ventes": 32 },
+            { "date": "2026-05-19", "label": "19 mai",  "ventes": 12 },
+            { "date": "2026-05-24", "label": "24 mai",  "ventes": 40 },
+            { "date": "2026-05-29", "label": "29 mai",  "ventes": 8  },
+            { "date": "2026-06-03", "label": "3 juin",  "ventes": 0  }
+        ]
+    }
+}

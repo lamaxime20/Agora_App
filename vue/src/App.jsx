@@ -15,6 +15,7 @@ import ChoixRolePage from './pages/ChoixRolePage';
 import ApplicationPage from './pages/ApplicationPage';
 import CreateEntreprisePage from './pages/createEntreprise';
 import GestionStock from './pages/modules/gestionStock';
+import ProduitPage from './pages/modules/produit';
 import Ventes from './pages/modules/ventes';
 import Finances from './pages/modules/finances';
 import RessourcesHumaines from './pages/modules/ressourcesHumaines';
@@ -57,6 +58,7 @@ function App() {
                             <Route path="/application/stock/reservations" element={<GestionStock  onglet={GESTION_STOCK_RESERVATIONS} />} />
                             <Route path="/application/stock/pertes" element={<GestionStock  onglet={GESTION_STOCK_PERTES} />} />
                             <Route path="/application/stock/statistiques" element={<GestionStock  onglet={GESTION_STOCK_STATISTIQUES} />} />
+                            <Route path="/application/produit/:id" element={<ProduitPage />} />
                             <Route path="/application/vente" element={<Ventes />} />
                             <Route path="/application/finances" element={<Finances />} />
                             <Route path="/application/ressources-humaines" element={<RessourcesHumaines />} />

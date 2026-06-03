@@ -1,0 +1,55 @@
+/* ─── Racine ──────────────────────────────────────────────────────────────────── */
+
+.produits-root {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    animation: fadeInUp 0.25s var(--ease-out) both;
+}
+
+/* ─── Tabs ───────────────────────────────────────────────────────────────────── */
+
+.produits-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--space-6);
+    padding-inline: 0;
+}
+
+.produits-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+        color        var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out);
+}
+
+.produits-tab:hover {
+    color: var(--color-text);
+}
+
+.produits-tab--active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+    font-weight: var(--weight-semibold);
+}
+
+/* ─── Contenu de l'onglet ─────────────────────────────────────────────────────── */
+
+.produits-content {
+    flex: 1;
+}

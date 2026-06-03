@@ -1,0 +1,14 @@
+{
+    "success": true,
+    "message": "",
+    "data": {
+        "categories": [
+            { "id": "cat-001", "nom": "Papeterie",    "description": "Fournitures de bureau et papeterie",       "nbProduits": 5 },
+            { "id": "cat-002", "nom": "Informatique", "description": "Matériel et consommables informatiques",    "nbProduits": 2 },
+            { "id": "cat-003", "nom": "Services",     "description": "Prestations de services professionnels",   "nbProduits": 1 },
+            { "id": "cat-004", "nom": "Mobilier",     "description": "Mobilier et équipement de bureau",         "nbProduits": 3 },
+            { "id": "cat-005", "nom": "Divers",       "description": "Autres produits non catégorisés",          "nbProduits": 2 }
+        ]
+    },
+    "pagination": null
+}

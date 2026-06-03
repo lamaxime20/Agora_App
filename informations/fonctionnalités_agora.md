@@ -147,6 +147,7 @@ Lorsqu'un utilisateur souhaite supprimer un produit :
 
 celui-ci sera archivé,
 afin de conserver l'historique des ventes et des mouvements liés à ce produit.
+
 Module Vente
 
 Ici, nous pouvons :

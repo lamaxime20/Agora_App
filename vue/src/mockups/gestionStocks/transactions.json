@@ -1,0 +1,109 @@
+{
+    "success": true,
+    "message": "",
+    "data": {
+        "transactions": [
+            {
+                "id": "txn-001",
+                "type": "ravitaillement",
+                "produit": { "id": "prod-001", "nom": "Cahier grand format 200 pages", "reference": "CAH-GF-001", "categorie": "Papeterie", "type": "physique" },
+                "quantite": 50,
+                "variation": +50,
+                "stock_avant": 0,
+                "stock_apres": 50,
+                "montant": 25000,
+                "utilisateur": { "id": "usr-001", "nom": "Dupont Marie" },
+                "date": "2026-06-03T07:30:00Z",
+                "note": "Réception fournisseur — Papeterie Centrale"
+            },
+            {
+                "id": "txn-002",
+                "type": "perte",
+                "produit": { "id": "prod-002", "nom": "Stylo bille bleu BIC", "reference": "STY-BB-001", "categorie": "Papeterie", "type": "physique" },
+                "quantite": 20,
+                "variation": -20,
+                "stock_avant": 24,
+                "stock_apres": 4,
+                "montant": 3000,
+                "utilisateur": { "id": "usr-001", "nom": "Dupont Marie" },
+                "date": "2026-06-03T07:45:00Z",
+                "note": "Vol constaté à l'ouverture",
+                "raison_perte": "vol"
+            },
+            {
+                "id": "txn-003",
+                "type": "livraison",
+                "produit": { "id": "prod-005", "nom": "Agrafeuse de bureau standard", "reference": "AGA-001", "categorie": "Papeterie", "type": "physique" },
+                "quantite": 2,
+                "variation": -2,
+                "stock_avant": 14,
+                "stock_apres": 12,
+                "montant": 5000,
+                "utilisateur": { "id": "sys", "nom": "Système" },
+                "date": "2026-06-02T16:00:00Z",
+                "note": "Livraison commande #CMD-0089 validée",
+                "commande_id": "cmd-089"
+            },
+            {
+                "id": "txn-004",
+                "type": "ravitaillement",
+                "produit": { "id": "prod-004", "nom": "Encre imprimante noire HP 302", "reference": "ENC-HP-001", "categorie": "Informatique", "type": "physique" },
+                "quantite": 5,
+                "variation": +5,
+                "stock_avant": 0,
+                "stock_apres": 5,
+                "montant": 42500,
+                "utilisateur": { "id": "usr-002", "nom": "Kamga Pierre" },
+                "date": "2026-06-01T14:00:00Z",
+                "note": "Commande urgente Bureau Plus"
+            },
+            {
+                "id": "txn-005",
+                "type": "perte",
+                "produit": { "id": "prod-004", "nom": "Encre imprimante noire HP 302", "reference": "ENC-HP-001", "categorie": "Informatique", "type": "physique" },
+                "quantite": 2,
+                "variation": -2,
+                "stock_avant": 7,
+                "stock_apres": 5,
+                "montant": 17000,
+                "utilisateur": { "id": "usr-002", "nom": "Kamga Pierre" },
+                "date": "2026-06-02T14:30:00Z",
+                "note": "Chute accidentelle",
+                "raison_perte": "casse"
+            },
+            {
+                "id": "txn-006",
+                "type": "livraison",
+                "produit": { "id": "prod-003", "nom": "Papier ramette A4 80g", "reference": "PAP-A4-001", "categorie": "Papeterie", "type": "physique" },
+                "quantite": 5,
+                "variation": -5,
+                "stock_avant": 7,
+                "stock_apres": 2,
+                "montant": 17500,
+                "utilisateur": { "id": "sys", "nom": "Système" },
+                "date": "2026-05-31T10:00:00Z",
+                "note": "Livraison commande #CMD-0088",
+                "commande_id": "cmd-088"
+            },
+            {
+                "id": "txn-007",
+                "type": "ajout",
+                "produit": { "id": "prod-008", "nom": "Clé USB 32 Go", "reference": "CLV-USB-001", "categorie": "Informatique", "type": "physique" },
+                "quantite": 8,
+                "variation": +8,
+                "stock_avant": 0,
+                "stock_apres": 8,
+                "montant": 36000,
+                "utilisateur": { "id": "usr-001", "nom": "Dupont Marie" },
+                "date": "2026-05-30T09:00:00Z",
+                "note": "Nouveau produit ajouté"
+            }
+        ]
+    },
+    "pagination": {
+        "page": 1,
+        "limit": 20,
+        "total": 87,
+        "totalPages": 5
+    }
+}

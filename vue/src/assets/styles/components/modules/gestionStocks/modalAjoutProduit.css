@@ -1,0 +1,322 @@
+/* ─── Overlay ─────────────────────────────────────────────────────────────────── */
+
+.modalProduit-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: flex-end;
+    animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+/* ─── Panel — Mobile : plein écran glissant depuis le bas ─────────────────────── */
+
+.modalProduit-panel {
+    width: 100%;
+    max-height: 95dvh;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp var(--duration-normal) var(--ease-out);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────────── */
+
+.modalProduit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    gap: var(--space-3);
+}
+
+.modalProduit-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.modalProduit-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.modalProduit-close:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+/* ─── Formulaire ──────────────────────────────────────────────────────────────── */
+
+.modalProduit-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.modalProduit-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+/* ─── Champ ───────────────────────────────────────────────────────────────────── */
+
+.modalProduit-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.modalProduit-field--relative {
+    position: relative;
+}
+
+.modalProduit-label {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.modalProduit-label span {
+    color: var(--color-error);
+    margin-left: 2px;
+}
+
+.modalProduit-textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: var(--line-height-relaxed);
+}
+
+/* ─── Zone drag & drop image ──────────────────────────────────────────────────── */
+
+.modalProduit-dropzone {
+    height: 110px;
+    border: 2px dashed var(--color-border-strong);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: var(--color-surface-alt);
+    transition:
+        border-color     var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out);
+    overflow: hidden;
+}
+
+.modalProduit-dropzone:hover,
+.modalProduit-dropzone--dragging {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+.modalProduit-dropzone--has-image {
+    border-style: solid;
+    border-color: var(--color-primary);
+    height: 140px;
+}
+
+.modalProduit-dropzone__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    text-align: center;
+    padding: var(--space-4);
+}
+
+.modalProduit-dropzone__hint {
+    font-size: var(--text-xs);
+    color: var(--color-text-light);
+}
+
+.modalProduit-dropzone__preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ─── Radios type produit ─────────────────────────────────────────────────────── */
+
+.modalProduit-fieldset {
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.modalProduit-radios {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.modalProduit-radio {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 1;
+    padding: var(--space-3) var(--space-4);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    background-color: var(--color-surface-alt);
+    transition:
+        border-color     var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out);
+    justify-content: center;
+    user-select: none;
+}
+
+.modalProduit-radio:has(input:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.modalProduit-radio--active {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    font-weight: var(--weight-semibold);
+}
+
+/* ─── Champs physiques (animation slide) ─────────────────────────────────────── */
+
+.modalProduit-physical {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+        max-height var(--duration-normal) var(--ease-out),
+        opacity    var(--duration-normal) var(--ease-out);
+}
+
+.modalProduit-physical--visible {
+    max-height: 400px;
+    opacity: 1;
+}
+
+/* ─── Catégorie autocomplete ──────────────────────────────────────────────────── */
+
+.modalProduit-cat-wrap {
+    position: relative;
+}
+
+.modalProduit-cat-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    z-index: var(--z-dropdown);
+    max-height: 180px;
+    overflow-y: auto;
+    animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+.modalProduit-cat-dropdown__item {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.modalProduit-cat-dropdown__item:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-primary);
+}
+
+.modalProduit-cat-dropdown__empty {
+    padding: var(--space-4) var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--color-text-light);
+    text-align: center;
+    font-style: italic;
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────────── */
+
+.modalProduit-footer {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--color-border);
+    flex-shrink: 0;
+    background-color: var(--color-surface);
+}
+
+.modalProduit-footer .app-button {
+    flex: 1;
+}
+
+/* ─── Desktop ─────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 769px) {
+    .modalProduit-overlay {
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-6);
+    }
+
+    .modalProduit-panel {
+        width: 100%;
+        max-width: 600px;
+        max-height: 90dvh;
+        border-radius: var(--radius-2xl);
+        animation: scaleIn var(--duration-normal) var(--ease-out);
+    }
+
+    .modalProduit-footer {
+        justify-content: flex-end;
+    }
+
+    .modalProduit-footer .app-button {
+        flex: 0 0 auto;
+    }
+}
