@@ -297,7 +297,12 @@ Ici, ça sera un formulaire pour enregistrer une nouvelle commande, avec les cha
 - Date de livraison souhaitée
 - Un champ de texte pour les notes supplémentaires
 - Un bouton pour confirmer la commande
-Quand on confirme la commande, on vérifie que le stock disponible de chaque produit est suffisant pour satisfaire la quantité demandée. Si le stock disponible est insuffisant pour au moins un produit, on affiche une erreur "stock insuffisant pour le produit X" et la commande n'est pas enregistrée. Si le stock disponible est suffisant pour tous les produits, la commande est enregistrée avec un statut "brouillon" dans la base de données. Ensuite, une notification est automatiquement envoyée aux utilisateurs concernés pour les informer de la nouvelle commande.
+Le montant total de la commande est calculé automatiquement à partir des produits sélectionnés.
+
+montant_commande = somme(quantité × prix_unitaire - réduction)
+
+Ce montant est enregistré dans la table commandes lors de la création de la commande.
+Quand on confirme la commande, on vérifie que le stock disponible de chaque produit est suffisant pour satisfaire la quantité demandée. Si le stock disponible est insuffisant pour au moins un produit, on affiche une erreur "stock insuffisant pour le produit X" et la commande n'est pas enregistrée. Si le stock disponible est suffisant pour tous les produits, la commande est enregistrée avec un statut "brouillon" dans la base de données. Ensuite, une notification est automatiquement envoyée aux utilisateurs du module Finance afin de les informer qu'une nouvelle commande a été enregistrée et qu'elle est en attente de validation.
 ##### Historique de Commandes
 Ici, il y aura la liste de toutes les commandes enregistrées avec leurs statuts respectifs (
     reçu
@@ -336,7 +341,25 @@ Maintenant, en fonction des statuts, il y aura des boutons différents pour chaq
 - livré : aucun bouton
 Quand on clique sur annuler la commande, une interface s'ouvre pour demander la raison de l'annulation et avec un bouton pour confirmer l'annulation
 Quand on clique sur une ligne de commande, un pane s'ouvre pour montrer toutes les informations de la commande et aussi, en fonction du statut de la commande, les boutons associés (annuler la commande etc...)
+Le pane affiche également l'historique des paiements associés à la commande :
+
+* date du paiement
+* montant payé
+* mode de paiement
+* référence de transaction
+* utilisateur ayant enregistré le paiement
+
+Ces informations sont uniquement consultables depuis le module Vente. L'enregistrement des paiements est effectué exclusivement par le module Finance.
+
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+Notifications automatiques :
+
+* Lorsqu'une nouvelle commande est enregistrée, une notification est envoyée au module Finance.
+* Lorsqu'une commande est validée par le module Finance, une notification est envoyée au module Vente.
+* Lorsqu'un paiement est enregistré par le module Finance, une notification est envoyée au module Vente.
+* Lorsqu'une livraison est créée par le module Livraison, une notification est envoyée au module Vente.
+* Lorsqu'une livraison est annulée, une notification est envoyée au module Vente.
+* Lorsqu'une livraison est confirmée, une notification est envoyée au module Vente, au module Finance et au module Gestion de Stock.
 #### Réservations
 Ici, on va afficher la liste des reservations qu'on a faite sur tous les produits.
 Une réservation arrive lorsqu'on enregistre une commande pour un produit. Donc en fait, toutes les commandes sont des réservations pour le produit commandé
@@ -348,9 +371,19 @@ Une réservation a trois états :
 - validé : lorsque la livraison liée à la commande est validée et donc le stock a été déduit
 - annulé : lorsque la commande a été annulée
 Le stock réservé n'est jamais stocké dans la base de données.
+Le stock réservé est calculé dynamiquement à partir des commandes validées dont aucune livraison n'a encore été confirmée.
+
+Les commandes annulées ainsi que les commandes dont la livraison a été confirmée ne participent pas au calcul du stock réservé.
 Il est calculé dynamiquement à partir des commandes validées dont la livraison n'a pas encore été confirmée.
 Le stock disponible est également calculé dynamiquement :
 stock disponible = stock actuel - stock réservé.
+Le stock actuel n'est jamais diminué lors de la validation d'une commande.
+
+Le stock actuel est diminué uniquement lorsqu'une livraison est confirmée par le module Livraison.
+
+Lorsqu'une livraison est confirmée, le backend déduit automatiquement du stock actuel la quantité réellement livrée pour chaque produit concerné.
+
+Cette opération est effectuée automatiquement par les mécanismes de gestion de stock de l'application.
 Quand on clique sur une ligne de réservation, un pane s'ouvre et affiche toutes les informations liées à la réservation.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
 #### Clients
@@ -380,3 +413,14 @@ Cette page affiche :
 - Commandes les moins fréquentes (en fonction du nombre de commandes)
 - Commandes générant le plus de chiffre d'affaires
 - Commandes générant le moins de chiffre d'affaires
+Toutes les actions importantes du module Vente sont enregistrées dans l'historique du système :
+
+* création d'une commande
+* annulation d'une commande
+* validation d'une commande
+* enregistrement d'un paiement
+* création d'une livraison
+* annulation d'une livraison
+* confirmation d'une livraison
+
+L'historique conserve l'utilisateur concerné, l'entreprise concernée, la date de l'action et les modifications effectuées.
