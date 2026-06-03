@@ -1,0 +1,27 @@
+{
+    "success": true,
+    "message": "",
+    "data": {
+        "kpis": {
+            "totalProduits": 148,
+            "alertesStock": 7,
+            "reservationsActives": 12,
+            "pertesValeur": 45200
+        },
+        "alertes": [
+            { "id": "alrt-001", "type": "rupture", "nom": "Cahier grand format",    "quantite": 0, "unite": "pièce"      },
+            { "id": "alrt-002", "type": "faible",  "nom": "Stylo bille bleu",       "quantite": 4, "unite": "pièce"      },
+            { "id": "alrt-003", "type": "faible",  "nom": "Papier ramette A4",      "quantite": 2, "unite": "ramette"    },
+            { "id": "alrt-004", "type": "rupture", "nom": "Encre imprimante noire", "quantite": 0, "unite": "cartouche"  },
+            { "id": "alrt-005", "type": "faible",  "nom": "Scotch transparent",     "quantite": 3, "unite": "rouleau"    }
+        ],
+        "activiteRecente": [
+            { "id": "act-001", "type": "entree", "description": "Réception de 50 Cahiers grand format",     "heure": "Il y a 23 min" },
+            { "id": "act-002", "type": "sortie", "description": "Sortie de 3 Stylos bille bleu",             "heure": "Il y a 1h"     },
+            { "id": "act-003", "type": "alerte", "description": "Stock faible détecté : Papier ramette A4",  "heure": "Il y a 2h"     },
+            { "id": "act-004", "type": "entree", "description": "Réapprovisionnement validé — 10 produits",  "heure": "Il y a 3h"     },
+            { "id": "act-005", "type": "sortie", "description": "Réservation #R-0042 confirmée",             "heure": "Il y a 4h"     }
+        ]
+    },
+    "pagination": null
+}

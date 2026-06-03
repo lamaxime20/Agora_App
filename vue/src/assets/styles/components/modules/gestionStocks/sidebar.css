@@ -1,0 +1,274 @@
+/* ─── Sidebar : drawer mobile par défaut ─────────────────────────────────────── */
+
+.gestionStock-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: min(85vw, 300px);
+    background-color: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xl);
+    z-index: calc(var(--z-overlay) + 1);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 250ms var(--ease-out), width var(--duration-normal) var(--ease-out);
+    overflow: hidden;
+}
+
+.gestionStock-sidebar--open {
+    transform: translateX(0);
+}
+
+/* ─── Header de la sidebar ───────────────────────────────────────────────────── */
+
+.gestionStock-sidebar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-4);
+    height: 64px;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    gap: var(--space-3);
+    overflow: hidden;
+}
+
+/* ─── Branding ───────────────────────────────────────────────────────────────── */
+
+.gestionStock-sidebar__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    overflow: hidden;
+}
+
+.gestionStock-sidebar__brand-name {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: var(--weight-bold);
+    color: var(--color-primary);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    white-space: nowrap;
+    transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.gestionStock-sidebar__brand-module {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 7px;
+    background-color: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    transition: opacity var(--duration-normal) var(--ease-out), width var(--duration-normal) var(--ease-out);
+}
+
+/* ─── Bouton fermer (mobile uniquement) ──────────────────────────────────────── */
+
+.gestionStock-sidebar__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.gestionStock-sidebar__close:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+/* ─── Navigation ─────────────────────────────────────────────────────────────── */
+
+.gestionStock-sidebar__nav {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--space-3);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+.gestionStock-sidebar__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* ─── Liens de navigation ────────────────────────────────────────────────────── */
+
+.gestionStock-sidebar__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-3);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.gestionStock-sidebar__link:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+.gestionStock-sidebar__link--active {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: var(--weight-semibold);
+}
+
+.gestionStock-sidebar__link--active:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.gestionStock-sidebar__link-icon {
+    flex-shrink: 0;
+}
+
+.gestionStock-sidebar__link-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+/* ─── Footer de la sidebar ───────────────────────────────────────────────────── */
+
+.gestionStock-sidebar__footer {
+    padding: var(--space-3);
+    border-top: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.gestionStock-sidebar__back {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-3);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.gestionStock-sidebar__back:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+.gestionStock-sidebar__back-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+/* ─── Tablettes (769px – 1024px) ─────────────────────────────────────────────── */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .gestionStock-sidebar {
+        width: min(72vw, 320px);
+    }
+}
+
+/* ─── Desktop (≥ 1025px) : sidebar dans le flux normal ──────────────────────── */
+
+@media (min-width: 1025px) {
+    .gestionStock-sidebar {
+        position: sticky;
+        top: 0;
+        height: 100dvh;
+        width: 280px;
+        max-width: 280px;
+        transform: translateX(0);
+        box-shadow: none;
+        z-index: var(--z-base);
+        flex-shrink: 0;
+    }
+
+    .gestionStock-sidebar__header {
+        height: 72px;
+    }
+
+    .gestionStock-sidebar__close {
+        display: none;
+    }
+
+    /* ─── État réduit (collapsed) ─── */
+
+    .gestionStock-sidebar--collapsed {
+        width: 80px;
+    }
+
+    .gestionStock-sidebar--collapsed .gestionStock-sidebar__brand-module {
+        opacity: 0;
+        width: 0;
+        padding: 0;
+        border-width: 0;
+        overflow: hidden;
+    }
+
+    .gestionStock-sidebar--collapsed .gestionStock-sidebar__link {
+        justify-content: center;
+        padding: var(--space-3);
+    }
+
+    .gestionStock-sidebar--collapsed .gestionStock-sidebar__link-label {
+        opacity: 0;
+        width: 0;
+        overflow: hidden;
+    }
+
+    .gestionStock-sidebar--collapsed .gestionStock-sidebar__back {
+        justify-content: center;
+        padding: var(--space-3);
+    }
+
+    .gestionStock-sidebar--collapsed .gestionStock-sidebar__back-label {
+        opacity: 0;
+        width: 0;
+        overflow: hidden;
+    }
+}
+
+/* ─── Grands écrans (≥ 1201px) ───────────────────────────────────────────────── */
+
+@media (min-width: 1201px) {
+    .gestionStock-sidebar {
+        width: 280px;
+    }
+}

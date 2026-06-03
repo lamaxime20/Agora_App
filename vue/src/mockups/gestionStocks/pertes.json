@@ -1,0 +1,100 @@
+{
+    "success": true,
+    "message": "",
+    "data": {
+        "pertes": [
+            {
+                "id": "perte-001",
+                "reference": "PRT-2026-0018",
+                "statut": "confirmée",
+                "produit": {
+                    "id": "prod-002",
+                    "nom": "Stylo bille bleu BIC",
+                    "reference": "STY-BB-001",
+                    "unite": "pièce"
+                },
+                "motif": "vol",
+                "quantite": 20,
+                "prix_unitaire": 150,
+                "valeur_totale": 3000,
+                "declarant": { "id": "usr-001", "nom": "Dupont Marie" },
+                "date_declaration": "2026-06-03T07:45:00Z",
+                "date_limite_annulation": "2026-06-04T07:45:00Z",
+                "note": "Constatée à l'ouverture du magasin"
+            },
+            {
+                "id": "perte-002",
+                "reference": "PRT-2026-0017",
+                "statut": "confirmée",
+                "produit": {
+                    "id": "prod-004",
+                    "nom": "Encre imprimante noire HP 302",
+                    "reference": "ENC-HP-001",
+                    "unite": "cartouche"
+                },
+                "motif": "casse",
+                "quantite": 2,
+                "prix_unitaire": 8500,
+                "valeur_totale": 17000,
+                "declarant": { "id": "usr-002", "nom": "Kamga Pierre" },
+                "date_declaration": "2026-06-02T14:30:00Z",
+                "date_limite_annulation": "2026-06-03T14:30:00Z",
+                "note": "Chute accidentelle lors du rangement"
+            },
+            {
+                "id": "perte-003",
+                "reference": "PRT-2026-0016",
+                "statut": "annulée",
+                "produit": {
+                    "id": "prod-003",
+                    "nom": "Papier ramette A4 80g",
+                    "reference": "PAP-A4-001",
+                    "unite": "ramette"
+                },
+                "motif": "péremption",
+                "quantite": 5,
+                "prix_unitaire": 3500,
+                "valeur_totale": 17500,
+                "declarant": { "id": "usr-001", "nom": "Dupont Marie" },
+                "date_declaration": "2026-05-30T09:00:00Z",
+                "date_limite_annulation": "2026-05-31T09:00:00Z",
+                "note": "Déclaration erronée — annulée"
+            },
+            {
+                "id": "perte-004",
+                "reference": "PRT-2026-0015",
+                "statut": "confirmée",
+                "produit": {
+                    "id": "prod-005",
+                    "nom": "Agrafeuse de bureau standard",
+                    "reference": "AGA-001",
+                    "unite": "pièce"
+                },
+                "motif": "casse",
+                "quantite": 1,
+                "prix_unitaire": 2500,
+                "valeur_totale": 2500,
+                "declarant": { "id": "usr-003", "nom": "Ngo Isabelle" },
+                "date_declaration": "2026-05-28T16:00:00Z",
+                "date_limite_annulation": "2026-05-29T16:00:00Z",
+                "note": "Mécanisme bloqué, non réparable"
+            }
+        ],
+        "resume": {
+            "totalPertesValeur": 45200,
+            "totalPertesQuantite": 28,
+            "repartitionMotifs": {
+                "vol": 12,
+                "casse": 8,
+                "peremption": 5,
+                "autre": 3
+            }
+        }
+    },
+    "pagination": {
+        "page": 1,
+        "limit": 20,
+        "total": 28,
+        "totalPages": 2
+    }
+}

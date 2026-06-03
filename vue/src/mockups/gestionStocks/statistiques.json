@@ -1,0 +1,63 @@
+{
+    "success": true,
+    "message": "",
+    "data": {
+        "vueGenerale": {
+            "totalProduits": 148,
+            "totalProduitsDispo": 121,
+            "totalProduitsRupture": 7,
+            "totalProduitsFaible": 14,
+            "valeurTotaleStock": 3248500,
+            "valeurPertesMonth": 45200,
+            "reservationsActives": 12,
+            "reapproEnAttente": 3
+        },
+        "produits": {
+            "topVentes": [
+                { "produit_id": "prod-003", "nom": "Papier ramette A4 80g",         "quantiteVendue": 87,  "chiffre_affaires": 304500 },
+                { "produit_id": "prod-002", "nom": "Stylo bille bleu BIC",           "quantiteVendue": 342, "chiffre_affaires": 51300  },
+                { "produit_id": "prod-001", "nom": "Cahier grand format 200 pages",  "quantiteVendue": 210, "chiffre_affaires": 105000 },
+                { "produit_id": "prod-006", "nom": "Maintenance informatique",       "quantiteVendue": 8,   "chiffre_affaires": 200000 },
+                { "produit_id": "prod-005", "nom": "Agrafeuse de bureau standard",   "quantiteVendue": 23,  "chiffre_affaires": 57500  }
+            ]
+        },
+        "stock": {
+            "parCategorie": [
+                { "categorie": "Papeterie",    "nbProduits": 89,  "valeur": 1850000 },
+                { "categorie": "Informatique", "nbProduits": 24,  "valeur": 890000  },
+                { "categorie": "Services",     "nbProduits": 12,  "valeur": 0       },
+                { "categorie": "Mobilier",     "nbProduits": 15,  "valeur": 425000  },
+                { "categorie": "Divers",       "nbProduits": 8,   "valeur": 83500   }
+            ],
+            "evolutionMensuelle": [
+                { "mois": "Jan 2026", "entrees": 245, "sorties": 187, "pertes": 12 },
+                { "mois": "Fév 2026", "entrees": 310, "sorties": 220, "pertes": 8  },
+                { "mois": "Mar 2026", "entrees": 198, "sorties": 265, "pertes": 15 },
+                { "mois": "Avr 2026", "entrees": 420, "sorties": 310, "pertes": 6  },
+                { "mois": "Mai 2026", "entrees": 280, "sorties": 242, "pertes": 19 },
+                { "mois": "Jun 2026", "entrees": 95,  "sorties": 78,  "pertes": 5  }
+            ]
+        },
+        "reapprovisionnements": {
+            "totalMonth": 8,
+            "montantTotalMonth": 384500,
+            "tauxRespectDelais": 87.5,
+            "fournisseursTop": [
+                { "nom": "Papeterie Centrale Yaoundé", "nbCommandes": 4, "montant": 210000 },
+                { "nom": "Bureau Plus",                "nbCommandes": 2, "montant": 112500 },
+                { "nom": "Fournitures Pro",            "nbCommandes": 2, "montant": 62000  }
+            ]
+        },
+        "pertes": {
+            "totalMonth": 28,
+            "valeurTotalMonth": 45200,
+            "parMotif": [
+                { "motif": "vol",        "quantite": 12, "valeur": 18000 },
+                { "motif": "casse",      "quantite": 8,  "valeur": 19500 },
+                { "motif": "péremption", "quantite": 5,  "valeur": 6200  },
+                { "motif": "autre",      "quantite": 3,  "valeur": 1500  }
+            ]
+        }
+    },
+    "pagination": null
+}

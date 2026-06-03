@@ -1,0 +1,76 @@
+{
+    "success": true,
+    "message": "",
+    "data": {
+        "reapprovisionnements": [
+            {
+                "id": "reap-001",
+                "reference": "REAP-2026-0042",
+                "statut": "en_attente",
+                "demandeur": { "id": "usr-001", "nom": "Dupont Marie" },
+                "fournisseur": "Papeterie Centrale Yaoundé",
+                "date_demande": "2026-06-01T09:30:00Z",
+                "date_reception_prevue": "2026-06-05T00:00:00Z",
+                "date_reception_reelle": null,
+                "montant_total": 47500,
+                "lignes": [
+                    { "produit_id": "prod-001", "nom": "Cahier grand format 200 pages", "quantite": 50, "prix_unitaire": 500,  "sous_total": 25000 },
+                    { "produit_id": "prod-002", "nom": "Stylo bille bleu BIC",          "quantite": 100,"prix_unitaire": 150,  "sous_total": 15000 },
+                    { "produit_id": "prod-003", "nom": "Papier ramette A4 80g",         "quantite": 2,  "prix_unitaire": 3500, "sous_total": 7000  }
+                ],
+                "note": "Commande urgente — rupture cahiers"
+            },
+            {
+                "id": "reap-002",
+                "reference": "REAP-2026-0041",
+                "statut": "en_cours",
+                "demandeur": { "id": "usr-002", "nom": "Kamga Pierre" },
+                "fournisseur": "Bureau Plus",
+                "date_demande": "2026-05-28T14:00:00Z",
+                "date_reception_prevue": "2026-06-03T00:00:00Z",
+                "date_reception_reelle": null,
+                "montant_total": 42500,
+                "lignes": [
+                    { "produit_id": "prod-004", "nom": "Encre imprimante noire HP 302", "quantite": 5, "prix_unitaire": 8500, "sous_total": 42500 }
+                ],
+                "note": ""
+            },
+            {
+                "id": "reap-003",
+                "reference": "REAP-2026-0040",
+                "statut": "reçu",
+                "demandeur": { "id": "usr-001", "nom": "Dupont Marie" },
+                "fournisseur": "Papeterie Centrale Yaoundé",
+                "date_demande": "2026-05-20T08:00:00Z",
+                "date_reception_prevue": "2026-05-25T00:00:00Z",
+                "date_reception_reelle": "2026-05-24T16:30:00Z",
+                "montant_total": 75000,
+                "lignes": [
+                    { "produit_id": "prod-005", "nom": "Agrafeuse de bureau standard", "quantite": 30, "prix_unitaire": 2500, "sous_total": 75000 }
+                ],
+                "note": "Reçu avec 1 jour d'avance"
+            },
+            {
+                "id": "reap-004",
+                "reference": "REAP-2026-0039",
+                "statut": "annulé",
+                "demandeur": { "id": "usr-002", "nom": "Kamga Pierre" },
+                "fournisseur": "Fournitures Pro",
+                "date_demande": "2026-05-15T10:00:00Z",
+                "date_reception_prevue": "2026-05-22T00:00:00Z",
+                "date_reception_reelle": null,
+                "montant_total": 18000,
+                "lignes": [
+                    { "produit_id": "prod-003", "nom": "Papier ramette A4 80g", "quantite": 5, "prix_unitaire": 3500, "sous_total": 17500 }
+                ],
+                "note": "Annulé — fournisseur indisponible"
+            }
+        ]
+    },
+    "pagination": {
+        "page": 1,
+        "limit": 20,
+        "total": 41,
+        "totalPages": 3
+    }
+}

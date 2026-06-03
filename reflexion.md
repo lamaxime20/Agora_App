@@ -282,3 +282,6 @@ Cette page affiche :
 - Répartition des pertes par catégorie
 - Evolution des pertes dans le temps
 
+### Logique du module ventes
+Quand l'utilisateur arrive sur son espace de travail pour la gestion des ventes, il y a une sidebar à gauche qui s'ouvre et se ferme et qui va lui permettre de sélectionner les pages sur lesquelles il veut travailler.
+La sideBar aura 05 onglets (Dashboard, Commandes, Réservations, Livraisons, Statistiques) et sur le côté droit de la page, c'est l'interface correspondant à l'onglet sélectionné, qui va s'afficher.

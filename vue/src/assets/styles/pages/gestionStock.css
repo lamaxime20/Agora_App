@@ -1,0 +1,340 @@
+/* ─── Layout racine ──────────────────────────────────────────────────────────── */
+
+.gestionStock-root {
+    display: flex;
+    min-height: 100dvh;
+    background-color: var(--color-bg);
+    position: relative;
+}
+
+/* ─── Overlay mobile (backdrop drawer) ──────────────────────────────────────── */
+
+.gestionStock-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.25);
+    z-index: var(--z-overlay);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.gestionStock-overlay--visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ─── Body (zone à droite de la sidebar) ────────────────────────────────────── */
+
+.gestionStock-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ─── Header sticky ──────────────────────────────────────────────────────────── */
+
+.gestionStock-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+/* ─── Bouton hamburger (mobile) ──────────────────────────────────────────────── */
+
+.gestionStock-header__burger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.gestionStock-header__burger:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+/* ─── Bouton réduire/développer sidebar (desktop) ────────────────────────────── */
+
+.gestionStock-header__collapse {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.gestionStock-header__collapse:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+/* ─── Fil d'Ariane ───────────────────────────────────────────────────────────── */
+
+.gestionStock-header__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 1;
+    min-width: 0;
+}
+
+.gestionStock-header__breadcrumb-root {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.gestionStock-header__breadcrumb-root:hover {
+    color: var(--color-primary);
+}
+
+.gestionStock-header__breadcrumb-sep {
+    color: var(--color-border-strong);
+    flex-shrink: 0;
+}
+
+.gestionStock-header__breadcrumb-current {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ─── Barre de recherche (desktop uniquement) ────────────────────────────────── */
+
+.gestionStock-header__search {
+    display: none;
+    align-items: center;
+    flex: 0 1 320px;
+    position: relative;
+}
+
+.gestionStock-header__search-icon {
+    position: absolute;
+    left: var(--space-3);
+    color: var(--color-text-light);
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.gestionStock-header__search-input {
+    width: 100%;
+    height: 38px;
+    padding: 0 var(--space-4) 0 calc(var(--space-3) + 16px + var(--space-2));
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    background-color: var(--color-surface-alt);
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    outline: none;
+    transition:
+        border-color     var(--duration-fast) var(--ease-out),
+        box-shadow       var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out);
+}
+
+.gestionStock-header__search-input::placeholder {
+    color: var(--color-text-light);
+}
+
+.gestionStock-header__search-input:focus {
+    background-color: var(--color-surface);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* ─── Actions (notifications + profil) ──────────────────────────────────────── */
+
+.gestionStock-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.gestionStock-header__notif {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.gestionStock-header__notif:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+.gestionStock-header__notif-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 17px;
+    height: 17px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-error);
+    color: #fff;
+    font-size: 10px;
+    font-weight: var(--weight-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 2px solid var(--color-surface);
+}
+
+.gestionStock-header__profile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--color-border);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-full);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        border-color     var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.gestionStock-header__profile:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+/* ─── Zone de contenu scrollable ─────────────────────────────────────────────── */
+
+.gestionStock-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4);
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Page introuvable ───────────────────────────────────────────────────────── */
+
+.gestionStock-notfound {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    font-size: var(--text-base);
+    color: var(--color-text-muted);
+}
+
+/* ─── Mobiles & Smartwatches (≤ 480px) ──────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .gestionStock-header {
+        height: 60px;
+        padding: 0 var(--space-3);
+        gap: var(--space-2);
+    }
+
+    .gestionStock-content {
+        padding: var(--space-3);
+    }
+}
+
+/* ─── Tablettes (769px – 1024px) ─────────────────────────────────────────────── */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .gestionStock-header {
+        height: 68px;
+        padding: 0 var(--space-6);
+    }
+
+    .gestionStock-content {
+        padding: var(--space-6);
+    }
+}
+
+/* ─── Ordinateurs portables & Desktops (≥ 1025px) ───────────────────────────── */
+
+@media (min-width: 1025px) {
+    .gestionStock-header {
+        height: 72px;
+        padding: 0 var(--space-8);
+        gap: var(--space-3);
+    }
+
+    .gestionStock-header__burger {
+        display: none;
+    }
+
+    .gestionStock-header__collapse {
+        display: flex;
+    }
+
+    .gestionStock-header__search {
+        display: flex;
+    }
+
+    .gestionStock-header__breadcrumb {
+        flex: 0 0 auto;
+        max-width: 360px;
+    }
+
+    .gestionStock-content {
+        padding: var(--space-8);
+    }
+}
+
+/* ─── Grands écrans (≥ 1201px) ───────────────────────────────────────────────── */
+
+@media (min-width: 1201px) {
+    .gestionStock-content {
+        padding: var(--space-8) var(--space-10);
+    }
+}

@@ -1,0 +1,109 @@
+{
+    "success": true,
+    "message": "",
+    "data": {
+        "produits": [
+            {
+                "id": "prod-001",
+                "reference": "CAH-GF-001",
+                "nom": "Cahier grand format 200 pages",
+                "categorie": { "id": "cat-001", "nom": "Papeterie" },
+                "type": "physique",
+                "prix_unitaire": 500,
+                "quantite_stock": 0,
+                "seuil_alerte": 20,
+                "unite": "pièce",
+                "statut": "rupture",
+                "image_url": null,
+                "description": "Cahier grand format 200 pages, couverture rigide",
+                "date_creation": "2025-01-10T08:00:00Z"
+            },
+            {
+                "id": "prod-002",
+                "reference": "STY-BB-001",
+                "nom": "Stylo bille bleu BIC",
+                "categorie": { "id": "cat-001", "nom": "Papeterie" },
+                "type": "physique",
+                "prix_unitaire": 150,
+                "quantite_stock": 4,
+                "seuil_alerte": 30,
+                "unite": "pièce",
+                "statut": "faible",
+                "image_url": null,
+                "description": "Stylo bille bleu BIC Cristal",
+                "date_creation": "2025-01-10T08:00:00Z"
+            },
+            {
+                "id": "prod-003",
+                "reference": "PAP-A4-001",
+                "nom": "Papier ramette A4 80g",
+                "categorie": { "id": "cat-001", "nom": "Papeterie" },
+                "type": "physique",
+                "prix_unitaire": 3500,
+                "quantite_stock": 2,
+                "seuil_alerte": 10,
+                "unite": "ramette",
+                "statut": "faible",
+                "image_url": null,
+                "description": "Ramette de 500 feuilles A4 80g/m²",
+                "date_creation": "2025-01-12T08:00:00Z"
+            },
+            {
+                "id": "prod-004",
+                "reference": "ENC-HP-001",
+                "nom": "Encre imprimante noire HP 302",
+                "categorie": { "id": "cat-002", "nom": "Informatique" },
+                "type": "physique",
+                "prix_unitaire": 8500,
+                "quantite_stock": 0,
+                "seuil_alerte": 5,
+                "unite": "cartouche",
+                "statut": "rupture",
+                "image_url": null,
+                "description": "Cartouche d'encre noire compatible HP 302",
+                "date_creation": "2025-02-01T08:00:00Z"
+            },
+            {
+                "id": "prod-005",
+                "reference": "AGA-001",
+                "nom": "Agrafeuse de bureau standard",
+                "categorie": { "id": "cat-001", "nom": "Papeterie" },
+                "type": "physique",
+                "prix_unitaire": 2500,
+                "quantite_stock": 12,
+                "seuil_alerte": 3,
+                "unite": "pièce",
+                "statut": "disponible",
+                "image_url": null,
+                "description": "Agrafeuse standard 26/6 capacité 20 feuilles",
+                "date_creation": "2025-02-05T08:00:00Z"
+            },
+            {
+                "id": "prod-006",
+                "reference": "MAN-001",
+                "nom": "Maintenance informatique",
+                "categorie": { "id": "cat-003", "nom": "Services" },
+                "type": "service",
+                "prix_unitaire": 25000,
+                "quantite_stock": null,
+                "seuil_alerte": null,
+                "unite": "prestation",
+                "statut": "disponible",
+                "image_url": null,
+                "description": "Prestation de maintenance et dépannage informatique à domicile",
+                "date_creation": "2025-01-15T08:00:00Z"
+            }
+        ],
+        "categories": [
+            { "id": "cat-001", "nom": "Papeterie",    "nbProduits": 4 },
+            { "id": "cat-002", "nom": "Informatique", "nbProduits": 1 },
+            { "id": "cat-003", "nom": "Services",     "nbProduits": 1 }
+        ]
+    },
+    "pagination": {
+        "page": 1,
+        "limit": 20,
+        "total": 148,
+        "totalPages": 8
+    }
+}

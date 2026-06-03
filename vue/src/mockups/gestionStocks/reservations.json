@@ -1,0 +1,107 @@
+{
+    "success": true,
+    "message": "",
+    "data": {
+        "reservations": [
+            {
+                "id": "res-001",
+                "reference": "R-0042",
+                "statut": "en_cours",
+                "client": { "id": "cli-001", "nom": "Entreprise ABC SARL" },
+                "commercial": { "id": "usr-003", "nom": "Ngo Isabelle" },
+                "date_reservation": "2026-06-01T11:00:00Z",
+                "date_expiration": "2026-06-08T23:59:59Z",
+                "montant_total": 52500,
+                "lignes": [
+                    {
+                        "produit_id": "prod-001",
+                        "nom": "Cahier grand format 200 pages",
+                        "type": "physique",
+                        "quantite_reservee": 30,
+                        "quantite_stock_actuel": 0,
+                        "prix_unitaire": 500,
+                        "sous_total": 15000
+                    },
+                    {
+                        "produit_id": "prod-002",
+                        "nom": "Stylo bille bleu BIC",
+                        "type": "physique",
+                        "quantite_reservee": 50,
+                        "quantite_stock_actuel": 4,
+                        "prix_unitaire": 150,
+                        "sous_total": 7500
+                    },
+                    {
+                        "produit_id": "prod-006",
+                        "nom": "Maintenance informatique",
+                        "type": "service",
+                        "quantite_reservee": 1,
+                        "quantite_stock_actuel": null,
+                        "prix_unitaire": 25000,
+                        "sous_total": 25000
+                    }
+                ],
+                "note": "Réservation pour ouverture agence — urgent"
+            },
+            {
+                "id": "res-002",
+                "reference": "R-0041",
+                "statut": "validé",
+                "client": { "id": "cli-002", "nom": "Mme Tchana Hortense" },
+                "commercial": { "id": "usr-002", "nom": "Kamga Pierre" },
+                "date_reservation": "2026-05-30T09:00:00Z",
+                "date_expiration": "2026-06-06T23:59:59Z",
+                "montant_total": 17500,
+                "lignes": [
+                    {
+                        "produit_id": "prod-003",
+                        "nom": "Papier ramette A4 80g",
+                        "type": "physique",
+                        "quantite_reservee": 5,
+                        "quantite_stock_actuel": 2,
+                        "prix_unitaire": 3500,
+                        "sous_total": 17500
+                    }
+                ],
+                "note": ""
+            },
+            {
+                "id": "res-003",
+                "reference": "R-0040",
+                "statut": "annulé",
+                "client": { "id": "cli-003", "nom": "École Bilingue de Yaoundé" },
+                "commercial": { "id": "usr-001", "nom": "Dupont Marie" },
+                "date_reservation": "2026-05-25T08:00:00Z",
+                "date_expiration": "2026-06-01T23:59:59Z",
+                "montant_total": 120000,
+                "lignes": [
+                    {
+                        "produit_id": "prod-001",
+                        "nom": "Cahier grand format 200 pages",
+                        "type": "physique",
+                        "quantite_reservee": 200,
+                        "quantite_stock_actuel": 0,
+                        "prix_unitaire": 500,
+                        "sous_total": 100000
+                    },
+                    {
+                        "produit_id": "prod-002",
+                        "nom": "Stylo bille bleu BIC",
+                        "type": "physique",
+                        "quantite_reservee": 100,
+                        "quantite_stock_actuel": 4,
+                        "prix_unitaire": 150,
+                        "sous_total": 15000
+                    }
+                ],
+                "note": "Annulé — commande reportée à la rentrée"
+            }
+        ]
+    },
+    "pagination": {
+        "page": 1,
+        "limit": 20,
+        "total": 12,
+        "totalPages": 1
+    }
+}
