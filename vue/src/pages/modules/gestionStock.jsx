@@ -11,6 +11,7 @@ import Produits from "../../components/modules/gestionStocks/produits.jsx";
 import Reapprovisionnement from "../../components/modules/gestionStocks/reapprovisionnement.jsx";
 import Reservations from "../../components/modules/gestionStocks/reservations.jsx";
 import Pertes from "../../components/modules/gestionStocks/pertes.jsx";
+import Statistiques from "../../components/modules/gestionStocks/statistiques.jsx";
 
 const ongletContent = {
     [GESTION_STOCK_DASHBOARD]: <h1>Tableau de bord</h1>,
@@ -18,7 +19,7 @@ const ongletContent = {
     [GESTION_STOCK_REAPPROVISIONNEMENT]: <Reapprovisionnement />,
     [GESTION_STOCK_RESERVATIONS]: <Reservations />,
     [GESTION_STOCK_PERTES]: <Pertes />,
-    [GESTION_STOCK_STATISTIQUES]: <h1>Statistiques</h1>,
+    [GESTION_STOCK_STATISTIQUES]: <Statistiques />,
 };
 
 function GestionStock({ onglet }) {
