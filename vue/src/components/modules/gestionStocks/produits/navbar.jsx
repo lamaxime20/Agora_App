@@ -6,7 +6,7 @@ import {
     GESTION_STOCK_RESERVATIONS,
     GESTION_STOCK_PERTES,
     GESTION_STOCK_STATISTIQUES
-} from "../../../services/gestionStock.js";
+} from "../../../../services/gestionStock.js";
 
 const navLinks = [
     { href: "/application/stock", label: GESTION_STOCK_DASHBOARD },

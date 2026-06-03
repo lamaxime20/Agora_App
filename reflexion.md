@@ -281,3 +281,4 @@ Cette page affiche :
 - Valeur financière des pertes
 - Répartition des pertes par catégorie
 - Evolution des pertes dans le temps
+
