@@ -424,3 +424,132 @@ Toutes les actions importantes du module Vente sont enregistrées dans l'histori
 * confirmation d'une livraison
 
 L'historique conserve l'utilisateur concerné, l'entreprise concernée, la date de l'action et les modifications effectuées.
+
+### Logique du module Finance
+Quand l'utilisateur arrive sur son espace de travail pour la gestion des finances, il y a une sidebar à gauche qui s'ouvre et se ferme et qui va lui permettre de sélectionner les pages sur lesquelles il veut travailler.
+La sideBar aura 05 onglets (Dashboard, Commandes, remboursements, Dépenses, entrée, abonnement, reapprovisionnements, salaires, Statistiques) et sur le côté droit de la page, c'est l'interface correspondant à l'onglet sélectionné, qui va s'afficher.
+#### Dashboard
+Ici on va réfléchir après sur ce que va contenir le dashboard
+#### Commandes
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton Commandes en attente de payement complet, et un autre Historique des payements
+##### Commandes en attente de payement complet
+Ici, il y aura la liste de toutes les commandes validées par le module Vente mais dont l'état du payement n'est pas marqué comme "payé", donc nous pouvons avoir le statut "en attente de paiement" et "partiellement payé".
+Aussi, il y aura le statut de validation qui sera déterminé par le total de paiement minimum à enregistrer. Par défaut, ce total de paiement minimum sera égale au montant total de la commande. mais l'utilisateur peut cliquer sur ce montant pour le changer. Donc, quand le total de paiement enregistré atteint le seuil minimum, la commande est considérée comme validée et prête pour la livraison.
+Quand on clique sur une ligne de commande, un pane s'ouvre pour montrer toutes les informations de la commande et aussi, les boutons associés pour enregistrer un paiement pour cette commande.
+Le pane affiche également l'historique des paiements associés à la commande :
+* date du paiement
+* montant payé
+* mode de paiement
+* référence de transaction
+* utilisateur ayant enregistré le paiement
+Quand on clique sur le bouton pour enregistrer un paiement, une interface s'ouvre avec les champs :
+- montant du paiement
+- mode de paiement (carte bancaire, virement bancaire, espèces, chèque)
+- référence de transaction (champ non obligatoire, à remplir uniquement si le mode de paiement est différent de espèces)
+- un bouton pour confirmer l'enregistrement du paiement
+Quand on confirme l'enregistrement du paiement, on se rassure que l'utilisateur a bien vérifié le montant du paiement et le paiement est enregistré dans la base de données en lien avec la commande correspondante.
+##### Historique des paiements
+Ici, il y aura la liste de tous les paiements enregistrés avec leurs informations respectives (date du paiement, montant payé, mode de paiement, référence de transaction, utilisateur ayant enregistré le paiement) et quand on clique sur une ligne de paiement, un pane s'ouvre pour montrer toutes les informations du paiement et aussi, un bouton pour voir la commande associée à ce paiement. Quand on clique sur ce bouton, une interface s'ouvre avec toutes les informations de la commande associée à ce paiement.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Remboursements
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton enregistrer un remboursement, et un autre Historique des remboursements
+##### Enregistrer un remboursement
+Ici, il y aura un formulaire pour enregistrer un remboursement avec les champs :
+- Choix de la commande : qui va ouvrir un pane avec la liste de tous les commandes partiellement payées ou payées mais pas encore livrées, avec une barre de recherche pour filtrer les commandes, et quand on clique sur une commande, le pane se ferme et le champ choix de la commande se remplit avec le nom de la commande sélectionnée.
+- montant du remboursement (ce montant ne doit pas dépasser le montant total payé pour la commande sélectionnée)
+- La cause du remboursement (champ de texte)
+- un bouton pour confirmer l'enregistrement du remboursement
+Quand on confirme l'enregistrement du remboursement, on se rassure que l'utilisateur a bien vérifié le montant du remboursement et la cause du remboursement, et le remboursement est enregistré dans la base de données en lien avec la commande correspondante.
+##### Historique des remboursements
+Ici, il y aura la liste de tous les remboursements enregistrés avec leurs informations respectives (commande associée, montant du remboursement, cause du remboursement, date du remboursement, utilisateur ayant enregistré le remboursement) et quand on clique sur une ligne de remboursement, un pane s'ouvre pour montrer toutes les informations du remboursement et aussi, un bouton pour voir la commande associée à ce remboursement. Quand on clique sur ce bouton, une interface s'ouvre avec toutes les informations de la commande associée à ce remboursement.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Dépenses
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton enregistrer une dépense, et un autre Historique des dépenses
+##### Enregistrer une dépense
+Ici, il y aura un formulaire pour enregistrer une dépense avec les champs :
+- date de la dépense
+- montant de la dépense
+- description de la dépense
+- un bouton pour confirmer l'enregistrement de la dépense
+Quand on confirme l'enregistrement de la dépense, on se rassure que l'utilisateur a bien vérifié le montant de la dépense et la description de la dépense, et la dépense est enregistrée dans la base de données.
+##### Historique des dépenses
+Ici, il y aura la liste de toutes les dépenses enregistrées avec leurs informations respectives (date de la dépense, montant de la dépense, description de la dépense) et quand on clique sur une ligne de dépense, un pane s'ouvre pour montrer toutes les informations de la dépense.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Entrées
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton enregistrer une entrée, et un autre Historique des entrées
+##### Enregistrer une entrée
+Ici, il y aura un formulaire pour enregistrer une entrée avec les champs :
+- date de l'entrée
+- montant de l'entrée
+- description de l'entrée
+- un bouton pour confirmer l'enregistrement de l'entrée
+Quand on confirme l'enregistrement de l'entrée, on se rassure que l'utilisateur a bien vérifié le montant de l'entrée et la description de l'entrée, et l'entrée est enregistrée dans la base de données.
+##### Historique des entrées
+Ici, il y aura la liste de toutes les entrées enregistrées avec leurs informations respectives (date de l'entrée, montant de l'entrée, description de l'entrée) et quand on clique sur une ligne d'entrée, un pane s'ouvre pour montrer toutes les informations de l'entrée.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Abonnement
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton abonnement en cours, et un autre Historique des abonnements
+##### Abonnement en cours
+Ici, il y aura la liste de tous les abonnements enregistrés et qui sont actifs avec leurs informations respectives (date d'abonnement, montant de l'abonnement par mois, nom du service payé, fournisseur) et quand on clique sur une ligne d'abonnement, un pane s'ouvre pour montrer toutes les informations de l'abonnement.
+Sur chaque ligne, il y aura un bouton pour couper l'abonnement, et quand on clique sur ce bouton, un pane s'ouvrir et demande à l'utilisateur de couper l'argent du mois en cours, ou bien non, et un bouton pour confirmer la coupure de l'abonnement. Si on confirme la coupure de l'abonnement, l'abonnement est marqué comme inactif dans la base de données et la date de fin d'abonnement est enregistrée.
+En haut avant la liste, il y aura un bouton pour ajouter un nouvel abonnement qui va ouvrir une interface avec les champs :
+- date de début d'abonnement
+- montant de l'abonnement par mois
+- nom du service payé
+- fournisseur
+- un bouton pour confirmer l'enregistrement de l'abonnement
+Quand on confirme l'enregistrement de l'abonnement, on se rassure que l'utilisateur a bien vérifié la date de début d'abonnement, le montant de l'abonnement par mois, le nom du service payé et le fournisseur, et l'abonnement est enregistré dans la base de données.
+Quand un abonnement est enregistré, une notification est automatiquement envoyée au directeur de l'entreprise avec le nom du service payé, le montant de l'abonnement par mois et le fournisseur et le backend va vérifier pour chaque abonnement le jour d'abonnement et si la date du jour correspond à la date de début d'abonnement, une notification de rappel de paiement est automatiquement envoyée au directeur de l'entreprise et on réduit automatiquement l'argent virtuelle de l'entreprise du montant de l'abonnement par mois, et on enregistre un paiement dans la base de données avec le montant de l'abonnement par mois, le mode de paiement "virtuel", et la référence de transaction "abonnement {nom_service}".
+##### Historique des abonnements
+Ici, il y aura la liste de tous les abonnements enregistrés actif ou inactif avec leurs informations respectives (date de début d'abonnement, date de fin d'abonnement, montant de l'abonnement par mois, nom du service payé, fournisseur) et quand on clique sur une ligne d'abonnement, un pane s'ouvre pour montrer toutes les informations de l'abonnement.
+Pour les abonnements inactifs, il y aura un bouton pour réactiver l'abonnement, et quand on clique sur ce bouton, un pane s'ouvrir et demande à l'utilisateur de payer le mois en cours, ou bien non, et un bouton pour confirmer la réactivation de l'abonnement. Si on confirme la réactivation de l'abonnement, l'abonnement est marqué comme actif dans la base de données et la date de début d'abonnement est mise à jour avec la date du jour, aussi, si l'utilisateur a choisi de payer le mois en cours, on enregistre un paiement dans la base de données avec le montant du mois en cours, le mode de paiement "virtuel", et la référence de transaction "abonnement réactivé {nom_service}".
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Reapprovisionnements
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton Rapprovisionnement, et un autre Historique Rapprovisionnement
+##### Rapprovisionnement
+Il y aura la liste de tous les réapprovisionnemnent en attente avec les boutons annuler et confirmer pour chaque réapprovisionnement en attente.
+Quand on clique sur annuler, une interface s'ouvre pour demander la raison de l'annulation et avec un bouton pour confirmer l'annulation, le backend marque le ravitaillement comme refuse et une notification est automatiquement envoyée au module Gestion de Stock pour l'informer que le ravitaillement a été annulé avec la raison de l'annulation.
+Quand on clique sur confirmer, une interface s'affiche pour que l'utilisateur entre son mot de passe pour valider définitivement que le ravitaillement peut être fait. A partir de là, le backend crée un paiement avec le montant total du ravitaillement, le mode de paiement "virtuel", et la référence de transaction "ravitaillement {id_ravitaillement}" et une notification est automatiquement envoyée au module Gestion de Stock pour l'informer que le ravitaillement est validé et qu'il doivent engager la livraison, l'argent virtuelle de l'entreprise est réduit du montant total du ravitaillement, et le réapprovisionnement est marqué comme validé dans la base de données.
+##### Historique Réapprovisionnements
+Ici, il y aura la liste de tous les reapprovisionnements validés ou refusés avec leurs informations respectives (produit, quantité, montant total du ravitaillement, statut du ravitaillement, date de la demande de ravitaillement) et quand on clique sur une ligne de ravitaillement, un pane s'ouvre pour montrer toutes les informations du ravitaillement et aussi, si le ravitaillement est en attente, les boutons associés pour annuler ou confirmer le ravitaillement.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Salaires
+Ici, l'interface de droite va juste montrer la liste de tous les utilisateurs salariés de l'entreprise avec leurs informations respectives (nom, prénom, poste, salaire mensuel) et quand on clique sur une ligne de salarié, un pane s'ouvre pour montrer toutes les informations du salarié et aussi, un bouton pour voir l'historique des paiements de salaire de ce salarié. Quand on clique sur ce bouton, une interface s'ouvre avec la liste de tous les paiements de salaire de ce salarié avec leurs informations respectives (date du paiement, montant payé, mode de paiement, référence de transaction) et quand on clique sur une ligne de paiement de salaire, un pane s'ouvre pour montrer toutes les informations du paiement de salaire.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Statistiques
+Cette section permet d'accéder à plusieurs pages de statistiques spécialisées.
+
+### Logique du module Livraisons
+Quand l'utilisateur arrive sur son espace de travail pour la gestion des livraisons, il y a une sidebar à gauche qui s'ouvre et se ferme et qui va lui permettre de sélectionner les pages sur lesquelles il veut travailler.
+La sideBar aura 05 onglets (Dashboard, Commandes à livrer, Liste livraisons, Statistiques) et sur le côté droit de la page, c'est l'interface correspondant à l'onglet sélectionné, qui va s'afficher.
+#### Dashboard
+#### Commandes à livrer
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton Commandes à livrer, et un autre Historique des livraisons.
+##### Commandes à livrer
+Ici, toutes les commandes validées par les finances qui n'ont pas de livraisons 'en_cours' ou 'livree' seront affichées avec un bouton assigner un livreur
+Quand on clique sur assigner un livreur, une interface s'ouvre avec un formulaire et les champs:
+- choix du livreur, qui va permettre de selectionner un utilisateur parmis tous les utilisateurs qui ont le rôle employe_livreur dans l'entreprise
+- un bouton confirmer la création d'une livraison pour la commande
+Quand on confirme la création d'une livraison pour la commande, le backend crée un nouveau tuple livraison avec le statut 'en_cours' et lie celui ci à la commande actuelle
+##### Historique des livraisons
+Ici, on va afficher toutes les livraisons quelque soit l'état et quand on clique sur une ligne, on affiche tous les détails de la livraison et ceux de la commande associée.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Liste Livraisons
+Ici, l'interface de droite va montrer deux boutons en haut, un bouton livraison 'en_cours', et un autre Historique de mes livraisons
+##### livraison 'en_cours'
+Ici, on va afficher toutes les livraisons en cours qu'on a assignées au livreur.
+Si la date de lancement de la livraison n'a pas été renseigné, alors il y aura un bouton annuler la livraison et un bouton lancer la livraison
+Quand on clique sur annuler la livraison, un pane s'ouvre avec les champs:
+- raison de l'annulation
+- un bouton pour confirmer l'annulation
+Quand on clique sur confirmaer l'annulation, le backend marque la livraison comme echec avec le motif.
+Quand on clique sur lancer la livraison, le backend enregistre la date d'aujoud'hui et la marque comme date de lancement.
+Si la date de livraison a été renseigné, il y aura un bouton retour de la livraison, un bouton echec et un bouton valider la livraison
+Quand on clique sur retour de la livraison, un pane s'ouvre avec les champs:
+- raison du retour
+- un bouton pour confirmer le retour
+Quand on clique sur confirmer le retour, le backend marque la livraison comme retour avec le motif.
+Quand on clique sur valider la livraison, un pane s'ouvrir pour demander à l'utilisateur que la commande a été effectivement livrée, quand il valide, le backend marque la livraison comme livree et le stock réservé est réduit sur chacun des stock des produits de la commande associée.
+##### Historique de mes livraisons
+Ici, on va afficher toutes les livraisons assignées à l'utilisateur quelque soit l'état et quand on clique sur une ligne, on affiche tous les détails de la livraison et ceux de la commande associée.
+Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
