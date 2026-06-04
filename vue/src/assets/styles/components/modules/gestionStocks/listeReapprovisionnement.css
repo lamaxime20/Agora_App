@@ -1,0 +1,523 @@
+/* ─── Racine ──────────────────────────────────────────────────────────────────── */
+
+.listeReappro-root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ─── En-tête ─────────────────────────────────────────────────────────────────── */
+
+.listeReappro-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.listeReappro-header__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.listeReappro-header__sub {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-1);
+}
+
+.listeReappro-cta {
+    width: 100%;
+    height: 52px;
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+}
+
+/* ─── Badges ──────────────────────────────────────────────────────────────────── */
+
+.listeReappro-badge {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: var(--weight-semibold);
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+    line-height: 1.6;
+}
+
+.listeReappro-badge--warning {
+    background-color: rgba(241, 196, 15, 0.15);
+    color: #9a6f00;
+}
+
+.listeReappro-badge--info {
+    background-color: rgba(52, 152, 219, 0.12);
+    color: var(--color-info);
+}
+
+.listeReappro-badge--success {
+    background-color: rgba(39, 174, 96, 0.12);
+    color: var(--color-success);
+}
+
+.listeReappro-badge--error {
+    background-color: rgba(231, 76, 60, 0.10);
+    color: var(--color-error);
+}
+
+/* ─── Cartes — Mobile ─────────────────────────────────────────────────────────── */
+
+.listeReappro-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.listeReappro-card {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xs);
+    text-align: left;
+    cursor: pointer;
+    transition:
+        box-shadow   var(--duration-normal) var(--ease-out),
+        border-color var(--duration-fast)   var(--ease-out),
+        transform    var(--duration-fast)   var(--ease-out);
+}
+
+.listeReappro-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-border-strong);
+    transform: translateY(-1px);
+}
+
+.listeReappro-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.listeReappro-card__ref {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.listeReappro-card__ref-num {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    letter-spacing: 0.01em;
+}
+
+.listeReappro-card__fournisseur {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.listeReappro-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.listeReappro-card__montant {
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.listeReappro-card__meta {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.listeReappro-card__lignes {
+    font-size: var(--text-xs);
+    color: var(--color-text-light);
+}
+
+.listeReappro-card__actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.listeReappro-btn--danger {
+    color: var(--color-error) !important;
+    border-color: rgba(231, 76, 60, 0.3) !important;
+}
+
+.listeReappro-btn--danger:hover {
+    background-color: rgba(231, 76, 60, 0.08) !important;
+    border-color: var(--color-error) !important;
+}
+
+.listeReappro-card__arrow {
+    position: absolute;
+    right: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-border-strong);
+    pointer-events: none;
+}
+
+/* ─── Tableau — Desktop ───────────────────────────────────────────────────────── */
+
+.listeReappro-table-wrap {
+    display: none;
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.listeReappro-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+    background-color: var(--color-surface);
+}
+
+.listeReappro-table thead {
+    background-color: var(--color-surface-alt);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.listeReappro-table th {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.listeReappro-table td {
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+.listeReappro-table__row {
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.listeReappro-table__row:hover {
+    background-color: var(--color-surface-alt);
+}
+
+.listeReappro-table__row:last-child td {
+    border-bottom: none;
+}
+
+.listeReappro-table__ref {
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    font-size: var(--text-xs);
+    letter-spacing: 0.01em;
+}
+
+.listeReappro-table__fournisseur {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.listeReappro-table__montant {
+    font-weight: var(--weight-medium);
+    white-space: nowrap;
+}
+
+.listeReappro-table__date {
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    font-size: var(--text-xs);
+}
+
+.listeReappro-table__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.listeReappro-table__action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: var(--text-xs);
+    font-family: var(--font-ui);
+    font-weight: var(--weight-medium);
+    border-radius: var(--radius-md);
+    border: 1px solid;
+    cursor: pointer;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        border-color     var(--duration-fast) var(--ease-out);
+    white-space: nowrap;
+}
+
+.listeReappro-table__action-btn--danger {
+    color: var(--color-error);
+    border-color: rgba(231, 76, 60, 0.3);
+    background: transparent;
+}
+
+.listeReappro-table__action-btn--danger:hover {
+    background-color: rgba(231, 76, 60, 0.08);
+    border-color: var(--color-error);
+}
+
+.listeReappro-table__action-btn--confirm {
+    color: var(--color-success);
+    border-color: rgba(39, 174, 96, 0.3);
+    background: transparent;
+}
+
+.listeReappro-table__action-btn--confirm:hover {
+    background-color: rgba(39, 174, 96, 0.08);
+    border-color: var(--color-success);
+}
+
+.listeReappro-table__no-action {
+    color: var(--color-text-light);
+    font-size: var(--text-sm);
+}
+
+/* ─── Skeleton partagé ────────────────────────────────────────────────────────── */
+
+@keyframes listeReapproShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.listeReappro-skeleton__line,
+.listeReappro-skeleton__badge,
+.listeReappro-skeleton__top {
+    background: linear-gradient(
+        90deg,
+        var(--color-surface-alt) 25%,
+        var(--color-border) 50%,
+        var(--color-surface-alt) 75%
+    );
+    background-size: 200% 100%;
+    animation: listeReapproShimmer 1.4s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+}
+
+.listeReappro-skeleton__line { height: 12px; }
+.listeReappro-skeleton__line--lg { width: 65%; }
+.listeReappro-skeleton__line--md { width: 50%; }
+.listeReappro-skeleton__line--sm { width: 35%; }
+.listeReappro-skeleton__badge {
+    width: 72px;
+    height: 22px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.listeReappro-card--skeleton {
+    pointer-events: none;
+    gap: var(--space-3);
+}
+
+.listeReappro-skeleton__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    background: transparent;
+    animation: none;
+}
+
+.listeReappro-table__row--skeleton td {
+    pointer-events: none;
+}
+
+/* ─── Empty state ─────────────────────────────────────────────────────────────── */
+
+.listeReappro-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-16) var(--space-8);
+    text-align: center;
+}
+
+.listeReappro-empty__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-2xl);
+    background-color: var(--color-surface-alt);
+    color: var(--color-text-light);
+}
+
+.listeReappro-empty__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.listeReappro-empty__text {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+    max-width: 320px;
+}
+
+/* ─── Error state ─────────────────────────────────────────────────────────────── */
+
+.listeReappro-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-12) var(--space-8);
+    text-align: center;
+    color: var(--color-error);
+}
+
+.listeReappro-error p {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+/* ─── Pagination ──────────────────────────────────────────────────────────────── */
+
+.listeReappro-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-2) 0;
+}
+
+.listeReappro-pagination__info {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.listeReappro-pagination__pages {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.listeReappro-pagination__page {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    font-size: var(--text-sm);
+    font-family: var(--font-ui);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        border-color     var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.listeReappro-pagination__page:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.listeReappro-pagination__page--active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    font-weight: var(--weight-semibold);
+}
+
+/* ─── Desktop (≥ 1025px) ──────────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .listeReappro-header {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+
+    .listeReappro-cta {
+        width: auto;
+        height: auto;
+        flex-shrink: 0;
+    }
+
+    .listeReappro-cards {
+        display: none;
+    }
+
+    .listeReappro-table-wrap {
+        display: block;
+    }
+}
+
+/* ─── Tablettes (769px – 1024px) ─────────────────────────────────────────────── */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .listeReappro-cta {
+        width: auto;
+        height: auto;
+    }
+
+    .listeReappro-header {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+
+    .listeReappro-cards {
+        display: none;
+    }
+
+    .listeReappro-table-wrap {
+        display: block;
+    }
+}
+
+/* ─── Mobiles & Smartwatches (≤ 480px) ──────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .listeReappro-header__title {
+        font-size: var(--text-lg);
+    }
+
+    .listeReappro-card {
+        padding: var(--space-3);
+    }
+}

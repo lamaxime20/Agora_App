@@ -1,0 +1,73 @@
+/* ─── Racine ──────────────────────────────────────────────────────────────────── */
+
+.pertes-root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ─── Onglets ─────────────────────────────────────────────────────────────────── */
+
+.pertes-tabs {
+    display: flex;
+    gap: var(--space-1);
+    background-color: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-1);
+    width: fit-content;
+}
+
+.pertes-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out),
+        box-shadow       var(--duration-fast) var(--ease-out);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.pertes-tab:hover {
+    color: var(--color-text);
+    background-color: var(--color-surface);
+}
+
+.pertes-tab--active {
+    background-color: var(--color-surface);
+    color: var(--color-error);
+    box-shadow: var(--shadow-xs);
+    font-weight: var(--weight-semibold);
+}
+
+/* ─── Panel ───────────────────────────────────────────────────────────────────── */
+
+.pertes-panel {
+    flex: 1;
+}
+
+/* ─── Mobile (≤ 480px) ───────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .pertes-tabs {
+        width: 100%;
+    }
+
+    .pertes-tab {
+        flex: 1;
+        justify-content: center;
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--text-xs);
+    }
+}

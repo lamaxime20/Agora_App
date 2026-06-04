@@ -1,0 +1,378 @@
+/* ─── Overlay ─────────────────────────────────────────────────────────────────── */
+
+.modalSecurite-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    background-color: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ─── Panel ───────────────────────────────────────────────────────────────────── */
+
+.modalSecurite-panel {
+    width: 100%;
+    max-width: 480px;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: scaleFade var(--duration-normal) var(--ease-out);
+}
+
+@keyframes scaleFade {
+    from { transform: scale(0.95); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────────── */
+
+.modalSecurite-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.modalSecurite-header__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-xl);
+    flex-shrink: 0;
+}
+
+.modalSecurite-header__icon--danger {
+    background-color: rgba(231, 76, 60, 0.10);
+    color: var(--color-error);
+}
+
+.modalSecurite-header__icon--primary {
+    background-color: rgba(243, 156, 18, 0.12);
+    color: var(--color-primary);
+}
+
+.modalSecurite-header__text {
+    flex: 1;
+    min-width: 0;
+}
+
+.modalSecurite-title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.modalSecurite-ref {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.modalSecurite-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.modalSecurite-close:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+.modalSecurite-close:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ─── Formulaire ──────────────────────────────────────────────────────────────── */
+
+.modalSecurite-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.modalSecurite-body {
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ─── Alerte interne ──────────────────────────────────────────────────────────── */
+
+.modalSecurite-warning {
+    padding: var(--space-3) var(--space-4);
+    background-color: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.20);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    color: var(--color-error);
+    line-height: var(--line-height-relaxed);
+}
+
+.modalSecurite-info {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+}
+
+/* ─── Récapitulatif ───────────────────────────────────────────────────────────── */
+
+.modalSecurite-recap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.modalSecurite-recap__line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+.modalSecurite-recap__line strong {
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+}
+
+/* ─── Champs ──────────────────────────────────────────────────────────────────── */
+
+.modalSecurite-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.modalSecurite-label {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.modalSecurite-field__error {
+    font-size: var(--text-xs);
+    color: var(--color-error);
+    font-weight: var(--weight-medium);
+}
+
+.modalSecurite-counter {
+    font-size: var(--text-xs);
+    color: var(--color-text-light);
+    text-align: right;
+}
+
+.modalSecurite-textarea {
+    resize: vertical;
+    min-height: 96px;
+    max-height: 200px;
+    line-height: var(--line-height-relaxed);
+}
+
+.app-input--error {
+    border-color: var(--color-error) !important;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.12) !important;
+}
+
+/* ─── Password ────────────────────────────────────────────────────────────────── */
+
+.modalSecurite-password-wrap {
+    position: relative;
+}
+
+.modalSecurite-password-wrap .app-input {
+    padding-right: 44px !important;
+}
+
+.modalSecurite-toggle-pass {
+    position: absolute;
+    right: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.modalSecurite-toggle-pass:hover {
+    color: var(--color-text);
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────────── */
+
+.modalSecurite-footer {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--color-border);
+    flex-shrink: 0;
+    justify-content: flex-end;
+}
+
+/* ─── Boutons ─────────────────────────────────────────────────────────────────── */
+
+.modalSecurite-btn--danger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    font-family: var(--font-ui);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    line-height: 1;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    background-color: var(--color-error);
+    color: #fff;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        opacity          var(--duration-fast) var(--ease-out),
+        transform        var(--duration-fast) var(--ease-out);
+}
+
+.modalSecurite-btn--danger:hover {
+    background-color: #c0392b;
+}
+
+.modalSecurite-btn--danger:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.modalSecurite-btn--confirm {
+    min-width: 180px;
+}
+
+/* ─── Spinner ─────────────────────────────────────────────────────────────────── */
+
+.modalSecurite-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-top-color: var(--color-error);
+    border-radius: var(--radius-full);
+    animation: securiteSpin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+.modalSecurite-spinner--light {
+    border-color: rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+}
+
+@keyframes securiteSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* ─── Feedback succès ─────────────────────────────────────────────────────────── */
+
+.modalSecurite-feedback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-10) var(--space-8);
+    text-align: center;
+    min-height: 200px;
+}
+
+.modalSecurite-feedback__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-2xl);
+}
+
+.modalSecurite-feedback__icon--success {
+    background-color: rgba(39, 174, 96, 0.12);
+    color: var(--color-success);
+}
+
+.modalSecurite-feedback__text {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+    max-width: 280px;
+}
+
+/* ─── Mobile (≤ 480px) ───────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .modalSecurite-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .modalSecurite-panel {
+        max-width: 100%;
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        animation: slideUpSecurite var(--duration-normal) var(--ease-out);
+    }
+
+    @keyframes slideUpSecurite {
+        from { transform: translateY(100%); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .modalSecurite-footer {
+        flex-direction: column;
+    }
+
+    .modalSecurite-btn--danger,
+    .modalSecurite-btn--confirm {
+        width: 100%;
+        justify-content: center;
+    }
+}

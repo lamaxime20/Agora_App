@@ -1,26 +1,142 @@
+import { useState, useRef } from "react";
+import { X, AlertTriangle, Check } from "lucide-react";
+import "../../../../assets/styles/components/modules/gestionStocks/modalSecuriteReapprovisionnement.css";
+
 function ModalAnnulerReapprovisionnement({ item, onClose }) {
+    const [raison, setRaison]         = useState("");
+    const [erreur, setErreur]         = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [success, setSuccess]       = useState(false);
+    const overlayRef = useRef(null);
+
+    const handleOverlayClick = (e) => {
+        if (e.target === overlayRef.current && !submitting) onClose();
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (raison.trim().length < 10) {
+            setErreur("La raison doit contenir au moins 10 caractères.");
+            return;
+        }
+        setErreur("");
+        setSubmitting(true);
+        setTimeout(() => {
+            setSubmitting(false);
+            setSuccess(true);
+            setTimeout(onClose, 1500);
+        }, 1200);
+    };
+
+    if (success) {
+        return (
+            <div className="modalSecurite-overlay">
+                <div className="modalSecurite-panel" role="dialog" aria-modal="true">
+                    <div className="modalSecurite-feedback">
+                        <div className="modalSecurite-feedback__icon modalSecurite-feedback__icon--success">
+                            <Check size={28} aria-hidden="true" />
+                        </div>
+                        <p className="modalSecurite-feedback__text">Réapprovisionnement annulé avec succès.</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <dialog open>
-            <article>
-                <header>
-                    <h2>Annuler le réapprovisionnement</h2>
-                    <button onClick={onClose}>Fermer</button>
-                </header>
+        <div
+            className="modalSecurite-overlay"
+            ref={overlayRef}
+            onClick={handleOverlayClick}
+        >
+            <div
+                className="modalSecurite-panel"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modalAnnuler-title"
+            >
+                {/* ─── Header ──────────────── */}
+                <div className="modalSecurite-header">
+                    <div className="modalSecurite-header__icon modalSecurite-header__icon--danger">
+                        <AlertTriangle size={20} aria-hidden="true" />
+                    </div>
+                    <div className="modalSecurite-header__text">
+                        <h2 className="modalSecurite-title" id="modalAnnuler-title">
+                            Annuler le réapprovisionnement
+                        </h2>
+                        <p className="modalSecurite-ref">{item.reference}</p>
+                    </div>
+                    <button
+                        className="modalSecurite-close"
+                        onClick={onClose}
+                        type="button"
+                        aria-label="Fermer"
+                        disabled={submitting}
+                    >
+                        <X size={18} aria-hidden="true" />
+                    </button>
+                </div>
 
-                <form>
-                    <p>Vous êtes sur le point d'annuler le réapprovisionnement de : <strong>{item.produit}</strong></p>
-                    
-                    <label>
-                        Raison de l'annulation :
-                        <textarea name="raison_annulation" required placeholder="Veuillez indiquer le motif de l'annulation..."></textarea>
-                    </label>
+                {/* ─── Corps ───────────────── */}
+                <form className="modalSecurite-form" onSubmit={handleSubmit} noValidate>
+                    <div className="modalSecurite-body">
+                        <p className="modalSecurite-warning">
+                            Cette action est irréversible. Le stock ne sera pas modifié.
+                        </p>
 
-                    <footer>
-                        <button type="submit">Confirmer l'annulation</button>
-                    </footer>
+                        <div className="modalSecurite-field">
+                            <label className="modalSecurite-label" htmlFor="raison-annulation">
+                                Raison de l'annulation <span aria-hidden="true">*</span>
+                            </label>
+                            <textarea
+                                id="raison-annulation"
+                                className={`app-input modalSecurite-textarea${erreur ? " app-input--error" : ""}`}
+                                placeholder="Décrivez la raison de cette annulation (minimum 10 caractères)…"
+                                value={raison}
+                                onChange={e => {
+                                    setRaison(e.target.value);
+                                    if (erreur) setErreur("");
+                                }}
+                                rows={4}
+                                disabled={submitting}
+                                aria-describedby={erreur ? "raison-error" : undefined}
+                            />
+                            {erreur && (
+                                <span id="raison-error" className="modalSecurite-field__error" role="alert">
+                                    {erreur}
+                                </span>
+                            )}
+                            <span className="modalSecurite-counter">
+                                {raison.trim().length} / 10 min.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="modalSecurite-footer">
+                        <button
+                            type="button"
+                            className="app-button app-button--ghost"
+                            onClick={onClose}
+                            disabled={submitting}
+                        >
+                            Retour
+                        </button>
+                        <button
+                            type="submit"
+                            className="app-button modalSecurite-btn--danger"
+                            disabled={submitting || raison.trim().length < 10}
+                        >
+                            {submitting ? (
+                                <>
+                                    <span className="modalSecurite-spinner" aria-hidden="true" />
+                                    Annulation en cours…
+                                </>
+                            ) : "Confirmer l'annulation"}
+                        </button>
+                    </div>
                 </form>
-            </article>
-        </dialog>
+            </div>
+        </div>
     );
 }
 
