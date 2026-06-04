@@ -1,0 +1,80 @@
+/* ─── Racine ──────────────────────────────────────────────────────────────────── */
+
+.statsVG-root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+/* ─── En-tête ─────────────────────────────────────────────────────────────────── */
+
+.statsVG-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.statsVG-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.statsVG-subtitle {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-1);
+}
+
+/* ─── Grille KPIs ─────────────────────────────────────────────────────────────── */
+
+.statsVG-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+}
+
+/* ─── Grille graphiques ───────────────────────────────────────────────────────── */
+
+.statsVG-charts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ─── Tablettes (769px – 1024px) ─────────────────────────────────────────────── */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .statsVG-kpis {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .statsVG-charts {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ─── Desktop (≥ 1025px) ──────────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .statsVG-kpis {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .statsVG-charts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ─── Mobiles (≤ 480px) ──────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .statsVG-title {
+        font-size: var(--text-lg);
+    }
+}

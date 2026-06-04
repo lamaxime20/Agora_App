@@ -1,0 +1,41 @@
+.statsPertes-root { display: flex; flex-direction: column; gap: var(--space-5); }
+.statsPertes-header { display: flex; flex-direction: column; gap: var(--space-1); }
+
+.statsPertes-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.statsPertes-subtitle { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+.statsPertes-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+}
+
+.statsPertes-charts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.statsPertes-table__name { font-weight: var(--weight-medium); }
+.statsPertes-table__valeur {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--weight-semibold);
+    color: var(--color-error);
+}
+
+@media (min-width: 1025px) {
+    .statsPertes-kpis   { grid-template-columns: repeat(4, 1fr); }
+    .statsPertes-charts { display: grid; grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .statsPertes-kpis   { grid-template-columns: repeat(2, 1fr); }
+    .statsPertes-charts { display: grid; grid-template-columns: repeat(2, 1fr); }
+}

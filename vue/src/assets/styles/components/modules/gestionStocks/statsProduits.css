@@ -1,0 +1,82 @@
+/* ─── Racine ──────────────────────────────────────────────────────────────────── */
+
+.statsProd-root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.statsProd-header { display: flex; flex-direction: column; gap: var(--space-1); }
+
+.statsProd-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.statsProd-subtitle {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+/* ─── KPIs ────────────────────────────────────────────────────────────────────── */
+
+.statsProd-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+}
+
+/* ─── Graphiques ──────────────────────────────────────────────────────────────── */
+
+.statsProd-charts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ─── Tableau ─────────────────────────────────────────────────────────────────── */
+
+.statsProd-table__name {
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+}
+
+.statsProd-table__num {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--weight-medium);
+}
+
+.statsProd-table__ca {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--weight-semibold);
+    color: var(--color-success);
+}
+
+.statsProd-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: var(--weight-semibold);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.statsProd-badge--up      { background-color: rgba(39, 174, 96, 0.10); color: var(--color-success); }
+.statsProd-badge--down    { background-color: rgba(231, 76, 60, 0.10); color: var(--color-error);   }
+.statsProd-badge--neutral { background-color: var(--color-surface-alt); color: var(--color-text-muted); }
+
+/* ─── Desktop (≥ 1025px) ──────────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .statsProd-kpis   { grid-template-columns: repeat(4, 1fr); }
+    .statsProd-charts { display: grid; grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .statsProd-kpis   { grid-template-columns: repeat(2, 1fr); }
+    .statsProd-charts { display: grid; grid-template-columns: repeat(2, 1fr); }
+}

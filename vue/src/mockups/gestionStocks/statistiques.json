@@ -3,59 +3,172 @@
     "message": "",
     "data": {
         "vueGenerale": {
-            "totalProduits": 148,
-            "totalProduitsDispo": 121,
-            "totalProduitsRupture": 7,
-            "totalProduitsFaible": 14,
-            "valeurTotaleStock": 3248500,
-            "valeurPertesMonth": 45200,
-            "reservationsActives": 12,
-            "reapproEnAttente": 3
-        },
-        "produits": {
-            "topVentes": [
-                { "produit_id": "prod-003", "nom": "Papier ramette A4 80g",         "quantiteVendue": 87,  "chiffre_affaires": 304500 },
-                { "produit_id": "prod-002", "nom": "Stylo bille bleu BIC",           "quantiteVendue": 342, "chiffre_affaires": 51300  },
-                { "produit_id": "prod-001", "nom": "Cahier grand format 200 pages",  "quantiteVendue": 210, "chiffre_affaires": 105000 },
-                { "produit_id": "prod-006", "nom": "Maintenance informatique",       "quantiteVendue": 8,   "chiffre_affaires": 200000 },
-                { "produit_id": "prod-005", "nom": "Agrafeuse de bureau standard",   "quantiteVendue": 23,  "chiffre_affaires": 57500  }
+            "kpis": {
+                "totalProduits":       148,
+                "totalCategories":     5,
+                "valeurTotaleStock":   3248500,
+                "totalProduitsRupture":7,
+                "totalProduitsFaible": 14,
+                "coutTotalPertes":     45200,
+                "variationProduits":   3.2,
+                "variationValeur":     -1.8,
+                "variationRupture":    -2,
+                "variationFaible":     8.3,
+                "variationPertes":     12.4,
+                "variationCategories": 0
+            },
+            "evolutionValeurStock": [
+                { "mois": "Jan", "valeur": 2980000 },
+                { "mois": "Fév", "valeur": 3120000 },
+                { "mois": "Mar", "valeur": 2890000 },
+                { "mois": "Avr", "valeur": 3350000 },
+                { "mois": "Mai", "valeur": 3180000 },
+                { "mois": "Jun", "valeur": 3248500 }
+            ],
+            "evolutionPertes": [
+                { "mois": "Jan", "valeur": 32000 },
+                { "mois": "Fév", "valeur": 21500 },
+                { "mois": "Mar", "valeur": 38200 },
+                { "mois": "Avr", "valeur": 18900 },
+                { "mois": "Mai", "valeur": 41000 },
+                { "mois": "Jun", "valeur": 45200 }
+            ],
+            "evolutionReappro": [
+                { "mois": "Jan", "montant": 210000, "nb": 5 },
+                { "mois": "Fév", "montant": 145000, "nb": 3 },
+                { "mois": "Mar", "montant": 320000, "nb": 7 },
+                { "mois": "Avr", "montant": 287000, "nb": 6 },
+                { "mois": "Mai", "montant": 198000, "nb": 4 },
+                { "mois": "Jun", "montant": 384500, "nb": 8 }
             ]
         },
+
+        "produits": {
+            "kpis": {
+                "topVenduNom":    "Stylo bille bleu BIC",
+                "topVenduQty":    342,
+                "moinsVenduNom":  "Maintenance informatique",
+                "moinsVenduQty":  8,
+                "maxCANom":       "Maintenance informatique",
+                "maxCAValeur":    200000,
+                "minCANom":       "Stylo bille bleu BIC",
+                "minCAValeur":    51300
+            },
+            "topParVente": [
+                { "nom": "Stylo bille bleu BIC",          "quantite": 342, "ca": 51300  },
+                { "nom": "Cahier grand format 200 pages",  "quantite": 210, "ca": 105000 },
+                { "nom": "Papier ramette A4 80g",          "quantite": 87,  "ca": 304500 },
+                { "nom": "Agrafeuse de bureau standard",   "quantite": 23,  "ca": 57500  },
+                { "nom": "Encre imprimante noire HP 302",  "quantite": 14,  "ca": 119000 },
+                { "nom": "Maintenance informatique",       "quantite": 8,   "ca": 200000 }
+            ],
+            "topParCA": [
+                { "nom": "Papier ramette A4 80g",          "ca": 304500, "quantite": 87  },
+                { "nom": "Maintenance informatique",       "ca": 200000, "quantite": 8   },
+                { "nom": "Cahier grand format 200 pages",  "ca": 105000, "quantite": 210 },
+                { "nom": "Encre imprimante noire HP 302",  "ca": 119000, "quantite": 14  },
+                { "nom": "Agrafeuse de bureau standard",   "ca": 57500,  "quantite": 23  },
+                { "nom": "Stylo bille bleu BIC",           "ca": 51300,  "quantite": 342 }
+            ],
+            "tableau": [
+                { "nom": "Stylo bille bleu BIC",          "categorie": "Papeterie",    "quantite": 342, "ca": 51300,  "croissance": 18.5  },
+                { "nom": "Cahier grand format 200 pages",  "categorie": "Papeterie",    "quantite": 210, "ca": 105000, "croissance": 7.2   },
+                { "nom": "Papier ramette A4 80g",          "categorie": "Papeterie",    "quantite": 87,  "ca": 304500, "croissance": -3.1  },
+                { "nom": "Maintenance informatique",       "categorie": "Services",     "quantite": 8,   "ca": 200000, "croissance": 25.0  },
+                { "nom": "Agrafeuse de bureau standard",   "categorie": "Bureautique",  "quantite": 23,  "ca": 57500,  "croissance": -8.4  },
+                { "nom": "Encre imprimante noire HP 302",  "categorie": "Informatique", "quantite": 14,  "ca": 119000, "croissance": 12.1  }
+            ]
+        },
+
         "stock": {
+            "kpis": {
+                "valeurTotale":    3248500,
+                "stockMoyen":      2180,
+                "produitsFaible":  14,
+                "produitsRupture": 7,
+                "variationValeur": -1.8,
+                "variationFaible": 8.3
+            },
             "parCategorie": [
-                { "categorie": "Papeterie",    "nbProduits": 89,  "valeur": 1850000 },
-                { "categorie": "Informatique", "nbProduits": 24,  "valeur": 890000  },
-                { "categorie": "Services",     "nbProduits": 12,  "valeur": 0       },
-                { "categorie": "Mobilier",     "nbProduits": 15,  "valeur": 425000  },
-                { "categorie": "Divers",       "nbProduits": 8,   "valeur": 83500   }
+                { "categorie": "Papeterie",    "nbProduits": 89, "valeur": 1850000, "pct": 57 },
+                { "categorie": "Informatique", "nbProduits": 24, "valeur": 890000,  "pct": 27 },
+                { "categorie": "Bureautique",  "nbProduits": 15, "valeur": 425000,  "pct": 13 },
+                { "categorie": "Divers",       "nbProduits": 8,  "valeur": 83500,   "pct": 3  },
+                { "categorie": "Services",     "nbProduits": 12, "valeur": 0,       "pct": 0  }
             ],
             "evolutionMensuelle": [
-                { "mois": "Jan 2026", "entrees": 245, "sorties": 187, "pertes": 12 },
-                { "mois": "Fév 2026", "entrees": 310, "sorties": 220, "pertes": 8  },
-                { "mois": "Mar 2026", "entrees": 198, "sorties": 265, "pertes": 15 },
-                { "mois": "Avr 2026", "entrees": 420, "sorties": 310, "pertes": 6  },
-                { "mois": "Mai 2026", "entrees": 280, "sorties": 242, "pertes": 19 },
-                { "mois": "Jun 2026", "entrees": 95,  "sorties": 78,  "pertes": 5  }
+                { "mois": "Jan", "entrees": 245, "sorties": 187, "pertes": 12 },
+                { "mois": "Fév", "entrees": 310, "sorties": 220, "pertes": 8  },
+                { "mois": "Mar", "entrees": 198, "sorties": 265, "pertes": 15 },
+                { "mois": "Avr", "entrees": 420, "sorties": 310, "pertes": 6  },
+                { "mois": "Mai", "entrees": 280, "sorties": 242, "pertes": 19 },
+                { "mois": "Jun", "entrees": 95,  "sorties": 78,  "pertes": 5  }
+            ],
+            "tableau": [
+                { "nom": "Stylo bille bleu BIC",         "categorie": "Papeterie",    "stock": 48,  "reserve": 50, "disponible": 0,   "valeur": 7200,   "statut": "rupture" },
+                { "nom": "Cahier grand format 200 pages", "categorie": "Papeterie",    "stock": 12,  "reserve": 30, "disponible": 0,   "valeur": 6000,   "statut": "rupture" },
+                { "nom": "Papier ramette A4 80g",         "categorie": "Papeterie",    "stock": 42,  "reserve": 5,  "disponible": 37,  "valeur": 147000, "statut": "faible"  },
+                { "nom": "Encre imprimante noire HP 302", "categorie": "Informatique", "stock": 8,   "reserve": 0,  "disponible": 8,   "valeur": 68000,  "statut": "faible"  },
+                { "nom": "Agrafeuse de bureau standard",  "categorie": "Bureautique",  "stock": 120, "reserve": 0,  "disponible": 120, "valeur": 300000, "statut": "ok"      }
             ]
         },
+
         "reapprovisionnements": {
-            "totalMonth": 8,
-            "montantTotalMonth": 384500,
-            "tauxRespectDelais": 87.5,
-            "fournisseursTop": [
-                { "nom": "Papeterie Centrale Yaoundé", "nbCommandes": 4, "montant": 210000 },
-                { "nom": "Bureau Plus",                "nbCommandes": 2, "montant": 112500 },
-                { "nom": "Fournitures Pro",            "nbCommandes": 2, "montant": 62000  }
+            "kpis": {
+                "totalNb":           41,
+                "montantTotal":      1544000,
+                "tauxRespectDelais": 87.5,
+                "nbFournisseurs":    3
+            },
+            "parPeriode": [
+                { "mois": "Jan", "montant": 210000, "nb": 5 },
+                { "mois": "Fév", "montant": 145000, "nb": 3 },
+                { "mois": "Mar", "montant": 320000, "nb": 7 },
+                { "mois": "Avr", "montant": 287000, "nb": 6 },
+                { "mois": "Mai", "montant": 198000, "nb": 4 },
+                { "mois": "Jun", "montant": 384500, "nb": 8 }
+            ],
+            "topFournisseurs": [
+                { "nom": "Papeterie Centrale Yaoundé", "nbCommandes": 21, "montant": 840000 },
+                { "nom": "Bureau Plus",                "nbCommandes": 12, "montant": 420000 },
+                { "nom": "Fournitures Pro",            "nbCommandes": 8,  "montant": 284000 }
+            ],
+            "tableau": [
+                { "nom": "Cahier grand format 200 pages",  "quantite": 500, "montant": 250000, "nb": 6 },
+                { "nom": "Stylo bille bleu BIC",           "quantite": 800, "montant": 120000, "nb": 8 },
+                { "nom": "Papier ramette A4 80g",          "quantite": 120, "montant": 420000, "nb": 4 },
+                { "nom": "Encre imprimante noire HP 302",  "quantite": 30,  "montant": 255000, "nb": 3 },
+                { "nom": "Agrafeuse de bureau standard",   "quantite": 60,  "montant": 150000, "nb": 2 }
             ]
         },
+
         "pertes": {
-            "totalMonth": 28,
-            "valeurTotalMonth": 45200,
+            "kpis": {
+                "valeurTotale":        45200,
+                "nbTotal":             28,
+                "produitPlusToucheNom":"Stylo bille bleu BIC",
+                "produitPlusToucheQty":20,
+                "categoriePlusTouchee":"Papeterie"
+            },
             "parMotif": [
-                { "motif": "vol",        "quantite": 12, "valeur": 18000 },
-                { "motif": "casse",      "quantite": 8,  "valeur": 19500 },
-                { "motif": "péremption", "quantite": 5,  "valeur": 6200  },
-                { "motif": "autre",      "quantite": 3,  "valeur": 1500  }
+                { "motif": "Vol",        "quantite": 12, "valeur": 18000, "pct": 43, "color": "#EF4444" },
+                { "motif": "Casse",      "quantite": 8,  "valeur": 19500, "pct": 29, "color": "#F59E0B" },
+                { "motif": "Péremption", "quantite": 5,  "valeur": 6200,  "pct": 18, "color": "#3498DB" },
+                { "motif": "Autre",      "quantite": 3,  "valeur": 1500,  "pct": 10, "color": "#94A3B8" }
+            ],
+            "evolutionMensuelle": [
+                { "mois": "Jan", "valeur": 32000, "nb": 18 },
+                { "mois": "Fév", "valeur": 21500, "nb": 12 },
+                { "mois": "Mar", "valeur": 38200, "nb": 21 },
+                { "mois": "Avr", "valeur": 18900, "nb": 10 },
+                { "mois": "Mai", "valeur": 41000, "nb": 23 },
+                { "mois": "Jun", "valeur": 45200, "nb": 28 }
+            ],
+            "tableau": [
+                { "nom": "Stylo bille bleu BIC",         "categorie": "Papeterie",    "quantite": 20, "valeur": 3000,  "nbIncidents": 3 },
+                { "nom": "Encre imprimante noire HP 302", "categorie": "Informatique", "quantite": 2,  "valeur": 17000, "nbIncidents": 1 },
+                { "nom": "Papier ramette A4 80g",         "categorie": "Papeterie",    "quantite": 5,  "valeur": 17500, "nbIncidents": 2 },
+                { "nom": "Agrafeuse de bureau standard",  "categorie": "Bureautique",  "quantite": 1,  "valeur": 2500,  "nbIncidents": 1 }
             ]
         }
     },
