@@ -234,8 +234,8 @@ function PaneContent({ transaction }) {
 function PaneDetailsTransaction({ transaction, loading, onClose }) {
     const isMobile = window.innerWidth < 1025;
 
-    const panel = (
-        <aside className="paneTransaction-panel" aria-label="Détails de la transaction">
+    const panelContent = (
+        <>
             <div className="paneTransaction-header">
                 <h2 className="paneTransaction-title">Détails</h2>
                 <button
@@ -255,23 +255,32 @@ function PaneDetailsTransaction({ transaction, loading, onClose }) {
                     {transaction && <PaneContent transaction={transaction} />}
                 </div>
             )}
-        </aside>
+        </>
     );
 
     if (isMobile) {
         return (
-            <>
-                <div
-                    className="paneTransaction-overlay-mobile"
-                    onClick={onClose}
-                    aria-hidden="true"
-                />
-                {panel}
-            </>
+            <div
+                className="paneTransaction-overlay-mobile"
+                onClick={onClose}
+                role="presentation"
+            >
+                <aside
+                    className="paneTransaction-panel"
+                    aria-label="Détails de la transaction"
+                    onClick={e => e.stopPropagation()}
+                >
+                    {panelContent}
+                </aside>
+            </div>
         );
     }
 
-    return panel;
+    return (
+        <aside className="paneTransaction-panel" aria-label="Détails de la transaction">
+            {panelContent}
+        </aside>
+    );
 }
 
 export default PaneDetailsTransaction;

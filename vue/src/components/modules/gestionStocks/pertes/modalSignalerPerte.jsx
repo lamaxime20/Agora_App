@@ -3,14 +3,7 @@ import { X, Search, Package2, AlertTriangle, Check, AlertCircle } from "lucide-r
 import produitsData from "../../../../mockups/gestionStocks/produits.json";
 import "../../../../assets/styles/components/modules/gestionStocks/modalSignalerPerte.css";
 
-const MOTIFS = [
-    { value: "vol",        label: "Vol" },
-    { value: "casse",      label: "Casse" },
-    { value: "péremption", label: "Péremption" },
-    { value: "autre",      label: "Autre" },
-];
-
-const defaultForm = { produit_id: "", quantite: "", motif: "", note: "" };
+const defaultForm = { produit_id: "", quantite: "", motif: "" };
 
 function ModalSignalerPerte({ onClose }) {
     const [form, setForm]                   = useState(defaultForm);
@@ -224,40 +217,22 @@ function ModalSignalerPerte({ onClose }) {
                             <label className="modalPerte-label" htmlFor="perte-motif">
                                 Motif <span aria-hidden="true">*</span>
                             </label>
-                            <select
+                            <input
                                 id="perte-motif"
                                 name="motif"
+                                type="text"
                                 className={`app-input${errors.motif ? " app-input--error" : ""}`}
+                                placeholder="Ex : vol, casse, péremption…"
                                 value={form.motif}
                                 onChange={handleChange}
-                            >
-                                <option value="">Sélectionner un motif…</option>
-                                {MOTIFS.map(m => (
-                                    <option key={m.value} value={m.value}>{m.label}</option>
-                                ))}
-                            </select>
+                                autoComplete="off"
+                            />
                             {errors.motif && (
                                 <span className="modalPerte-field__error" role="alert">
                                     <AlertCircle size={12} aria-hidden="true" />
                                     {errors.motif}
                                 </span>
                             )}
-                        </div>
-
-                        {/* Note */}
-                        <div className="modalPerte-field">
-                            <label className="modalPerte-label" htmlFor="perte-note">
-                                Note <span className="modalPerte-optional">(facultatif)</span>
-                            </label>
-                            <textarea
-                                id="perte-note"
-                                name="note"
-                                className="app-input modalPerte-textarea"
-                                placeholder="Détails supplémentaires…"
-                                value={form.note}
-                                onChange={handleChange}
-                                rows={3}
-                            />
                         </div>
                     </div>
 
