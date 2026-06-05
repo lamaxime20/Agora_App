@@ -1,0 +1,28 @@
+{
+  "reservation": {
+    "id": "res_7",
+    "produit_id": "prod_2",
+    "quantite": 1,
+    "statut": "en_cours",
+    "commande_id": "cmd_9",
+    "date": "2026-06-10"
+  },
+  "produit": {
+    "id": "prod_2",
+    "nom": "Farine de blé 50kg",
+    "stock_actuel": 12,
+    "stock_reserve": 3,
+    "stock_disponible": 9
+  },
+  "commande": {
+    "numero": "CMD-2026-00009",
+    "statut": "reçu",
+    "date": "2026-06-10"
+  },
+  "client": {
+    "nom": "Céleste",
+    "prenom": "Manga",
+    "telephone": "+237 6 22 87 65 14",
+    "email": "manga.celeste@email.cm"
+  }
+}

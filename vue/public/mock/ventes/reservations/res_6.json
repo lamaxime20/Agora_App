@@ -1,0 +1,28 @@
+{
+  "reservation": {
+    "id": "res_6",
+    "produit_id": "prod_5",
+    "quantite": 12,
+    "statut": "annulé",
+    "commande_id": "cmd_6",
+    "date": "2026-06-13"
+  },
+  "produit": {
+    "id": "prod_5",
+    "nom": "Savon de ménage x12",
+    "stock_actuel": 62,
+    "stock_reserve": 0,
+    "stock_disponible": 62
+  },
+  "commande": {
+    "numero": "CMD-2026-00006",
+    "statut": "annulé",
+    "date": "2026-06-13"
+  },
+  "client": {
+    "nom": "Alexis",
+    "prenom": "Kamdem",
+    "telephone": "+237 6 90 11 55 42",
+    "email": "kamdem.alexis@email.cm"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "non_lues": 4,
+  "notifications": [
+    {
+      "id": "notif_1",
+      "type": "commande_validee",
+      "message": "Commande CMD-2026-00002 validée par le responsable",
+      "temps": "Il y a 12 min",
+      "lue": false
+    },
+    {
+      "id": "notif_2",
+      "type": "paiement_enregistre",
+      "message": "Paiement de 45 000 FCFA reçu — CMD-2026-00002",
+      "temps": "Il y a 35 min",
+      "lue": false
+    },
+    {
+      "id": "notif_3",
+      "type": "livraison_creee",
+      "message": "Livraison créée pour CMD-2026-00003 — livreur assigné",
+      "temps": "Il y a 1h",
+      "lue": false
+    },
+    {
+      "id": "notif_4",
+      "type": "livraison_confirmee",
+      "message": "Livraison CMD-2026-00004 confirmée par Jean Dupont",
+      "temps": "Il y a 2h",
+      "lue": false
+    },
+    {
+      "id": "notif_5",
+      "type": "commande_validee",
+      "message": "Commande CMD-2026-00005 validée et en préparation",
+      "temps": "Hier à 16h30",
+      "lue": true
+    },
+    {
+      "id": "notif_6",
+      "type": "livraison_annulee",
+      "message": "Livraison annulée — CMD-2026-00006 (client absent)",
+      "temps": "Hier à 14h12",
+      "lue": true
+    }
+  ]
+}

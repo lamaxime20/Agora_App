@@ -1,0 +1,13 @@
+{
+  "data": [
+    { "id": "cmd_21", "numero": "CMD-2026-00021", "client": "Etoundi Serge",     "montant": 34000,  "statut": "validé",  "date": "2026-05-29" },
+    { "id": "cmd_22", "numero": "CMD-2026-00022", "client": "Nono Gaëlle",       "montant": 22500,  "statut": "reçu",    "date": "2026-05-28" },
+    { "id": "cmd_23", "numero": "CMD-2026-00023", "client": "Mendo Aristide",    "montant": 96000,  "statut": "livré",   "date": "2026-05-27" },
+    { "id": "cmd_24", "numero": "CMD-2026-00024", "client": "Zoa Adèle",         "montant": 41500,  "statut": "annulé",  "date": "2026-05-26" },
+    { "id": "cmd_25", "numero": "CMD-2026-00025", "client": "Kana Maurice",      "montant": 73000,  "statut": "livré",   "date": "2026-05-25" },
+    { "id": "cmd_26", "numero": "CMD-2026-00026", "client": "Owona Flore",       "montant": 19000,  "statut": "validé",  "date": "2026-05-24" },
+    { "id": "cmd_27", "numero": "CMD-2026-00027", "client": "Eba Christophe",    "montant": 58500,  "statut": "reçu",    "date": "2026-05-23" },
+    { "id": "cmd_28", "numero": "CMD-2026-00028", "client": "Nkoa Pauline",      "montant": 125000, "statut": "livré",   "date": "2026-05-22" }
+  ],
+  "meta": { "page": 2, "per_page": 20, "total": 28, "has_more": false }
+}

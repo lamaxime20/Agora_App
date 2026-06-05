@@ -1,0 +1,31 @@
+{
+  "commande": {
+    "id": "cmd_1",
+    "numero": "CMD-2026-00001",
+    "client_id": "cli_1",
+    "montant": 23000,
+    "statut": "reçu",
+    "adresse": "Quartier Bastos, Rue 1234, Yaoundé",
+    "date_livraison": "2026-06-25",
+    "notes": "Livraison le matin de préférence avant 10h",
+    "date": "2026-06-18"
+  },
+  "client": {
+    "id": "cli_1",
+    "nom": "Dupont",
+    "prenom": "Jean",
+    "email": "jean.dupont@email.com",
+    "telephone": "+237 6 90 12 34 56"
+  },
+  "produits": [
+    { "id": "prod_1", "nom": "Huile de palme raffinée 1L", "quantite": 5, "prix_unitaire": 2500, "montant": 12500 },
+    { "id": "prod_3", "nom": "Sucre cristallisé 25kg",      "quantite": 1, "prix_unitaire": 8000, "montant": 8000  },
+    { "id": "prod_5", "nom": "Savon de ménage x12",         "quantite": 1, "prix_unitaire": 3600, "montant": 2500  }
+  ],
+  "paiements": [
+    { "id": "pay_1", "date": "2026-06-18", "montant": 10000, "mode": "Mobile Money", "reference": "TRX-987654", "statut": "validé" }
+  ],
+  "livraisons": [
+    { "id": "liv_1", "statut": "créée",    "date": "2026-06-18", "note": "Livraison planifiée" }
+  ]
+}

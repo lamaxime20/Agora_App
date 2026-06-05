@@ -1,0 +1,28 @@
+{
+  "reservation": {
+    "id": "res_4",
+    "produit_id": "prod_1",
+    "quantite": 10,
+    "statut": "en_cours",
+    "commande_id": "cmd_3",
+    "date": "2026-06-16"
+  },
+  "produit": {
+    "id": "prod_1",
+    "nom": "Huile de palme raffinée 1L",
+    "stock_actuel": 48,
+    "stock_reserve": 23,
+    "stock_disponible": 25
+  },
+  "commande": {
+    "numero": "CMD-2026-00003",
+    "statut": "en cours de livraison",
+    "date": "2026-06-16"
+  },
+  "client": {
+    "nom": "Essomba",
+    "prenom": "Marie Ngo",
+    "telephone": "+237 6 77 44 22 19",
+    "email": "ngo.essomba@email.cm"
+  }
+}

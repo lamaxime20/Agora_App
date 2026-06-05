@@ -1,0 +1,28 @@
+{
+  "reservation": {
+    "id": "res_1",
+    "produit_id": "prod_1",
+    "quantite": 15,
+    "statut": "en_cours",
+    "commande_id": "cmd_1",
+    "date": "2026-06-18"
+  },
+  "produit": {
+    "id": "prod_1",
+    "nom": "Huile de palme raffinée 1L",
+    "stock_actuel": 48,
+    "stock_reserve": 23,
+    "stock_disponible": 25
+  },
+  "commande": {
+    "numero": "CMD-2026-00001",
+    "statut": "reçu",
+    "date": "2026-06-18"
+  },
+  "client": {
+    "nom": "Dupont",
+    "prenom": "Jean",
+    "telephone": "+237 6 90 12 34 56",
+    "email": "jean.dupont@email.com"
+  }
+}

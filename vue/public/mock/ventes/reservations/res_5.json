@@ -1,0 +1,28 @@
+{
+  "reservation": {
+    "id": "res_5",
+    "produit_id": "prod_3",
+    "quantite": 5,
+    "statut": "en_cours",
+    "commande_id": "cmd_5",
+    "date": "2026-06-14"
+  },
+  "produit": {
+    "id": "prod_3",
+    "nom": "Sucre cristallisé 25kg",
+    "stock_actuel": 30,
+    "stock_reserve": 8,
+    "stock_disponible": 22
+  },
+  "commande": {
+    "numero": "CMD-2026-00005",
+    "statut": "validé",
+    "date": "2026-06-14"
+  },
+  "client": {
+    "nom": "Christelle",
+    "prenom": "Biyong",
+    "telephone": "+237 6 51 38 74 20",
+    "email": "biyong.c@email.cm"
+  }
+}

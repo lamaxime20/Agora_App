@@ -1,0 +1,25 @@
+{
+  "data": [
+    { "id": "cmd_1",  "numero": "CMD-2026-00001", "client": "Jean Dupont",          "montant": 23000,  "statut": "reçu",                 "date": "2026-06-18" },
+    { "id": "cmd_2",  "numero": "CMD-2026-00002", "client": "Sophie Martin",         "montant": 85000,  "statut": "validé",               "date": "2026-06-17" },
+    { "id": "cmd_3",  "numero": "CMD-2026-00003", "client": "Ngo Essomba Marie",     "montant": 47500,  "statut": "en cours de livraison", "date": "2026-06-16" },
+    { "id": "cmd_4",  "numero": "CMD-2026-00004", "client": "Mvondo Paul",           "montant": 12000,  "statut": "livré",                 "date": "2026-06-15" },
+    { "id": "cmd_5",  "numero": "CMD-2026-00005", "client": "Biyong Christelle",     "montant": 138000, "statut": "validé",               "date": "2026-06-14" },
+    { "id": "cmd_6",  "numero": "CMD-2026-00006", "client": "Kamdem Alexis",         "montant": 32500,  "statut": "annulé",               "date": "2026-06-13" },
+    { "id": "cmd_7",  "numero": "CMD-2026-00007", "client": "Fouda Edith",           "montant": 61000,  "statut": "livré",                 "date": "2026-06-12" },
+    { "id": "cmd_8",  "numero": "CMD-2026-00008", "client": "Ateba Rodrigue",        "montant": 18500,  "statut": "reçu",                 "date": "2026-06-11" },
+    { "id": "cmd_9",  "numero": "CMD-2026-00009", "client": "Manga Céleste",         "montant": 94000,  "statut": "en cours de livraison", "date": "2026-06-10" },
+    { "id": "cmd_10", "numero": "CMD-2026-00010", "client": "Talla Simon",           "montant": 27000,  "statut": "validé",               "date": "2026-06-09" },
+    { "id": "cmd_11", "numero": "CMD-2026-00011", "client": "Engoulou Patricia",     "montant": 55000,  "statut": "livré",                 "date": "2026-06-08" },
+    { "id": "cmd_12", "numero": "CMD-2026-00012", "client": "Belibi Hervé",          "montant": 8500,   "statut": "annulé",               "date": "2026-06-07" },
+    { "id": "cmd_13", "numero": "CMD-2026-00013", "client": "Ondoua Brigitte",       "montant": 76000,  "statut": "reçu",                 "date": "2026-06-06" },
+    { "id": "cmd_14", "numero": "CMD-2026-00014", "client": "Mbarga Jacques",        "montant": 112000, "statut": "validé",               "date": "2026-06-05" },
+    { "id": "cmd_15", "numero": "CMD-2026-00015", "client": "Nkengne Joëlle",        "montant": 43500,  "statut": "livré",                 "date": "2026-06-04" },
+    { "id": "cmd_16", "numero": "CMD-2026-00016", "client": "Essama Thierry",        "montant": 29000,  "statut": "en cours de livraison", "date": "2026-06-03" },
+    { "id": "cmd_17", "numero": "CMD-2026-00017", "client": "Oyono Laurence",        "montant": 67500,  "statut": "validé",               "date": "2026-06-02" },
+    { "id": "cmd_18", "numero": "CMD-2026-00018", "client": "Abega Franklin",        "montant": 15000,  "statut": "annulé",               "date": "2026-06-01" },
+    { "id": "cmd_19", "numero": "CMD-2026-00019", "client": "Bela Narcisse",         "montant": 88500,  "statut": "livré",                 "date": "2026-05-31" },
+    { "id": "cmd_20", "numero": "CMD-2026-00020", "client": "Tsala Hortense",        "montant": 51000,  "statut": "reçu",                 "date": "2026-05-30" }
+  ],
+  "meta": { "page": 1, "per_page": 20, "total": 28, "has_more": true }
+}

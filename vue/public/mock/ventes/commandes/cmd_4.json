@@ -1,0 +1,32 @@
+{
+  "commande": {
+    "id": "cmd_4",
+    "numero": "CMD-2026-00004",
+    "client_id": "cli_4",
+    "montant": 12000,
+    "statut": "livré",
+    "adresse": "Ndokotti, Marché central, Douala",
+    "date_livraison": "2026-06-15",
+    "notes": "",
+    "date": "2026-06-15"
+  },
+  "client": {
+    "id": "cli_4",
+    "nom": "Mvondo",
+    "prenom": "Paul",
+    "email": "mvondopaul@yahoo.fr",
+    "telephone": "+237 6 51 88 22 77"
+  },
+  "produits": [
+    { "id": "prod_5", "nom": "Savon de ménage x12",  "quantite": 2, "prix_unitaire": 3600, "montant": 7200 },
+    { "id": "prod_1", "nom": "Huile de palme raffinée 1L", "quantite": 2, "prix_unitaire": 2500, "montant": 5000 }
+  ],
+  "paiements": [
+    { "id": "pay_1", "date": "2026-06-15", "montant": 12000, "mode": "Mobile Money", "reference": "TRX-789012", "statut": "validé" }
+  ],
+  "livraisons": [
+    { "id": "liv_1", "statut": "créée",    "date": "2026-06-15", "note": "Commande préparée" },
+    { "id": "liv_2", "statut": "en cours", "date": "2026-06-15", "note": "En livraison" },
+    { "id": "liv_3", "statut": "livrée",   "date": "2026-06-15", "note": "Confirmée par le client" }
+  ]
+}

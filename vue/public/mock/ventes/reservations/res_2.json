@@ -1,0 +1,28 @@
+{
+  "reservation": {
+    "id": "res_2",
+    "produit_id": "prod_2",
+    "quantite": 3,
+    "statut": "validé",
+    "commande_id": "cmd_2",
+    "date": "2026-06-17"
+  },
+  "produit": {
+    "id": "prod_2",
+    "nom": "Farine de blé 50kg",
+    "stock_actuel": 12,
+    "stock_reserve": 3,
+    "stock_disponible": 9
+  },
+  "commande": {
+    "numero": "CMD-2026-00002",
+    "statut": "validé",
+    "date": "2026-06-17"
+  },
+  "client": {
+    "nom": "Martin",
+    "prenom": "Sophie",
+    "telephone": "+237 6 55 22 11 88",
+    "email": "sophie.martin@email.com"
+  }
+}

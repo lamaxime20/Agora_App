@@ -1,0 +1,28 @@
+{
+  "reservation": {
+    "id": "res_8",
+    "produit_id": "prod_4",
+    "quantite": 3,
+    "statut": "validé",
+    "commande_id": "cmd_14",
+    "date": "2026-06-05"
+  },
+  "produit": {
+    "id": "prod_4",
+    "nom": "Riz long grain 50kg",
+    "stock_actuel": 7,
+    "stock_reserve": 5,
+    "stock_disponible": 2
+  },
+  "commande": {
+    "numero": "CMD-2026-00014",
+    "statut": "livré",
+    "date": "2026-06-05"
+  },
+  "client": {
+    "nom": "Jacques",
+    "prenom": "Mbarga",
+    "telephone": "+237 6 44 19 83 76",
+    "email": "mbarga.j@email.cm"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "commande": {
+    "id": "cmd_3",
+    "numero": "CMD-2026-00003",
+    "client_id": "cli_3",
+    "montant": 47500,
+    "statut": "en cours de livraison",
+    "adresse": "Cité Verte, Bloc B, Appartement 12, Yaoundé",
+    "date_livraison": "2026-06-19",
+    "notes": "Appeler avant de livrer",
+    "date": "2026-06-16"
+  },
+  "client": {
+    "id": "cli_3",
+    "nom": "Ngo Essomba",
+    "prenom": "Marie",
+    "email": "m.ngoessomba@gmail.com",
+    "telephone": "+237 6 78 45 12 33"
+  },
+  "produits": [
+    { "id": "prod_1", "nom": "Huile de palme raffinée 1L", "quantite": 10, "prix_unitaire": 2500, "montant": 25000 },
+    { "id": "prod_3", "nom": "Sucre cristallisé 25kg",      "quantite": 1,  "prix_unitaire": 8000, "montant": 8000  },
+    { "id": "prod_2", "nom": "Farine de blé 50kg",          "quantite": 1,  "prix_unitaire": 10500,"montant": 10500 },
+    { "id": "prod_5", "nom": "Savon de ménage x12",         "quantite": 1,  "prix_unitaire": 3600, "montant": 4000  }
+  ],
+  "paiements": [
+    { "id": "pay_1", "date": "2026-06-16", "montant": 47500, "mode": "Espèces", "reference": "REC-2026-00143", "statut": "validé" }
+  ],
+  "livraisons": [
+    { "id": "liv_1", "statut": "créée",    "date": "2026-06-16", "note": "Commande préparée" },
+    { "id": "liv_2", "statut": "en cours", "date": "2026-06-18", "note": "Livreur assigné — départ entrepôt" }
+  ]
+}
