@@ -129,6 +129,22 @@ CREATE TYPE statut_general AS ENUM (
   'archive'
 );
 
+CREATE TYPE type_mouvement_financier AS ENUM (
+  'paiement_commande',
+  'remboursement_commande',
+  'depense_generale',
+  'entree_generale',
+  'paiement_salaire',
+  'paiement_abonnement',
+  'paiement_ravitaillement',
+  'perte_argent'
+);
+
+CREATE TYPE sens_mouvement_financier AS ENUM (
+  'entree',
+  'sortie'
+);
+
 -- =========================================================
 -- TABLE utilisateurs
 -- =========================================================
@@ -993,6 +1009,34 @@ CREATE TABLE IF NOT EXISTS remboursements (
     FOREIGN KEY (entreprise)
     REFERENCES entreprises(id)
     ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+-- =========================================================
+-- TABLE mouvements_financiers
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS mouvements_financiers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  date_operation TIMESTAMP DEFAULT NOW(),
+  type_operation type_mouvement_financier NOT NULL,
+  montant MoneyAmount NOT NULL,
+  sens sens_mouvement_financier NOT NULL,
+  reference_id UUID,
+  description TEXT,
+  entreprise_id UUID NOT NULL,
+  utilisateur_id UUID,
+
+  CONSTRAINT mouvements_financiers_cr0
+    FOREIGN KEY (entreprise_id)
+    REFERENCES entreprises(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+
+  CONSTRAINT mouvements_financiers_cr1
+    FOREIGN KEY (utilisateur_id)
+    REFERENCES utilisateurs(id)
+    ON DELETE SET NULL
     ON UPDATE CASCADE
 );
 

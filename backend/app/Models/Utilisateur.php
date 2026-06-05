@@ -145,6 +145,11 @@ class Utilisateur extends Authenticatable
         return $this->hasMany(Remboursement::class, 'utilisateur_engage');
     }
 
+    public function mouvementsFinanciers(): HasMany
+    {
+        return $this->hasMany(MouvementFinancier::class, 'utilisateur_id');
+    }
+
     public function tachesDefinies(): HasMany
     {
         return $this->hasMany(Tache::class, 'utilisateur_defini');

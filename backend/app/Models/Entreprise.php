@@ -136,6 +136,11 @@ class Entreprise extends Model
         return $this->hasMany(Remboursement::class, 'entreprise');
     }
 
+    public function mouvementsFinanciers(): HasMany
+    {
+        return $this->hasMany(MouvementFinancier::class, 'entreprise_id');
+    }
+
     public function taches(): HasMany
     {
         return $this->hasMany(Tache::class, 'entreprise');
