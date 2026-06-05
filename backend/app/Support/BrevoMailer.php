@@ -20,6 +20,16 @@ class BrevoMailer
         $this->senderEmail = env('BREVO_SENDER_EMAIL', '');
     }
 
+    public function getSenderName(): string
+    {
+        return $this->senderName;
+    }
+
+    public function getSenderEmail(): string
+    {
+        return $this->senderEmail;
+    }
+
     public function sendOtpEmail(string $recipientEmail, string $recipientName, string $code): bool
     {
         return $this->send([
@@ -40,7 +50,7 @@ class BrevoMailer
         ]);
     }
 
-    private function send(array $payload): bool
+    public function send(array $payload): bool
     {
         try {
             $response = Http::withHeaders([

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CodeOtp;
 use App\Models\TokenChoixRole;
 use App\Models\Utilisateur;
-use App\Support\BrevoMailer;
+use App\Support\MailerService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -65,7 +65,7 @@ class SignupController extends Controller
                 'actif'           => true,
             ]);
 
-            $mailer   = new BrevoMailer();
+            $mailer   = new MailerService();
             $fullName = $request->prenom . ' ' . $request->nom;
             $sent     = $mailer->sendOtpEmail($request->email, $fullName, $code);
 

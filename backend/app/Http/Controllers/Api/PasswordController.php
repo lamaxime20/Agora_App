@@ -7,7 +7,7 @@ use App\Models\CodeReinitialisation;
 use App\Models\SessionApp;
 use App\Models\TokenChoixRole;
 use App\Models\Utilisateur;
-use App\Support\BrevoMailer;
+use App\Support\MailerService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -63,7 +63,7 @@ class PasswordController extends Controller
                 'actif'           => true,
             ]);
 
-            $mailer = new BrevoMailer();
+            $mailer = new MailerService();
             $sent   = $mailer->sendPasswordResetEmail($user->email, $user->prename . ' ' . $user->name, $code);
 
             if (!$sent) {
