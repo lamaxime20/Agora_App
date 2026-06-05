@@ -7,21 +7,24 @@
     position: relative;
 }
 
-/* ─── Overlay (sidebar mobile) ────────────────────────────────────────────────── */
+/* ─── Titre mobile dans le header ─────────────────────────────────────────────── */
 
-.ventes-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.25);
-    z-index: var(--z-overlay);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--duration-normal) var(--ease-out);
+.ventes-header__title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-accent);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.ventes-overlay--visible {
-    opacity: 1;
-    pointer-events: auto;
+/* Sur desktop, on masque le titre simple et on affiche le breadcrumb */
+@media (min-width: 1025px) {
+    .ventes-header__title {
+        display: none;
+    }
 }
 
 /* ─── Corps (droite de la sidebar) ───────────────────────────────────────────── */
@@ -31,6 +34,8 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
+    /* Espace pour la bottom nav sur mobile */
+    padding-bottom: 72px;
 }
 
 /* ─── Header sticky ───────────────────────────────────────────────────────────── */
@@ -218,13 +223,21 @@
     }
 }
 
-/* Desktop : sidebar fixe, body décalé */
+/* Desktop : sidebar fixe, body décalé, pas de padding bottom nav */
 @media (min-width: 1025px) {
     .ventes-body {
         margin-left: 280px;
+        padding-bottom: 0;
     }
 
-    .ventes-header__burger {
+    .ventes-header__breadcrumb {
+        display: flex;
+    }
+}
+
+/* Mobile : breadcrumb masqué, titre visible */
+@media (max-width: 1024px) {
+    .ventes-header__breadcrumb {
         display: none;
     }
 }
