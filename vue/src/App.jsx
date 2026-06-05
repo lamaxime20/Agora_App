@@ -35,6 +35,18 @@ import {
     VENTES_STATISTIQUES
 } from "./services/ventes.js";
 
+import {
+    FINANCES_DASHBOARD,
+    FINANCES_COMMANDES,
+    FINANCES_REMBOURSEMENTS,
+    FINANCES_DEPENSES,
+    FINANCES_ENTREES,
+    FINANCES_ABONNEMENTS,
+    FINANCES_REAPPROVISIONNEMENTS,
+    FINANCES_SALAIRES,
+    FINANCES_STATISTIQUES
+} from "./services/finances.js";
+
 import './App.css';
 
 function App() {
@@ -74,7 +86,17 @@ function App() {
                                 <Route path="clients" element={<Ventes onglet={VENTES_CLIENTS} />} />
                                 <Route path="statistiques" element={<Ventes onglet={VENTES_STATISTIQUES} />} />
                             </Route>
-                            <Route path="/application/finances" element={<Finances />} />
+                            <Route path="/application/finances">
+                                <Route index element={<Finances onglet={FINANCES_DASHBOARD} />} />
+                                <Route path="commandes" element={<Finances onglet={FINANCES_COMMANDES} />} />
+                                <Route path="remboursements" element={<Finances onglet={FINANCES_REMBOURSEMENTS} />} />
+                                <Route path="depenses" element={<Finances onglet={FINANCES_DEPENSES} />} />
+                                <Route path="entrees" element={<Finances onglet={FINANCES_ENTREES} />} />
+                                <Route path="abonnements" element={<Finances onglet={FINANCES_ABONNEMENTS} />} />
+                                <Route path="reapprovisionnements" element={<Finances onglet={FINANCES_REAPPROVISIONNEMENTS} />} />
+                                <Route path="salaires" element={<Finances onglet={FINANCES_SALAIRES} />} />
+                                <Route path="statistiques" element={<Finances onglet={FINANCES_STATISTIQUES} />} />
+                            </Route>
                             <Route path="/application/ressources-humaines" element={<RessourcesHumaines />} />
                         </Route>
 
