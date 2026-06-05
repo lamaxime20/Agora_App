@@ -67,11 +67,13 @@ function App() {
                             <Route path="/application/stock/pertes" element={<GestionStock  onglet={GESTION_STOCK_PERTES} />} />
                             <Route path="/application/stock/statistiques" element={<GestionStock  onglet={GESTION_STOCK_STATISTIQUES} />} />
                             <Route path="/application/produit/:id" element={<ProduitPage />} />
-                            <Route path="/application/vente" element={<Ventes onglet={VENTES_DASHBOARD} />} />
-                            <Route path="/application/vente/commandes" element={<Ventes onglet={VENTES_COMMANDES} />} />
-                            <Route path="/application/vente/reservations" element={<Ventes onglet={VENTES_RESERVATIONS} />} />
-                            <Route path="/application/vente/clients" element={<Ventes onglet={VENTES_CLIENTS} />} />
-                            <Route path="/application/vente/statistiques" element={<Ventes onglet={VENTES_STATISTIQUES} />} />
+                            <Route path="/application/vente">
+                                <Route index element={<Ventes onglet={VENTES_DASHBOARD} />} />
+                                <Route path="commandes" element={<Ventes onglet={VENTES_COMMANDES} />} />
+                                <Route path="reservations" element={<Ventes onglet={VENTES_RESERVATIONS} />} />
+                                <Route path="clients" element={<Ventes onglet={VENTES_CLIENTS} />} />
+                                <Route path="statistiques" element={<Ventes onglet={VENTES_STATISTIQUES} />} />
+                            </Route>
                             <Route path="/application/finances" element={<Finances />} />
                             <Route path="/application/ressources-humaines" element={<RessourcesHumaines />} />
                         </Route>
