@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import {
     Search, Filter, Download, AlertCircle, RefreshCw,
-    Calendar, ChevronRight, CheckCircle2,
+    Calendar, ChevronRight, CheckCircle2, X, Check,
 } from "lucide-react";
 import reapproData from "../../../../mockups/gestionStocks/reapprovisionnements.json";
-import PaneDetailsReapprovisionnement from "./paneDetailsReapprovisionnement.jsx";
+import PaneDetailsReapprovisionnement    from "./paneDetailsReapprovisionnement.jsx";
+import ModalAnnulerReapprovisionnement   from "./modalAnnulerReapprovisionnement.jsx";
+import ModalConfirmerReapprovisionnement from "./modalConfirmerReapprovisionnement.jsx";
 import "../../../../assets/styles/components/modules/gestionStocks/historiqueReapprovisionnement.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -28,6 +30,9 @@ const STATUT_CONFIG = {
 };
 
 const STATUTS = ["", "en_attente", "en_cours", "reçu", "annulé"];
+
+function peutAnnuler(statut)   { return statut === "en_attente" || statut === "en_cours"; }
+function peutConfirmer(statut) { return statut === "en_cours"; }
 
 function BadgeStatut({ statut }) {
     const cfg = STATUT_CONFIG[statut] ?? { label: statut, mod: "info" };
@@ -67,15 +72,20 @@ function SkeletonCard() {
 /* ─── Composant ──────────────────────────────────────────────────────────────── */
 
 function HistoriqueReapprovisionnement() {
-    const [items, setItems]               = useState([]);
-    const [loading, setLoading]           = useState(true);
-    const [error, setError]               = useState(null);
-    const [recherche, setRecherche]       = useState("");
-    const [filtreStatut, setFiltreStatut] = useState("");
-    const [dateDebut, setDateDebut]       = useState("");
-    const [dateFin, setDateFin]           = useState("");
-    const [showFilters, setShowFilters]   = useState(false);
-    const [paneItem, setPaneItem]         = useState(null);
+    const [items, setItems]                   = useState([]);
+    const [loading, setLoading]               = useState(true);
+    const [error, setError]                   = useState(null);
+    const [recherche, setRecherche]           = useState("");
+    const [filtreStatut, setFiltreStatut]     = useState("");
+    const [dateDebut, setDateDebut]           = useState("");
+    const [dateFin, setDateFin]               = useState("");
+    const [showFilters, setShowFilters]       = useState(false);
+    const [paneItem, setPaneItem]             = useState(null);
+    const [itemAAnnuler, setItemAAnnuler]     = useState(null);
+    const [itemAConfirmer, setItemAConfirmer] = useState(null);
+
+    const handleAnnuler  = useCallback((e, item) => { e.stopPropagation(); setItemAAnnuler(item);  }, []);
+    const handleConfirmer = useCallback((e, item) => { e.stopPropagation(); setItemAConfirmer(item); }, []);
 
     const charger = useCallback(() => {
         setLoading(true);
@@ -282,6 +292,30 @@ function HistoriqueReapprovisionnement() {
                                 <span className="histReappro-card__montant">
                                     {formatMontant(item.montant_total)}
                                 </span>
+                                {(peutAnnuler(item.statut) || peutConfirmer(item.statut)) && (
+                                    <div className="histReappro-card__actions" onClick={e => e.stopPropagation()}>
+                                        {peutAnnuler(item.statut) && (
+                                            <button
+                                                className="app-button app-button--ghost app-button--sm histReappro-btn--danger"
+                                                onClick={e => handleAnnuler(e, item)}
+                                                type="button"
+                                            >
+                                                <X size={14} aria-hidden="true" />
+                                                Annuler
+                                            </button>
+                                        )}
+                                        {peutConfirmer(item.statut) && (
+                                            <button
+                                                className="app-button app-button--primary app-button--sm"
+                                                onClick={e => handleConfirmer(e, item)}
+                                                type="button"
+                                            >
+                                                <Check size={14} aria-hidden="true" />
+                                                Confirmer
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                                 <ChevronRight size={14} className="histReappro-card__arrow" aria-hidden="true" />
                             </button>
                         </li>
@@ -301,6 +335,7 @@ function HistoriqueReapprovisionnement() {
                                 <th scope="col">Créateur</th>
                                 <th scope="col">Date demande</th>
                                 <th scope="col">Statut</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -320,6 +355,33 @@ function HistoriqueReapprovisionnement() {
                                     <td>{item.demandeur.nom}</td>
                                     <td className="histReappro-table__date">{formatDate(item.date_demande)}</td>
                                     <td><BadgeStatut statut={item.statut} /></td>
+                                    <td onClick={e => e.stopPropagation()}>
+                                        <div className="histReappro-table__actions">
+                                            {peutAnnuler(item.statut) && (
+                                                <button
+                                                    className="app-button app-button--ghost app-button--sm histReappro-btn--danger"
+                                                    onClick={e => handleAnnuler(e, item)}
+                                                    type="button"
+                                                >
+                                                    <X size={12} aria-hidden="true" />
+                                                    Annuler
+                                                </button>
+                                            )}
+                                            {peutConfirmer(item.statut) && (
+                                                <button
+                                                    className="app-button app-button--primary app-button--sm"
+                                                    onClick={e => handleConfirmer(e, item)}
+                                                    type="button"
+                                                >
+                                                    <Check size={12} aria-hidden="true" />
+                                                    Confirmer
+                                                </button>
+                                            )}
+                                            {!peutAnnuler(item.statut) && !peutConfirmer(item.statut) && (
+                                                <span className="histReappro-table__no-action">—</span>
+                                            )}
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -340,8 +402,24 @@ function HistoriqueReapprovisionnement() {
                 <PaneDetailsReapprovisionnement
                     item={paneItem}
                     onClose={() => setPaneItem(null)}
-                    onAnnuler={() => setPaneItem(null)}
-                    onConfirmer={() => setPaneItem(null)}
+                    onAnnuler={(item) => { setPaneItem(null); setItemAAnnuler(item); }}
+                    onConfirmer={(item) => { setPaneItem(null); setItemAConfirmer(item); }}
+                />
+            )}
+
+            {/* ─── Modals ──────────────────────────────────────────────── */}
+            {itemAAnnuler && (
+                <ModalAnnulerReapprovisionnement
+                    item={itemAAnnuler}
+                    onClose={() => setItemAAnnuler(null)}
+                    onConfirm={() => { setItemAAnnuler(null); charger(); }}
+                />
+            )}
+            {itemAConfirmer && (
+                <ModalConfirmerReapprovisionnement
+                    item={itemAConfirmer}
+                    onClose={() => setItemAConfirmer(null)}
+                    onConfirm={() => { setItemAConfirmer(null); charger(); }}
                 />
             )}
         </div>

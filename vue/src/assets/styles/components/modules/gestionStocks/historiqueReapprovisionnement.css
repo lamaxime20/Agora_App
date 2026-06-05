@@ -345,6 +345,36 @@
     color: var(--color-text-muted);
 }
 
+/* ─── Actions inline (cartes + tableau) ──────────────────────────────────────── */
+
+.histReappro-card__actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-top: var(--space-2);
+}
+
+.histReappro-table__actions {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.histReappro-table__no-action {
+    color: var(--color-text-light);
+    font-size: var(--text-sm);
+}
+
+.histReappro-btn--danger {
+    color: var(--color-error) !important;
+    border-color: rgba(231, 76, 60, 0.30) !important;
+}
+
+.histReappro-btn--danger:hover {
+    background-color: rgba(231, 76, 60, 0.08) !important;
+}
+
 /* ─── Résultats ───────────────────────────────────────────────────────────────── */
 
 .histReappro-results {

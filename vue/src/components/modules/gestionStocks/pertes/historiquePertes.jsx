@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import {
     Search, Filter, Download, AlertCircle, RefreshCw,
-    Calendar, ChevronRight,
+    Calendar, ChevronRight, X,
 } from "lucide-react";
 import pertesData from "../../../../mockups/gestionStocks/pertes.json";
-import PaneDetailsPerte from "./paneDetailsPerte.jsx";
+import PaneDetailsPerte    from "./paneDetailsPerte.jsx";
+import ModalAnnulerPerte   from "./modalAnnulerPerte.jsx";
 import "../../../../assets/styles/components/modules/gestionStocks/historiquePertes.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -34,6 +35,11 @@ const STATUT_CONFIG = {
 
 const MOTIFS  = ["", "vol", "casse", "péremption", "autre"];
 const STATUTS = ["", "confirmée", "annulée"];
+
+function peutAnnuler(item) {
+    if (item.statut === "annulée") return false;
+    return new Date(item.date_limite_annulation).getTime() > Date.now();
+}
 
 function BadgeMotif({ motif }) {
     const cfg = MOTIF_CONFIG[motif] ?? { label: motif, mod: "muted" };
@@ -92,6 +98,9 @@ function HistoriquePertes() {
     const [dateFin, setDateFin]           = useState("");
     const [showFilters, setShowFilters]   = useState(false);
     const [paneItem, setPaneItem]         = useState(null);
+    const [itemAAnnuler, setItemAAnnuler] = useState(null);
+
+    const handleAnnuler = useCallback((e, item) => { e.stopPropagation(); setItemAAnnuler(item); }, []);
 
     const charger = useCallback(() => {
         setLoading(true);
@@ -314,6 +323,18 @@ function HistoriquePertes() {
                                     </span>
                                     <BadgeStatut statut={item.statut} />
                                 </div>
+                                {peutAnnuler(item) && (
+                                    <div className="histPertes-card__actions" onClick={e => e.stopPropagation()}>
+                                        <button
+                                            className="app-button app-button--ghost app-button--sm histPertes-btn--danger"
+                                            onClick={e => handleAnnuler(e, item)}
+                                            type="button"
+                                        >
+                                            <X size={14} aria-hidden="true" />
+                                            Annuler la perte
+                                        </button>
+                                    </div>
+                                )}
                                 <ChevronRight size={14} className="histPertes-card__arrow" aria-hidden="true" />
                             </button>
                         </li>
@@ -335,6 +356,7 @@ function HistoriquePertes() {
                                 <th scope="col">Date</th>
                                 <th scope="col">Motif</th>
                                 <th scope="col">Statut</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -360,6 +382,20 @@ function HistoriquePertes() {
                                     </td>
                                     <td><BadgeMotif motif={item.motif} /></td>
                                     <td><BadgeStatut statut={item.statut} /></td>
+                                    <td onClick={e => e.stopPropagation()}>
+                                        {peutAnnuler(item) ? (
+                                            <button
+                                                className="app-button app-button--ghost app-button--sm histPertes-btn--danger"
+                                                onClick={e => handleAnnuler(e, item)}
+                                                type="button"
+                                            >
+                                                <X size={12} aria-hidden="true" />
+                                                Annuler
+                                            </button>
+                                        ) : (
+                                            <span className="histPertes-table__no-action">—</span>
+                                        )}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -380,12 +416,17 @@ function HistoriquePertes() {
                 <PaneDetailsPerte
                     item={paneItem}
                     onClose={() => setPaneItem(null)}
-                    onAnnuler={() => setPaneItem(null)}
-                    peutAnnuler={
-                        paneItem.date_limite_annulation
-                            ? new Date(paneItem.date_limite_annulation).getTime() > Date.now()
-                            : false
-                    }
+                    onAnnuler={(item) => { setPaneItem(null); setItemAAnnuler(item); }}
+                    peutAnnuler={peutAnnuler(paneItem)}
+                />
+            )}
+
+            {/* ─── Modal annulation ────────────────────────────────── */}
+            {itemAAnnuler && (
+                <ModalAnnulerPerte
+                    item={itemAAnnuler}
+                    onClose={() => setItemAAnnuler(null)}
+                    onConfirm={() => { setItemAAnnuler(null); charger(); }}
                 />
             )}
         </div>

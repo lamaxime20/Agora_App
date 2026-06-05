@@ -342,6 +342,29 @@
     color: var(--color-text-muted);
 }
 
+/* ─── Actions inline ─────────────────────────────────────────────────────────── */
+
+.histPertes-card__actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-top: var(--space-2);
+}
+
+.histPertes-table__no-action {
+    color: var(--color-text-light);
+    font-size: var(--text-sm);
+}
+
+.histPertes-btn--danger {
+    color: var(--color-error) !important;
+    border-color: rgba(231, 76, 60, 0.30) !important;
+}
+
+.histPertes-btn--danger:hover {
+    background-color: rgba(231, 76, 60, 0.08) !important;
+}
+
 /* ─── Résultats ───────────────────────────────────────────────────────────────── */
 
 .histPertes-results {

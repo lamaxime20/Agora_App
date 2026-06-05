@@ -258,6 +258,7 @@
 .gestionStock-content {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: var(--space-4);
     -webkit-overflow-scrolling: touch;
 }

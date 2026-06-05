@@ -126,6 +126,9 @@ function ListeReapprovisionnement() {
         return charger();
     }, [charger]);
 
+    /* Seuls les en_attente et en_cours sont affichés dans cet onglet */
+    const itemsActifs = items.filter(i => i.statut === "en_attente" || i.statut === "en_cours");
+
     const handleAnnuler = useCallback((e, item) => {
         e.stopPropagation();
         setItemAAnnuler(item);
@@ -197,14 +200,14 @@ function ListeReapprovisionnement() {
             )}
 
             {/* ─── État vide ───────────────────────────────────────────────── */}
-            {!loading && !error && items.length === 0 && (
+            {!loading && !error && itemsActifs.length === 0 && (
                 <EmptyState onAdd={() => setModalCreation(true)} />
             )}
 
             {/* ─── Mobile : cartes ─────────────────────────────────────────── */}
-            {!loading && !error && items.length > 0 && (
+            {!loading && !error && itemsActifs.length > 0 && (
                 <ul className="listeReappro-cards" aria-label="Liste des réapprovisionnements">
-                    {items.map(item => (
+                    {itemsActifs.map(item => (
                         <li key={item.id}>
                             <button
                                 className="listeReappro-card"
@@ -264,7 +267,7 @@ function ListeReapprovisionnement() {
             )}
 
             {/* ─── Desktop : tableau ───────────────────────────────────────── */}
-            {!loading && !error && items.length > 0 && (
+            {!loading && !error && itemsActifs.length > 0 && (
                 <div className="listeReappro-table-wrap">
                     <table className="listeReappro-table" aria-label="Liste des réapprovisionnements">
                         <thead>
@@ -279,7 +282,7 @@ function ListeReapprovisionnement() {
                             </tr>
                         </thead>
                         <tbody>
-                            {items.map(item => (
+                            {itemsActifs.map(item => (
                                 <tr
                                     key={item.id}
                                     className="listeReappro-table__row"

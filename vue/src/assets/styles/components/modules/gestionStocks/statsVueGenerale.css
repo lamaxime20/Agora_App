@@ -58,9 +58,22 @@
     }
 }
 
-/* ─── Desktop (≥ 1025px) ──────────────────────────────────────────────────────── */
+/* ─── Desktop (1025px – 1400px) ──────────────────────────────────────────────── */
 
-@media (min-width: 1025px) {
+@media (min-width: 1025px) and (max-width: 1400px) {
+    .statsVG-kpis {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .statsVG-charts {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ─── Grands écrans (≥ 1401px) ───────────────────────────────────────────────── */
+
+@media (min-width: 1401px) {
     .statsVG-kpis {
         grid-template-columns: repeat(6, 1fr);
     }

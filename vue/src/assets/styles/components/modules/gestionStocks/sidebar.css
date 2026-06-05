@@ -234,6 +234,12 @@
         width: 80px;
     }
 
+    .gestionStock-sidebar--collapsed .gestionStock-sidebar__brand-name {
+        opacity: 0;
+        max-width: 0;
+        overflow: hidden;
+    }
+
     .gestionStock-sidebar--collapsed .gestionStock-sidebar__brand-module {
         opacity: 0;
         width: 0;
@@ -268,7 +274,7 @@
 /* ─── Grands écrans (≥ 1201px) ───────────────────────────────────────────────── */
 
 @media (min-width: 1201px) {
-    .gestionStock-sidebar {
+    .gestionStock-sidebar:not(.gestionStock-sidebar--collapsed) {
         width: 280px;
     }
 }
