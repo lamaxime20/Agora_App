@@ -448,6 +448,17 @@ Quand on clique sur le bouton pour enregistrer un paiement, une interface s'ouvr
 - référence de transaction (champ non obligatoire, à remplir uniquement si le mode de paiement est différent de espèces)
 - un bouton pour confirmer l'enregistrement du paiement
 Quand on confirme l'enregistrement du paiement, on se rassure que l'utilisateur a bien vérifié le montant du paiement et le paiement est enregistré dans la base de données en lien avec la commande correspondante.
+Après l'enregistrement du paiement, le backend exécute automatiquement un service financier qui :
+
+- recalcule le montant total payé pour la commande ;
+- met à jour l'état de paiement de la commande (non payé, partiellement payé ou payé) ;
+- vérifie si le total payé atteint le montant minimum de validation défini pour la commande ;
+- si le seuil minimum est atteint, marque la commande comme financièrement validée et prête pour la livraison ;
+- augmente automatiquement l'argent virtuel de l'entreprise du montant enregistré ;
+- crée automatiquement une ligne dans la table mouvements_financiers avec :
+  - type_operation = paiement_commande
+  - sens = entree
+  - référence vers le paiement enregistré.
 ##### Historique des paiements
 Ici, il y aura la liste de tous les paiements enregistrés avec leurs informations respectives (date du paiement, montant payé, mode de paiement, référence de transaction, utilisateur ayant enregistré le paiement) et quand on clique sur une ligne de paiement, un pane s'ouvre pour montrer toutes les informations du paiement et aussi, un bouton pour voir la commande associée à ce paiement. Quand on clique sur ce bouton, une interface s'ouvre avec toutes les informations de la commande associée à ce paiement.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
@@ -460,6 +471,15 @@ Ici, il y aura un formulaire pour enregistrer un remboursement avec les champs :
 - La cause du remboursement (champ de texte)
 - un bouton pour confirmer l'enregistrement du remboursement
 Quand on confirme l'enregistrement du remboursement, on se rassure que l'utilisateur a bien vérifié le montant du remboursement et la cause du remboursement, et le remboursement est enregistré dans la base de données en lien avec la commande correspondante.
+Après l'enregistrement du remboursement, le backend exécute automatiquement un service financier qui :
+
+- vérifie que le montant remboursé ne dépasse jamais le total payé par le client ;
+- met à jour l'argent virtuel de l'entreprise ;
+- recalcule le montant réellement encaissé pour la commande ;
+- crée automatiquement une ligne dans la table mouvements_financiers avec :
+  - type_operation = remboursement_commande
+  - sens = sortie
+  - référence vers le remboursement enregistré.
 ##### Historique des remboursements
 Ici, il y aura la liste de tous les remboursements enregistrés avec leurs informations respectives (commande associée, montant du remboursement, cause du remboursement, date du remboursement, utilisateur ayant enregistré le remboursement) et quand on clique sur une ligne de remboursement, un pane s'ouvre pour montrer toutes les informations du remboursement et aussi, un bouton pour voir la commande associée à ce remboursement. Quand on clique sur ce bouton, une interface s'ouvre avec toutes les informations de la commande associée à ce remboursement.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
@@ -472,6 +492,13 @@ Ici, il y aura un formulaire pour enregistrer une dépense avec les champs :
 - description de la dépense
 - un bouton pour confirmer l'enregistrement de la dépense
 Quand on confirme l'enregistrement de la dépense, on se rassure que l'utilisateur a bien vérifié le montant de la dépense et la description de la dépense, et la dépense est enregistrée dans la base de données.
+Après l'enregistrement de la dépense, le backend exécute automatiquement un service financier qui :
+
+- réduit l'argent virtuel de l'entreprise du montant de la dépense ;
+- crée automatiquement une ligne dans la table mouvements_financiers avec :
+  - type_operation = depense_generale
+  - sens = sortie
+  - référence vers la dépense enregistrée.
 ##### Historique des dépenses
 Ici, il y aura la liste de toutes les dépenses enregistrées avec leurs informations respectives (date de la dépense, montant de la dépense, description de la dépense) et quand on clique sur une ligne de dépense, un pane s'ouvre pour montrer toutes les informations de la dépense.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
@@ -484,6 +511,13 @@ Ici, il y aura un formulaire pour enregistrer une entrée avec les champs :
 - description de l'entrée
 - un bouton pour confirmer l'enregistrement de l'entrée
 Quand on confirme l'enregistrement de l'entrée, on se rassure que l'utilisateur a bien vérifié le montant de l'entrée et la description de l'entrée, et l'entrée est enregistrée dans la base de données.
+Après l'enregistrement de l'entrée, le backend exécute automatiquement un service financier qui :
+
+- augmente l'argent virtuel de l'entreprise du montant enregistré ;
+- crée automatiquement une ligne dans la table mouvements_financiers avec :
+  - type_operation = entree_generale
+  - sens = entree
+  - référence vers l'entrée enregistrée.
 ##### Historique des entrées
 Ici, il y aura la liste de toutes les entrées enregistrées avec leurs informations respectives (date de l'entrée, montant de l'entrée, description de l'entrée) et quand on clique sur une ligne d'entrée, un pane s'ouvre pour montrer toutes les informations de l'entrée.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
@@ -500,9 +534,29 @@ En haut avant la liste, il y aura un bouton pour ajouter un nouvel abonnement qu
 - un bouton pour confirmer l'enregistrement de l'abonnement
 Quand on confirme l'enregistrement de l'abonnement, on se rassure que l'utilisateur a bien vérifié la date de début d'abonnement, le montant de l'abonnement par mois, le nom du service payé et le fournisseur, et l'abonnement est enregistré dans la base de données.
 Quand un abonnement est enregistré, une notification est automatiquement envoyée au directeur de l'entreprise avec le nom du service payé, le montant de l'abonnement par mois et le fournisseur et le backend va vérifier pour chaque abonnement le jour d'abonnement et si la date du jour correspond à la date de début d'abonnement, une notification de rappel de paiement est automatiquement envoyée au directeur de l'entreprise et on réduit automatiquement l'argent virtuelle de l'entreprise du montant de l'abonnement par mois, et on enregistre un paiement dans la base de données avec le montant de l'abonnement par mois, le mode de paiement "virtuel", et la référence de transaction "abonnement {nom_service}".
+Le backend exécute automatiquement un service planifié chaque jour.
+
+Ce service vérifie l'ensemble des abonnements actifs.
+
+Lorsque la date d'échéance d'un abonnement est atteinte :
+
+- une notification de rappel est envoyée au directeur ;
+- un paiement d'abonnement est enregistré ;
+- l'argent virtuel de l'entreprise est diminué ;
+- une ligne est créée dans l'historique des paiements d'abonnements ;
+- une ligne est créée dans la table mouvements_financiers avec :
+  - type_operation = paiement_abonnement
+  - sens = sortie.
 ##### Historique des abonnements
 Ici, il y aura la liste de tous les abonnements enregistrés actif ou inactif avec leurs informations respectives (date de début d'abonnement, date de fin d'abonnement, montant de l'abonnement par mois, nom du service payé, fournisseur) et quand on clique sur une ligne d'abonnement, un pane s'ouvre pour montrer toutes les informations de l'abonnement.
 Pour les abonnements inactifs, il y aura un bouton pour réactiver l'abonnement, et quand on clique sur ce bouton, un pane s'ouvrir et demande à l'utilisateur de payer le mois en cours, ou bien non, et un bouton pour confirmer la réactivation de l'abonnement. Si on confirme la réactivation de l'abonnement, l'abonnement est marqué comme actif dans la base de données et la date de début d'abonnement est mise à jour avec la date du jour, aussi, si l'utilisateur a choisi de payer le mois en cours, on enregistre un paiement dans la base de données avec le montant du mois en cours, le mode de paiement "virtuel", et la référence de transaction "abonnement réactivé {nom_service}".
+Si l'utilisateur décide de payer immédiatement le mois courant lors de la réactivation :
+
+- un paiement d'abonnement est enregistré ;
+- l'argent virtuel est diminué ;
+- une ligne est créée dans la table mouvements_financiers avec :
+  - type_operation = paiement_abonnement
+  - sens = sortie.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
 #### Reapprovisionnements
 Ici, l'interface de droite va montrer deux boutons en haut, un bouton Rapprovisionnement, et un autre Historique Rapprovisionnement
@@ -510,14 +564,100 @@ Ici, l'interface de droite va montrer deux boutons en haut, un bouton Rapprovisi
 Il y aura la liste de tous les réapprovisionnemnent en attente avec les boutons annuler et confirmer pour chaque réapprovisionnement en attente.
 Quand on clique sur annuler, une interface s'ouvre pour demander la raison de l'annulation et avec un bouton pour confirmer l'annulation, le backend marque le ravitaillement comme refuse et une notification est automatiquement envoyée au module Gestion de Stock pour l'informer que le ravitaillement a été annulé avec la raison de l'annulation.
 Quand on clique sur confirmer, une interface s'affiche pour que l'utilisateur entre son mot de passe pour valider définitivement que le ravitaillement peut être fait. A partir de là, le backend crée un paiement avec le montant total du ravitaillement, le mode de paiement "virtuel", et la référence de transaction "ravitaillement {id_ravitaillement}" et une notification est automatiquement envoyée au module Gestion de Stock pour l'informer que le ravitaillement est validé et qu'il doivent engager la livraison, l'argent virtuelle de l'entreprise est réduit du montant total du ravitaillement, et le réapprovisionnement est marqué comme validé dans la base de données.
+Le backend exécute également un service financier qui :
+
+- réduit l'argent virtuel de l'entreprise ;
+- crée automatiquement une ligne dans la table mouvements_financiers avec :
+  - type_operation = paiement_ravitaillement
+  - sens = sortie
+  - référence vers le ravitaillement validé.
 ##### Historique Réapprovisionnements
 Ici, il y aura la liste de tous les reapprovisionnements validés ou refusés avec leurs informations respectives (produit, quantité, montant total du ravitaillement, statut du ravitaillement, date de la demande de ravitaillement) et quand on clique sur une ligne de ravitaillement, un pane s'ouvre pour montrer toutes les informations du ravitaillement et aussi, si le ravitaillement est en attente, les boutons associés pour annuler ou confirmer le ravitaillement.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
 #### Salaires
 Ici, l'interface de droite va juste montrer la liste de tous les utilisateurs salariés de l'entreprise avec leurs informations respectives (nom, prénom, poste, salaire mensuel) et quand on clique sur une ligne de salarié, un pane s'ouvre pour montrer toutes les informations du salarié et aussi, un bouton pour voir l'historique des paiements de salaire de ce salarié. Quand on clique sur ce bouton, une interface s'ouvre avec la liste de tous les paiements de salaire de ce salarié avec leurs informations respectives (date du paiement, montant payé, mode de paiement, référence de transaction) et quand on clique sur une ligne de paiement de salaire, un pane s'ouvre pour montrer toutes les informations du paiement de salaire.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+Un service planifié est exécuté automatiquement chaque fin de mois.
+
+Pour chaque salarié actif :
+
+- un paiement de salaire est enregistré ;
+- une ligne est créée dans l'historique des paiements de salaire ;
+- l'argent virtuel de l'entreprise est diminué ;
+- une ligne est créée dans la table mouvements_financiers avec :
+  - type_operation = paiement_salaire
+  - sens = sortie.
+
+#### Journal Financier
+
+Cette section affiche l'ensemble des mouvements financiers enregistrés dans l'entreprise.
+
+Les données affichées proviennent directement de la table mouvements_financiers.
+
+Pour chaque mouvement, on affiche :
+
+- date de l'opération ;
+- type d'opération ;
+- montant ;
+- sens de l'opération ;
+- description ;
+- utilisateur ;
+- référence de l'élément concerné.
+
+Les utilisateurs peuvent :
+
+- filtrer les mouvements ;
+- rechercher un mouvement ;
+- exporter les résultats en PDF ;
+- exporter les résultats en CSV ;
+- exporter les résultats en DOCX.
+
+Cette section constitue la source principale utilisée pour les audits financiers et les statistiques de trésorerie.
+
 #### Statistiques
 Cette section permet d'accéder à plusieurs pages de statistiques spécialisées.
+
+Les statistiques sont calculées dynamiquement à partir des données financières enregistrées dans le système.
+
+Les pages disponibles sont :
+
+- Vue générale
+- Trésorerie
+- Commandes et paiements
+- Dépenses
+- Remboursements
+- Salaires
+- Abonnements
+- Réapprovisionnements
+- Flux financiers
+- Rapports mensuels
+
+La vue générale affiche :
+
+- argent virtuel actuel ;
+- total des entrées ;
+- total des sorties ;
+- bénéfice net ;
+- nombre de commandes payées ;
+- montant total des remboursements ;
+- montant total des dépenses ;
+- montant total des réapprovisionnements ;
+- montant total des salaires ;
+- montant total des abonnements.
+
+La page Trésorerie affiche l'évolution de l'argent virtuel dans le temps.
+
+La page Flux financiers utilise la table mouvements_financiers afin d'afficher l'ensemble des mouvements d'argent de l'entreprise.
+
+Chaque page de statistiques possède :
+
+- des filtres de date ;
+- des filtres utilisateur ;
+- des filtres par type d'opération ;
+- des graphiques ;
+- un export PDF ;
+- un export CSV ;
+- un export DOCX.
 
 ### Logique du module Livraisons
 Quand l'utilisateur arrive sur son espace de travail pour la gestion des livraisons, il y a une sidebar à gauche qui s'ouvre et se ferme et qui va lui permettre de sélectionner les pages sur lesquelles il veut travailler.
