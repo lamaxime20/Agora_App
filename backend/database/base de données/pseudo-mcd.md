@@ -94,6 +94,7 @@ date_commande
 statut
 etat_payement
 montant_commande
+montant_minimum_validation
 adresse_livraison
 date_livraison_prevue
 notes_supplementaires
@@ -136,6 +137,16 @@ mode_payement
 reference_transaction
 actif
 
+paiements_salaires
+id
+salaire
+montant
+date_paiement
+mode_payement
+reference_transaction
+user_enregistre
+entreprise
+
 depenses
 id
 montant
@@ -158,6 +169,16 @@ date_fin
 date_paiement
 actif
 statut
+
+
+paiements_abonnements
+id
+abonnement
+montant
+date_paiement
+reference_transaction
+user_enregistre
+entreprise
 
 
 frais_mensuel

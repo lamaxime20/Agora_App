@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('etat_payement', ['non_paye', 'partiellement_paye', 'paye'])->default('non_paye');
 
             $table->decimal('montant_commande', 15, 2)->default(0);
+            $table->decimal('montant_minimum_validation', 15, 2)->nullable();
 
             $table->text('adresse_livraison')->nullable();
             $table->timestamp('date_livraison_prevue')->nullable();

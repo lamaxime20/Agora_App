@@ -96,6 +96,16 @@ class Entreprise extends Model
         return $this->hasMany(Payement::class, 'entreprise');
     }
 
+    public function paiementsSalaires(): HasMany
+    {
+        return $this->hasMany(PaiementSalaire::class, 'entreprise');
+    }
+
+    public function paiementsAbonnements(): HasMany
+    {
+        return $this->hasMany(PaiementAbonnement::class, 'entreprise');
+    }
+
     public function depenses(): HasMany
     {
         return $this->hasMany(Depense::class, 'entreprise');

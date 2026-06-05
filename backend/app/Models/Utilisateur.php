@@ -110,6 +110,16 @@ class Utilisateur extends Authenticatable
         return $this->hasMany(Payement::class, 'user_enregistre');
     }
 
+    public function paiementsSalairesEnregistres(): HasMany
+    {
+        return $this->hasMany(PaiementSalaire::class, 'user_enregistre');
+    }
+
+    public function paiementsAbonnementsEnregistres(): HasMany
+    {
+        return $this->hasMany(PaiementAbonnement::class, 'user_enregistre');
+    }
+
     public function depensesMarquees(): HasMany
     {
         return $this->hasMany(Depense::class, 'utilisateur_marque');

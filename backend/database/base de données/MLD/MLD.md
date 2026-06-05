@@ -65,6 +65,7 @@ Enum mode_payement {
   carte_bancaire
   virement
   cheque
+  virtuel
   autre
 }
 
@@ -249,6 +250,7 @@ Table commandes {
   statut statut_commande [default: 'brouillon']
   etat_payement etat_payement [default: 'non_paye']
   montant_commande decimal(15,2) [default: 0]
+  montant_minimum_validation decimal(15,2)
   adresse_livraison text
   date_livraison_prevue timestamp
   notes_supplementaires text
@@ -266,6 +268,21 @@ ref: commandes.entreprise > entreprises.id
 ref: commandes.utilisateur_enregistre > utilisateurs.id
 ref: commandes.client > clients.id
 ref: commandes.utilisateur_valide > utilisateurs.id
+
+Table paiements_salaires {
+  id uuid [pk]
+  salaire uuid [not null]
+  montant decimal(15,2) [not null]
+  date_paiement timestamp [default: `now()`]
+  mode_payement mode_payement
+  reference_transaction varchar(255)
+  user_enregistre uuid [not null]
+  entreprise uuid [not null]
+}
+
+ref: paiements_salaires.salaire > salaires.id
+ref: paiements_salaires.user_enregistre > utilisateurs.id
+ref: paiements_salaires.entreprise > entreprises.id
 
 Table contenir_produit {
   commande_id uuid
@@ -371,6 +388,20 @@ Table salaires {
 
 ref: salaires.utilisateur > utilisateurs.id
 ref: salaires.entreprise > entreprises.id
+
+Table paiements_abonnements {
+  id uuid [pk]
+  abonnement uuid [not null]
+  montant decimal(15,2) [not null]
+  date_paiement timestamp [default: `now()`]
+  reference_transaction varchar(255)
+  user_enregistre uuid [not null]
+  entreprise uuid [not null]
+}
+
+ref: paiements_abonnements.abonnement > frais_mensuel.id
+ref: paiements_abonnements.user_enregistre > utilisateurs.id
+ref: paiements_abonnements.entreprise > entreprises.id
 
 Table frais_mensuel {
   id uuid [pk]

@@ -99,6 +99,7 @@ CREATE TYPE mode_payement AS ENUM (
   'carte_bancaire',
   'virement',
   'cheque',
+  'virtuel',
   'autre'
 );
 
@@ -558,6 +559,8 @@ CREATE TABLE IF NOT EXISTS commandes (
   etat_payement etat_payement DEFAULT 'non_paye',
 
   montant_commande MoneyAmount DEFAULT 0,
+
+  montant_minimum_validation MoneyAmount,
   
   adresse_livraison TEXT,
   date_livraison_prevue TIMESTAMP,
@@ -828,6 +831,38 @@ CREATE TABLE IF NOT EXISTS salaires (
 );
 
 -- =========================================================
+-- TABLE paiements_salaires
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS paiements_salaires (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  salaire UUID NOT NULL,
+  montant MoneyAmount NOT NULL,
+  date_paiement TIMESTAMP DEFAULT NOW(),
+  mode_payement mode_payement,
+  reference_transaction VARCHAR(255),
+  user_enregistre UUID NOT NULL,
+  entreprise UUID NOT NULL,
+
+  CONSTRAINT paiements_salaires_cc0 PRIMARY KEY(id),
+  CONSTRAINT paiements_salaires_cr0
+    FOREIGN KEY (salaire)
+    REFERENCES salaires(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT paiements_salaires_cr1
+    FOREIGN KEY (user_enregistre)
+    REFERENCES utilisateurs(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT paiements_salaires_cr2
+    FOREIGN KEY (entreprise)
+    REFERENCES entreprises(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+-- =========================================================
 -- TABLE frais_mensuel
 -- =========================================================
 
@@ -851,6 +886,37 @@ CREATE TABLE IF NOT EXISTS frais_mensuel (
   CONSTRAINT frais_mensuel_cc0 PRIMARY KEY(id),
 
   CONSTRAINT frais_mensuel_cr0
+    FOREIGN KEY (entreprise)
+    REFERENCES entreprises(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+-- =========================================================
+-- TABLE paiements_abonnements
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS paiements_abonnements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  abonnement UUID NOT NULL,
+  montant MoneyAmount NOT NULL,
+  date_paiement TIMESTAMP DEFAULT NOW(),
+  reference_transaction VARCHAR(255),
+  user_enregistre UUID NOT NULL,
+  entreprise UUID NOT NULL,
+
+  CONSTRAINT paiements_abonnements_cc0 PRIMARY KEY(id),
+  CONSTRAINT paiements_abonnements_cr0
+    FOREIGN KEY (abonnement)
+    REFERENCES frais_mensuel(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT paiements_abonnements_cr1
+    FOREIGN KEY (user_enregistre)
+    REFERENCES utilisateurs(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT paiements_abonnements_cr2
     FOREIGN KEY (entreprise)
     REFERENCES entreprises(id)
     ON DELETE CASCADE

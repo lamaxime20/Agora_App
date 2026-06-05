@@ -21,6 +21,7 @@ class Commande extends Model
         'statut',
         'etat_payement',
         'montant_commande',
+        'montant_minimum_validation',
         'adresse_livraison',
         'date_livraison_prevue',
         'notes_supplementaires',

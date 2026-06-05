@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Salaire extends Model
 {
@@ -33,5 +34,10 @@ class Salaire extends Model
     public function entreprise(): BelongsTo
     {
         return $this->belongsTo(Entreprise::class, 'entreprise');
+    }
+
+    public function paiements(): HasMany
+    {
+        return $this->hasMany(PaiementSalaire::class, 'salaire');
     }
 }
