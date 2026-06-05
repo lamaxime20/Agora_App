@@ -1,31 +1,47 @@
 import { Link } from "react-router-dom";
-import { LayoutDashboard, ShoppingCart, CalendarClock, Users, BarChart3, X } from "lucide-react";
+import {
+    LayoutDashboard,
+    ShoppingCart,
+    CalendarClock,
+    Users,
+    BarChart3,
+    X,
+    ArrowLeft,
+} from "lucide-react";
+
 import {
     VENTES_DASHBOARD,
     VENTES_COMMANDES,
     VENTES_RESERVATIONS,
     VENTES_CLIENTS,
-    VENTES_STATISTIQUES
+    VENTES_STATISTIQUES,
 } from "../../../services/ventes.js";
 
+import "../../../assets/styles/components/modules/ventes/ventesLayout.css";
+
 const navItems = [
-    { label: VENTES_DASHBOARD,    href: "/application/vente",                 icon: <LayoutDashboard size={20} /> },
-    { label: VENTES_COMMANDES,    href: "/application/vente/commandes",       icon: <ShoppingCart size={20} /> },
-    { label: VENTES_RESERVATIONS, href: "/application/vente/reservations",    icon: <CalendarClock size={20} /> },
-    { label: VENTES_CLIENTS,      href: "/application/vente/clients",         icon: <Users size={20} /> },
-    { label: VENTES_STATISTIQUES, href: "/application/vente/statistiques",    icon: <BarChart3 size={20} /> },
+    { label: VENTES_DASHBOARD,    href: "/application/vente",              Icon: LayoutDashboard },
+    { label: VENTES_COMMANDES,    href: "/application/vente/commandes",    Icon: ShoppingCart    },
+    { label: VENTES_RESERVATIONS, href: "/application/vente/reservations", Icon: CalendarClock   },
+    { label: VENTES_CLIENTS,      href: "/application/vente/clients",      Icon: Users           },
+    { label: VENTES_STATISTIQUES, href: "/application/vente/statistiques", Icon: BarChart3       },
 ];
 
-function Sidebar({ onglet, isOpen, isCollapsed, onClose }) {
+function Sidebar({ onglet, isOpen, onClose }) {
     return (
         <aside
             id="ventes-sidebar"
-            className={`app-sidebar${isOpen ? " app-sidebar--open" : ""}${isCollapsed ? " app-sidebar--collapsed" : ""}`}
+            className={`ventesSidebar-root${isOpen ? " ventesSidebar-root--open" : ""}`}
+            aria-label="Navigation — Module Ventes"
         >
-            <div className="app-sidebar__header">
-                {!isCollapsed && <h2 className="app-sidebar__title">Module Ventes</h2>}
+            <div className="ventesSidebar-header">
+                <div className="ventesSidebar-brand">
+                    <span className="ventesSidebar-brand__name">AGORA</span>
+                    <span className="ventesSidebar-brand__module">Ventes</span>
+                </div>
+
                 <button
-                    className="app-sidebar__close"
+                    className="ventesSidebar-close"
                     onClick={onClose}
                     aria-label="Fermer la navigation"
                     type="button"
@@ -34,28 +50,41 @@ function Sidebar({ onglet, isOpen, isCollapsed, onClose }) {
                 </button>
             </div>
 
-            <nav className="app-sidebar__nav" aria-label="Navigation du module Ventes">
-                <ul className="app-sidebar__list">
-                    {navItems.map(item => (
-                        <li key={item.label}>
-                            <Link
-                                to={item.href}
-                                className={`app-sidebar__link${onglet === item.label ? " app-sidebar__link--active" : ""}`}
-                                title={isCollapsed ? item.label : undefined}
-                            >
-                                <span className="app-sidebar__link-icon" aria-hidden="true">
-                                    {item.icon}
-                                </span>
-                                {!isCollapsed && (
-                                    <span className="app-sidebar__link-label">
-                                        {item.label}
-                                    </span>
-                                )}
-                            </Link>
-                        </li>
-                    ))}
+            <nav className="ventesSidebar-nav" aria-label="Sections du module Ventes">
+                <ul className="ventesSidebar-list">
+                    {navItems.map(({ label, href, Icon }) => {
+                        const isActive = onglet === label;
+                        return (
+                            <li key={href} className="ventesSidebar-item">
+                                <Link
+                                    to={href}
+                                    className={`ventesSidebar-link${isActive ? " ventesSidebar-link--active" : ""}`}
+                                    onClick={onClose}
+                                    aria-current={isActive ? "page" : undefined}
+                                >
+                                    <Icon
+                                        size={20}
+                                        className="ventesSidebar-link__icon"
+                                        aria-hidden="true"
+                                    />
+                                    <span>{label}</span>
+                                </Link>
+                            </li>
+                        );
+                    })}
                 </ul>
             </nav>
+
+            <div className="ventesSidebar-footer">
+                <Link
+                    to="/application"
+                    className="ventesSidebar-back"
+                    onClick={onClose}
+                >
+                    <ArrowLeft size={16} aria-hidden="true" />
+                    <span className="ventesSidebar-back__label">Tous les modules</span>
+                </Link>
+            </div>
         </aside>
     );
 }
