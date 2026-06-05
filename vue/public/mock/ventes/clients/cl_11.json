@@ -1,0 +1,21 @@
+{
+  "client": {
+    "id": "cli_11",
+    "nom": "Engoulou",
+    "prenom": "Patricia",
+    "email": "p.engoulou@gmail.com",
+    "telephone": "+237 6 45 99 33 80",
+    "date_creation": "2025-07-18"
+  },
+  "resume": {
+    "total_commandes": 7,
+    "ca_total": 280000,
+    "commande_moyenne": 40000,
+    "derniere_commande": "2026-06-08"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_38", "numero": "CMD-2026-00038", "montant": 52000, "statut": "livré",  "date": "2026-06-08" },
+    { "id": "cmd_39", "numero": "CMD-2026-00039", "montant": 35000, "statut": "livré",  "date": "2026-05-20" },
+    { "id": "cmd_40", "numero": "CMD-2026-00040", "montant": 48000, "statut": "annulé", "date": "2026-04-30" }
+  ]
+}

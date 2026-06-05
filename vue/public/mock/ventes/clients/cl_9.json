@@ -1,0 +1,21 @@
+{
+  "client": {
+    "id": "cli_9",
+    "nom": "Manga",
+    "prenom": "Céleste",
+    "email": "celeste.manga@yahoo.fr",
+    "telephone": "+237 6 70 55 88 12",
+    "date_creation": "2025-11-08"
+  },
+  "resume": {
+    "total_commandes": 3,
+    "ca_total": 95000,
+    "commande_moyenne": 31666,
+    "derniere_commande": "2026-06-10"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_9",  "numero": "CMD-2026-00009", "montant": 47000, "statut": "reçu",   "date": "2026-06-10" },
+    { "id": "cmd_31", "numero": "CMD-2026-00031", "montant": 29000, "statut": "livré",  "date": "2026-05-05" },
+    { "id": "cmd_32", "numero": "CMD-2026-00032", "montant": 19000, "statut": "annulé", "date": "2026-04-18" }
+  ]
+}

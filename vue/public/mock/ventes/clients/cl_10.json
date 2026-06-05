@@ -1,0 +1,23 @@
+{
+  "client": {
+    "id": "cli_10",
+    "nom": "Talla",
+    "prenom": "Simon",
+    "email": "simon.talla@email.com",
+    "telephone": "+237 6 54 32 11 67",
+    "date_creation": "2024-12-01"
+  },
+  "resume": {
+    "total_commandes": 42,
+    "ca_total": 1680000,
+    "commande_moyenne": 40000,
+    "derniere_commande": "2026-06-19"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_33", "numero": "CMD-2026-00033", "montant": 95000, "statut": "validé",  "date": "2026-06-19" },
+    { "id": "cmd_34", "numero": "CMD-2026-00034", "montant": 67000, "statut": "livré",   "date": "2026-06-12" },
+    { "id": "cmd_35", "numero": "CMD-2026-00035", "montant": 43000, "statut": "livré",   "date": "2026-06-04" },
+    { "id": "cmd_36", "numero": "CMD-2026-00036", "montant": 58000, "statut": "livré",   "date": "2026-05-26" },
+    { "id": "cmd_37", "numero": "CMD-2026-00037", "montant": 71000, "statut": "annulé",  "date": "2026-05-17" }
+  ]
+}

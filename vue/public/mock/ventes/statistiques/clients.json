@@ -1,0 +1,27 @@
+{
+  "top_clients": [
+    { "rang": 1, "id": "cli_10", "nom": "Simon Talla",         "ca": 1680000, "commandes": 42 },
+    { "rang": 2, "id": "cli_3",  "nom": "Marie Ngo Essomba",   "ca": 1240000, "commandes": 31 },
+    { "rang": 3, "id": "cli_7",  "nom": "Edith Fouda",         "ca": 1050000, "commandes": 27 },
+    { "rang": 4, "id": "cli_1",  "nom": "Jean Dupont",         "ca": 890000,  "commandes": 23 },
+    { "rang": 5, "id": "cli_5",  "nom": "Christelle Biyong",   "ca": 780000,  "commandes": 19 }
+  ],
+  "clients_moins_actifs": [
+    { "rang": 1, "id": "cli_9",  "nom": "Céleste Manga",       "ca": 95000,   "commandes": 3  },
+    { "rang": 2, "id": "cli_6",  "nom": "Alexis Kamdem",       "ca": 175000,  "commandes": 5  },
+    { "rang": 3, "id": "cli_11", "nom": "Patricia Engoulou",   "ca": 280000,  "commandes": 7  },
+    { "rang": 4, "id": "cli_4",  "nom": "Paul Mvondo",         "ca": 315000,  "commandes": 8  },
+    { "rang": 5, "id": "cli_8",  "nom": "Rodrigue Ateba",      "ca": 430000,  "commandes": 11 }
+  ],
+  "plus_gros_ca": [
+    { "rang": 1, "id": "cli_10", "nom": "Simon Talla",       "ca": 1680000 },
+    { "rang": 2, "id": "cli_3",  "nom": "Marie Ngo Essomba", "ca": 1240000 },
+    { "rang": 3, "id": "cli_7",  "nom": "Edith Fouda",       "ca": 1050000 }
+  ],
+  "plus_faible_ca": [
+    { "rang": 1, "id": "cli_9",  "nom": "Céleste Manga",     "ca": 95000  },
+    { "rang": 2, "id": "cli_6",  "nom": "Alexis Kamdem",     "ca": 175000 },
+    { "rang": 3, "id": "cli_11", "nom": "Patricia Engoulou", "ca": 280000 }
+  ],
+  "ca_max": 1680000
+}

@@ -1,16 +1,125 @@
 {
   "data": [
-    { "id": "cli_1",  "nom": "Dupont",       "prenom": "Jean",        "email": "jean.dupont@email.com",       "telephone": "+237 6 90 12 34 56" },
-    { "id": "cli_2",  "nom": "Martin",       "prenom": "Sophie",      "email": "sophie.martin@email.com",     "telephone": "+237 6 55 22 11 88" },
-    { "id": "cli_3",  "nom": "Ngo Essomba",  "prenom": "Marie",       "email": "m.ngoessomba@gmail.com",      "telephone": "+237 6 78 45 12 33" },
-    { "id": "cli_4",  "nom": "Mvondo",       "prenom": "Paul",        "email": "mvondopaul@yahoo.fr",         "telephone": "+237 6 51 88 22 77" },
-    { "id": "cli_5",  "nom": "Biyong",       "prenom": "Christelle",  "email": "c.biyong@hotmail.com",        "telephone": "+237 6 77 33 99 55" },
-    { "id": "cli_6",  "nom": "Kamdem",       "prenom": "Alexis",      "email": "alexis.kamdem@gmail.com",     "telephone": "+237 6 62 14 78 01" },
-    { "id": "cli_7",  "nom": "Fouda",        "prenom": "Edith",       "email": "edith.fouda@email.cm",        "telephone": "+237 6 99 04 22 61" },
-    { "id": "cli_8",  "nom": "Ateba",        "prenom": "Rodrigue",    "email": "r.ateba@gmail.com",           "telephone": "+237 6 88 17 55 43" },
-    { "id": "cli_9",  "nom": "Manga",        "prenom": "Céleste",     "email": "celeste.manga@yahoo.fr",      "telephone": "+237 6 70 55 88 12" },
-    { "id": "cli_10", "nom": "Talla",        "prenom": "Simon",       "email": "simon.talla@email.com",       "telephone": "+237 6 54 32 11 67" },
-    { "id": "cli_11", "nom": "Engoulou",     "prenom": "Patricia",    "email": "p.engoulou@gmail.com",        "telephone": "+237 6 45 99 33 80" },
-    { "id": "cli_12", "nom": "Belibi",       "prenom": "Hervé",       "email": "herve.belibi@email.cm",       "telephone": "+237 6 81 22 44 06" }
-  ]
+    {
+      "id": "cli_1",
+      "nom": "Dupont",
+      "prenom": "Jean",
+      "email": "jean.dupont@email.com",
+      "telephone": "+237 6 90 12 34 56",
+      "commandes": 23,
+      "ca_total": 890000,
+      "date_creation": "2025-03-15"
+    },
+    {
+      "id": "cli_2",
+      "nom": "Martin",
+      "prenom": "Sophie",
+      "email": "sophie.martin@email.com",
+      "telephone": "+237 6 55 22 11 88",
+      "commandes": 15,
+      "ca_total": 620000,
+      "date_creation": "2025-04-02"
+    },
+    {
+      "id": "cli_3",
+      "nom": "Ngo Essomba",
+      "prenom": "Marie",
+      "email": "m.ngoessomba@gmail.com",
+      "telephone": "+237 6 78 45 12 33",
+      "commandes": 31,
+      "ca_total": 1240000,
+      "date_creation": "2025-01-20"
+    },
+    {
+      "id": "cli_4",
+      "nom": "Mvondo",
+      "prenom": "Paul",
+      "email": "mvondopaul@yahoo.fr",
+      "telephone": "+237 6 51 88 22 77",
+      "commandes": 8,
+      "ca_total": 315000,
+      "date_creation": "2025-06-10"
+    },
+    {
+      "id": "cli_5",
+      "nom": "Biyong",
+      "prenom": "Christelle",
+      "email": "c.biyong@hotmail.com",
+      "telephone": "+237 6 77 33 99 55",
+      "commandes": 19,
+      "ca_total": 780000,
+      "date_creation": "2025-02-14"
+    },
+    {
+      "id": "cli_6",
+      "nom": "Kamdem",
+      "prenom": "Alexis",
+      "email": "alexis.kamdem@gmail.com",
+      "telephone": "+237 6 62 14 78 01",
+      "commandes": 5,
+      "ca_total": 175000,
+      "date_creation": "2025-08-30"
+    },
+    {
+      "id": "cli_7",
+      "nom": "Fouda",
+      "prenom": "Edith",
+      "email": "edith.fouda@email.cm",
+      "telephone": "+237 6 99 04 22 61",
+      "commandes": 27,
+      "ca_total": 1050000,
+      "date_creation": "2025-01-05"
+    },
+    {
+      "id": "cli_8",
+      "nom": "Ateba",
+      "prenom": "Rodrigue",
+      "email": "r.ateba@gmail.com",
+      "telephone": "+237 6 88 17 55 43",
+      "commandes": 11,
+      "ca_total": 430000,
+      "date_creation": "2025-05-22"
+    },
+    {
+      "id": "cli_9",
+      "nom": "Manga",
+      "prenom": "Céleste",
+      "email": "celeste.manga@yahoo.fr",
+      "telephone": "+237 6 70 55 88 12",
+      "commandes": 3,
+      "ca_total": 95000,
+      "date_creation": "2025-11-08"
+    },
+    {
+      "id": "cli_10",
+      "nom": "Talla",
+      "prenom": "Simon",
+      "email": "simon.talla@email.com",
+      "telephone": "+237 6 54 32 11 67",
+      "commandes": 42,
+      "ca_total": 1680000,
+      "date_creation": "2024-12-01"
+    },
+    {
+      "id": "cli_11",
+      "nom": "Engoulou",
+      "prenom": "Patricia",
+      "email": "p.engoulou@gmail.com",
+      "telephone": "+237 6 45 99 33 80",
+      "commandes": 7,
+      "ca_total": 280000,
+      "date_creation": "2025-07-18"
+    },
+    {
+      "id": "cli_12",
+      "nom": "Belibi",
+      "prenom": "Hervé",
+      "email": "herve.belibi@email.cm",
+      "telephone": "+237 6 81 22 44 06",
+      "commandes": 16,
+      "ca_total": 640000,
+      "date_creation": "2025-03-29"
+    }
+  ],
+  "meta": { "total": 12, "has_more": false }
 }

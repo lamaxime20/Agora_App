@@ -1,0 +1,21 @@
+{
+  "client": {
+    "id": "cli_4",
+    "nom": "Mvondo",
+    "prenom": "Paul",
+    "email": "mvondopaul@yahoo.fr",
+    "telephone": "+237 6 51 88 22 77",
+    "date_creation": "2025-06-10"
+  },
+  "resume": {
+    "total_commandes": 8,
+    "ca_total": 315000,
+    "commande_moyenne": 39375,
+    "derniere_commande": "2026-06-14"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_4",  "numero": "CMD-2026-00004", "montant": 18000, "statut": "livré",  "date": "2026-06-14" },
+    { "id": "cmd_11", "numero": "CMD-2026-00011", "montant": 67000, "statut": "livré",  "date": "2026-05-30" },
+    { "id": "cmd_18", "numero": "CMD-2026-00018", "montant": 42000, "statut": "annulé", "date": "2026-05-12" }
+  ]
+}

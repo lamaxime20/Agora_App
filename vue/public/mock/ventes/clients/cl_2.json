@@ -1,0 +1,22 @@
+{
+  "client": {
+    "id": "cli_2",
+    "nom": "Martin",
+    "prenom": "Sophie",
+    "email": "sophie.martin@email.com",
+    "telephone": "+237 6 55 22 11 88",
+    "date_creation": "2025-04-02"
+  },
+  "resume": {
+    "total_commandes": 15,
+    "ca_total": 620000,
+    "commande_moyenne": 41333,
+    "derniere_commande": "2026-06-17"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_2",  "numero": "CMD-2026-00002", "montant": 45000, "statut": "validé",  "date": "2026-06-17" },
+    { "id": "cmd_9",  "numero": "CMD-2026-00009", "montant": 72000, "statut": "livré",   "date": "2026-06-10" },
+    { "id": "cmd_16", "numero": "CMD-2026-00016", "montant": 28000, "statut": "livré",   "date": "2026-06-02" },
+    { "id": "cmd_22", "numero": "CMD-2026-00022", "montant": 55000, "statut": "annulé",  "date": "2026-05-15" }
+  ]
+}

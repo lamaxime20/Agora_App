@@ -1,0 +1,21 @@
+{
+  "client": {
+    "id": "cli_8",
+    "nom": "Ateba",
+    "prenom": "Rodrigue",
+    "email": "r.ateba@gmail.com",
+    "telephone": "+237 6 88 17 55 43",
+    "date_creation": "2025-05-22"
+  },
+  "resume": {
+    "total_commandes": 11,
+    "ca_total": 430000,
+    "commande_moyenne": 39090,
+    "derniere_commande": "2026-06-11"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_26", "numero": "CMD-2026-00026", "montant": 41000, "statut": "livré",  "date": "2026-06-11" },
+    { "id": "cmd_27", "numero": "CMD-2026-00027", "montant": 55000, "statut": "livré",  "date": "2026-05-28" },
+    { "id": "cmd_30", "numero": "CMD-2026-00030", "montant": 32000, "statut": "annulé", "date": "2026-05-14" }
+  ]
+}

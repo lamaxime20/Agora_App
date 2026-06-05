@@ -1,0 +1,23 @@
+{
+  "client": {
+    "id": "cli_1",
+    "nom": "Dupont",
+    "prenom": "Jean",
+    "email": "jean.dupont@email.com",
+    "telephone": "+237 6 90 12 34 56",
+    "date_creation": "2025-03-15"
+  },
+  "resume": {
+    "total_commandes": 23,
+    "ca_total": 890000,
+    "commande_moyenne": 38695,
+    "derniere_commande": "2026-06-18"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_1",  "numero": "CMD-2026-00001", "montant": 23000, "statut": "reçu",                  "date": "2026-06-18" },
+    { "id": "cmd_8",  "numero": "CMD-2026-00008", "montant": 56000, "statut": "livré",                 "date": "2026-06-09" },
+    { "id": "cmd_15", "numero": "CMD-2026-00015", "montant": 38500, "statut": "en cours de livraison", "date": "2026-06-03" },
+    { "id": "cmd_20", "numero": "CMD-2026-00020", "montant": 12000, "statut": "annulé",                "date": "2026-05-28" },
+    { "id": "cmd_21", "numero": "CMD-2026-00021", "montant": 44000, "statut": "livré",                 "date": "2026-05-20" }
+  ]
+}

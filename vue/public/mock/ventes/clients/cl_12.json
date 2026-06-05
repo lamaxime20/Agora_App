@@ -1,0 +1,22 @@
+{
+  "client": {
+    "id": "cli_12",
+    "nom": "Belibi",
+    "prenom": "Hervé",
+    "email": "herve.belibi@email.cm",
+    "telephone": "+237 6 81 22 44 06",
+    "date_creation": "2025-03-29"
+  },
+  "resume": {
+    "total_commandes": 16,
+    "ca_total": 640000,
+    "commande_moyenne": 40000,
+    "derniere_commande": "2026-06-15"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_41", "numero": "CMD-2026-00041", "montant": 44000, "statut": "en cours de livraison", "date": "2026-06-15" },
+    { "id": "cmd_42", "numero": "CMD-2026-00042", "montant": 62000, "statut": "livré",                  "date": "2026-06-06" },
+    { "id": "cmd_43", "numero": "CMD-2026-00043", "montant": 38000, "statut": "livré",                  "date": "2026-05-27" },
+    { "id": "cmd_44", "numero": "CMD-2026-00044", "montant": 27000, "statut": "livré",                  "date": "2026-05-18" }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "kpis": {
+    "nb_clients": 48,
+    "nb_commandes": 287,
+    "nb_produits": 23,
+    "ca_total": 12450000
+  },
+  "commandes_en_livraison": 12,
+  "commandes_livrees": 218,
+  "commandes_annulees": 19,
+  "taux_livraison": 89,
+  "produits_rupture": 3,
+  "produits_stock_faible": 7,
+  "evolution_ca": [
+    { "mois": "Jan", "ca": 1820000 },
+    { "mois": "Fév", "ca": 2050000 },
+    { "mois": "Mar", "ca": 1930000 },
+    { "mois": "Avr", "ca": 2340000 },
+    { "mois": "Mai", "ca": 2180000 },
+    { "mois": "Jun", "ca": 2130000 }
+  ]
+}

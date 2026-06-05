@@ -1,0 +1,31 @@
+{
+  "plus_frequentes": [
+    { "rang": 1, "produit": "Huile de palme raffinée 1L",  "commandes": 58, "montant_total": 1218000 },
+    { "rang": 2, "produit": "Farine de blé 50kg",           "commandes": 42, "montant_total": 882000  },
+    { "rang": 3, "produit": "Sucre cristallisé 25kg",       "commandes": 37, "montant_total": 740000  },
+    { "rang": 4, "produit": "Savon de ménage x12",          "commandes": 31, "montant_total": 465000  },
+    { "rang": 5, "produit": "Riz long grain 50kg",          "commandes": 28, "montant_total": 840000  }
+  ],
+  "moins_frequentes": [
+    { "rang": 1, "produit": "Sel de cuisine 1kg",           "commandes": 4,  "montant_total": 12000   },
+    { "rang": 2, "produit": "Lait concentré x24",           "commandes": 6,  "montant_total": 48000   },
+    { "rang": 3, "produit": "Tomate concentrée x12",        "commandes": 8,  "montant_total": 32000   },
+    { "rang": 4, "produit": "Poivre moulu 500g",            "commandes": 9,  "montant_total": 18000   },
+    { "rang": 5, "produit": "Moutarde 250ml",               "commandes": 11, "montant_total": 22000   }
+  ],
+  "plus_gros_montants": [
+    { "rang": 1, "numero": "CMD-2026-00033", "client": "Simon Talla",      "montant": 95000, "date": "2026-06-19" },
+    { "rang": 2, "numero": "CMD-2026-00003", "client": "Marie Ngo Essomba","montant": 89000, "date": "2026-06-16" },
+    { "rang": 3, "numero": "CMD-2026-00007", "client": "Edith Fouda",      "montant": 64000, "date": "2026-06-12" },
+    { "rang": 4, "numero": "CMD-2026-00002", "client": "Sophie Martin",    "montant": 45000, "date": "2026-06-17" },
+    { "rang": 5, "numero": "CMD-2026-00034", "client": "Simon Talla",      "montant": 67000, "date": "2026-06-12" }
+  ],
+  "plus_faibles_montants": [
+    { "rang": 1, "numero": "CMD-2026-00020", "client": "Jean Dupont",       "montant": 12000, "date": "2026-05-28" },
+    { "rang": 2, "numero": "CMD-2026-00001", "client": "Jean Dupont",       "montant": 23000, "date": "2026-06-18" },
+    { "rang": 3, "numero": "CMD-2026-00006", "client": "Alexis Kamdem",     "montant": 22000, "date": "2026-06-13" },
+    { "rang": 4, "numero": "CMD-2026-00031", "client": "Céleste Manga",     "montant": 29000, "date": "2026-05-05" },
+    { "rang": 5, "numero": "CMD-2026-00040", "client": "Patricia Engoulou", "montant": 48000, "date": "2026-04-30" }
+  ],
+  "montant_max": 95000
+}

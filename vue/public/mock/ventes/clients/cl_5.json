@@ -1,0 +1,21 @@
+{
+  "client": {
+    "id": "cli_5",
+    "nom": "Biyong",
+    "prenom": "Christelle",
+    "email": "c.biyong@hotmail.com",
+    "telephone": "+237 6 77 33 99 55",
+    "date_creation": "2025-02-14"
+  },
+  "resume": {
+    "total_commandes": 19,
+    "ca_total": 780000,
+    "commande_moyenne": 41052,
+    "derniere_commande": "2026-06-14"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_5",  "numero": "CMD-2026-00005", "montant": 33000, "statut": "validé", "date": "2026-06-14" },
+    { "id": "cmd_12", "numero": "CMD-2026-00012", "montant": 58000, "statut": "livré",  "date": "2026-06-05" },
+    { "id": "cmd_19", "numero": "CMD-2026-00019", "montant": 27000, "statut": "livré",  "date": "2026-05-25" }
+  ]
+}

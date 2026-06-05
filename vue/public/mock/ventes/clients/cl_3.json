@@ -1,0 +1,23 @@
+{
+  "client": {
+    "id": "cli_3",
+    "nom": "Ngo Essomba",
+    "prenom": "Marie",
+    "email": "m.ngoessomba@gmail.com",
+    "telephone": "+237 6 78 45 12 33",
+    "date_creation": "2025-01-20"
+  },
+  "resume": {
+    "total_commandes": 31,
+    "ca_total": 1240000,
+    "commande_moyenne": 40000,
+    "derniere_commande": "2026-06-16"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_3",  "numero": "CMD-2026-00003", "montant": 89000, "statut": "en cours de livraison", "date": "2026-06-16" },
+    { "id": "cmd_10", "numero": "CMD-2026-00010", "montant": 34000, "statut": "livré",                  "date": "2026-06-08" },
+    { "id": "cmd_17", "numero": "CMD-2026-00017", "montant": 61000, "statut": "livré",                  "date": "2026-05-29" },
+    { "id": "cmd_23", "numero": "CMD-2026-00023", "montant": 45000, "statut": "livré",                  "date": "2026-05-10" },
+    { "id": "cmd_28", "numero": "CMD-2026-00028", "montant": 92000, "statut": "livré",                  "date": "2026-04-22" }
+  ]
+}

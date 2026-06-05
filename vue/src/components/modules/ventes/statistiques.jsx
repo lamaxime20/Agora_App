@@ -1,288 +1,529 @@
-import { useState } from "react";
-import { BarChart3, X, Download, TrendingUp } from "lucide-react";
-import { formatMontant } from "../../../services/ventes.js";
+import { useState, useEffect } from "react";
+import {
+    BarChart2, Users, ShoppingBag, Package,
+    TrendingUp, TrendingDown, Truck, CheckCircle2,
+    XCircle, AlertTriangle, Award, ChevronUp, ChevronDown
+} from "lucide-react";
+import { fetchWithCache, formatMontant, formatDate } from "../../../services/ventes.js";
 import "../../../assets/styles/components/modules/ventes/statistiques.css";
 
-const INITIAL_PERFORMANCE = [
-    { id: 1, nom: "Produit Alpha", quantite_vendue: 58, prix_unitaire: 150, reduction_appliquee: 870,  categories: "Électronique" },
-    { id: 2, nom: "Produit Beta",  quantite_vendue: 34, prix_unitaire: 80,  reduction_appliquee: 0,    categories: "Accessoires"  },
-    { id: 3, nom: "Produit Gamma", quantite_vendue: 22, prix_unitaire: 200, reduction_appliquee: 1100, categories: "Électronique" },
+// ─── Configuration des onglets ─────────────────────────────────────────────────
+
+const TABS = [
+    { id: "general",   label: "Vue générale" },
+    { id: "clients",   label: "Clients"      },
+    { id: "commandes", label: "Commandes"    },
 ];
 
-function Statistiques() {
-    const [performanceData]                         = useState(INITIAL_PERFORMANCE);
-    const [startDate, setStartDate]                 = useState("2026-01-01");
-    const [endDate,   setEndDate]                   = useState("2026-06-30");
-    const [categoryFilter, setCategoryFilter]       = useState("toutes");
-    const [selectedProduct, setSelectedProduct]     = useState(null);
+// ─── Sous-composants ──────────────────────────────────────────────────────────
 
-    const calcRevenue = (item) =>
-        item.quantite_vendue * item.prix_unitaire - item.reduction_appliquee;
-
-    const filteredPerformance = performanceData.filter(
-        (item) => categoryFilter === "toutes" || item.categories === categoryFilter
+function SkeletonKpi() {
+    return (
+        <div className="stats-kpi stats-kpi--skeleton" aria-hidden="true">
+            <div className="stats-skeleton__icon" />
+            <span className="stats-skeleton__cell stats-skeleton__cell--sm" style={{ height: 11, marginTop: 8 }} />
+            <span className="stats-skeleton__cell stats-skeleton__cell--md" style={{ height: 22, marginTop: 6 }} />
+        </div>
     );
+}
 
-    const totalRevenue      = filteredPerformance.reduce((acc, i) => acc + calcRevenue(i), 0);
-    const totalUnitsSold    = filteredPerformance.reduce((acc, i) => acc + i.quantite_vendue, 0);
-    const avgRevenueProduct = filteredPerformance.length > 0
-        ? totalRevenue / filteredPerformance.length
-        : 0;
+function SkeletonRanking({ rows = 5 }) {
+    return (
+        <div className="stats-ranking" aria-hidden="true">
+            {Array.from({ length: rows }).map((_, i) => (
+                <div key={i} className="stats-ranking__row stats-ranking__row--skeleton">
+                    <span className="stats-ranking__pos stats-skeleton__cell" style={{ width: 24, height: 24 }} />
+                    <div className="stats-ranking__info">
+                        <span className="stats-skeleton__cell stats-skeleton__cell--lg" style={{ height: 12 }} />
+                        <span className="stats-ranking__bar-wrap">
+                            <span className="stats-skeleton__cell" style={{ width: "100%", height: 6, borderRadius: "var(--radius-full)" }} />
+                        </span>
+                    </div>
+                    <span className="stats-skeleton__cell stats-skeleton__cell--sm" style={{ height: 12 }} />
+                </div>
+            ))}
+        </div>
+    );
+}
 
-    const kpis = [
-        {
-            label: "Chiffre d'affaires net",
-            value: formatMontant(totalRevenue),
-            desc: "Cumul après déduction des remises commerciales",
-            icon: TrendingUp,
-            variant: "primary",
-        },
-        {
-            label: "Volume de distribution",
-            value: `${totalUnitsSold} unités`,
-            desc: "Nombre total d'articles écoulés sur la période",
-            icon: BarChart3,
-            variant: "info",
-        },
-        {
-            label: "Rendement moyen par référence",
-            value: formatMontant(avgRevenueProduct),
-            desc: "CA divisé par le nombre de lignes catalogue",
-            icon: BarChart3,
-            variant: "success",
-        },
+function ErrorState({ message, onRetry }) {
+    return (
+        <div className="stats-error" role="alert">
+            <AlertTriangle size={36} />
+            <p className="stats-error__text">Impossible de charger les statistiques.<br /><em>{message}</em></p>
+            <button className="app-button app-button--primary app-button--sm" onClick={onRetry} type="button">
+                Réessayer
+            </button>
+        </div>
+    );
+}
+
+function EmptySection({ label }) {
+    return (
+        <div className="stats-empty" role="status">
+            <BarChart2 size={32} />
+            <p>Aucune donnée disponible pour « {label} ».</p>
+        </div>
+    );
+}
+
+// ─── Composant principal ──────────────────────────────────────────────────────
+
+function Statistiques() {
+    const [activeTab, setActiveTab] = useState("general");
+
+    const [generalData,   setGeneralData]   = useState(null);
+    const [clientsData,   setClientsData]   = useState(null);
+    const [commandesData, setCommandesData] = useState(null);
+
+    const [loadingGeneral,   setLoadingGeneral]   = useState(true);
+    const [loadingClients,   setLoadingClients]   = useState(false);
+    const [loadingCommandes, setLoadingCommandes] = useState(false);
+
+    const [errorGeneral,   setErrorGeneral]   = useState(null);
+    const [errorClients,   setErrorClients]   = useState(null);
+    const [errorCommandes, setErrorCommandes] = useState(null);
+
+    // ── Fetch vue générale au montage ──────────────────────────────────────────
+    useEffect(() => {
+        fetchWithCache("/mock/ventes/statistiques/general.json")
+            .then(d => setGeneralData(d))
+            .catch(e => setErrorGeneral(e.message))
+            .finally(() => setLoadingGeneral(false));
+    }, []);
+
+    // ── Fetch au changement d'onglet ───────────────────────────────────────────
+    useEffect(() => {
+        if (activeTab === "clients" && !clientsData && !loadingClients) {
+            setLoadingClients(true);
+            fetchWithCache("/mock/ventes/statistiques/clients.json")
+                .then(d => setClientsData(d))
+                .catch(e => setErrorClients(e.message))
+                .finally(() => setLoadingClients(false));
+        }
+        if (activeTab === "commandes" && !commandesData && !loadingCommandes) {
+            setLoadingCommandes(true);
+            fetchWithCache("/mock/ventes/statistiques/commandes.json")
+                .then(d => setCommandesData(d))
+                .catch(e => setErrorCommandes(e.message))
+                .finally(() => setLoadingCommandes(false));
+        }
+    }, [activeTab]);
+
+    const retryGeneral = () => {
+        setErrorGeneral(null);
+        setLoadingGeneral(true);
+        fetchWithCache("/mock/ventes/statistiques/general.json")
+            .then(d => setGeneralData(d))
+            .catch(e => setErrorGeneral(e.message))
+            .finally(() => setLoadingGeneral(false));
+    };
+
+    const retryClients = () => {
+        setErrorClients(null);
+        setClientsData(null);
+        setLoadingClients(true);
+        fetchWithCache("/mock/ventes/statistiques/clients.json")
+            .then(d => setClientsData(d))
+            .catch(e => setErrorClients(e.message))
+            .finally(() => setLoadingClients(false));
+    };
+
+    const retryCommandes = () => {
+        setErrorCommandes(null);
+        setCommandesData(null);
+        setLoadingCommandes(true);
+        fetchWithCache("/mock/ventes/statistiques/commandes.json")
+            .then(d => setCommandesData(d))
+            .catch(e => setErrorCommandes(e.message))
+            .finally(() => setLoadingCommandes(false));
+    };
+
+    return (
+        <section className="statistiques-root" aria-label="Statistiques Vente">
+
+            {/* ── Header ── */}
+            <header className="statistiques-header">
+                <h1 className="statistiques-header__title">Statistiques</h1>
+                <p className="statistiques-header__subtitle">
+                    Analysez les performances de votre activité commerciale.
+                </p>
+            </header>
+
+            {/* ── Navigation onglets ── */}
+            <nav className="stats-tabs" role="tablist" aria-label="Sections statistiques">
+                {TABS.map(tab => (
+                    <button
+                        key={tab.id}
+                        role="tab"
+                        aria-selected={activeTab === tab.id}
+                        aria-controls={`stats-panel-${tab.id}`}
+                        id={`stats-tab-${tab.id}`}
+                        className={`stats-tabs__btn${activeTab === tab.id ? " stats-tabs__btn--active" : ""}`}
+                        onClick={() => setActiveTab(tab.id)}
+                        type="button"
+                    >
+                        {tab.label}
+                    </button>
+                ))}
+            </nav>
+
+            {/* ── Panneaux ── */}
+            <div
+                id={`stats-panel-general`}
+                role="tabpanel"
+                aria-labelledby="stats-tab-general"
+                hidden={activeTab !== "general"}
+                className="stats-panel"
+            >
+                {loadingGeneral ? (
+                    <VueGeneraleSkeleton />
+                ) : errorGeneral ? (
+                    <ErrorState message={errorGeneral} onRetry={retryGeneral} />
+                ) : generalData ? (
+                    <VueGenerale data={generalData} />
+                ) : null}
+            </div>
+
+            <div
+                id="stats-panel-clients"
+                role="tabpanel"
+                aria-labelledby="stats-tab-clients"
+                hidden={activeTab !== "clients"}
+                className="stats-panel"
+            >
+                {loadingClients ? (
+                    <ClientsSkeleton />
+                ) : errorClients ? (
+                    <ErrorState message={errorClients} onRetry={retryClients} />
+                ) : clientsData ? (
+                    <VueClients data={clientsData} />
+                ) : null}
+            </div>
+
+            <div
+                id="stats-panel-commandes"
+                role="tabpanel"
+                aria-labelledby="stats-tab-commandes"
+                hidden={activeTab !== "commandes"}
+                className="stats-panel"
+            >
+                {loadingCommandes ? (
+                    <CommandesSkeleton />
+                ) : errorCommandes ? (
+                    <ErrorState message={errorCommandes} onRetry={retryCommandes} />
+                ) : commandesData ? (
+                    <VueCommandes data={commandesData} />
+                ) : null}
+            </div>
+
+        </section>
+    );
+}
+
+// ─── Vue Générale ─────────────────────────────────────────────────────────────
+
+function VueGenerale({ data }) {
+    const { kpis, commandes_en_livraison, commandes_livrees, commandes_annulees,
+            taux_livraison, produits_rupture, produits_stock_faible } = data;
+
+    const heroKpis = [
+        { label: "Clients",    value: kpis.nb_clients,                     icon: <Users size={22} />,       variant: "primary" },
+        { label: "Commandes",  value: kpis.nb_commandes,                   icon: <ShoppingBag size={22} />, variant: "info"    },
+        { label: "Produits",   value: kpis.nb_produits,                    icon: <Package size={22} />,     variant: "neutral" },
+        { label: "CA total",   value: formatMontant(kpis.ca_total),        icon: <TrendingUp size={22} />,  variant: "success" },
+    ];
+
+    const deliveryKpis = [
+        { label: "En livraison", value: commandes_en_livraison, icon: <Truck size={18} />,        variant: "warning" },
+        { label: "Livrées",      value: commandes_livrees,      icon: <CheckCircle2 size={18} />, variant: "success" },
+        { label: "Annulées",     value: commandes_annulees,     icon: <XCircle size={18} />,      variant: "danger"  },
     ];
 
     return (
-        <section className="statistiques-root" aria-label="Statistiques commerciales">
+        <div className="stats-general">
 
-            {/* Header */}
-            <header className="statistiques-header">
-                <div className="statistiques-header__left">
-                    <h1 className="statistiques-header__title">Statistiques</h1>
-                    <p className="statistiques-header__subtitle">
-                        Analyse décisionnelle des flux financiers et des volumes d'écoulement.
-                    </p>
-                </div>
-            </header>
-
-            {/* Filtres */}
-            <div className="statistiques-filters" role="search" aria-label="Filtres analytiques">
-                <div className="statistiques-filters__group">
-                    <label className="statistiques-filters__label" htmlFor="stat-start">Période du</label>
-                    <input
-                        id="stat-start"
-                        type="date"
-                        className="app-input statistiques-filters__date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                    />
-                </div>
-                <div className="statistiques-filters__group">
-                    <label className="statistiques-filters__label" htmlFor="stat-end">Au</label>
-                    <input
-                        id="stat-end"
-                        type="date"
-                        className="app-input statistiques-filters__date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                    />
-                </div>
-                <div className="statistiques-filters__group">
-                    <label className="statistiques-filters__label" htmlFor="stat-cat">Catégorie</label>
-                    <select
-                        id="stat-cat"
-                        className="statistiques-filters__select"
-                        value={categoryFilter}
-                        onChange={(e) => setCategoryFilter(e.target.value)}
-                    >
-                        <option value="toutes">Toutes les catégories</option>
-                        <option value="Électronique">Électronique</option>
-                        <option value="Accessoires">Accessoires</option>
-                    </select>
-                </div>
-                <div className="statistiques-filters__export">
-                    <button
-                        className="app-button app-button--ghost app-button--sm"
-                        onClick={() => alert(`Export CSV — ${filteredPerformance.length} segments`)}
-                        type="button"
-                    >
-                        <Download size={16} aria-hidden="true" />
-                        CSV
-                    </button>
-                    <button
-                        className="app-button app-button--ghost app-button--sm"
-                        onClick={() => alert(`Rapport PDF — ${filteredPerformance.length} segments`)}
-                        type="button"
-                    >
-                        <Download size={16} aria-hidden="true" />
-                        PDF
-                    </button>
-                </div>
-            </div>
-
-            {/* KPIs */}
-            <div className="statistiques-kpis" role="region" aria-label="Indicateurs clés">
-                {kpis.map(({ label, value, desc, icon: Icon, variant }) => (
-                    <div key={label} className={`statistiques-kpi statistiques-kpi--${variant}`}>
-                        <div className="statistiques-kpi__icon">
-                            <Icon size={20} aria-hidden="true" />
-                        </div>
-                        <div className="statistiques-kpi__body">
-                            <span className="statistiques-kpi__value">{value}</span>
-                            <span className="statistiques-kpi__label">{label}</span>
-                            <span className="statistiques-kpi__desc">{desc}</span>
-                        </div>
-                    </div>
+            {/* Hero KPIs */}
+            <div className="stats-kpi-grid stats-kpi-grid--hero">
+                {heroKpis.map(({ label, value, icon, variant }) => (
+                    <KpiCard key={label} label={label} value={value} icon={icon} variant={variant} hero />
                 ))}
             </div>
 
-            {/* Tableau de performance */}
-            <div className="statistiques-section">
-                <h2 className="statistiques-section__title">Classement des ventes par produit</h2>
-
-                {filteredPerformance.length === 0 ? (
-                    <div className="statistiques-empty" role="status">
-                        <div className="statistiques-empty__icon" aria-hidden="true">
-                            <BarChart3 size={36} />
+            {/* Section livraisons */}
+            <div className="stats-section">
+                <h2 className="stats-section__title">État des commandes</h2>
+                <div className="stats-kpi-grid stats-kpi-grid--3">
+                    {deliveryKpis.map(({ label, value, icon, variant }) => (
+                        <KpiCard key={label} label={label} value={value} icon={icon} variant={variant} />
+                    ))}
+                </div>
+                {taux_livraison !== undefined && (
+                    <div className="stats-taux-bar">
+                        <div className="stats-taux-bar__header">
+                            <span className="stats-taux-bar__label">Taux de livraison</span>
+                            <span className="stats-taux-bar__value">{taux_livraison}%</span>
                         </div>
-                        <h3 className="statistiques-empty__title">Aucune donnée pour cette période</h3>
-                        <p className="statistiques-empty__desc">Modifiez les filtres pour afficher les résultats.</p>
-                    </div>
-                ) : (
-                    <div className="statistiques-tableWrap" role="region" aria-label="Performance des produits">
-                        <table className="statistiques-table" aria-label="Performance par produit">
-                            <thead className="statistiques-table__head">
-                                <tr>
-                                    <th scope="col">Code</th>
-                                    <th scope="col">Désignation</th>
-                                    <th scope="col">Famille</th>
-                                    <th scope="col">Unités vendues</th>
-                                    <th scope="col">Remises accordées</th>
-                                    <th scope="col" style={{ textAlign: "right" }}>CA généré</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredPerformance.map((product) => {
-                                    const rev = calcRevenue(product);
-                                    return (
-                                        <tr
-                                            key={product.id}
-                                            className="statistiques-table__row"
-                                            onClick={() => setSelectedProduct(product)}
-                                        >
-                                            <td className="statistiques-table__id">#{product.id}</td>
-                                            <td className="statistiques-table__nom">{product.nom}</td>
-                                            <td className="statistiques-table__cat">{product.categories}</td>
-                                            <td className="statistiques-table__qty">{product.quantite_vendue}</td>
-                                            <td className="statistiques-table__reduction">
-                                                {formatMontant(product.reduction_appliquee)}
-                                            </td>
-                                            <td className="statistiques-table__revenue">
-                                                {formatMontant(rev)}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                        <div className="stats-taux-bar__track">
+                            <div
+                                className="stats-taux-bar__fill"
+                                style={{ width: `${taux_livraison}%` }}
+                            />
+                        </div>
                     </div>
                 )}
             </div>
 
-            {/* ── Drawer analyse produit ── */}
-            {selectedProduct && (() => {
-                const revenue = calcRevenue(selectedProduct);
-                const brutTheorique = selectedProduct.quantite_vendue * selectedProduct.prix_unitaire;
-                return (
-                    <>
-                        <div
-                            className="statistiques-drawer__overlay"
-                            onClick={() => setSelectedProduct(null)}
-                            aria-hidden="true"
-                        />
-                        <aside className="statistiques-drawer" aria-label={`Analyse ${selectedProduct.nom}`}>
-                            <div className="statistiques-drawer__handle" aria-hidden="true">
-                                <span className="statistiques-drawer__handle-bar" />
-                            </div>
-                            <div className="statistiques-drawer__header">
-                                <h2 className="statistiques-drawer__title">{selectedProduct.nom}</h2>
-                                <button
-                                    className="statistiques-drawer__close"
-                                    onClick={() => setSelectedProduct(null)}
-                                    aria-label="Fermer"
-                                    type="button"
-                                >
-                                    <X size={18} aria-hidden="true" />
-                                </button>
-                            </div>
+            {/* Section stock */}
+            <div className="stats-section">
+                <h2 className="stats-section__title">Alertes stock</h2>
+                <div className="stats-kpi-grid stats-kpi-grid--2">
+                    <KpiCard
+                        label="Rupture de stock"
+                        value={produits_rupture}
+                        icon={<XCircle size={18} />}
+                        variant="danger"
+                        suffix="produit"
+                        pluralSuffix="produits"
+                    />
+                    <KpiCard
+                        label="Stock faible"
+                        value={produits_stock_faible}
+                        icon={<AlertTriangle size={18} />}
+                        variant="warning"
+                        suffix="produit"
+                        pluralSuffix="produits"
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}
 
-                            <div className="statistiques-drawer__body">
-                                {/* Métriques 2×2 */}
-                                <div className="statistiques-analysis__grid">
-                                    {[
-                                        { label: "Segment de marché",         value: selectedProduct.categories },
-                                        { label: "Prix unitaire catalogue",   value: formatMontant(selectedProduct.prix_unitaire) },
-                                        { label: "Volume brut écoulé",        value: `${selectedProduct.quantite_vendue} unités` },
-                                        { label: "Rendement brut théorique",  value: formatMontant(brutTheorique) },
-                                    ].map(({ label, value }) => (
-                                        <div key={label} className="statistiques-analysis__metric">
-                                            <span className="statistiques-analysis__metric-label">{label}</span>
-                                            <span className="statistiques-analysis__metric-value">{value}</span>
-                                        </div>
-                                    ))}
-                                </div>
+function VueGeneraleSkeleton() {
+    return (
+        <div className="stats-general">
+            <div className="stats-kpi-grid stats-kpi-grid--hero">
+                {[1, 2, 3, 4].map(i => <SkeletonKpi key={i} />)}
+            </div>
+            <div className="stats-section">
+                <span className="stats-skeleton__cell stats-skeleton__cell--sm" style={{ height: 12, display: "block", marginBottom: "var(--space-4)" }} />
+                <div className="stats-kpi-grid stats-kpi-grid--3">
+                    {[1, 2, 3].map(i => <SkeletonKpi key={i} />)}
+                </div>
+            </div>
+            <div className="stats-section">
+                <span className="stats-skeleton__cell stats-skeleton__cell--sm" style={{ height: 12, display: "block", marginBottom: "var(--space-4)" }} />
+                <div className="stats-kpi-grid stats-kpi-grid--2">
+                    {[1, 2].map(i => <SkeletonKpi key={i} />)}
+                </div>
+            </div>
+        </div>
+    );
+}
 
-                                {/* Synthèse financière */}
-                                <div className="statistiques-analysis__block">
-                                    <span className="statistiques-analysis__block-label">Synthèse financière</span>
-                                    <div className="statistiques-analysis__row">
-                                        <span className="statistiques-analysis__key">Remises / promotions</span>
-                                        <span className="statistiques-analysis__val statistiques-analysis__val--negative">
-                                            − {formatMontant(selectedProduct.reduction_appliquee)}
-                                        </span>
-                                    </div>
-                                    <div className="statistiques-analysis__row statistiques-analysis__row--total">
-                                        <span className="statistiques-analysis__key">Apport net au CA</span>
-                                        <span className="statistiques-analysis__val statistiques-analysis__val--positive">
-                                            {formatMontant(revenue)}
-                                        </span>
-                                    </div>
-                                </div>
+// ─── Vue Clients ──────────────────────────────────────────────────────────────
 
-                                {/* Répartition trimestrielle */}
-                                <div className="statistiques-analysis__block">
-                                    <span className="statistiques-analysis__block-label">
-                                        Répartition trimestrielle (simulation)
-                                    </span>
-                                    <table className="statistiques-quarterly__table">
-                                        <thead>
-                                            <tr>
-                                                <th>Période</th>
-                                                <th>Volume estimé</th>
-                                                <th style={{ textAlign: "right" }}>CA estimé</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>Trimestre 1 (Q1)</td>
-                                                <td>{Math.floor(selectedProduct.quantite_vendue * 0.4)} unités</td>
-                                                <td style={{ textAlign: "right" }}>{formatMontant(revenue * 0.4)}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Trimestre 2 (Q2)</td>
-                                                <td>{Math.ceil(selectedProduct.quantite_vendue * 0.6)} unités</td>
-                                                <td style={{ textAlign: "right" }}>{formatMontant(revenue * 0.6)}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+function VueClients({ data }) {
+    const { top_clients, clients_moins_actifs, plus_gros_ca, plus_faible_ca, ca_max } = data;
+
+    return (
+        <div className="stats-clients">
+            <div className="stats-two-col">
+                <RankingBlock
+                    title="Top clients par CA"
+                    icon={<Award size={18} />}
+                    items={top_clients}
+                    valueKey="ca"
+                    max={ca_max}
+                    formatValue={v => formatMontant(v)}
+                    subKey="commandes"
+                    subFormat={n => `${n} commandes`}
+                    variant="primary"
+                    up
+                />
+                <RankingBlock
+                    title="Clients les moins actifs"
+                    icon={<TrendingDown size={18} />}
+                    items={clients_moins_actifs}
+                    valueKey="ca"
+                    max={ca_max}
+                    formatValue={v => formatMontant(v)}
+                    subKey="commandes"
+                    subFormat={n => `${n} commandes`}
+                    variant="neutral"
+                    down
+                />
+            </div>
+        </div>
+    );
+}
+
+function ClientsSkeleton() {
+    return (
+        <div className="stats-clients">
+            <div className="stats-two-col">
+                <div className="stats-block">
+                    <span className="stats-skeleton__cell stats-skeleton__cell--sm" style={{ height: 12, display: "block", marginBottom: "var(--space-4)" }} />
+                    <SkeletonRanking />
+                </div>
+                <div className="stats-block">
+                    <span className="stats-skeleton__cell stats-skeleton__cell--sm" style={{ height: 12, display: "block", marginBottom: "var(--space-4)" }} />
+                    <SkeletonRanking />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ─── Vue Commandes ────────────────────────────────────────────────────────────
+
+function VueCommandes({ data }) {
+    const { plus_frequentes, moins_frequentes, plus_gros_montants, plus_faibles_montants, montant_max } = data;
+
+    return (
+        <div className="stats-commandes">
+            <div className="stats-two-col">
+                <RankingBlock
+                    title="Produits les plus commandés"
+                    icon={<TrendingUp size={18} />}
+                    items={plus_frequentes}
+                    valueKey="commandes"
+                    max={plus_frequentes?.[0]?.commandes ?? 1}
+                    formatValue={v => `${v} cmd`}
+                    subKey="montant_total"
+                    subFormat={v => formatMontant(v)}
+                    nameKey="produit"
+                    variant="primary"
+                    up
+                />
+                <RankingBlock
+                    title="Produits les moins commandés"
+                    icon={<TrendingDown size={18} />}
+                    items={moins_frequentes}
+                    valueKey="commandes"
+                    max={plus_frequentes?.[0]?.commandes ?? 1}
+                    formatValue={v => `${v} cmd`}
+                    subKey="montant_total"
+                    subFormat={v => formatMontant(v)}
+                    nameKey="produit"
+                    variant="neutral"
+                    down
+                />
+            </div>
+
+            <div className="stats-two-col">
+                <RankingBlock
+                    title="Commandes les plus importantes"
+                    icon={<Award size={18} />}
+                    items={plus_gros_montants}
+                    valueKey="montant"
+                    max={montant_max ?? 1}
+                    formatValue={v => formatMontant(v)}
+                    subKey="client"
+                    subFormat={v => v}
+                    nameKey="numero"
+                    variant="success"
+                    up
+                />
+                <RankingBlock
+                    title="Commandes les plus faibles"
+                    icon={<ChevronDown size={18} />}
+                    items={plus_faibles_montants}
+                    valueKey="montant"
+                    max={montant_max ?? 1}
+                    formatValue={v => formatMontant(v)}
+                    subKey="client"
+                    subFormat={v => v}
+                    nameKey="numero"
+                    variant="neutral"
+                    down
+                />
+            </div>
+        </div>
+    );
+}
+
+function CommandesSkeleton() {
+    return (
+        <div className="stats-commandes">
+            {[1, 2].map(row => (
+                <div key={row} className="stats-two-col">
+                    <div className="stats-block">
+                        <span className="stats-skeleton__cell stats-skeleton__cell--sm" style={{ height: 12, display: "block", marginBottom: "var(--space-4)" }} />
+                        <SkeletonRanking />
+                    </div>
+                    <div className="stats-block">
+                        <span className="stats-skeleton__cell stats-skeleton__cell--sm" style={{ height: 12, display: "block", marginBottom: "var(--space-4)" }} />
+                        <SkeletonRanking />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+// ─── Blocs génériques ─────────────────────────────────────────────────────────
+
+function KpiCard({ label, value, icon, variant, hero, suffix, pluralSuffix }) {
+    const displayValue = typeof value === "number" && suffix
+        ? `${value} ${value !== 1 ? (pluralSuffix ?? suffix) : suffix}`
+        : value;
+
+    return (
+        <div className={`stats-kpi stats-kpi--${variant}${hero ? " stats-kpi--hero" : ""}`}>
+            <div className={`stats-kpi__icon stats-kpi__icon--${variant}`} aria-hidden="true">
+                {icon}
+            </div>
+            <span className="stats-kpi__label">{label}</span>
+            <span className="stats-kpi__value">{displayValue}</span>
+        </div>
+    );
+}
+
+function RankingBlock({ title, icon, items, valueKey, max, formatValue, subKey, subFormat, nameKey = "nom", variant, up, down }) {
+    if (!items || items.length === 0) return <EmptySection label={title} />;
+
+    return (
+        <div className="stats-block">
+            <div className="stats-block__header">
+                <div className={`stats-block__header-icon stats-block__header-icon--${variant}`}>
+                    {icon}
+                </div>
+                <h2 className="stats-block__title">{title}</h2>
+                {up   && <ChevronUp   size={16} className="stats-block__trend stats-block__trend--up"   aria-hidden="true" />}
+                {down && <ChevronDown size={16} className="stats-block__trend stats-block__trend--down" aria-hidden="true" />}
+            </div>
+
+            <div className="stats-ranking">
+                {items.map((item, i) => {
+                    const val      = item[valueKey] ?? 0;
+                    const fillPct  = max > 0 ? Math.round((val / max) * 100) : 0;
+                    const subVal   = item[subKey];
+
+                    return (
+                        <div key={item.id ?? item.rang ?? i} className="stats-ranking__row">
+                            <span className={`stats-ranking__pos stats-ranking__pos--${i < 3 ? "medal" + (i + 1) : "plain"}`}>
+                                {item.rang ?? i + 1}
+                            </span>
+                            <div className="stats-ranking__info">
+                                <span className="stats-ranking__name">{item[nameKey] ?? "—"}</span>
+                                {subVal !== undefined && (
+                                    <span className="stats-ranking__sub">{subFormat(subVal)}</span>
+                                )}
+                                <div className="stats-ranking__bar-wrap">
+                                    <div
+                                        className={`stats-ranking__bar stats-ranking__bar--${variant}`}
+                                        style={{ width: `${fillPct}%` }}
+                                    />
                                 </div>
                             </div>
-                        </aside>
-                    </>
-                );
-            })()}
-        </section>
+                            <span className="stats-ranking__value">{formatValue(val)}</span>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
     );
 }
 

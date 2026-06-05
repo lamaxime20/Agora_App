@@ -1,0 +1,22 @@
+{
+  "client": {
+    "id": "cli_7",
+    "nom": "Fouda",
+    "prenom": "Edith",
+    "email": "edith.fouda@email.cm",
+    "telephone": "+237 6 99 04 22 61",
+    "date_creation": "2025-01-05"
+  },
+  "resume": {
+    "total_commandes": 27,
+    "ca_total": 1050000,
+    "commande_moyenne": 38888,
+    "derniere_commande": "2026-06-12"
+  },
+  "dernieres_commandes": [
+    { "id": "cmd_7",  "numero": "CMD-2026-00007", "montant": 64000, "statut": "en cours de livraison", "date": "2026-06-12" },
+    { "id": "cmd_14", "numero": "CMD-2026-00014", "montant": 38000, "statut": "livré",                  "date": "2026-06-05" },
+    { "id": "cmd_25", "numero": "CMD-2026-00025", "montant": 52000, "statut": "livré",                  "date": "2026-05-22" },
+    { "id": "cmd_29", "numero": "CMD-2026-00029", "montant": 29000, "statut": "livré",                  "date": "2026-05-08" }
+  ]
+}
