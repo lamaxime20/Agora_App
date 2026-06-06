@@ -1,157 +1,247 @@
 import { useState } from "react";
+import { Search, PlusCircle, Trash2, CheckCircle } from "lucide-react";
 import ChoixFournisseurPane from "./ChoixFournisseurPane.jsx";
 
 function EnregistrerReapprovisionnement() {
     const [selectedFournisseur, setSelectedFournisseur] = useState(null);
     const [showFournisseurPane, setShowFournisseurPane] = useState(false);
-    
-    // États pour l'ajout dynamique d'articles dans la commande
-    const [articleNom, setArticleNom] = useState("");
-    const [quantite, setQuantite] = useState("");
-    const [prixUnitaire, setPrixUnitaire] = useState("");
-    const [listeArticles, setListeArticles] = useState([]);
+    const [articleNom, setArticleNom]         = useState("");
+    const [quantite, setQuantite]             = useState("");
+    const [prixUnitaire, setPrixUnitaire]     = useState("");
+    const [listeArticles, setListeArticles]   = useState([]);
+    const [artError, setArtError]             = useState("");
+    const [submitting, setSubmitting]         = useState(false);
+    const [success, setSuccess]               = useState(false);
+    const [formError, setFormError]           = useState("");
 
-    const handleSelectFournisseur = (fournisseur) => {
-        setSelectedFournisseur(fournisseur);
-        setShowFournisseurPane(false);
-    };
+    const formatMontant = (n) =>
+        new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+
+    const totalCommande = listeArticles.reduce((s, a) => s + a.total, 0);
 
     const handleAddArticle = (e) => {
         e.preventDefault();
-        if (!articleNom.trim() || !quantite || quantite <= 0 || !prixUnitaire || prixUnitaire <= 0) {
-            alert("Veuillez saisir des informations d'article valides.");
+        setArtError("");
+
+        if (!articleNom.trim() || !quantite || parseInt(quantite) <= 0 || !prixUnitaire || parseFloat(prixUnitaire) <= 0) {
+            setArtError("Remplissez tous les champs avec des valeurs valides.");
             return;
         }
 
-        const nouvelArticle = {
-            id: Date.now(),
-            nom: articleNom,
-            quantite: parseInt(quantite, 10),
-            prixUnitaire: parseFloat(prixUnitaire),
-            total: parseInt(quantite, 10) * parseFloat(prixUnitaire)
-        };
+        const qte  = parseInt(quantite, 10);
+        const prix = parseFloat(prixUnitaire);
 
-        setListeArticles([...listeArticles, nouvelArticle]);
+        setListeArticles(prev => [...prev, {
+            id: Date.now(),
+            nom: articleNom.trim(),
+            quantite: qte,
+            prixUnitaire: prix,
+            total: qte * prix,
+        }]);
+
         setArticleNom("");
         setQuantite("");
         setPrixUnitaire("");
     };
 
     const handleRemoveArticle = (id) => {
-        setListeArticles(listeArticles.filter(art => art.id !== id));
+        setListeArticles(prev => prev.filter(a => a.id !== id));
     };
 
-    const calculerMontantTotal = () => {
-        return listeArticles.reduce((sum, art) => sum + art.total, 0);
+    const handleSubmit = async () => {
+        setFormError("");
+
+        if (!selectedFournisseur) { setFormError("Veuillez sélectionner un fournisseur."); return; }
+        if (listeArticles.length === 0) { setFormError("Ajoutez au moins un article à la commande."); return; }
+
+        setSubmitting(true);
+        await new Promise(r => setTimeout(r, 900));
+        setSubmitting(false);
+        setSuccess(true);
     };
 
-    const handleSubmitCommande = () => {
-        if (!selectedFournisseur) {
-            alert("Veuillez sélectionner un fournisseur.");
-            return;
-        }
-
-        if (listeArticles.length === 0) {
-            alert("Votre liste de réapprovisionnement est vide. Ajoutez au moins un article.");
-            return;
-        }
-
-        const total = calculerMontantTotal();
-        const confirmation = window.confirm(
-            `Confirmez-vous l'envoi de cette commande de réapprovisionnement ?\n\nFournisseur : ${selectedFournisseur.nom}\nNombre d'articles : ${listeArticles.length}\nMontant total estimé : ${total.toFixed(2)} €`
+    if (success) {
+        return (
+            <div className="finReapp-empty" style={{ padding: "var(--space-16)" }}>
+                <CheckCircle size={48} style={{ color: "var(--color-success)" }} aria-hidden="true" />
+                <p className="finReapp-empty__title" style={{ color: "var(--color-success)" }}>
+                    Commande de réapprovisionnement émise avec succès !
+                </p>
+                <button
+                    className="app-button app-button--ghost app-button--sm"
+                    onClick={() => { setSuccess(false); setSelectedFournisseur(null); setListeArticles([]); }}
+                    type="button"
+                >
+                    Nouvelle commande
+                </button>
+            </div>
         );
-
-        if (confirmation) {
-            alert("La commande de réapprovisionnement a été enregistrée et envoyée au fournisseur.");
-            // Réinitialisation globale
-            setSelectedFournisseur(null);
-            setListeArticles([]);
-        }
-    };
+    }
 
     return (
-        <div>
-            <h2>Nouvelle commande fournisseur</h2>
+        <>
+            <div style={{ maxWidth: "760px", display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
 
-            <section>
-                <div>
-                    <label>Fournisseur ciblé : </label>
-                    <input 
-                        type="text" 
-                        readOnly 
-                        placeholder="Cliquez pour choisir un fournisseur..." 
-                        value={selectedFournisseur ? selectedFournisseur.nom : ""} 
-                    />
-                    <button type="button" onClick={() => setShowFournisseurPane(true)}>
-                        Sélectionner le fournisseur
-                    </button>
-                </div>
-            </section>
+                {formError && (
+                    <p style={{ fontSize: "var(--text-sm)", color: "var(--color-error)", background: "rgba(231,76,60,0.07)", padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(231,76,60,0.2)", margin: 0 }}>
+                        {formError}
+                    </p>
+                )}
 
-            {/* Formulaire interne pour concevoir le bon de commande d'articles */}
-            <form onSubmit={handleAddArticle}>
-                <h4>Ajouter un article au bon de commande</h4>
-                <div>
-                    <label>Nom du produit : </label>
-                    <input type="text" value={articleNom} onChange={(e) => setArticleNom(e.target.value)} placeholder="Ex: Rame de papier" />
-                    
-                    <label> Quantité : </label>
-                    <input type="number" value={quantite} onChange={(e) => setQuantite(e.target.value)} placeholder="Ex: 50" />
-                    
-                    <label> Prix d'achat unitaire (€) : </label>
-                    <input type="number" step="0.01" value={prixUnitaire} onChange={(e) => setPrixUnitaire(e.target.value)} placeholder="Ex: 3.50" />
-                    
-                    <button type="submit">Ajouter à la liste</button>
-                </div>
-            </form>
-
-            <h4>Articles inclus dans la demande actuelle</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Désignation</th>
-                        <th>Quantité</th>
-                        <th>Prix Unitaire HT</th>
-                        <th>Total</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {listeArticles.map((art) => (
-                        <tr key={art.id}>
-                            <td>{art.nom}</td>
-                            <td>{art.quantite}</td>
-                            <td>{art.prixUnitaire.toFixed(2)} €</td>
-                            <td>{art.total.toFixed(2)} €</td>
-                            <td>
-                                <button type="button" onClick={() => handleRemoveArticle(art.id)}>Retirer</button>
-                            </td>
-                        </tr>
-                    ))}
-                    {listeArticles.length === 0 && (
-                        <tr>
-                            <td colSpan="5">Aucun article ajouté pour le moment.</td>
-                        </tr>
+                {/* Fournisseur */}
+                <section>
+                    <p className="finReapp-detail__section-label">Fournisseur</p>
+                    <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "center" }}>
+                        <input
+                            type="text"
+                            className="app-input"
+                            readOnly
+                            placeholder="Cliquer pour sélectionner un fournisseur…"
+                            value={selectedFournisseur ? `${selectedFournisseur.nom} — ${selectedFournisseur.categorie}` : ""}
+                            style={{ flex: 1, cursor: "pointer" }}
+                            onClick={() => setShowFournisseurPane(true)}
+                        />
+                        <button
+                            type="button"
+                            className="app-button app-button--ghost app-button--sm"
+                            onClick={() => setShowFournisseurPane(true)}
+                            style={{ flexShrink: 0 }}
+                        >
+                            <Search size={16} aria-hidden="true" />
+                            Choisir
+                        </button>
+                    </div>
+                    {selectedFournisseur && (
+                        <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", margin: "var(--space-1) 0 0" }}>
+                            Contact : {selectedFournisseur.contact}
+                        </p>
                     )}
-                </tbody>
-            </table>
+                </section>
 
-            {listeArticles.length > 0 && (
-                <div>
-                    <h3>Montant total de la commande : {calculerMontantTotal().toFixed(2)} €</h3>
-                    <button type="button" onClick={handleSubmitCommande}>
-                        Valider et émettre le réapprovisionnement
+                {/* Ajouter un article */}
+                <section>
+                    <p className="finReapp-detail__section-label">Ajouter un article</p>
+                    {artError && (
+                        <p style={{ fontSize: "var(--text-sm)", color: "var(--color-error)", margin: "0 0 var(--space-3)" }}>
+                            {artError}
+                        </p>
+                    )}
+                    <form onSubmit={handleAddArticle} className="finReapp-add-form">
+                        <div className="finReapp-add-form__field">
+                            <label className="finReapp-add-form__label" htmlFor="art-nom">Désignation</label>
+                            <input
+                                id="art-nom"
+                                type="text"
+                                className="app-input"
+                                value={articleNom}
+                                onChange={e => setArticleNom(e.target.value)}
+                                placeholder="Ex : Rame de papier A4"
+                            />
+                        </div>
+                        <div className="finReapp-add-form__field" style={{ maxWidth: "120px" }}>
+                            <label className="finReapp-add-form__label" htmlFor="art-qte">Quantité</label>
+                            <input
+                                id="art-qte"
+                                type="number"
+                                className="app-input"
+                                value={quantite}
+                                onChange={e => setQuantite(e.target.value)}
+                                min="1"
+                                placeholder="50"
+                            />
+                        </div>
+                        <div className="finReapp-add-form__field" style={{ maxWidth: "180px" }}>
+                            <label className="finReapp-add-form__label" htmlFor="art-prix">Prix unitaire (FCFA)</label>
+                            <input
+                                id="art-prix"
+                                type="number"
+                                className="app-input"
+                                value={prixUnitaire}
+                                onChange={e => setPrixUnitaire(e.target.value)}
+                                min="1"
+                                step="100"
+                                placeholder="3500"
+                            />
+                        </div>
+                        <button type="submit" className="app-button app-button--primary app-button--sm" style={{ alignSelf: "flex-end" }}>
+                            <PlusCircle size={16} aria-hidden="true" />
+                            Ajouter
+                        </button>
+                    </form>
+                </section>
+
+                {/* Liste articles */}
+                <section>
+                    <p className="finReapp-detail__section-label">Articles de la commande ({listeArticles.length})</p>
+                    <table className="finReapp-articles-table" aria-label="Liste des articles">
+                        <thead>
+                            <tr>
+                                <th scope="col">Désignation</th>
+                                <th scope="col">Qté</th>
+                                <th scope="col">Prix unit.</th>
+                                <th scope="col">Total</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {listeArticles.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} style={{ padding: "var(--space-6)", textAlign: "center", color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
+                                        Aucun article ajouté.
+                                    </td>
+                                </tr>
+                            ) : (
+                                listeArticles.map(a => (
+                                    <tr key={a.id}>
+                                        <td>{a.nom}</td>
+                                        <td style={{ color: "var(--color-text-muted)" }}>{a.quantite}</td>
+                                        <td style={{ color: "var(--color-text-muted)" }}>{formatMontant(a.prixUnitaire)}</td>
+                                        <td className="finReapp-articles-table__amount">{formatMontant(a.total)}</td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                className="app-button app-button--ghost app-button--sm"
+                                                style={{ color: "var(--color-error)" }}
+                                                onClick={() => handleRemoveArticle(a.id)}
+                                                aria-label={`Retirer ${a.nom}`}
+                                            >
+                                                <Trash2 size={14} aria-hidden="true" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+
+                    {listeArticles.length > 0 && (
+                        <div className="finReapp-total-row">
+                            <p className="finReapp-total-label">Total estimé de la commande</p>
+                            <p className="finReapp-total-value">{formatMontant(totalCommande)}</p>
+                        </div>
+                    )}
+                </section>
+
+                {/* Soumettre */}
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <button
+                        type="button"
+                        className="app-button app-button--primary"
+                        onClick={handleSubmit}
+                        disabled={submitting}
+                    >
+                        {submitting ? "Envoi en cours…" : "Valider et émettre la commande"}
                     </button>
                 </div>
-            )}
+            </div>
 
             {showFournisseurPane && (
-                <ChoixFournisseurPane 
-                    onSelectFournisseur={handleSelectFournisseur} 
-                    onClose={() => setShowFournisseurPane(false)} 
+                <ChoixFournisseurPane
+                    onSelectFournisseur={(f) => { setSelectedFournisseur(f); setShowFournisseurPane(false); }}
+                    onClose={() => setShowFournisseurPane(false)}
                 />
             )}
-        </div>
+        </>
     );
 }
 

@@ -1,0 +1,9 @@
+{
+  "abonnements": [
+    { "id": "ABO-01", "dateDebut": "2026-01-10", "dateFin": null,         "montantMensuel": 4900000, "nomService": "Hébergement Serveur Cloud",     "fournisseur": "AWS" },
+    { "id": "ABO-02", "dateDebut": "2026-04-15", "dateFin": null,         "montantMensuel": 1499000, "nomService": "Outil de Design Collaboratif", "fournisseur": "Figma" },
+    { "id": "ABO-03", "dateDebut": "2024-02-01", "dateFin": "2026-03-01", "montantMensuel": 990000,  "nomService": "Banque d'images Premium",      "fournisseur": "Shutterstock" },
+    { "id": "ABO-04", "dateDebut": "2026-03-01", "dateFin": null,         "montantMensuel": 590000,  "nomService": "Suite Bureautique Cloud",      "fournisseur": "Google" },
+    { "id": "ABO-05", "dateDebut": "2026-05-20", "dateFin": null,         "montantMensuel": 250000,  "nomService": "Antivirus & Sécurité Réseau",  "fournisseur": "Kaspersky" }
+  ]
+}

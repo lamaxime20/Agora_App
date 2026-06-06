@@ -1,0 +1,418 @@
+/* ============================================================
+   SALAIRES — Finance module CSS
+   Prefix: finSal-*
+   ============================================================ */
+
+.finSal-root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-4);
+}
+
+.finSal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.finSal-header__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+/* ----- KPIs ----- */
+.finSal-kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+.finSal-kpi {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.finSal-kpi__label {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0;
+}
+
+.finSal-kpi__value {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.finSal-kpi__value--error   { color: var(--color-error); }
+.finSal-kpi__value--success { color: var(--color-success); }
+.finSal-kpi__value--warning { color: var(--color-warning); }
+
+/* ----- Toolbar ----- */
+.finSal-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.finSal-toolbar__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.finSal-search {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.finSal-search__icon {
+    position: absolute;
+    left: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.finSal-search__input {
+    padding-left: var(--space-9) !important;
+    width: 100%;
+}
+
+.finSal-filter-select {
+    height: 40px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 200ms ease-out;
+}
+
+.finSal-filter-select:focus { border-color: var(--color-primary); }
+
+/* ----- Table ----- */
+.finSal-tableWrap {
+    overflow-x: auto;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+.finSal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+}
+
+.finSal-table__head th {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--color-surface-alt);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.finSal-table__row {
+    transition: background 150ms ease-out;
+}
+
+.finSal-table__row:hover { background: var(--color-surface-alt); }
+
+.finSal-table__row td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+.finSal-table__row:last-child td { border-bottom: none; }
+.finSal-table__id     { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-muted); }
+.finSal-table__name   { font-weight: var(--weight-medium); color: var(--color-text); }
+.finSal-table__amount { font-weight: var(--weight-semibold); color: var(--color-error); white-space: nowrap; }
+.finSal-table__date   { color: var(--color-text-muted); white-space: nowrap; }
+
+/* ----- Mobile cards ----- */
+.finSal-cards {
+    display: none;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.finSal-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    cursor: pointer;
+    transition: box-shadow 200ms ease-out, border-color 200ms ease-out;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.finSal-card:hover,
+.finSal-card:focus-visible {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 16px rgba(243,156,18,0.08);
+}
+
+.finSal-card__top    { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.finSal-card__id     { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-muted); }
+.finSal-card__name   { font-weight: var(--weight-medium); color: var(--color-text); font-size: var(--text-sm); margin: 0; }
+.finSal-card__meta   { display: flex; align-items: center; justify-content: space-between; }
+.finSal-card__amount { font-weight: var(--weight-bold); font-size: var(--text-base); color: var(--color-error); }
+.finSal-card__date   { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+/* ----- Avatar initial ----- */
+.finSal-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #FFF3E0;
+    border: 1px solid #F39C12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    color: var(--color-primary);
+    flex-shrink: 0;
+    font-family: var(--font-display);
+}
+
+/* ----- Salarie row with avatar ----- */
+.finSal-employee-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.finSal-employee-cell__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.finSal-employee-cell__name {
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    font-size: var(--text-sm);
+}
+
+.finSal-employee-cell__role {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+/* ----- Empty ----- */
+.finSal-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-12) var(--space-6);
+    text-align: center;
+}
+
+.finSal-empty__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--color-surface-alt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+}
+
+.finSal-empty__title { font-weight: var(--weight-semibold); color: var(--color-text); font-size: var(--text-base); margin: 0; }
+.finSal-empty__desc  { font-size: var(--text-sm); color: var(--color-text-muted); margin: 0; }
+
+/* ----- Back button ----- */
+.finSal-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: color 150ms ease-out;
+}
+
+.finSal-back-btn:hover { color: var(--color-primary); }
+
+/* ----- Drawer ----- */
+.finSal-drawer__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 200;
+    animation: fadeIn 200ms ease-out;
+}
+
+.finSal-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 560px;
+    background: var(--color-surface);
+    z-index: 201;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+    animation: slideInRight 280ms ease-out;
+}
+
+.finSal-drawer__handle { display: none; }
+
+.finSal-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.finSal-drawer__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.finSal-drawer__close {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    transition: background 150ms ease-out;
+}
+
+.finSal-drawer__close:hover { background: var(--color-surface-alt); color: var(--color-text); }
+
+.finSal-drawer__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.finSal-drawer__footer {
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    gap: var(--space-3);
+    flex-shrink: 0;
+}
+
+/* ----- Detail rows ----- */
+.finSal-detail__section-label {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 var(--space-3);
+}
+
+.finSal-detail__row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.finSal-detail__row:last-child { border-bottom: none; }
+.finSal-detail__key { font-size: var(--text-sm); color: var(--color-text-muted); flex-shrink: 0; }
+.finSal-detail__val { font-size: var(--text-sm); color: var(--color-text); font-weight: var(--weight-medium); text-align: right; }
+.finSal-detail__val--amount { font-weight: var(--weight-bold); font-family: var(--font-display); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 480px) {
+    .finSal-root { padding: var(--space-4) var(--space-3); }
+    .finSal-kpis { gap: var(--space-3); }
+    .finSal-kpi  { padding: var(--space-3); }
+    .finSal-kpi__value { font-size: var(--text-lg); }
+    .finSal-toolbar__row { flex-direction: column; align-items: stretch; }
+    .finSal-tableWrap { display: none; }
+    .finSal-cards { display: flex; }
+    .finSal-drawer {
+        top: auto; right: 0; bottom: 0; left: 0;
+        width: 100%;
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        max-height: 92vh;
+        animation: slideInUp 300ms ease-out;
+    }
+    .finSal-drawer__handle {
+        display: flex;
+        justify-content: center;
+        padding: var(--space-3) 0 0;
+        flex-shrink: 0;
+    }
+    .finSal-drawer__handle-bar {
+        width: 36px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--color-border);
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .finSal-kpis { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 1025px) {
+    .finSal-kpis { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 769px) {
+    .finSal-tableWrap { display: block; }
+    .finSal-cards     { display: none; }
+}

@@ -1,0 +1,29 @@
+{
+  "salaries": [
+    { "id": "EMP-001", "nom": "Alice Caisse",    "poste": "Caissière",              "salaireNet": 250000, "statut": "Actif" },
+    { "id": "EMP-002", "nom": "Jean Comptable",  "poste": "Comptable principal",    "salaireNet": 380000, "statut": "Actif" },
+    { "id": "EMP-003", "nom": "Marie Finance",   "poste": "Responsable financière", "salaireNet": 520000, "statut": "Actif" },
+    { "id": "EMP-004", "nom": "Paul Trésorerie", "poste": "Trésorier",              "salaireNet": 430000, "statut": "Actif" },
+    { "id": "EMP-005", "nom": "Sophie Logist.",  "poste": "Responsable logistique", "salaireNet": 310000, "statut": "Congé" }
+  ],
+  "paiements": {
+    "EMP-001": [
+      { "id": "PAY-2026-05-001", "date": "2026-05-28", "montant": 250000, "mode": "virement bancaire", "reference": "VIR-5501", "periode": "Mai 2026" },
+      { "id": "PAY-2026-04-001", "date": "2026-04-28", "montant": 250000, "mode": "virement bancaire", "reference": "VIR-4401", "periode": "Avril 2026" }
+    ],
+    "EMP-002": [
+      { "id": "PAY-2026-05-002", "date": "2026-05-28", "montant": 380000, "mode": "virement bancaire", "reference": "VIR-5502", "periode": "Mai 2026" },
+      { "id": "PAY-2026-04-002", "date": "2026-04-28", "montant": 380000, "mode": "virement bancaire", "reference": "VIR-4402", "periode": "Avril 2026" }
+    ],
+    "EMP-003": [
+      { "id": "PAY-2026-05-003", "date": "2026-05-28", "montant": 520000, "mode": "virement bancaire", "reference": "VIR-5503", "periode": "Mai 2026" },
+      { "id": "PAY-2026-04-003", "date": "2026-04-28", "montant": 520000, "mode": "virement bancaire", "reference": "VIR-4403", "periode": "Avril 2026" }
+    ],
+    "EMP-004": [
+      { "id": "PAY-2026-05-004", "date": "2026-05-28", "montant": 430000, "mode": "virement bancaire", "reference": "VIR-5504", "periode": "Mai 2026" }
+    ],
+    "EMP-005": [
+      { "id": "PAY-2026-05-005", "date": "2026-05-28", "montant": 310000, "mode": "virement bancaire", "reference": "VIR-5505", "periode": "Mai 2026" }
+    ]
+  }
+}

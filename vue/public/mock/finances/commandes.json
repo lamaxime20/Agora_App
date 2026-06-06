@@ -1,0 +1,16 @@
+{
+  "commandes": [
+    { "id": "CMD-FIN-001", "nom": "Commande Alpha — Dupond Jean",    "total": 1500000,  "minimumValidation": 1500000, "paye": 500000,  "statut": "partiellement payé" },
+    { "id": "CMD-FIN-002", "nom": "Commande Beta — Martin Sophie",   "total": 800000,   "minimumValidation": 800000,  "paye": 0,       "statut": "en attente de paiement" },
+    { "id": "CMD-FIN-003", "nom": "Commande Gamma — Ngo Essomba",    "total": 3200000,  "minimumValidation": 2000000, "paye": 1200000, "statut": "partiellement payé" },
+    { "id": "CMD-FIN-004", "nom": "Commande Delta — Mvondo Paul",    "total": 950000,   "minimumValidation": 950000,  "paye": 0,       "statut": "en attente de paiement" },
+    { "id": "CMD-FIN-005", "nom": "Commande Epsilon — Biyong Crist.","total": 5800000,  "minimumValidation": 5000000, "paye": 5000000, "statut": "partiellement payé" }
+  ],
+  "paiements": [
+    { "id": "P-101", "date": "2026-06-02", "montant": 1500000, "mode": "virement bancaire", "reference": "VIR-77312", "utilisateur": "Alice Caisse",    "commandeAssociee": { "id": "CMD-889", "nom": "Commande Client Dupond", "total": 1500000 } },
+    { "id": "P-102", "date": "2026-06-05", "montant": 450000,  "mode": "espèces",           "reference": "",          "utilisateur": "Jean Comptable",  "commandeAssociee": { "id": "CMD-990", "nom": "Commande Client Martin", "total": 900000 } },
+    { "id": "P-103", "date": "2026-06-08", "montant": 3200000, "mode": "carte bancaire",    "reference": "CB-55841",  "utilisateur": "Marie Finance",   "commandeAssociee": { "id": "CMD-991", "nom": "Commande Ngo Essomba", "total": 3200000 } },
+    { "id": "P-104", "date": "2026-06-10", "montant": 800000,  "mode": "chèque",            "reference": "CHQ-0122",  "utilisateur": "Paul Trésorerie", "commandeAssociee": { "id": "CMD-992", "nom": "Commande Mvondo Paul", "total": 800000 } },
+    { "id": "P-105", "date": "2026-06-12", "montant": 5000000, "mode": "virement bancaire", "reference": "VIR-99001", "utilisateur": "Alice Caisse",    "commandeAssociee": { "id": "CMD-993", "nom": "Commande Biyong Crist.", "total": 5800000 } }
+  ]
+}

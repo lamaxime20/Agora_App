@@ -1,0 +1,199 @@
+/* ============================================================
+   STATISTIQUES — Finance module CSS
+   Prefix: finStats-*
+   ============================================================ */
+
+.finStats-root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding: var(--space-5) var(--space-4);
+}
+
+.finStats-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.finStats-header__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+/* ----- KPI grid ----- */
+.finStats-kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+.finStats-kpi {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.finStats-kpi__icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.finStats-kpi__icon-wrap--income  { background: rgba(39,174,96,0.12); color: var(--color-success); }
+.finStats-kpi__icon-wrap--expense { background: rgba(231,76,60,0.12);  color: var(--color-error); }
+.finStats-kpi__icon-wrap--balance { background: rgba(243,156,18,0.12); color: var(--color-primary); }
+.finStats-kpi__icon-wrap--orders  { background: rgba(52,152,219,0.12); color: #3498DB; }
+
+.finStats-kpi__label {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0;
+}
+
+.finStats-kpi__value {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.finStats-kpi__value--success { color: var(--color-success); }
+.finStats-kpi__value--error   { color: var(--color-error); }
+.finStats-kpi__value--primary { color: var(--color-primary); }
+
+.finStats-kpi__trend {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+/* ----- Placeholder chart ----- */
+.finStats-chart-wrap {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.finStats-chart-title {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.finStats-chart-placeholder {
+    height: 200px;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--color-surface-alt),
+        var(--color-surface-alt) 4px,
+        transparent 4px,
+        transparent 16px
+    );
+    border-radius: var(--radius-xl);
+    border: 2px dashed var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+/* ----- Top categories ----- */
+.finStats-categories {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.finStats-category-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.finStats-category-row__label {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+    min-width: 160px;
+    flex-shrink: 0;
+}
+
+.finStats-category-row__bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--color-surface-alt);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.finStats-category-row__bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 600ms ease-out;
+}
+
+.finStats-category-row__bar--income  { background: var(--color-success); }
+.finStats-category-row__bar--expense { background: var(--color-error); }
+.finStats-category-row__bar--primary { background: var(--color-primary); }
+
+.finStats-category-row__amount {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-medium);
+    white-space: nowrap;
+    min-width: 120px;
+    text-align: right;
+}
+
+/* ----- Section title ----- */
+.finStats-section-title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin: 0 0 var(--space-4);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 480px) {
+    .finStats-root { padding: var(--space-4) var(--space-3); }
+    .finStats-kpis { grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+    .finStats-kpi  { padding: var(--space-3); }
+    .finStats-kpi__value { font-size: var(--text-lg); }
+    .finStats-category-row__label { min-width: 100px; font-size: var(--text-xs); }
+    .finStats-category-row__amount { min-width: 90px; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .finStats-kpis { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 1025px) {
+    .finStats-kpis { grid-template-columns: repeat(4, 1fr); }
+}

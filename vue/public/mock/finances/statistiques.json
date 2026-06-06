@@ -1,0 +1,26 @@
+{
+  "periode": "juin 2026",
+  "kpis": {
+    "totalEntrees": 7470000,
+    "totalDepenses": 539000,
+    "soldeNet": 6931000,
+    "nombreCommandes": 5,
+    "masseSalariale": 1890000,
+    "totalRemboursements": 1035000,
+    "chargeAbonnements": 7239000
+  },
+  "repartitionDepenses": [
+    { "categorie": "Transport & carburant", "montant": 250000 },
+    { "categorie": "Électricité / eau",     "montant": 120000 },
+    { "categorie": "Fournitures de bureau", "montant":  89000 },
+    { "categorie": "Communication",         "montant":  45000 },
+    { "categorie": "Maintenance",           "montant":  35000 }
+  ],
+  "repartitionEntrees": [
+    { "origine": "Apport de capital",   "montant": 5000000 },
+    { "origine": "Prêt bancaire reçu",  "montant": 1200000 },
+    { "origine": "Subvention publique", "montant":  800000 },
+    { "origine": "Ventes produits",     "montant":  320000 },
+    { "origine": "Remboursement reçu",  "montant":  150000 }
+  ]
+}

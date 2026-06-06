@@ -1,25 +1,43 @@
 import { useState } from "react";
+import { PlusCircle, History } from "lucide-react";
 import EnregistrerDepense from "./depenses/enregistrerDepense.jsx";
 import HistoriqueDepenses from "./depenses/historiqueDepenses.jsx";
+import "../../../assets/styles/components/modules/finances/depenses.css";
+
+const TABS = [
+    { id: "enregistrer", label: "Enregistrer une dépense", icon: PlusCircle },
+    { id: "historique",  label: "Historique des dépenses", icon: History },
+];
 
 function Depenses() {
-    const [sousOnglet, setSousOnglet] = useState("enregistrer"); // "enregistrer" ou "historique"
+    const [onglet, setOnglet] = useState("enregistrer");
 
     return (
-        <div>
-            <header>
-                <nav>
-                    <button onClick={() => setSousOnglet("enregistrer")}>
-                        Enregistrer une dépense
-                    </button>
-                    <button onClick={() => setSousOnglet("historique")}>
-                        Historique des dépenses
-                    </button>
-                </nav>
+        <div className="finDep-root">
+            <header className="finDep-header">
+                <h1 className="finDep-header__title">Dépenses</h1>
             </header>
 
+            <nav className="finCommandes-tabs" aria-label="Sous-onglets dépenses">
+                {TABS.map(t => {
+                    const Icon = t.icon;
+                    return (
+                        <button
+                            key={t.id}
+                            className={`finCommandes-tab${onglet === t.id ? " finCommandes-tab--active" : ""}`}
+                            onClick={() => setOnglet(t.id)}
+                            type="button"
+                            aria-current={onglet === t.id ? "page" : undefined}
+                        >
+                            <Icon size={16} aria-hidden="true" />
+                            {t.label}
+                        </button>
+                    );
+                })}
+            </nav>
+
             <main>
-                {sousOnglet === "enregistrer" ? (
+                {onglet === "enregistrer" ? (
                     <EnregistrerDepense />
                 ) : (
                     <HistoriqueDepenses />

@@ -1,0 +1,42 @@
+{
+  "reapprovisionnements": [
+    {
+      "id": "REAPP-001",
+      "date": "2026-05-20",
+      "montantTotal": 1450000,
+      "statut": "Livré et stocké",
+      "fournisseur": { "id": "FOURN-01", "nom": "Papeterie Centrale de l'Est", "contact": "contact@papet-est.com" },
+      "articles": [
+        { "nom": "Rames de papier A4",    "quantite": 200,  "prixUnitaire": 4500 },
+        { "nom": "Enveloppes cartonnées", "quantite": 1000, "prixUnitaire": 550 }
+      ]
+    },
+    {
+      "id": "REAPP-002",
+      "date": "2026-06-02",
+      "montantTotal": 850000,
+      "statut": "En cours d'acheminement",
+      "fournisseur": { "id": "FOURN-02", "nom": "LogiTech Distribution", "contact": "commercial@logitech-dist.com" },
+      "articles": [
+        { "nom": "Écrans 24 pouces", "quantite": 5, "prixUnitaire": 170000 }
+      ]
+    },
+    {
+      "id": "REAPP-003",
+      "date": "2026-06-05",
+      "montantTotal": 320000,
+      "statut": "En attente de confirmation",
+      "fournisseur": { "id": "FOURN-04", "nom": "AfriPack Solutions", "contact": "info@afripack.cm" },
+      "articles": [
+        { "nom": "Cartons d'emballage 50×40", "quantite": 400, "prixUnitaire": 800 }
+      ]
+    }
+  ],
+  "fournisseurs": [
+    { "id": "FOURN-01", "nom": "Papeterie Centrale de l'Est",  "categorie": "Fournitures de bureau",     "contact": "contact@papet-est.com" },
+    { "id": "FOURN-02", "nom": "LogiTech Distribution",        "categorie": "Matériel informatique",     "contact": "commercial@logitech-dist.com" },
+    { "id": "FOURN-03", "nom": "BricoPro Énergie",             "categorie": "Maintenance & Électricité", "contact": "contact@bricopro.cm" },
+    { "id": "FOURN-04", "nom": "AfriPack Solutions",           "categorie": "Emballages & Logistique",   "contact": "info@afripack.cm" },
+    { "id": "FOURN-05", "nom": "TechNord Cameroun",            "categorie": "Matériel informatique",     "contact": "sales@technord.cm" }
+  ]
+}

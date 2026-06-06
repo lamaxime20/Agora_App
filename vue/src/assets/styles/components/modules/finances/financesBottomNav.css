@@ -1,0 +1,104 @@
+/* ─── Racine ─────────────────────────────────────────────────────────────────── */
+
+.financesBottomNav-root {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    display: flex;
+    align-items: stretch;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    z-index: var(--z-sticky);
+    padding: 0 var(--space-2);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Item ───────────────────────────────────────────────────────────────────── */
+
+.financesBottomNav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    text-decoration: none;
+    padding: var(--space-2) var(--space-1);
+    border-radius: var(--radius-xl);
+    transition:
+        color var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out);
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── Pilule icône ────────────────────────────────────────────────────────────── */
+
+.financesBottomNav-item__pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 26px;
+    border-radius: var(--radius-full);
+    transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.financesBottomNav-item__icon {
+    color: #9CA3AF;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+/* ─── Label ──────────────────────────────────────────────────────────────────── */
+
+.financesBottomNav-item__label {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: var(--weight-medium);
+    color: #9CA3AF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 64px;
+    text-align: center;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+/* ─── État actif ─────────────────────────────────────────────────────────────── */
+
+.financesBottomNav-item--active .financesBottomNav-item__pill {
+    background-color: #FFF3E0;
+}
+
+.financesBottomNav-item--active .financesBottomNav-item__icon {
+    color: var(--color-primary);
+}
+
+.financesBottomNav-item--active .financesBottomNav-item__label {
+    color: var(--color-primary);
+    font-weight: var(--weight-semibold);
+}
+
+/* ─── Hover ──────────────────────────────────────────────────────────────────── */
+
+@media (hover: hover) {
+    .financesBottomNav-item:not(.financesBottomNav-item--active):hover .financesBottomNav-item__pill {
+        background-color: var(--color-surface-alt);
+    }
+
+    .financesBottomNav-item:not(.financesBottomNav-item--active):hover .financesBottomNav-item__icon,
+    .financesBottomNav-item:not(.financesBottomNav-item--active):hover .financesBottomNav-item__label {
+        color: #4B5563;
+    }
+}
+
+/* ─── Visible uniquement sur mobile & tablette ───────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .financesBottomNav-root {
+        display: none;
+    }
+}

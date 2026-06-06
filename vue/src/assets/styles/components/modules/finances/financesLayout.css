@@ -1,0 +1,230 @@
+/* ─── Sidebar Finances ────────────────────────────────────────────────────────── */
+
+.financesSidebar-root {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: 280px;
+    background-color: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    z-index: var(--z-modal);
+    transform: translateX(-100%);
+    transition: transform var(--duration-normal) var(--ease-out);
+    overflow: hidden;
+    will-change: transform;
+}
+
+.financesSidebar-root--open {
+    transform: translateX(0);
+}
+
+/* Desktop : toujours visible */
+@media (min-width: 1025px) {
+    .financesSidebar-root {
+        transform: translateX(0);
+        z-index: var(--z-sticky);
+    }
+}
+
+/* ─── Overlay mobile ──────────────────────────────────────────────────────────── */
+
+.financesSidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.30);
+    z-index: calc(var(--z-modal) - 1);
+    animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+@media (min-width: 1025px) {
+    .financesSidebar-overlay {
+        display: none;
+    }
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────────── */
+
+.financesSidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    gap: var(--space-3);
+}
+
+.financesSidebar-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.financesSidebar-brand__name {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    color: var(--color-accent);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.financesSidebar-brand__module {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--color-primary);
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ─── Bouton fermeture (mobile) ───────────────────────────────────────────────── */
+
+.financesSidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.financesSidebar-close:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+}
+
+@media (min-width: 1025px) {
+    .financesSidebar-close {
+        display: none;
+    }
+}
+
+/* ─── Navigation ──────────────────────────────────────────────────────────────── */
+
+.financesSidebar-nav {
+    flex: 1;
+    padding: var(--space-3) var(--space-3);
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.financesSidebar-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.financesSidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.financesSidebar-item {
+    list-style: none;
+}
+
+/* ─── Liens ───────────────────────────────────────────────────────────────────── */
+
+.financesSidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    border-left: 3px solid transparent;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out),
+        border-color     var(--duration-fast) var(--ease-out);
+}
+
+.financesSidebar-link:hover {
+    background-color: #FAFAFA;
+    color: var(--color-text);
+}
+
+.financesSidebar-link--active {
+    background-color: #FFF3E0;
+    border-left-color: var(--color-primary);
+    color: var(--color-accent);
+    font-weight: var(--weight-semibold);
+}
+
+.financesSidebar-link--active:hover {
+    background-color: #FEE9C3;
+    color: var(--color-accent);
+}
+
+.financesSidebar-link__icon {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.financesSidebar-link:hover .financesSidebar-link__icon {
+    color: var(--color-text);
+}
+
+.financesSidebar-link--active .financesSidebar-link__icon {
+    color: var(--color-primary);
+}
+
+/* ─── Section titre ───────────────────────────────────────────────────────────── */
+
+.financesSidebar-section-title {
+    font-size: 10px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: var(--space-4) var(--space-4) var(--space-2);
+    margin-top: var(--space-2);
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────────── */
+
+.financesSidebar-footer {
+    padding: var(--space-3) var(--space-3) var(--space-4);
+    border-top: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.financesSidebar-back {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.financesSidebar-back:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+.financesSidebar-back__label {
+    white-space: nowrap;
+}

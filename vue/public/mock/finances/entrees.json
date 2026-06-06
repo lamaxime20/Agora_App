@@ -1,0 +1,9 @@
+{
+  "entrees": [
+    { "id": "ENT-2026-001", "date": "2026-06-02", "montant": 5000000, "origine": "Apport de capital",             "description": "Apport externe de capital — investisseur Fouda & Associés" },
+    { "id": "ENT-2026-002", "date": "2026-06-04", "montant": 150000,  "origine": "Remboursement reçu",            "description": "Remboursement suite à un trop-perçu par le prestataire LogiTrans" },
+    { "id": "ENT-2026-003", "date": "2026-06-06", "montant": 800000,  "origine": "Subvention ou aide publique",   "description": "Subvention PME — Ministère du Commerce — tranche juin 2026" },
+    { "id": "ENT-2026-004", "date": "2026-06-08", "montant": 320000,  "origine": "Vente de produits ou services", "description": "Vente de matériel de bureau reconditionné — lot juin" },
+    { "id": "ENT-2026-005", "date": "2026-06-11", "montant": 1200000, "origine": "Prêt bancaire reçu",            "description": "Déblocage crédit revolving — Banque Atlantique Cameroun" }
+  ]
+}

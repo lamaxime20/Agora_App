@@ -1,0 +1,8 @@
+{
+  "remboursements": [
+    { "id": "REM-001", "montant": 300000, "cause": "Rupture de stock sur l'article principal",      "date": "2026-06-03", "utilisateur": "Alice Caisse",    "commandeAssociee": { "id": "CMD-201", "nom": "Commande Durand Jean — réf. 2026-201",   "totalFacture": 1200000, "totalPaye": 1200000 } },
+    { "id": "REM-002", "montant": 150000, "cause": "Geste commercial suite à un retard d'expédition","date": "2026-06-04", "utilisateur": "Jean Comptable",  "commandeAssociee": { "id": "CMD-202", "nom": "Commande Moreau Sophie — réf. 2026-202", "totalFacture": 450000,  "totalPaye": 450000 } },
+    { "id": "REM-003", "montant": 85000,  "cause": "Erreur de facturation — doublon de ligne",       "date": "2026-06-07", "utilisateur": "Marie Finance",   "commandeAssociee": { "id": "CMD-203", "nom": "Commande Lefevre Paul — réf. 2026-203",  "totalFacture": 900000,  "totalPaye": 900000 } },
+    { "id": "REM-004", "montant": 500000, "cause": "Annulation partielle avant livraison",            "date": "2026-06-10", "utilisateur": "Alice Caisse",    "commandeAssociee": { "id": "CMD-204", "nom": "Commande Ngo Essomba — réf. 2026-204",   "totalFacture": 3200000, "totalPaye": 3200000 } }
+  ]
+}

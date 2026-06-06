@@ -1,0 +1,350 @@
+/* ─── Layout racine ───────────────────────────────────────────────────────────── */
+
+.finances-root {
+    display: flex;
+    min-height: 100dvh;
+    background-color: var(--color-bg);
+    position: relative;
+}
+
+/* ─── Corps principal ─────────────────────────────────────────────────────────── */
+
+.finances-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 72px;
+}
+
+/* ─── Header sticky ───────────────────────────────────────────────────────────── */
+
+.finances-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 0 var(--space-4);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+/* ─── Hamburger (mobile) ──────────────────────────────────────────────────────── */
+
+.finances-header__burger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.finances-header__burger:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+@media (min-width: 1025px) {
+    .finances-header__burger {
+        display: none;
+    }
+}
+
+/* ─── Titre mobile ────────────────────────────────────────────────────────────── */
+
+.finances-header__title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-accent);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (min-width: 1025px) {
+    .finances-header__title {
+        display: none;
+    }
+}
+
+/* ─── Breadcrumb (desktop) ────────────────────────────────────────────────────── */
+
+.finances-header__breadcrumb {
+    display: none;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 1;
+    min-width: 0;
+}
+
+@media (min-width: 1025px) {
+    .finances-header__breadcrumb {
+        display: flex;
+    }
+}
+
+.finances-header__breadcrumb-root {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.finances-header__breadcrumb-root:hover {
+    color: var(--color-primary);
+}
+
+.finances-header__breadcrumb-sep {
+    color: var(--color-border-strong);
+    flex-shrink: 0;
+}
+
+.finances-header__breadcrumb-current {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ─── Actions header ──────────────────────────────────────────────────────────── */
+
+.finances-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.finances-header__action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.finances-header__action-btn:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+/* ─── Contenu ─────────────────────────────────────────────────────────────────── */
+
+.finances-content {
+    flex: 1;
+    padding: var(--space-6) var(--space-4);
+    overflow-y: auto;
+}
+
+/* ─── Badges statuts partagés ─────────────────────────────────────────────────── */
+
+.fin-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+    flex-shrink: 0;
+}
+
+.fin-badge--neutral { background-color: #F3F4F6; color: #6B7280; }
+.fin-badge--info    { background-color: #DBEAFE; color: #2563EB; }
+.fin-badge--warning { background-color: #FEF3C7; color: #D97706; }
+.fin-badge--success { background-color: #DCFCE7; color: #16A34A; }
+.fin-badge--danger  { background-color: #FEE2E2; color: #DC2626; }
+.fin-badge--orange  { background-color: #FFF3E0; color: #D97706; }
+
+/* ─── Skeleton animation partagée ─────────────────────────────────────────────── */
+
+@keyframes finShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.fin-skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--color-surface-alt) 25%,
+        var(--color-border) 50%,
+        var(--color-surface-alt) 75%
+    );
+    background-size: 200% 100%;
+    animation: finShimmer 1.4s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+}
+
+/* ─── Shared sub-tabs (used by all onglets) ──────────────────────────────────── */
+
+.finCommandes-tabs {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-xl);
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.finCommandes-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: 36px;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-lg);
+    border: none;
+    background: transparent;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 200ms ease-out, color 200ms ease-out;
+}
+
+.finCommandes-tab:hover {
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+.finCommandes-tab--active {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font-weight: var(--weight-semibold);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* Shared export menu used by all onglets */
+.finCommandes-export-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    z-index: 50;
+    min-width: 140px;
+    overflow: hidden;
+}
+
+.finCommandes-export-menu__item {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: transparent;
+    border: none;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    cursor: pointer;
+    text-align: left;
+    transition: background 150ms ease-out;
+    display: block;
+}
+
+.finCommandes-export-menu__item:hover {
+    background: var(--color-surface-alt);
+}
+
+/* Shared fin-badge--error (sometimes used in onglets) */
+.fin-badge--error { background-color: #FEE2E2; color: #DC2626; }
+
+/* ─── Shared keyframes (referenced by module CSS) ─────────────────────────────── */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(60px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ─── Page introuvable ────────────────────────────────────────────────────────── */
+
+.finances-notFound {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-20);
+    text-align: center;
+}
+
+.finances-notFound__text {
+    font-size: var(--text-md);
+    color: var(--color-text-muted);
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .finances-content {
+        padding: var(--space-4);
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .finances-content {
+        padding: var(--space-6);
+    }
+}
+
+@media (min-width: 1025px) {
+    .finances-body {
+        margin-left: 280px;
+        padding-bottom: 0;
+    }
+}
+
+@media (min-width: 1201px) {
+    .finances-content {
+        padding: var(--space-8);
+    }
+}

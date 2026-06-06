@@ -1,84 +1,146 @@
 import { useState } from "react";
+import { CheckCircle } from "lucide-react";
+
+const CATEGORIES = [
+    "Fournitures de bureau",
+    "Loyer et charges",
+    "Électricité / eau",
+    "Maintenance et réparation",
+    "Transport et carburant",
+    "Salaires et charges sociales",
+    "Communication et internet",
+    "Marketing et publicité",
+    "Sous-traitance",
+    "Autre",
+];
 
 function EnregistrerDepense() {
-    const [dateDepense, setDateDepense] = useState("");
-    const [montant, setMontant] = useState("");
+    const [date, setDate]             = useState("");
+    const [montant, setMontant]       = useState("");
+    const [categorie, setCategorie]   = useState("");
     const [description, setDescription] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [success, setSuccess]       = useState(false);
+    const [error, setError]           = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
 
-        if (!dateDepense) {
-            alert("Veuillez sélectionner une date valide.");
-            return;
-        }
+        if (!date) { setError("Veuillez sélectionner une date."); return; }
+        if (!montant || parseFloat(montant) <= 0) { setError("Veuillez saisir un montant valide."); return; }
+        if (!categorie) { setError("Veuillez choisir une catégorie."); return; }
+        if (!description.trim()) { setError("La description est obligatoire."); return; }
 
-        if (!montant || parseFloat(montant) <= 0) {
-            alert("Veuillez entrer un montant supérieur à 0.");
-            return;
-        }
-
-        if (!description.trim()) {
-            alert("Veuillez renseigner la description de la dépense.");
-            return;
-        }
-
-        const confirmation = window.confirm(
-            `Veuillez vérifier les informations avant validation :\n\nDate : ${dateDepense}\nMontant : ${montant} €\nDescription : ${description}\n\nConfirmez-vous l'enregistrement ?`
-        );
-
-        if (confirmation) {
-            // Simulation de l'insertion en base de données
-            alert("La dépense a été enregistrée avec succès.");
-            // Réinitialisation des champs du formulaire
-            setDateDepense("");
+        setSubmitting(true);
+        await new Promise(r => setTimeout(r, 800));
+        setSubmitting(false);
+        setSuccess(true);
+        setTimeout(() => {
+            setSuccess(false);
+            setDate("");
             setMontant("");
+            setCategorie("");
             setDescription("");
-        }
+        }, 2000);
     };
 
+    if (success) {
+        return (
+            <div className="finDep-empty" style={{ padding: "var(--space-16)" }}>
+                <CheckCircle size={48} style={{ color: "var(--color-success)" }} aria-hidden="true" />
+                <p className="finDep-empty__title" style={{ color: "var(--color-success)" }}>
+                    Dépense enregistrée avec succès !
+                </p>
+            </div>
+        );
+    }
+
     return (
-        <div>
-            <h2>Enregistrer une dépense</h2>
-            
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Date de la dépense :</label>
-                    <input 
-                        type="date" 
-                        value={dateDepense} 
-                        onChange={(e) => setDateDepense(e.target.value)} 
-                        required 
-                    />
-                </div>
+        <section aria-label="Formulaire d'enregistrement d'une dépense">
+            <div style={{ maxWidth: "640px", display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
 
-                <div>
-                    <label>Montant de la dépense :</label>
-                    <input 
-                        type="number" 
-                        step="0.01" 
-                        value={montant} 
-                        onChange={(e) => setMontant(e.target.value)} 
-                        required 
-                    />
-                </div>
+                {error && (
+                    <p style={{ fontSize: "var(--text-sm)", color: "var(--color-error)", background: "rgba(231,76,60,0.07)", padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(231,76,60,0.2)", margin: 0 }}>
+                        {error}
+                    </p>
+                )}
 
-                <div>
-                    <label>Description de la dépense :</label>
-                    <textarea 
-                        value={description} 
-                        onChange={(e) => setDescription(e.target.value)} 
-                        rows="4" 
-                        placeholder="Détails du paiement, motif..."
-                        required 
-                    />
-                </div>
+                <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+                    <div className="finDep-form__field">
+                        <label className="finDep-form__label" htmlFor="dep-date">
+                            Date de la dépense <span style={{ color: "var(--color-error)" }}>*</span>
+                        </label>
+                        <input
+                            id="dep-date"
+                            type="date"
+                            className="app-input"
+                            value={date}
+                            onChange={e => setDate(e.target.value)}
+                            required
+                        />
+                    </div>
 
-                <div>
-                    <button type="submit">Confirmer l'enregistrement de la dépense</button>
-                </div>
-            </form>
-        </div>
+                    <div className="finDep-form__field">
+                        <label className="finDep-form__label" htmlFor="dep-montant">
+                            Montant (FCFA) <span style={{ color: "var(--color-error)" }}>*</span>
+                        </label>
+                        <input
+                            id="dep-montant"
+                            type="number"
+                            className="app-input"
+                            value={montant}
+                            onChange={e => setMontant(e.target.value)}
+                            min="1"
+                            step="100"
+                            required
+                        />
+                    </div>
+
+                    <div className="finDep-form__field">
+                        <label className="finDep-form__label" htmlFor="dep-categorie">
+                            Catégorie <span style={{ color: "var(--color-error)" }}>*</span>
+                        </label>
+                        <select
+                            id="dep-categorie"
+                            className="finDep-form__select"
+                            value={categorie}
+                            onChange={e => setCategorie(e.target.value)}
+                            required
+                        >
+                            <option value="">Sélectionner une catégorie…</option>
+                            {CATEGORIES.map(c => (
+                                <option key={c} value={c}>{c}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="finDep-form__field">
+                        <label className="finDep-form__label" htmlFor="dep-description">
+                            Description / Justification <span style={{ color: "var(--color-error)" }}>*</span>
+                        </label>
+                        <textarea
+                            id="dep-description"
+                            className="finDep-form__textarea"
+                            value={description}
+                            onChange={e => setDescription(e.target.value)}
+                            placeholder="Ex : Achat de rames de papier A4, paiement facture électricité…"
+                            required
+                        />
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <button
+                            type="submit"
+                            className="app-button app-button--primary"
+                            disabled={submitting}
+                        >
+                            {submitting ? "Enregistrement…" : "Confirmer l'enregistrement"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
     );
 }
 
