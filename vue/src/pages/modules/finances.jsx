@@ -11,11 +11,12 @@ import {
 } from "../../services/finances.js";
 import Navbar from "../../components/modules/finances/navbar.jsx";
 import Commandes from "../../components/modules/finances/commandes.jsx";
+import Remboursements from "../../components/modules/finances/remboursements.jsx";
 
 const ongletContent = {
     [FINANCES_DASHBOARD]: <h1>Tableau de bord</h1>,
     [FINANCES_COMMANDES]: <Commandes />,
-    [FINANCES_REMBOURSEMENTS]: <h1>Remboursements</h1>,
+    [FINANCES_REMBOURSEMENTS]: <Remboursements />,
     [FINANCES_DEPENSES]: <h1>Dépenses</h1>,
     [FINANCES_ENTREES]: <h1>Entrées</h1>,
     [FINANCES_ABONNEMENTS]: <h1>Abonnements</h1>,
