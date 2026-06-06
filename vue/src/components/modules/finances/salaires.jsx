@@ -1,5 +1,13 @@
+import ListeSalaries from "./salaires/listeSalaries.jsx";
+
 function Salaires() {
-    return <h1>Salaires</h1>
+    return (
+        <div>
+            <main>
+                <ListeSalaries />
+            </main>
+        </div>
+    );
 }
 
 export default Salaires;
