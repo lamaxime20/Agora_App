@@ -16,6 +16,8 @@ import Depenses from "../../components/modules/finances/depenses.jsx";
 import Entree from "../../components/modules/finances/entree.jsx";
 import Abonnements from "../../components/modules/finances/abonnements.jsx";
 import Reapprovisionnements from "../../components/modules/finances/reapprovisionnements.jsx";
+import Salaires from "../../components/modules/finances/salaires.jsx";
+import Statistiques from "../../components/modules/finances/salaires.jsx"
 
 const ongletContent = {
     [FINANCES_DASHBOARD]: <h1>Tableau de bord</h1>,
@@ -25,8 +27,8 @@ const ongletContent = {
     [FINANCES_ENTREES]: <Entree />,
     [FINANCES_ABONNEMENTS]: <Abonnements />,
     [FINANCES_REAPPROVISIONNEMENTS]: <Reapprovisionnements />,
-    [FINANCES_SALAIRES]: <h1>Salaires</h1>,
-    [FINANCES_STATISTIQUES]: <h1>Statistiques</h1>,
+    [FINANCES_SALAIRES]: <Salaires />,
+    [FINANCES_STATISTIQUES]: <Statistiques />,
 };
 
 function Finances({ onglet }) {
