@@ -136,50 +136,56 @@ class StockPerteController extends StockBaseController
                 ], 409);
             }
 
-            $perte = DB::transaction(function () use ($request, $produit, $user, $entreprise) {
-                $stockAvant = (float) $produit->stock_actuel;
-                $stockApres = $stockAvant - (float) $request->input('quantite_perdu');
+            $perte = null;
+            $stockAvant = (float) $produit->stock_actuel;
+            $stockApres = $stockAvant - (float) $request->input('quantite_perdu');
 
-                $produit->update([
-                    'stock_actuel'      => $stockApres,
-                    'date_modification' => now(),
-                ]);
+            try {
+                 $produit->update([
+                     'stock_actuel'      => $stockApres,
+                     'date_modification' => now(),
+                 ]);
 
-                $perte = PerteProduit::create([
-                    'quantite_perdu' => $request->input('quantite_perdu'),
-                    'motif_perte'    => trim((string) $request->input('motif_perte')),
-                    'date_perte'     => now(),
-                    'user_signale'   => $user->id,
-                    'produit'        => $produit->id,
-                    'entreprise'     => $entreprise->id,
-                ]);
+                 $perte = PerteProduit::create([
+                     'quantite_perdu' => $request->input('quantite_perdu'),
+                     'motif_perte'    => trim((string) $request->input('motif_perte')),
+                     'date_perte'     => now(),
+                     'user_signale'   => $user->id,
+                     'produit'        => $produit->id,
+                     'entreprise'     => $entreprise->id,
+                 ]);
 
-                $this->history($this->productHistoryPayload(
-                    'perte',
-                    'produits',
-                    $produit->id,
-                    'Perte enregistrée.',
-                    (string) $stockAvant,
-                    (string) $stockApres,
-                    $request,
-                    $user,
-                    $entreprise->id
-                ));
+                 $this->history($this->productHistoryPayload(
+                     'perte',
+                     'produits',
+                     $produit->id,
+                     'Perte enregistrée.',
+                     (string) $stockAvant,
+                     (string) $stockApres,
+                     $request,
+                     $user,
+                     $entreprise->id
+                 ));
 
-                $this->history($this->productHistoryPayload(
-                    'creation',
-                    'pertes_produits',
-                    $perte->id,
-                    'Création d\'une perte produit.',
-                    null,
-                    $perte->motif_perte,
-                    $request,
-                    $user,
-                    $entreprise->id
-                ));
-
-                return $perte;
-            });
+                 $this->history($this->productHistoryPayload(
+                     'creation',
+                     'pertes_produits',
+                     $perte->id,
+                     'Création d\'une perte produit.',
+                     null,
+                     $perte->motif_perte,
+                     $request,
+                     $user,
+                     $entreprise->id
+                 ));
+            } catch (\Throwable $e) {
+                // Annulation manuelle en cas d'erreur
+                if ($perte) {
+                    $perte->delete();
+                }
+                $produit->update(['stock_actuel' => $stockAvant]); // Restaurer le stock
+                throw $e; // Renvoyer l'exception pour qu'elle soit loggée
+            }
 
             // TODO: créer la notification de perte pour le directeur de l'entreprise ici.
 

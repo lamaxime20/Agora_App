@@ -68,7 +68,7 @@ function ModalSignalerPerte({ onClose, onSaved }) {
         const errs = {};
         if (!form.produit_id)                          errs.produit_id = "Sélectionnez un produit.";
         if (!form.quantite || Number(form.quantite) <= 0) errs.quantite = "Quantité invalide.";
-        if (!form.motif)                               errs.motif = "Sélectionnez un motif.";
+        if (!form.motif || form.motif.trim().length < 5) errs.motif = "Le motif doit faire au moins 5 caractères.";
         return errs;
     };
 
@@ -249,6 +249,7 @@ function ModalSignalerPerte({ onClose, onSaved }) {
                                 id="perte-motif"
                                 name="motif"
                                 type="text"
+                                minLength={5}
                                 className={`app-input${errors.motif ? " app-input--error" : ""}`}
                                 placeholder="Ex : vol, casse, péremption…"
                                 value={form.motif}

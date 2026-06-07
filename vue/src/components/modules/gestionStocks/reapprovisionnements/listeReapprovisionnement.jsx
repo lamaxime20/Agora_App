@@ -219,10 +219,12 @@ function ListeReapprovisionnement() {
                 <ul className="listeReappro-cards" aria-label="Liste des réapprovisionnements">
                     {itemsActifs.map(item => (
                         <li key={item.id}>
-                            <button
+                            <div
                                 className="listeReappro-card"
                                 onClick={() => setPaneItem(item)}
-                                type="button"
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setPaneItem(item); }}
                             >
                                 <div className="listeReappro-card__header">
                                     <div className="listeReappro-card__ref">
@@ -270,7 +272,7 @@ function ListeReapprovisionnement() {
                                 )}
 
                                 <ChevronRight size={16} className="listeReappro-card__arrow" aria-hidden="true" />
-                            </button>
+                            </div>
                         </li>
                     ))}
                 </ul>
