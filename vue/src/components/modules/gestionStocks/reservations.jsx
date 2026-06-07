@@ -84,6 +84,8 @@ function Reservations() {
     const [error, setError]               = useState(null);
     const [recherche, setRecherche]       = useState("");
     const [filtreStatut, setFiltreStatut] = useState("");
+    const [filtreDebut, setFiltreDebut]   = useState("");
+    const [filtreFin, setFiltreFin]       = useState("");
     const [showFilters, setShowFilters]   = useState(false);
     const [paneItem, setPaneItem]         = useState(null);
 
@@ -118,17 +120,20 @@ function Reservations() {
     const itemsFiltres = items.filter(item => {
         const q = recherche.toLowerCase();
         const matchSearch = !recherche
-            || item.reference.toLowerCase().includes(q)
+            || (item.reference ?? "").toLowerCase().includes(q)
             || (item.client?.nom ?? "").toLowerCase().includes(q)
             || (item.lignes ?? []).some(l => (l.nom ?? "").toLowerCase().includes(q));
         const matchStatut = !filtreStatut || item.statut === filtreStatut;
-        return matchSearch && matchStatut;
+        const dateResa = item.date_reservation ? new Date(item.date_reservation) : null;
+        const matchDebut = !filtreDebut || (dateResa && dateResa >= new Date(filtreDebut));
+        const matchFin = !filtreFin || (dateResa && dateResa <= new Date(filtreFin + "T23:59:59"));
+        return matchSearch && matchStatut && matchDebut && matchFin;
     });
 
     const actives       = items.filter(i => i.statut === "en_cours");
     const articlesTotal = actives.reduce((acc, i) => acc + (i.lignes ?? []).reduce((a, l) => a + Number(l.quantite_reservee ?? 0), 0), 0);
     const valeurTotal   = actives.reduce((acc, i) => acc + i.montant_total, 0);
-    const nbFiltresActifs = [filtreStatut].filter(Boolean).length;
+    const nbFiltresActifs = [filtreStatut, filtreDebut, filtreFin].filter(Boolean).length;
 
     return (
         <div className="reservations-root">
@@ -217,6 +222,8 @@ function Reservations() {
                             id="res-date-debut"
                             type="date"
                             className="app-input reservations-filter__input"
+                            value={filtreDebut}
+                            onChange={e => setFiltreDebut(e.target.value)}
                         />
                     </div>
                     <div className="reservations-filter">
@@ -227,6 +234,8 @@ function Reservations() {
                             id="res-date-fin"
                             type="date"
                             className="app-input reservations-filter__input"
+                            value={filtreFin}
+                            onChange={e => setFiltreFin(e.target.value)}
                         />
                     </div>
                     <div className="reservations-filter">

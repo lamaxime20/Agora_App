@@ -38,6 +38,7 @@ function formatPerson(person) {
 
 function normalizeCategory(raw) {
     if (!raw) return null;
+    if (typeof raw === "string") return { id: null, nom: raw || "—", description: "" };
     return {
         id: raw.id ?? null,
         nom: raw.categorie ?? raw.nom ?? "—",

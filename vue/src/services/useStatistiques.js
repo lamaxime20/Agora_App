@@ -133,8 +133,8 @@ function normalizeStock(payload, produits) {
     const k = payload?.kpis ?? {};
     const valeurTotale = produits.reduce((acc, item) => acc + Number(item.stock_actuel ?? 0) * Number(item.prix_unitaire ?? 0), 0);
     const stockMoyen = produits.length ? produits.reduce((acc, item) => acc + Number(item.stock_actuel ?? 0), 0) / produits.length : 0;
-    const produitFaible = produits.filter((item) => Number(item.stock_actuel ?? 0) > 0 && Number(item.stock_actuel ?? 0) <= Number(item.seuil_alerte ?? 0)).length;
-    const produitRupture = produits.filter((item) => Number(item.stock_actuel ?? 0) <= 0).length;
+    const produitsFaible = produits.filter((item) => Number(item.stock_actuel ?? 0) > 0 && Number(item.stock_actuel ?? 0) <= Number(item.seuil_alerte ?? 0)).length;
+    const produitsRupture = produits.filter((item) => Number(item.stock_actuel ?? 0) <= 0).length;
 
     const parCategorieMap = new Map();
     produits.forEach((item) => {
@@ -168,8 +168,8 @@ function normalizeStock(payload, produits) {
         kpis: {
             valeurTotale,
             stockMoyen,
-            produitsFaible,
-            produitsRupture,
+            produitsFaible: produitsFaible,
+            produitsRupture: produitsRupture,
             variationValeur: 0,
             variationFaible: 0,
         },
