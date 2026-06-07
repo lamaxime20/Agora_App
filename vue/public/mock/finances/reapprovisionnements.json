@@ -1,42 +1,101 @@
 {
-  "reapprovisionnements": [
+  "success": true,
+  "data": [
     {
-      "id": "REAPP-001",
-      "date": "2026-05-20",
-      "montantTotal": 1450000,
-      "statut": "Livré et stocké",
-      "fournisseur": { "id": "FOURN-01", "nom": "Papeterie Centrale de l'Est", "contact": "contact@papet-est.com" },
-      "articles": [
-        { "nom": "Rames de papier A4",    "quantite": 200,  "prixUnitaire": 4500 },
-        { "nom": "Enveloppes cartonnées", "quantite": 1000, "prixUnitaire": 550 }
-      ]
+      "id": "REAPP-2026-H001",
+      "produit": { "nom": "Rames de papier A4 80g", "sku": "PAP-A4-80G" },
+      "stockActuel": 45,
+      "stockMinimum": 100,
+      "quantiteDemandee": 200,
+      "prixUnitaire": 4500,
+      "montantTotal": 900000,
+      "demandeur": "Kofi Mensah",
+      "service": "Gestion Stock",
+      "dateDemande": "2026-05-20",
+      "dateDecision": "2026-05-21",
+      "decideur": "Paul Nkoa",
+      "priorite": "normale",
+      "statut": "valide",
+      "justification": "Réapprovisionnement de routine. Stock de réserve annuel.",
+      "motifRefus": null,
+      "referencePaiement": "PAY-20260521-REAPP001"
     },
     {
-      "id": "REAPP-002",
-      "date": "2026-06-02",
-      "montantTotal": 850000,
-      "statut": "En cours d'acheminement",
-      "fournisseur": { "id": "FOURN-02", "nom": "LogiTech Distribution", "contact": "commercial@logitech-dist.com" },
-      "articles": [
-        { "nom": "Écrans 24 pouces", "quantite": 5, "prixUnitaire": 170000 }
-      ]
+      "id": "REAPP-2026-H002",
+      "produit": { "nom": "Chaises de bureau ergonomiques", "sku": "CHAISE-ERG-01" },
+      "stockActuel": 8,
+      "stockMinimum": 10,
+      "quantiteDemandee": 20,
+      "prixUnitaire": 85000,
+      "montantTotal": 1700000,
+      "demandeur": "Adama Traoré",
+      "service": "Gestion Stock",
+      "dateDemande": "2026-05-25",
+      "dateDecision": "2026-05-26",
+      "decideur": "Paul Nkoa",
+      "priorite": "faible",
+      "statut": "refuse",
+      "justification": "Remplacement mobilier bureau vieillissant.",
+      "motifRefus": "Budget non alloué pour ce trimestre. Reporter au T3 2026 avec devis comparatif.",
+      "referencePaiement": null
     },
     {
-      "id": "REAPP-003",
-      "date": "2026-06-05",
-      "montantTotal": 320000,
-      "statut": "En attente de confirmation",
-      "fournisseur": { "id": "FOURN-04", "nom": "AfriPack Solutions", "contact": "info@afripack.cm" },
-      "articles": [
-        { "nom": "Cartons d'emballage 50×40", "quantite": 400, "prixUnitaire": 800 }
-      ]
+      "id": "REAPP-2026-H003",
+      "produit": { "nom": "Enveloppes cartonnées DL", "sku": "ENV-DL-C" },
+      "stockActuel": 0,
+      "stockMinimum": 300,
+      "quantiteDemandee": 2000,
+      "prixUnitaire": 275,
+      "montantTotal": 550000,
+      "demandeur": "Marie-Claire Boka",
+      "service": "Gestion Stock",
+      "dateDemande": "2026-05-28",
+      "dateDecision": "2026-05-29",
+      "decideur": "Paul Nkoa",
+      "priorite": "haute",
+      "statut": "valide",
+      "justification": "Stock épuisé, livraisons clients bloquées depuis 48h.",
+      "motifRefus": null,
+      "referencePaiement": "PAY-20260529-REAPP003"
+    },
+    {
+      "id": "REAPP-2026-H004",
+      "produit": { "nom": "Imprimante laser A3", "sku": "IMPR-A3-L" },
+      "stockActuel": 0,
+      "stockMinimum": 1,
+      "quantiteDemandee": 2,
+      "prixUnitaire": 450000,
+      "montantTotal": 900000,
+      "demandeur": "Jean-Baptiste Essomba",
+      "service": "Gestion Stock",
+      "dateDemande": "2026-06-01",
+      "dateDecision": "2026-06-02",
+      "decideur": "Paul Nkoa",
+      "priorite": "normale",
+      "statut": "refuse",
+      "justification": "Remplacement imprimante hors service depuis 3 semaines.",
+      "motifRefus": "Devis insuffisant. Fournir 3 devis comparatifs avant soumission.",
+      "referencePaiement": null
+    },
+    {
+      "id": "REAPP-2026-H005",
+      "produit": { "nom": "Climatiseurs 18 000 BTU", "sku": "CLIM-18K-BTU" },
+      "stockActuel": 2,
+      "stockMinimum": 4,
+      "quantiteDemandee": 5,
+      "prixUnitaire": 320000,
+      "montantTotal": 1600000,
+      "demandeur": "Kofi Mensah",
+      "service": "Gestion Stock",
+      "dateDemande": "2026-06-03",
+      "dateDecision": "2026-06-04",
+      "decideur": "Paul Nkoa",
+      "priorite": "haute",
+      "statut": "valide",
+      "justification": "Climatisation insuffisante en saison chaude, confort et productivité impactés.",
+      "motifRefus": null,
+      "referencePaiement": "PAY-20260604-REAPP005"
     }
   ],
-  "fournisseurs": [
-    { "id": "FOURN-01", "nom": "Papeterie Centrale de l'Est",  "categorie": "Fournitures de bureau",     "contact": "contact@papet-est.com" },
-    { "id": "FOURN-02", "nom": "LogiTech Distribution",        "categorie": "Matériel informatique",     "contact": "commercial@logitech-dist.com" },
-    { "id": "FOURN-03", "nom": "BricoPro Énergie",             "categorie": "Maintenance & Électricité", "contact": "contact@bricopro.cm" },
-    { "id": "FOURN-04", "nom": "AfriPack Solutions",           "categorie": "Emballages & Logistique",   "contact": "info@afripack.cm" },
-    { "id": "FOURN-05", "nom": "TechNord Cameroun",            "categorie": "Matériel informatique",     "contact": "sales@technord.cm" }
-  ]
+  "meta": { "page": 1, "per_page": 20, "total": 5 }
 }

@@ -1,0 +1,70 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "REAPP-2026-001",
+      "produit": {
+        "nom": "Rames de papier A4 80g",
+        "sku": "PAP-A4-80G"
+      },
+      "stockActuel": 45,
+      "stockMinimum": 100,
+      "quantiteDemandee": 500,
+      "prixUnitaire": 900,
+      "montantTotal": 450000,
+      "demandeur": "Kofi Mensah",
+      "service": "Gestion Stock",
+      "dateDemande": "2026-06-03",
+      "priorite": "haute",
+      "statut": "en_attente",
+      "justification": "Stock en dessous du seuil critique. Rupture de stock probable dans moins de 5 jours si non réapprovisionné rapidement.",
+      "actionsHistorique": [
+        { "date": "2026-06-03", "action": "creation", "auteur": "Kofi Mensah", "message": "Demande de réapprovisionnement émise" }
+      ]
+    },
+    {
+      "id": "REAPP-2026-002",
+      "produit": {
+        "nom": "Écrans 24 pouces Full HD",
+        "sku": "ECRAN-24-FHD"
+      },
+      "stockActuel": 2,
+      "stockMinimum": 5,
+      "quantiteDemandee": 10,
+      "prixUnitaire": 170000,
+      "montantTotal": 1700000,
+      "demandeur": "Adama Traoré",
+      "service": "Gestion Stock",
+      "dateDemande": "2026-06-04",
+      "priorite": "critique",
+      "statut": "en_attente",
+      "justification": "Renouvellement matériel informatique urgent. 3 postes de travail sans écran depuis 2 jours, productivité fortement impactée.",
+      "actionsHistorique": [
+        { "date": "2026-06-04", "action": "creation",  "auteur": "Adama Traoré", "message": "Demande émise" },
+        { "date": "2026-06-04", "action": "escalade",  "auteur": "Système",      "message": "Priorité escaladée à critique automatiquement" }
+      ]
+    },
+    {
+      "id": "REAPP-2026-003",
+      "produit": {
+        "nom": "Cartons d'emballage 50×40 cm",
+        "sku": "CART-5040-B"
+      },
+      "stockActuel": 120,
+      "stockMinimum": 200,
+      "quantiteDemandee": 800,
+      "prixUnitaire": 925,
+      "montantTotal": 740000,
+      "demandeur": "Marie-Claire Boka",
+      "service": "Gestion Stock",
+      "dateDemande": "2026-06-05",
+      "priorite": "normale",
+      "statut": "en_attente",
+      "justification": "Réapprovisionnement de routine avant la haute saison commerciale de juillet-août.",
+      "actionsHistorique": [
+        { "date": "2026-06-05", "action": "creation", "auteur": "Marie-Claire Boka", "message": "Demande émise" }
+      ]
+    }
+  ],
+  "meta": { "page": 1, "per_page": 20, "total": 3 }
+}

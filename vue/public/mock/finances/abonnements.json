@@ -1,9 +1,117 @@
 {
-  "abonnements": [
-    { "id": "ABO-01", "dateDebut": "2026-01-10", "dateFin": null,         "montantMensuel": 4900000, "nomService": "Hébergement Serveur Cloud",     "fournisseur": "AWS" },
-    { "id": "ABO-02", "dateDebut": "2026-04-15", "dateFin": null,         "montantMensuel": 1499000, "nomService": "Outil de Design Collaboratif", "fournisseur": "Figma" },
-    { "id": "ABO-03", "dateDebut": "2024-02-01", "dateFin": "2026-03-01", "montantMensuel": 990000,  "nomService": "Banque d'images Premium",      "fournisseur": "Shutterstock" },
-    { "id": "ABO-04", "dateDebut": "2026-03-01", "dateFin": null,         "montantMensuel": 590000,  "nomService": "Suite Bureautique Cloud",      "fournisseur": "Google" },
-    { "id": "ABO-05", "dateDebut": "2026-05-20", "dateFin": null,         "montantMensuel": 250000,  "nomService": "Antivirus & Sécurité Réseau",  "fournisseur": "Kaspersky" }
-  ]
+  "success": true,
+  "data": [
+    {
+      "id": "ABO-01",
+      "nomService": "Hébergement Serveur Cloud",
+      "fournisseur": "AWS",
+      "montantMensuel": 4900000,
+      "dateDebut": "2026-01-10",
+      "dateFin": null,
+      "statut": "actif",
+      "prochaineEcheance": "2026-07-10",
+      "paiementsHistorique": [
+        { "date": "2026-06-10", "montant": 4900000, "mode": "Virtuel", "ref": "PAY-20260610-01" },
+        { "date": "2026-05-10", "montant": 4900000, "mode": "Virtuel", "ref": "PAY-20260510-01" },
+        { "date": "2026-04-10", "montant": 4900000, "mode": "Virtuel", "ref": "PAY-20260410-01" },
+        { "date": "2026-03-10", "montant": 4900000, "mode": "Virtuel", "ref": "PAY-20260310-01" }
+      ],
+      "notifications": [
+        { "date": "2026-07-01", "type": "rappel",   "message": "Paiement AWS prévu dans 9 jours" },
+        { "date": "2026-01-10", "type": "creation",  "message": "Abonnement créé" }
+      ]
+    },
+    {
+      "id": "ABO-02",
+      "nomService": "Outil de Design Collaboratif",
+      "fournisseur": "Figma",
+      "montantMensuel": 1499000,
+      "dateDebut": "2026-04-15",
+      "dateFin": null,
+      "statut": "actif",
+      "prochaineEcheance": "2026-07-15",
+      "paiementsHistorique": [
+        { "date": "2026-06-15", "montant": 1499000, "mode": "Virtuel", "ref": "PAY-20260615-02" },
+        { "date": "2026-05-15", "montant": 1499000, "mode": "Virtuel", "ref": "PAY-20260515-02" },
+        { "date": "2026-04-15", "montant": 1499000, "mode": "Virtuel", "ref": "PAY-20260415-02" }
+      ],
+      "notifications": [
+        { "date": "2026-07-05", "type": "rappel",   "message": "Paiement Figma prévu dans 10 jours" },
+        { "date": "2026-04-15", "type": "creation",  "message": "Abonnement créé" }
+      ]
+    },
+    {
+      "id": "ABO-03",
+      "nomService": "Banque d'images Premium",
+      "fournisseur": "Shutterstock",
+      "montantMensuel": 990000,
+      "dateDebut": "2024-02-01",
+      "dateFin": "2026-03-01",
+      "statut": "resilié",
+      "prochaineEcheance": null,
+      "paiementsHistorique": [
+        { "date": "2026-02-01", "montant": 990000, "mode": "Virtuel", "ref": "PAY-20260201-03" },
+        { "date": "2026-01-01", "montant": 990000, "mode": "Virtuel", "ref": "PAY-20260101-03" }
+      ],
+      "notifications": [
+        { "date": "2026-03-01", "type": "resiliation", "message": "Abonnement résilié" },
+        { "date": "2024-02-01", "type": "creation",    "message": "Abonnement créé" }
+      ]
+    },
+    {
+      "id": "ABO-04",
+      "nomService": "Suite Bureautique Cloud",
+      "fournisseur": "Google",
+      "montantMensuel": 590000,
+      "dateDebut": "2026-03-01",
+      "dateFin": null,
+      "statut": "actif",
+      "prochaineEcheance": "2026-07-01",
+      "paiementsHistorique": [
+        { "date": "2026-06-01", "montant": 590000, "mode": "Virtuel", "ref": "PAY-20260601-04" },
+        { "date": "2026-05-01", "montant": 590000, "mode": "Virtuel", "ref": "PAY-20260501-04" },
+        { "date": "2026-04-01", "montant": 590000, "mode": "Virtuel", "ref": "PAY-20260401-04" }
+      ],
+      "notifications": [
+        { "date": "2026-06-21", "type": "rappel",   "message": "Paiement Google prévu dans 10 jours" },
+        { "date": "2026-03-01", "type": "creation",  "message": "Abonnement créé" }
+      ]
+    },
+    {
+      "id": "ABO-05",
+      "nomService": "Antivirus & Sécurité Réseau",
+      "fournisseur": "Kaspersky",
+      "montantMensuel": 250000,
+      "dateDebut": "2026-05-20",
+      "dateFin": null,
+      "statut": "actif",
+      "prochaineEcheance": "2026-07-20",
+      "paiementsHistorique": [
+        { "date": "2026-06-20", "montant": 250000, "mode": "Virtuel", "ref": "PAY-20260620-05" },
+        { "date": "2026-05-20", "montant": 250000, "mode": "Virtuel", "ref": "PAY-20260520-05" }
+      ],
+      "notifications": [
+        { "date": "2026-07-10", "type": "rappel",   "message": "Paiement Kaspersky prévu dans 10 jours" },
+        { "date": "2026-05-20", "type": "creation",  "message": "Abonnement créé" }
+      ]
+    },
+    {
+      "id": "ABO-06",
+      "nomService": "Logiciel Comptabilité",
+      "fournisseur": "Sage",
+      "montantMensuel": 320000,
+      "dateDebut": "2023-07-01",
+      "dateFin": "2025-12-31",
+      "statut": "resilié",
+      "prochaineEcheance": null,
+      "paiementsHistorique": [
+        { "date": "2025-12-01", "montant": 320000, "mode": "Virtuel", "ref": "PAY-20251201-06" }
+      ],
+      "notifications": [
+        { "date": "2025-12-31", "type": "resiliation", "message": "Abonnement résilié" },
+        { "date": "2023-07-01", "type": "creation",    "message": "Abonnement créé" }
+      ]
+    }
+  ],
+  "meta": { "page": 1, "per_page": 20, "total": 6 }
 }

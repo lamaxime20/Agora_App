@@ -1,53 +1,33 @@
-import { useState } from "react";
-import { Download, ChevronDown, Truck } from "lucide-react";
-import ReapprovisionnementPane from "./ReapprovisionnementPane.jsx";
+import { useState, useEffect, useCallback } from "react";
+import { Download, ChevronDown, ChevronLeft, ChevronRight, History } from "lucide-react";
+import { fetchReapprosHistorique } from "../../../../services/financesP4.js";
+import ReapprovisionnementPane from "./reapprovisionnementPane.jsx";
 
-const MOCK_REAPPROS = [
-    {
-        id: "REAPP-001",
-        date: "2026-05-20",
-        montantTotal: 1450000,
-        statut: "Livré et stocké",
-        fournisseur: { id: "FOURN-01", nom: "Papeterie Centrale de l'Est", contact: "contact@papet-est.com" },
-        articles: [
-            { nom: "Rames de papier A4",    quantite: 200,  prixUnitaire: 4500 },
-            { nom: "Enveloppes cartonnées", quantite: 1000, prixUnitaire:  550 },
-        ],
-    },
-    {
-        id: "REAPP-002",
-        date: "2026-06-02",
-        montantTotal: 850000,
-        statut: "En cours d'acheminement",
-        fournisseur: { id: "FOURN-02", nom: "LogiTech Distribution", contact: "commercial@logitech-dist.com" },
-        articles: [
-            { nom: "Écrans 24 pouces", quantite: 5, prixUnitaire: 170000 },
-        ],
-    },
-    {
-        id: "REAPP-003",
-        date: "2026-06-05",
-        montantTotal: 320000,
-        statut: "En attente de confirmation",
-        fournisseur: { id: "FOURN-04", nom: "AfriPack Solutions", contact: "info@afripack.cm" },
-        articles: [
-            { nom: "Cartons d'emballage 50×40", quantite: 400, prixUnitaire: 800 },
-        ],
-    },
-];
+const PRIORITY_LABEL = { faible: "Faible", normale: "Normale", haute: "Haute", critique: "Critique" };
 
-const STATUTS = ["tous", "Livré et stocké", "En cours d'acheminement", "En attente de confirmation"];
-
-const BADGE_MAP = {
-    "Livré et stocké":               "fin-badge--success",
-    "En cours d'acheminement":       "fin-badge--info",
-    "En attente de confirmation":    "fin-badge--warning",
-};
+function TableSkeleton() {
+    return Array.from({ length: 5 }).map((_, i) => (
+        <tr key={i} className="finReapp-table__row--skeleton">
+            <td><div className="finReapp-skeleton finReapp-skeleton--sm" /></td>
+            <td><div className="finReapp-skeleton finReapp-skeleton--md" /></td>
+            <td><div className="finReapp-skeleton finReapp-skeleton--sm" /></td>
+            <td><div className="finReapp-skeleton finReapp-skeleton--md" /></td>
+            <td><div className="finReapp-skeleton finReapp-skeleton--sm" /></td>
+            <td><div className="finReapp-skeleton finReapp-skeleton--sm" /></td>
+            <td><div className="finReapp-skeleton finReapp-skeleton--md" /></td>
+        </tr>
+    ));
+}
 
 function HistoriqueReapprovisionnements() {
-    const [selectedReappro, setSelectedReappro] = useState(null);
-    const [filtreStatut, setFiltreStatut]       = useState("tous");
-    const [exportOpen, setExportOpen]           = useState(false);
+    const [data, setData]           = useState([]);
+    const [meta, setMeta]           = useState(null);
+    const [page, setPage]           = useState(1);
+    const [loading, setLoading]     = useState(true);
+    const [erreur, setErreur]       = useState("");
+    const [filtreStatut, setFiltreStatut] = useState("tous");
+    const [exportOpen, setExportOpen]     = useState(false);
+    const [selectedR, setSelectedR]       = useState(null);
 
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -55,9 +35,27 @@ function HistoriqueReapprovisionnements() {
     const formatDate = (d) =>
         new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
 
-    const filtres = MOCK_REAPPROS.filter(r =>
+    const load = useCallback(async (p) => {
+        setLoading(true);
+        setErreur("");
+        try {
+            const res = await fetchReapprosHistorique(p);
+            setData(res.data);
+            setMeta(res.meta);
+        } catch {
+            setErreur("Impossible de charger l'historique des réapprovisionnements.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => { load(page); }, [page, load]);
+
+    const filtered = data.filter(r =>
         filtreStatut === "tous" ? true : r.statut === filtreStatut
     );
+
+    const totalPages = meta ? Math.ceil(meta.total / meta.per_page) : 1;
 
     return (
         <>
@@ -70,15 +68,15 @@ function HistoriqueReapprovisionnements() {
                         onChange={e => setFiltreStatut(e.target.value)}
                         aria-label="Filtrer par statut"
                     >
-                        {STATUTS.map(s => (
-                            <option key={s} value={s}>{s === "tous" ? "Tous les statuts" : s}</option>
-                        ))}
+                        <option value="tous">Tous les statuts</option>
+                        <option value="valide">Validés</option>
+                        <option value="refuse">Refusés</option>
                     </select>
 
                     <div style={{ position: "relative", marginLeft: "auto" }}>
                         <button
                             className="app-button app-button--ghost app-button--sm"
-                            onClick={() => setExportOpen(!exportOpen)}
+                            onClick={() => setExportOpen(v => !v)}
                             type="button"
                             aria-expanded={exportOpen}
                         >
@@ -105,41 +103,58 @@ function HistoriqueReapprovisionnements() {
                 </div>
             </div>
 
-            {/* Tableau desktop */}
+            {erreur && (
+                <p style={{ color: "var(--color-error)", fontSize: "var(--text-sm)", background: "rgba(231,76,60,0.07)", padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(231,76,60,0.2)" }}>
+                    {erreur}
+                </p>
+            )}
+
+            {/* Desktop table */}
             <div className="finReapp-tableWrap">
                 <table className="finReapp-table" aria-label="Historique des réapprovisionnements">
                     <thead className="finReapp-table__head">
                         <tr>
-                            <th scope="col">Code</th>
-                            <th scope="col">Fournisseur</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Montant total</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Produit</th>
+                            <th scope="col">Qté</th>
+                            <th scope="col">Montant</th>
+                            <th scope="col">Priorité</th>
                             <th scope="col">Statut</th>
+                            <th scope="col">Date décision</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filtres.length === 0 ? (
+                        {loading ? <TableSkeleton /> : filtered.length === 0 ? (
                             <tr>
-                                <td colSpan={5}>
+                                <td colSpan={7}>
                                     <div className="finReapp-empty">
-                                        <div className="finReapp-empty__icon">
-                                            <Truck size={32} aria-hidden="true" />
-                                        </div>
-                                        <p className="finReapp-empty__title">Aucune commande trouvée</p>
+                                        <div className="finReapp-empty__icon"><History size={32} aria-hidden="true" /></div>
+                                        <p className="finReapp-empty__title">Aucun réapprovisionnement trouvé</p>
                                     </div>
                                 </td>
                             </tr>
                         ) : (
-                            filtres.map(r => (
-                                <tr key={r.id} className="finReapp-table__row" onClick={() => setSelectedReappro(r)}>
+                            filtered.map(r => (
+                                <tr key={r.id} className="finReapp-table__row" onClick={() => setSelectedR(r)}>
                                     <td className="finReapp-table__id">{r.id}</td>
-                                    <td style={{ fontWeight: "var(--weight-medium)", fontSize: "var(--text-sm)" }}>{r.fournisseur.nom}</td>
-                                    <td className="finReapp-table__date">{formatDate(r.date)}</td>
+                                    <td>
+                                        <p style={{ fontWeight: "var(--weight-medium)", margin: 0, fontSize: "var(--text-sm)" }}>{r.produit.nom}</p>
+                                        <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", margin: 0 }}>{r.produit.sku}</p>
+                                    </td>
+                                    <td style={{ fontSize: "var(--text-sm)" }}>{r.quantiteDemandee}</td>
                                     <td className="finReapp-table__amount">{formatMontant(r.montantTotal)}</td>
                                     <td>
-                                        <span className={`fin-badge ${BADGE_MAP[r.statut] || "fin-badge--neutral"}`}>
-                                            {r.statut}
+                                        <span className={`finReapp-priority finReapp-priority--${r.priorite}`}>
+                                            {PRIORITY_LABEL[r.priorite] ?? r.priorite}
                                         </span>
+                                    </td>
+                                    <td>
+                                        <span className={`fin-badge ${r.statut === "valide" ? "fin-badge--success" : "fin-badge--error"}`}>
+                                            {r.statut === "valide" ? "Validé" : "Refusé"}
+                                        </span>
+                                    </td>
+                                    <td className="finReapp-table__date">
+                                        {r.dateDecision ? formatDate(r.dateDecision) : "—"}
                                     </td>
                                 </tr>
                             ))
@@ -148,27 +163,63 @@ function HistoriqueReapprovisionnements() {
                 </table>
             </div>
 
-            {/* Cartes mobile */}
+            {/* Mobile cards */}
             <div className="finReapp-cards">
-                {filtres.map(r => (
-                    <article key={r.id} className="finReapp-card" onClick={() => setSelectedReappro(r)}>
+                {loading ? (
+                    [0,1,2].map(i => (
+                        <div key={i} className="finReapp-card">
+                            <div className="finReapp-skeleton finReapp-skeleton--sm" style={{ marginBottom: "var(--space-2)" }} />
+                            <div className="finReapp-skeleton finReapp-skeleton--lg" style={{ marginBottom: "var(--space-2)" }} />
+                            <div className="finReapp-skeleton finReapp-skeleton--md" />
+                        </div>
+                    ))
+                ) : filtered.map(r => (
+                    <article key={r.id} className="finReapp-card" onClick={() => setSelectedR(r)}>
                         <div className="finReapp-card__top">
                             <span className="finReapp-card__id">{r.id}</span>
-                            <span className={`fin-badge ${BADGE_MAP[r.statut] || "fin-badge--neutral"}`}>{r.statut}</span>
+                            <span className={`fin-badge ${r.statut === "valide" ? "fin-badge--success" : "fin-badge--error"}`}>
+                                {r.statut === "valide" ? "Validé" : "Refusé"}
+                            </span>
                         </div>
-                        <p className="finReapp-card__name">{r.fournisseur.nom}</p>
+                        <p className="finReapp-card__name">{r.produit.nom}</p>
                         <div className="finReapp-card__meta">
                             <span className="finReapp-card__amount">{formatMontant(r.montantTotal)}</span>
-                            <span className="finReapp-card__date">{formatDate(r.date)}</span>
+                            <span className="finReapp-card__date">{r.dateDecision ? formatDate(r.dateDecision) : "—"}</span>
                         </div>
                     </article>
                 ))}
             </div>
 
-            {selectedReappro && (
+            {/* Pagination */}
+            {!loading && totalPages > 1 && (
+                <div className="finReapp-pagination">
+                    <button
+                        className="finReapp-pagination__btn"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        aria-label="Page précédente"
+                        type="button"
+                    >
+                        <ChevronLeft size={16} aria-hidden="true" />
+                    </button>
+                    <span className="finReapp-pagination__info">Page {page} / {totalPages}</span>
+                    <button
+                        className="finReapp-pagination__btn"
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        aria-label="Page suivante"
+                        type="button"
+                    >
+                        <ChevronRight size={16} aria-hidden="true" />
+                    </button>
+                </div>
+            )}
+
+            {selectedR && (
                 <ReapprovisionnementPane
-                    reappro={selectedReappro}
-                    onClose={() => setSelectedReappro(null)}
+                    reappro={selectedR}
+                    mode="historique"
+                    onClose={() => setSelectedR(null)}
                 />
             )}
         </>

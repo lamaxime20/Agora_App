@@ -1,38 +1,43 @@
 import { useState } from "react";
 import { X, CheckCircle } from "lucide-react";
+import { reactiverAbonnement } from "../../../../services/financesP4.js";
 
-function ReactiverAbonnementPane({ abonnement, onClose }) {
+function ReactiverAbonnementPane({ abonnement, onClose, onSuccess }) {
     const [payerMoisCourant, setPayerMoisCourant] = useState("non");
     const [loading, setLoading]                   = useState(false);
-    const [success, setSuccess]                   = useState(false);
+    const [error, setError]                       = useState("");
+    const [done, setDone]                         = useState(false);
 
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
     const handleConfirm = async () => {
         setLoading(true);
-        await new Promise(r => setTimeout(r, 700));
-        setLoading(false);
-        setSuccess(true);
-        setTimeout(() => { onClose(); }, 1200);
+        setError("");
+        try {
+            await reactiverAbonnement(abonnement.id, { payerMoisCourant: payerMoisCourant === "oui" });
+            setDone(true);
+            setTimeout(() => { onSuccess?.(); onClose(); }, 1400);
+        } catch {
+            setError("Une erreur est survenue. Veuillez réessayer.");
+            setLoading(false);
+        }
     };
 
     return (
         <div className="finAbo-modal__overlay" role="dialog" aria-modal="true" aria-labelledby="reactiver-abo-title">
             <div className="finAbo-modal__panel">
                 <div className="finAbo-modal__header">
-                    <h2 className="finAbo-modal__title" id="reactiver-abo-title">
-                        Réactiver l'abonnement
-                    </h2>
-                    <button className="finAbo-modal__close" onClick={onClose} aria-label="Fermer" type="button">
+                    <h2 className="finAbo-modal__title" id="reactiver-abo-title">Réactiver l'abonnement</h2>
+                    <button className="finAbo-modal__close" onClick={onClose} aria-label="Fermer" type="button" disabled={loading}>
                         <X size={18} aria-hidden="true" />
                     </button>
                 </div>
 
-                {success ? (
+                {done ? (
                     <div className="finAbo-modal__body" style={{ alignItems: "center", padding: "var(--space-8)" }}>
                         <CheckCircle size={48} style={{ color: "var(--color-success)" }} aria-hidden="true" />
-                        <p style={{ fontWeight: "var(--weight-semibold)", color: "var(--color-success)" }}>
+                        <p style={{ fontWeight: "var(--weight-semibold)", color: "var(--color-success)", margin: 0 }}>
                             Abonnement réactivé avec succès !
                         </p>
                     </div>
@@ -54,26 +59,14 @@ function ReactiverAbonnementPane({ abonnement, onClose }) {
                                 </p>
                                 <div className="finAbo-radio-group" role="radiogroup">
                                     <label className="finAbo-radio-option">
-                                        <input
-                                            type="radio"
-                                            name="payerCourant"
-                                            value="oui"
-                                            checked={payerMoisCourant === "oui"}
-                                            onChange={() => setPayerMoisCourant("oui")}
-                                        />
+                                        <input type="radio" name="payerCourant" value="oui" checked={payerMoisCourant === "oui"} onChange={() => setPayerMoisCourant("oui")} />
                                         <div>
                                             <p className="finAbo-radio-option__label">Payer le mois en cours immédiatement</p>
                                             <p className="finAbo-radio-option__desc">{formatMontant(abonnement.montantMensuel)} déduits dès la réactivation.</p>
                                         </div>
                                     </label>
                                     <label className="finAbo-radio-option">
-                                        <input
-                                            type="radio"
-                                            name="payerCourant"
-                                            value="non"
-                                            checked={payerMoisCourant === "non"}
-                                            onChange={() => setPayerMoisCourant("non")}
-                                        />
+                                        <input type="radio" name="payerCourant" value="non" checked={payerMoisCourant === "non"} onChange={() => setPayerMoisCourant("non")} />
                                         <div>
                                             <p className="finAbo-radio-option__label">Ne pas payer maintenant</p>
                                             <p className="finAbo-radio-option__desc">Le premier prélèvement s'appliquera le mois prochain.</p>
@@ -81,12 +74,14 @@ function ReactiverAbonnementPane({ abonnement, onClose }) {
                                     </label>
                                 </div>
                             </div>
+
+                            {error && (
+                                <p style={{ fontSize: "var(--text-sm)", color: "var(--color-error)", margin: 0 }}>{error}</p>
+                            )}
                         </div>
 
                         <div className="finAbo-modal__footer">
-                            <button className="app-button app-button--ghost" onClick={onClose} type="button" disabled={loading}>
-                                Annuler
-                            </button>
+                            <button className="app-button app-button--ghost" onClick={onClose} type="button" disabled={loading}>Annuler</button>
                             <button className="app-button app-button--primary" onClick={handleConfirm} type="button" disabled={loading}>
                                 {loading ? "Réactivation…" : "Confirmer la réactivation"}
                             </button>

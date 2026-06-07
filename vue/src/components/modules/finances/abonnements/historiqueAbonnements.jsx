@@ -1,20 +1,34 @@
-import { useState } from "react";
-import { Download, ChevronDown, Repeat } from "lucide-react";
-import AbonnementPane from "./AbonnementPane.jsx";
-import ReactiverAbonnementPane from "./ReactiverAbonnementPane.jsx";
+import { useState, useEffect, useCallback } from "react";
+import { Download, ChevronDown, ChevronLeft, ChevronRight, Repeat } from "lucide-react";
+import { fetchAbonnements } from "../../../../services/financesP4.js";
+import AbonnementPane from "./abonnementPane.jsx";
+import ReactiverAbonnementPane from "./reactiverAbonnementPane.jsx";
 
-const MOCK_ARCHIVE = [
-    { id: "ABO-01", dateDebut: "2026-01-10", dateFin: null,         montantMensuel: 4900000, nomService: "Hébergement Serveur Cloud",        fournisseur: "AWS" },
-    { id: "ABO-02", dateDebut: "2026-04-15", dateFin: null,         montantMensuel: 1499000, nomService: "Outil de Design Collaboratif",    fournisseur: "Figma" },
-    { id: "ABO-03", dateDebut: "2024-02-01", dateFin: "2026-03-01", montantMensuel:  990000, nomService: "Banque d'images Premium",         fournisseur: "Shutterstock" },
-    { id: "ABO-05", dateDebut: "2023-07-01", dateFin: "2025-12-31", montantMensuel:  320000, nomService: "Logiciel Comptabilité",          fournisseur: "Sage" },
-];
+function TableSkeleton() {
+    return Array.from({ length: 5 }).map((_, i) => (
+        <tr key={i} className="finAbo-table__row--skeleton">
+            <td><div className="finAbo-skeleton finAbo-skeleton--sm" /></td>
+            <td><div className="finAbo-skeleton finAbo-skeleton--md" /></td>
+            <td><div className="finAbo-skeleton finAbo-skeleton--sm" /></td>
+            <td><div className="finAbo-skeleton finAbo-skeleton--sm" /></td>
+            <td><div className="finAbo-skeleton finAbo-skeleton--sm" /></td>
+            <td><div className="finAbo-skeleton finAbo-skeleton--md" /></td>
+            <td><div className="finAbo-skeleton finAbo-skeleton--sm" /></td>
+            <td><div className="finAbo-skeleton finAbo-skeleton--sm" /></td>
+        </tr>
+    ));
+}
 
 function HistoriqueAbonnements() {
-    const [selectedAbo, setSelectedAbo]       = useState(null);
-    const [aboToReactivate, setAboToReactivate] = useState(null);
+    const [data, setData]                     = useState([]);
+    const [meta, setMeta]                     = useState(null);
+    const [page, setPage]                     = useState(1);
+    const [loading, setLoading]               = useState(true);
+    const [erreur, setErreur]                 = useState("");
     const [filtreStatut, setFiltreStatut]     = useState("tous");
     const [exportOpen, setExportOpen]         = useState(false);
+    const [selectedAbo, setSelectedAbo]       = useState(null);
+    const [aboToReactivate, setAboToReactivate] = useState(null);
 
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -22,11 +36,29 @@ function HistoriqueAbonnements() {
     const formatDate = (d) =>
         new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
 
-    const filtres = MOCK_ARCHIVE.filter(a => {
-        if (filtreStatut === "actif")   return !a.dateFin;
-        if (filtreStatut === "inactif") return !!a.dateFin;
+    const load = useCallback(async (p) => {
+        setLoading(true);
+        setErreur("");
+        try {
+            const res = await fetchAbonnements(p, "tous");
+            setData(res.data);
+            setMeta(res.meta);
+        } catch {
+            setErreur("Impossible de charger l'historique des abonnements.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => { load(page); }, [page, load]);
+
+    const filtered = data.filter(a => {
+        if (filtreStatut === "actif")   return a.statut === "actif";
+        if (filtreStatut === "resilié") return a.statut !== "actif";
         return true;
     });
+
+    const totalPages = meta ? Math.ceil(meta.total / meta.per_page) : 1;
 
     return (
         <>
@@ -41,13 +73,13 @@ function HistoriqueAbonnements() {
                     >
                         <option value="tous">Tous les abonnements</option>
                         <option value="actif">Actifs uniquement</option>
-                        <option value="inactif">Résiliés uniquement</option>
+                        <option value="resilié">Résiliés uniquement</option>
                     </select>
 
                     <div style={{ position: "relative", marginLeft: "auto" }}>
                         <button
                             className="app-button app-button--ghost app-button--sm"
-                            onClick={() => setExportOpen(!exportOpen)}
+                            onClick={() => setExportOpen(v => !v)}
                             type="button"
                             aria-expanded={exportOpen}
                         >
@@ -74,7 +106,13 @@ function HistoriqueAbonnements() {
                 </div>
             </div>
 
-            {/* Tableau desktop */}
+            {erreur && (
+                <p style={{ color: "var(--color-error)", fontSize: "var(--text-sm)", background: "rgba(231,76,60,0.07)", padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(231,76,60,0.2)" }}>
+                    {erreur}
+                </p>
+            )}
+
+            {/* Desktop table */}
             <div className="finAbo-tableWrap">
                 <table className="finAbo-table" aria-label="Historique des abonnements">
                     <thead className="finAbo-table__head">
@@ -90,7 +128,7 @@ function HistoriqueAbonnements() {
                         </tr>
                     </thead>
                     <tbody>
-                        {filtres.length === 0 ? (
+                        {loading ? <TableSkeleton /> : filtered.length === 0 ? (
                             <tr>
                                 <td colSpan={8}>
                                     <div className="finAbo-empty">
@@ -100,7 +138,7 @@ function HistoriqueAbonnements() {
                                 </td>
                             </tr>
                         ) : (
-                            filtres.map(abo => (
+                            filtered.map(abo => (
                                 <tr key={abo.id} className="finAbo-table__row" onClick={() => setSelectedAbo(abo)}>
                                     <td className="finAbo-table__id">{abo.id}</td>
                                     <td className="finAbo-table__name">{abo.nomService}</td>
@@ -109,15 +147,15 @@ function HistoriqueAbonnements() {
                                     <td className="finAbo-table__date">{abo.dateFin ? formatDate(abo.dateFin) : "—"}</td>
                                     <td className="finAbo-table__amount">{formatMontant(abo.montantMensuel)}</td>
                                     <td>
-                                        <span className={`fin-badge ${abo.dateFin ? "fin-badge--neutral" : "fin-badge--success"}`}>
-                                            {abo.dateFin ? "Résilié" : "Actif"}
+                                        <span className={`fin-badge ${abo.statut === "actif" ? "fin-badge--success" : "fin-badge--neutral"}`}>
+                                            {abo.statut === "actif" ? "Actif" : "Résilié"}
                                         </span>
                                     </td>
-                                    <td>
-                                        {abo.dateFin && (
+                                    <td onClick={e => e.stopPropagation()}>
+                                        {abo.statut !== "actif" && (
                                             <button
                                                 className="app-button app-button--ghost app-button--sm"
-                                                onClick={e => { e.stopPropagation(); setAboToReactivate(abo); }}
+                                                onClick={() => setAboToReactivate(abo)}
                                                 type="button"
                                             >
                                                 Réactiver
@@ -131,14 +169,22 @@ function HistoriqueAbonnements() {
                 </table>
             </div>
 
-            {/* Cartes mobile */}
+            {/* Mobile cards */}
             <div className="finAbo-cards">
-                {filtres.map(abo => (
+                {loading ? (
+                    [0,1,2].map(i => (
+                        <div key={i} className="finAbo-card">
+                            <div className="finAbo-skeleton finAbo-skeleton--sm" style={{ marginBottom: "var(--space-2)" }} />
+                            <div className="finAbo-skeleton finAbo-skeleton--lg" style={{ marginBottom: "var(--space-2)" }} />
+                            <div className="finAbo-skeleton finAbo-skeleton--md" />
+                        </div>
+                    ))
+                ) : filtered.map(abo => (
                     <article key={abo.id} className="finAbo-card" onClick={() => setSelectedAbo(abo)}>
                         <div className="finAbo-card__top">
                             <span className="finAbo-card__id">{abo.id}</span>
-                            <span className={`fin-badge ${abo.dateFin ? "fin-badge--neutral" : "fin-badge--success"}`}>
-                                {abo.dateFin ? "Résilié" : "Actif"}
+                            <span className={`fin-badge ${abo.statut === "actif" ? "fin-badge--success" : "fin-badge--neutral"}`}>
+                                {abo.statut === "actif" ? "Actif" : "Résilié"}
                             </span>
                         </div>
                         <p className="finAbo-card__name">{abo.nomService}</p>
@@ -150,6 +196,31 @@ function HistoriqueAbonnements() {
                 ))}
             </div>
 
+            {/* Pagination */}
+            {!loading && totalPages > 1 && (
+                <div className="finAbo-pagination">
+                    <button
+                        className="finAbo-pagination__btn"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        aria-label="Page précédente"
+                        type="button"
+                    >
+                        <ChevronLeft size={16} aria-hidden="true" />
+                    </button>
+                    <span className="finAbo-pagination__info">Page {page} / {totalPages}</span>
+                    <button
+                        className="finAbo-pagination__btn"
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        aria-label="Page suivante"
+                        type="button"
+                    >
+                        <ChevronRight size={16} aria-hidden="true" />
+                    </button>
+                </div>
+            )}
+
             {selectedAbo && (
                 <AbonnementPane abonnement={selectedAbo} onClose={() => setSelectedAbo(null)} />
             )}
@@ -158,6 +229,7 @@ function HistoriqueAbonnements() {
                 <ReactiverAbonnementPane
                     abonnement={aboToReactivate}
                     onClose={() => setAboToReactivate(null)}
+                    onSuccess={() => { setAboToReactivate(null); load(page); }}
                 />
             )}
         </>

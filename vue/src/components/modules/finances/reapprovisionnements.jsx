@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { Truck, History } from "lucide-react";
-import EnregistrerReapprovisionnement from "./reapprovisionnements/enregistrerReapprovisionnement.jsx";
+import { ClipboardList, History } from "lucide-react";
+import EnAttenteReapprovisionnements from "./reapprovisionnements/enAttenteReapprovisionnements.jsx";
 import HistoriqueReapprovisionnements from "./reapprovisionnements/historiqueReapprovisionnements.jsx";
 import "../../../assets/styles/components/modules/finances/reapprovisionnements.css";
 
 const TABS = [
-    { id: "enregistrer", label: "Nouvelle commande",    icon: Truck },
-    { id: "historique",  label: "Historique",           icon: History },
+    { id: "attente",    label: "En attente",  icon: ClipboardList },
+    { id: "historique", label: "Historique",  icon: History },
 ];
 
 function Reapprovisionnements() {
-    const [onglet, setOnglet] = useState("enregistrer");
+    const [onglet, setOnglet] = useState("attente");
 
     return (
         <div className="finReapp-root">
@@ -37,8 +37,8 @@ function Reapprovisionnements() {
             </nav>
 
             <main>
-                {onglet === "enregistrer" ? (
-                    <EnregistrerReapprovisionnement />
+                {onglet === "attente" ? (
+                    <EnAttenteReapprovisionnements />
                 ) : (
                     <HistoriqueReapprovisionnements />
                 )}
