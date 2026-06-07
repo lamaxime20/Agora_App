@@ -1,27 +1,6 @@
-import { Package, AlertTriangle, CalendarCheck, TrendingDown } from "lucide-react";
+import { Package, AlertTriangle, CalendarCheck, TrendingDown, RefreshCw, AlertCircle } from "lucide-react";
+import { useStatistiques, formatFCFA } from "../../../services/useStatistiques.js";
 import "../../../assets/styles/components/modules/gestionStocks/dashboard.css";
-
-const kpis = [
-    { icon: Package,       label: "Produits actifs",   value: "148",          color: "primary" },
-    { icon: AlertTriangle, label: "Alertes stock",      value: "7",            color: "warning" },
-    { icon: CalendarCheck, label: "Réservations",       value: "12",           color: "info"    },
-    { icon: TrendingDown,  label: "Pertes ce mois",     value: "45 200 FCFA",  color: "error"   },
-];
-
-const alertes = [
-    { id: 1, type: "rupture", nom: "Cahier grand format",     quantite: 0, unite: "pièce"      },
-    { id: 2, type: "faible",  nom: "Stylo bille bleu",        quantite: 4, unite: "pièce"      },
-    { id: 3, type: "faible",  nom: "Papier ramette A4",       quantite: 2, unite: "ramette"    },
-    { id: 4, type: "rupture", nom: "Encre imprimante noire",  quantite: 0, unite: "cartouche"  },
-];
-
-const activite = [
-    { id: 1, type: "entree", description: "Réception de 50 Cahiers grand format",     heure: "Il y a 23 min" },
-    { id: 2, type: "sortie", description: "Sortie de 3 Stylos bille bleu",             heure: "Il y a 1h"     },
-    { id: 3, type: "alerte", description: "Stock faible détecté : Papier ramette A4",  heure: "Il y a 2h"     },
-    { id: 4, type: "entree", description: "Réapprovisionnement validé — 10 produits",  heure: "Il y a 3h"     },
-    { id: 5, type: "sortie", description: "Réservation #R-0042 confirmée",             heure: "Il y a 4h"     },
-];
 
 function KpiCard({ icon: Icon, label, value, color }) {
     return (
@@ -38,6 +17,41 @@ function KpiCard({ icon: Icon, label, value, color }) {
 }
 
 function Dashboard() {
+    const { data, loading, error, refresh } = useStatistiques("vueGenerale");
+    const k = data?.kpis ?? {};
+
+    const kpis = [
+        { icon: Package,       label: "Produits actifs",   value: k.totalProduits ?? 0,           color: "primary" },
+        { icon: AlertTriangle, label: "Alertes stock",      value: k.totalProduitsFaible ?? 0,     color: "warning" },
+        { icon: CalendarCheck, label: "Réservations",       value: k.totalProduitsRupture ?? 0,    color: "info"    },
+        { icon: TrendingDown,  label: "Pertes ce mois",     value: formatFCFA(k.coutTotalPertes ?? 0), color: "error"   },
+    ];
+
+    const alertes = [
+        { id: 1, type: "rupture", nom: "Ruptures détectées", quantite: k.totalProduitsRupture ?? 0, unite: "produit" },
+        { id: 2, type: "faible",  nom: "Stock faible",       quantite: k.totalProduitsFaible ?? 0,   unite: "produit" },
+    ];
+
+    const activite = (data?.evolutionValeurStock ?? []).slice(-5).map((item, index) => ({
+        id: index + 1,
+        type: item.valeur >= 0 ? "entree" : "sortie",
+        description: `Mouvement de stock du ${item.mois}`,
+        heure: item.mois,
+    }));
+
+    if (error) {
+        return (
+            <div className="listeReappro-error" role="alert">
+                <AlertCircle size={32} aria-hidden="true" />
+                <p>{error}</p>
+                <button className="app-button app-button--ghost app-button--sm" onClick={refresh} type="button">
+                    <RefreshCw size={13} aria-hidden="true" />
+                    Réessayer
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="gestionStockDashboard-root">
             <header className="gestionStockDashboard-header">
@@ -48,9 +62,14 @@ function Dashboard() {
             </header>
 
             <section className="gestionStockDashboard-kpis" aria-label="Indicateurs clés">
-                {kpis.map((kpi, i) => (
-                    <KpiCard key={i} {...kpi} />
-                ))}
+                {loading
+                    ? [...Array(4)].map((_, i) => (
+                        <article key={i} className="gestionStockDashboard-kpi app-card app-card--hoverable" aria-busy="true">
+                            <div className="skeleton-line skeleton-line--lg" />
+                        </article>
+                    ))
+                    : kpis.map((kpi, i) => <KpiCard key={i} {...kpi} />)
+                }
             </section>
 
             <div className="gestionStockDashboard-grid">
@@ -62,12 +81,12 @@ function Dashboard() {
                                 <span className={`gestionStockDashboard-alert__badge gestionStockDashboard-alert__badge--${alert.type}`}>
                                     {alert.type === "rupture" ? "Rupture" : "Faible"}
                                 </span>
-                                <span className="gestionStockDashboard-alert__name">{alert.nom}</span>
-                                <span className="gestionStockDashboard-alert__qty">
+                            <span className="gestionStockDashboard-alert__name">{alert.nom}</span>
+                            <span className="gestionStockDashboard-alert__qty">
                                     {alert.quantite} {alert.unite}
-                                </span>
-                            </li>
-                        ))}
+                            </span>
+                        </li>
+                    ))}
                     </ul>
                 </section>
 

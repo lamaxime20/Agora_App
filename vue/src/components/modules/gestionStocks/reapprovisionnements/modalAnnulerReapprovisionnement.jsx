@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { X, AlertTriangle, Check } from "lucide-react";
+import { annulerStockRavitaillement } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/modalSecuriteReapprovisionnement.css";
 
-function ModalAnnulerReapprovisionnement({ item, onClose }) {
+function ModalAnnulerReapprovisionnement({ item, onClose, onSaved }) {
     const [raison, setRaison]         = useState("");
     const [erreur, setErreur]         = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -21,11 +22,18 @@ function ModalAnnulerReapprovisionnement({ item, onClose }) {
         }
         setErreur("");
         setSubmitting(true);
-        setTimeout(() => {
-            setSubmitting(false);
-            setSuccess(true);
-            setTimeout(onClose, 1500);
-        }, 1200);
+        annulerStockRavitaillement(item.id, raison.trim())
+            .then(() => {
+                setSuccess(true);
+                onSaved?.();
+                setTimeout(onClose, 1500);
+            })
+            .catch((err) => {
+                setErreur(err?.message || "Impossible d'annuler ce réapprovisionnement.");
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
     };
 
     if (success) {

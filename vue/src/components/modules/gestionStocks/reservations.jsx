@@ -3,8 +3,8 @@ import {
     ShoppingCart, AlertCircle, RefreshCw, Search,
     Download, Filter, ChevronRight, Calendar,
 } from "lucide-react";
-import reservationsData from "../../../mockups/gestionStocks/reservations.json";
 import PaneDetailsReservation from "./reservations/paneDetailsReservation.jsx";
+import { fetchStockReservations } from "../../../services/gestionStock.js";
 import "../../../assets/styles/components/modules/gestionStocks/reservations.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -90,15 +90,25 @@ function Reservations() {
     const charger = useCallback(() => {
         setLoading(true);
         setError(null);
-        const t = setTimeout(() => {
+        let active = true;
+
+        (async () => {
             try {
-                setItems(reservationsData.data.reservations);
+                const payload = await fetchStockReservations({ limit: 100 });
+                if (!active) return;
+                setItems(payload.items ?? []);
             } catch {
-                setError("Impossible de charger les réservations.");
+                if (active) {
+                    setError("Impossible de charger les réservations.");
+                }
+            } finally {
+                if (active) setLoading(false);
             }
-            setLoading(false);
-        }, 700);
-        return () => clearTimeout(t);
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -109,14 +119,14 @@ function Reservations() {
         const q = recherche.toLowerCase();
         const matchSearch = !recherche
             || item.reference.toLowerCase().includes(q)
-            || item.client.nom.toLowerCase().includes(q)
-            || item.lignes.some(l => l.nom.toLowerCase().includes(q));
+            || (item.client?.nom ?? "").toLowerCase().includes(q)
+            || (item.lignes ?? []).some(l => (l.nom ?? "").toLowerCase().includes(q));
         const matchStatut = !filtreStatut || item.statut === filtreStatut;
         return matchSearch && matchStatut;
     });
 
     const actives       = items.filter(i => i.statut === "en_cours");
-    const articlesTotal = actives.reduce((acc, i) => acc + i.lignes.reduce((a, l) => a + l.quantite_reservee, 0), 0);
+    const articlesTotal = actives.reduce((acc, i) => acc + (i.lignes ?? []).reduce((a, l) => a + Number(l.quantite_reservee ?? 0), 0), 0);
     const valeurTotal   = actives.reduce((acc, i) => acc + i.montant_total, 0);
     const nbFiltresActifs = [filtreStatut].filter(Boolean).length;
 
@@ -305,9 +315,9 @@ function Reservations() {
                                     <span className="reservations-card__ref">{item.reference}</span>
                                     <BadgeStatut statut={item.statut} />
                                 </div>
-                                <span className="reservations-card__client">{item.client.nom}</span>
-                                <div className="reservations-card__meta">
-                                    <span>{item.lignes.length} article{item.lignes.length > 1 ? "s" : ""}</span>
+                                    <span className="reservations-card__client">{item.client?.nom ?? "—"}</span>
+                                    <div className="reservations-card__meta">
+                                    <span>{(item.lignes ?? []).length} article{(item.lignes ?? []).length > 1 ? "s" : ""}</span>
                                     <span>{formatMontant(item.montant_total)}</span>
                                     <span>{formatDate(item.date_reservation)}</span>
                                 </div>
@@ -342,10 +352,10 @@ function Reservations() {
                                     <td>
                                         <span className="reservations-table__ref">{item.reference}</span>
                                     </td>
-                                    <td className="reservations-table__client">{item.client.nom}</td>
+                                    <td className="reservations-table__client">{item.client?.nom ?? "—"}</td>
                                     <td>
                                         <span className="reservations-table__articles">
-                                            {item.lignes.length} article{item.lignes.length > 1 ? "s" : ""}
+                                            {(item.lignes ?? []).length} article{(item.lignes ?? []).length > 1 ? "s" : ""}
                                         </span>
                                     </td>
                                     <td className="reservations-table__montant">

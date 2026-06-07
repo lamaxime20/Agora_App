@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, Upload, Check } from "lucide-react";
-import categoriesData from "../../../../mockups/gestionStocks/categories.json";
+import {
+    fetchStockCategories,
+    createStockProduit,
+    updateStockProduit,
+} from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/modalAjoutProduit.css";
 
 const DRAFT_KEY = "agora_draft_produit";
@@ -16,7 +20,7 @@ const defaultForm = {
     categorie_id: "",
 };
 
-function ModalAjoutProduit({ onClose, produitInitial = null }) {
+function ModalAjoutProduit({ onClose, produitInitial = null, onSaved }) {
     const isModification = produitInitial !== null;
 
     const buildInitialForm = () => {
@@ -41,18 +45,32 @@ function ModalAjoutProduit({ onClose, produitInitial = null }) {
 
     const [form, setForm]                       = useState(buildInitialForm);
     const [imagePreview, setImagePreview]       = useState(produitInitial?.image_url ?? null);
+    const [imageFile, setImageFile]             = useState(null);
     const [isDragging, setIsDragging]           = useState(false);
     const [categories, setCategories]           = useState([]);
     const [catSearch, setCatSearch]             = useState(produitInitial?.categorie?.nom ?? "");
     const [showCatDropdown, setShowCatDropdown] = useState(false);
+    const [submitting, setSubmitting]           = useState(false);
+    const [submitError, setSubmitError]         = useState("");
+    const [success, setSuccess]                 = useState(false);
     const fileInputRef = useRef(null);
     const saveTimer    = useRef(null);
 
     useEffect(() => {
-        const t = setTimeout(() => {
-            setCategories(categoriesData.data.categories);
-        }, 200);
-        return () => clearTimeout(t);
+        let active = true;
+
+        (async () => {
+            try {
+                const cats = await fetchStockCategories();
+                if (active) setCategories(cats);
+            } catch {
+                if (active) setCategories([]);
+            }
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -71,6 +89,7 @@ function ModalAjoutProduit({ onClose, produitInitial = null }) {
 
     const handleImage = useCallback((file) => {
         if (!file?.type.startsWith("image/")) return;
+        setImageFile(file);
         const reader = new FileReader();
         reader.onload = e => setImagePreview(e.target.result);
         reader.readAsDataURL(file);
@@ -94,13 +113,66 @@ function ModalAjoutProduit({ onClose, produitInitial = null }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!isModification) {
-            try { localStorage.removeItem(DRAFT_KEY); } catch { /* rien */ }
+        setSubmitting(true);
+        setSubmitError("");
+
+        const payload = new FormData();
+        payload.append("nom", form.nom);
+        payload.append("prix_unitaire", form.prix_unitaire);
+        payload.append("type_produit", form.type);
+        payload.append("categorie", form.categorie_id);
+        payload.append("description", form.description ?? "");
+
+        if (form.type === "physique") {
+            payload.append("stock_actuel", form.stock_actuel || "0");
+            payload.append("seuil_alerte", form.seuil_alerte || "0");
+            payload.append("unite_mesure", form.unite || "");
         }
-        onClose();
+
+        if (imageFile) {
+            payload.append("image", imageFile);
+        }
+
+        const action = isModification
+            ? updateStockProduit(produitInitial.id, payload)
+            : createStockProduit(payload);
+
+        action
+            .then(() => {
+                if (!isModification) {
+                    try { localStorage.removeItem(DRAFT_KEY); } catch { /* rien */ }
+                }
+                setSuccess(true);
+                onSaved?.();
+                setTimeout(() => onClose(), 1200);
+            })
+            .catch((err) => {
+                setSubmitError(err?.message || "Impossible d'enregistrer le produit.");
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
     };
 
     const estPhysique = form.type === "physique";
+
+    if (success) {
+        return (
+            <div
+                className="modalProduit-overlay"
+                onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+                role="presentation"
+            >
+                <div className="modalProduit-panel" role="dialog" aria-modal="true" aria-labelledby="modalProduit-title">
+                    <div className="modalProduit-success">
+                        <Check size={30} aria-hidden="true" />
+                        <h3>Produit enregistré</h3>
+                        <p>La fiche produit a bien été sauvegardée.</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div
@@ -355,11 +427,17 @@ function ModalAjoutProduit({ onClose, produitInitial = null }) {
 
                     </div>
 
+                    {submitError && (
+                        <p className="modalProduit-error" role="alert">
+                            {submitError}
+                        </p>
+                    )}
+
                     <div className="modalProduit-footer">
-                        <button type="button" className="app-button app-button--ghost" onClick={onClose}>
+                        <button type="button" className="app-button app-button--ghost" onClick={onClose} disabled={submitting}>
                             Annuler
                         </button>
-                        <button type="submit" className="app-button app-button--primary">
+                        <button type="submit" className="app-button app-button--primary" disabled={submitting}>
                             {isModification ? "Enregistrer les modifications" : "Ajouter le produit"}
                         </button>
                     </div>

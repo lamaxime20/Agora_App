@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { X, ShieldCheck, Eye, EyeOff, Check } from "lucide-react";
+import { confirmerStockRavitaillement } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/modalSecuriteReapprovisionnement.css";
 
-function ModalConfirmerReapprovisionnement({ item, onClose }) {
+function ModalConfirmerReapprovisionnement({ item, onClose, onSaved }) {
     const [motDePasse, setMotDePasse]   = useState("");
     const [afficher, setAfficher]       = useState(false);
     const [erreur, setErreur]           = useState("");
@@ -22,11 +23,18 @@ function ModalConfirmerReapprovisionnement({ item, onClose }) {
         }
         setErreur("");
         setSubmitting(true);
-        setTimeout(() => {
-            setSubmitting(false);
-            setSuccess(true);
-            setTimeout(onClose, 1600);
-        }, 1400);
+        confirmerStockRavitaillement(item.id, motDePasse.trim())
+            .then(() => {
+                setSuccess(true);
+                onSaved?.();
+                setTimeout(onClose, 1600);
+            })
+            .catch((err) => {
+                setErreur(err?.message || "Impossible de confirmer ce réapprovisionnement.");
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
     };
 
     if (success) {

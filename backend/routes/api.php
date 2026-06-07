@@ -58,6 +58,11 @@ Route::prefix('stock')
         MiddlewareStockAccess::class,
     ])
     ->group(function () {
+        
+    });
+
+Route::prefix('stock')
+    ->group(function () {
         Route::get('produits', [StockProduitController::class, 'index']);
         Route::post('produits', [StockProduitController::class, 'store']);
         Route::get('produits/{id}', [StockProduitController::class, 'show']);

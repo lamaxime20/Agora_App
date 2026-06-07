@@ -3,9 +3,9 @@ import {
     Search, Filter, Download, AlertCircle, RefreshCw,
     Calendar, ChevronRight, X,
 } from "lucide-react";
-import pertesData from "../../../../mockups/gestionStocks/pertes.json";
 import PaneDetailsPerte    from "./paneDetailsPerte.jsx";
 import ModalAnnulerPerte   from "./modalAnnulerPerte.jsx";
+import { fetchStockPertes } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/historiquePertes.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -105,15 +105,25 @@ function HistoriquePertes() {
     const charger = useCallback(() => {
         setLoading(true);
         setError(null);
-        const t = setTimeout(() => {
+        let active = true;
+
+        (async () => {
             try {
-                setItems(pertesData.data.pertes);
+                const payload = await fetchStockPertes({ limit: 100 });
+                if (!active) return;
+                setItems(payload.items ?? []);
             } catch {
-                setError("Impossible de charger l'historique.");
+                if (active) {
+                    setError("Impossible de charger l'historique.");
+                }
+            } finally {
+                if (active) setLoading(false);
             }
-            setLoading(false);
-        }, 700);
-        return () => clearTimeout(t);
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     useEffect(() => {

@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, Search, Package2, Plus, Check, AlertCircle } from "lucide-react";
-import produitsData from "../../../../mockups/gestionStocks/produits.json";
+import { createStockRavitaillement, fetchStockProduits } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/modalCreationReapprovisionnement.css";
 
 const defaultForm = { produit_id: "", quantite: "", montant_total: "", commentaire: "" };
 
-function ModalCreationReapprovisionnement({ onClose }) {
+function ModalCreationReapprovisionnement({ onClose, onSaved }) {
     const [form, setForm]                     = useState(defaultForm);
     const [produitSearch, setProduitSearch]   = useState("");
     const [produits, setProduits]             = useState([]);
@@ -18,10 +18,21 @@ function ModalCreationReapprovisionnement({ onClose }) {
     const overlayRef = useRef(null);
 
     useEffect(() => {
-        const t = setTimeout(() => {
-            setProduits(produitsData.data.produits.filter(p => p.type === "physique"));
-        }, 150);
-        return () => clearTimeout(t);
+        let active = true;
+
+        (async () => {
+            try {
+                const payload = await fetchStockProduits({ limit: 100 });
+                if (!active) return;
+                setProduits((payload.items ?? []).filter(p => p.type === "physique" || p.type_produit === "physique"));
+            } catch {
+                if (active) setProduits([]);
+            }
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -67,11 +78,21 @@ function ModalCreationReapprovisionnement({ onClose }) {
         if (Object.keys(errs).length) { setErrors(errs); return; }
 
         setSubmitting(true);
-        setTimeout(() => {
-            setSubmitting(false);
-            setSuccess(true);
-            setTimeout(onClose, 1600);
-        }, 1200);
+        createStockRavitaillement({
+            produit_id: form.produit_id,
+            quantite: form.quantite,
+            montant_a_depenser: form.montant_total,
+            commentaire: form.commentaire,
+        })
+            .then(() => {
+                setSuccess(true);
+                onSaved?.();
+                setTimeout(onClose, 1600);
+            })
+            .catch((err) => {
+                setErrors(prev => ({ ...prev, global: err?.message || "Impossible de créer le réapprovisionnement." }));
+            })
+            .finally(() => setSubmitting(false));
     };
 
     const handleOverlayClick = (e) => {
@@ -122,6 +143,12 @@ function ModalCreationReapprovisionnement({ onClose }) {
                         <X size={20} aria-hidden="true" />
                     </button>
                 </div>
+
+                {errors.global && (
+                    <p className="modalReappro-error" role="alert">
+                        {errors.global}
+                    </p>
+                )}
 
                 {/* ─── Corps ───────────────────────────────── */}
                 <form className="modalReappro-form" onSubmit={handleSubmit} noValidate>

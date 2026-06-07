@@ -3,11 +3,11 @@ import {
     Plus, RefreshCw, AlertCircle, Package2,
     ChevronRight, Check, X, Clock, CheckCircle2,
 } from "lucide-react";
-import reapproData from "../../../../mockups/gestionStocks/reapprovisionnements.json";
 import ModalCreationReapprovisionnement  from "./modalCreationReapprovisionnement.jsx";
 import ModalAnnulerReapprovisionnement   from "./modalAnnulerReapprovisionnement.jsx";
 import ModalConfirmerReapprovisionnement from "./modalConfirmerReapprovisionnement.jsx";
 import PaneDetailsReapprovisionnement    from "./paneDetailsReapprovisionnement.jsx";
+import { fetchStockRavitaillements } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/listeReapprovisionnement.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -111,15 +111,25 @@ function ListeReapprovisionnement() {
     const charger = useCallback(() => {
         setLoading(true);
         setError(null);
-        const t = setTimeout(() => {
+        let active = true;
+
+        (async () => {
             try {
-                setItems(reapproData.data.reapprovisionnements);
+                const payload = await fetchStockRavitaillements({ limit: 100 });
+                if (!active) return;
+                setItems(payload.items ?? []);
             } catch {
-                setError("Impossible de charger les réapprovisionnements.");
+                if (active) {
+                    setError("Impossible de charger les réapprovisionnements.");
+                }
+            } finally {
+                if (active) setLoading(false);
             }
-            setLoading(false);
-        }, 700);
-        return () => clearTimeout(t);
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -341,36 +351,30 @@ function ListeReapprovisionnement() {
             {!loading && !error && items.length > 0 && (
                 <div className="listeReappro-pagination">
                     <span className="listeReappro-pagination__info">
-                        {reapproData.pagination.total} résultat{reapproData.pagination.total > 1 ? "s" : ""}
+                        {items.length} résultat{items.length > 1 ? "s" : ""}
                     </span>
                     <div className="listeReappro-pagination__pages">
-                        {[...Array(reapproData.pagination.totalPages)].map((_, i) => (
-                            <button
-                                key={i}
-                                className={`listeReappro-pagination__page${i === 0 ? " listeReappro-pagination__page--active" : ""}`}
-                                type="button"
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
+                        <span className="listeReappro-pagination__page listeReappro-pagination__page--active">1</span>
                     </div>
                 </div>
             )}
 
             {/* ─── Modals & Pane ───────────────────────────────────────────── */}
             {modalCreation && (
-                <ModalCreationReapprovisionnement onClose={() => setModalCreation(false)} />
+                <ModalCreationReapprovisionnement onClose={() => setModalCreation(false)} onSaved={charger} />
             )}
             {itemAAnnuler && (
                 <ModalAnnulerReapprovisionnement
                     item={itemAAnnuler}
                     onClose={() => setItemAAnnuler(null)}
+                    onSaved={charger}
                 />
             )}
             {itemAConfirmer && (
                 <ModalConfirmerReapprovisionnement
                     item={itemAConfirmer}
                     onClose={() => setItemAConfirmer(null)}
+                    onSaved={charger}
                 />
             )}
             {paneItem && (

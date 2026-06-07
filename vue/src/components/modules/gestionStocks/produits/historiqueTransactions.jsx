@@ -5,7 +5,7 @@ import {
     ChevronLeft, ChevronRight
 } from "lucide-react";
 import PaneDetailsTransaction from "./paneDetailsTransaction.jsx";
-import transactionsData from "../../../../mockups/gestionStocks/transactions.json";
+import { fetchStockHistorique } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/historiqueTransactions.css";
 
 /* ─── Config des types ────────────────────────────────────────────────────────── */
@@ -214,15 +214,25 @@ function HistoriqueTransactions() {
     const [paneLoading, setPaneLoading]         = useState(false);
 
     useEffect(() => {
-        const t = setTimeout(() => {
+        let active = true;
+
+        (async () => {
             try {
-                setTransactions(transactionsData.data);
+                const payload = await fetchStockHistorique({ limit: 100 });
+                if (!active) return;
+                setTransactions(payload.items ?? []);
             } catch {
-                setError("Impossible de charger les transactions.");
+                if (active) {
+                    setError("Impossible de charger les transactions.");
+                }
+            } finally {
+                if (active) setLoading(false);
             }
-            setLoading(false);
-        }, 700);
-        return () => clearTimeout(t);
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     /* Ouvrir pane avec chargement progressif */

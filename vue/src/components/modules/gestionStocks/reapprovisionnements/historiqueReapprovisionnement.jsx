@@ -3,10 +3,10 @@ import {
     Search, Filter, Download, AlertCircle, RefreshCw,
     Calendar, ChevronRight, CheckCircle2, X, Check,
 } from "lucide-react";
-import reapproData from "../../../../mockups/gestionStocks/reapprovisionnements.json";
 import PaneDetailsReapprovisionnement    from "./paneDetailsReapprovisionnement.jsx";
 import ModalAnnulerReapprovisionnement   from "./modalAnnulerReapprovisionnement.jsx";
 import ModalConfirmerReapprovisionnement from "./modalConfirmerReapprovisionnement.jsx";
+import { fetchStockRavitaillements } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/historiqueReapprovisionnement.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -90,15 +90,25 @@ function HistoriqueReapprovisionnement() {
     const charger = useCallback(() => {
         setLoading(true);
         setError(null);
-        const t = setTimeout(() => {
+        let active = true;
+
+        (async () => {
             try {
-                setItems(reapproData.data.reapprovisionnements);
+                const payload = await fetchStockRavitaillements({ limit: 100 });
+                if (!active) return;
+                setItems(payload.items ?? []);
             } catch {
-                setError("Impossible de charger l'historique.");
+                if (active) {
+                    setError("Impossible de charger l'historique.");
+                }
+            } finally {
+                if (active) setLoading(false);
             }
-            setLoading(false);
-        }, 700);
-        return () => clearTimeout(t);
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -412,14 +422,14 @@ function HistoriqueReapprovisionnement() {
                 <ModalAnnulerReapprovisionnement
                     item={itemAAnnuler}
                     onClose={() => setItemAAnnuler(null)}
-                    onConfirm={() => { setItemAAnnuler(null); charger(); }}
+                    onSaved={() => { setItemAAnnuler(null); charger(); }}
                 />
             )}
             {itemAConfirmer && (
                 <ModalConfirmerReapprovisionnement
                     item={itemAConfirmer}
                     onClose={() => setItemAConfirmer(null)}
-                    onConfirm={() => { setItemAConfirmer(null); charger(); }}
+                    onSaved={() => { setItemAConfirmer(null); charger(); }}
                 />
             )}
         </div>

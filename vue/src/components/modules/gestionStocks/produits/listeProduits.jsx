@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Search, Plus, FolderPlus, AlertCircle, Package } from "lucide-react";
 import ModalAjoutProduit from "./modalAjoutProduit.jsx";
 import ModalAjoutCategorie from "./modalAjoutCategorie.jsx";
-import produitsData from "../../../../mockups/gestionStocks/produits.json";
+import { fetchStockProduits } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/listeProduits.css";
 
 function BadgeStatut({ statut, type }) {
@@ -67,24 +67,40 @@ function ListeProduits() {
     const [modalProduit, setModalProduit]     = useState(false);
     const [modalCategorie, setModalCategorie] = useState(false);
 
-    useEffect(() => {
-        const t = setTimeout(() => {
+    const charger = useCallback(() => {
+        setLoading(true);
+        setError(null);
+        let active = true;
+
+        (async () => {
             try {
-                setProduits(produitsData.data.produits);
+                const payload = await fetchStockProduits({ limit: 100 });
+                if (!active) return;
+                setProduits(payload.items ?? []);
             } catch {
-                setError("Impossible de charger les produits.");
+                if (active) {
+                    setError("Impossible de charger les produits.");
+                }
+            } finally {
+                if (active) setLoading(false);
             }
-            setLoading(false);
-        }, 700);
-        return () => clearTimeout(t);
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
+
+    useEffect(() => {
+        return charger();
+    }, [charger]);
 
     const produitsFiltres = produits.filter(p => {
         const q = recherche.toLowerCase();
         return (
             p.nom.toLowerCase().includes(q) ||
             p.reference.toLowerCase().includes(q) ||
-            p.categorie.nom.toLowerCase().includes(q)
+            (p.categorie?.nom ?? "").toLowerCase().includes(q)
         );
     });
 
@@ -161,7 +177,7 @@ function ListeProduits() {
                                     <div className="listeProduits-card__body">
                                         <span className="listeProduits-card__name">{produit.nom}</span>
                                         <span className="listeProduits-card__meta">
-                                            {produit.categorie.nom} · {produit.prix_unitaire.toLocaleString("fr-FR")} FCFA
+                                            {produit.categorie?.nom ?? "Sans catégorie"} · {Number(produit.prix_unitaire ?? 0).toLocaleString("fr-FR")} FCFA
                                         </span>
                                         {produit.type === "physique" && (
                                             <div className="listeProduits-card__stock">
@@ -216,12 +232,12 @@ function ListeProduits() {
                                                 <span>{produit.nom}</span>
                                             </Link>
                                         </td>
-                                        <td>{produit.categorie.nom}</td>
+                                        <td>{produit.categorie?.nom ?? "Sans catégorie"}</td>
                                         <td className="listeProduits-table__type">
                                             {produit.type === "physique" ? "Physique" : "Service"}
                                         </td>
                                         <td className="listeProduits-table__price">
-                                            {produit.prix_unitaire.toLocaleString("fr-FR")} FCFA
+                                            {Number(produit.prix_unitaire ?? 0).toLocaleString("fr-FR")} FCFA
                                         </td>
                                         <td>
                                             {produit.type === "physique" ? produit.quantite_stock : "—"}
@@ -244,10 +260,10 @@ function ListeProduits() {
             )}
 
             {modalProduit && (
-                <ModalAjoutProduit onClose={() => setModalProduit(false)} />
+                <ModalAjoutProduit onClose={() => setModalProduit(false)} onSaved={charger} />
             )}
             {modalCategorie && (
-                <ModalAjoutCategorie onClose={() => setModalCategorie(false)} />
+                <ModalAjoutCategorie onClose={() => setModalCategorie(false)} onSaved={charger} />
             )}
         </div>
     );

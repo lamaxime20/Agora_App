@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, Search, Package2, AlertTriangle, Check, AlertCircle } from "lucide-react";
-import produitsData from "../../../../mockups/gestionStocks/produits.json";
+import { createStockPerte, fetchStockProduits } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/modalSignalerPerte.css";
 
 const defaultForm = { produit_id: "", quantite: "", motif: "" };
 
-function ModalSignalerPerte({ onClose }) {
+function ModalSignalerPerte({ onClose, onSaved }) {
     const [form, setForm]                   = useState(defaultForm);
     const [produitSearch, setProduitSearch] = useState("");
     const [produits, setProduits]           = useState([]);
@@ -18,10 +18,21 @@ function ModalSignalerPerte({ onClose }) {
     const overlayRef = useRef(null);
 
     useEffect(() => {
-        const t = setTimeout(() => {
-            setProduits(produitsData.data.produits.filter(p => p.type === "physique"));
-        }, 150);
-        return () => clearTimeout(t);
+        let active = true;
+
+        (async () => {
+            try {
+                const payload = await fetchStockProduits({ limit: 100 });
+                if (!active) return;
+                setProduits((payload.items ?? []).filter(p => p.type === "physique" || p.type_produit === "physique"));
+            } catch {
+                if (active) setProduits([]);
+            }
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -66,11 +77,22 @@ function ModalSignalerPerte({ onClose }) {
         const errs = valider();
         if (Object.keys(errs).length) { setErrors(errs); return; }
         setSubmitting(true);
-        setTimeout(() => {
-            setSubmitting(false);
-            setSuccess(true);
-            setTimeout(onClose, 1600);
-        }, 1200);
+        createStockPerte({
+            produit_id: form.produit_id,
+            quantite_perdu: form.quantite,
+            motif_perte: form.motif,
+        })
+            .then(() => {
+                setSuccess(true);
+                onSaved?.();
+                setTimeout(onClose, 1600);
+            })
+            .catch((err) => {
+                setErrors(prev => ({ ...prev, global: err?.message || "Impossible d'enregistrer la perte." }));
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
     };
 
     const handleOverlayClick = (e) => {
@@ -127,6 +149,12 @@ function ModalSignalerPerte({ onClose }) {
                         <X size={20} aria-hidden="true" />
                     </button>
                 </div>
+
+                {errors.global && (
+                    <p className="modalPerte-error" role="alert">
+                        {errors.global}
+                    </p>
+                )}
 
                 {/* ─── Corps ───────────────── */}
                 <form className="modalPerte-form" onSubmit={handleSubmit} noValidate>

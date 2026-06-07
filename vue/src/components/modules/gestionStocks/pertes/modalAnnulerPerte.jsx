@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { X, ShieldAlert, Eye, EyeOff, Check } from "lucide-react";
+import { annulerStockPerte } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/modalAnnulerPerte.css";
 
-function ModalAnnulerPerte({ item, onClose }) {
+function ModalAnnulerPerte({ item, onClose, onConfirm }) {
     const [motDePasse, setMotDePasse] = useState("");
     const [afficher, setAfficher]     = useState(false);
     const [erreur, setErreur]         = useState("");
@@ -22,11 +23,18 @@ function ModalAnnulerPerte({ item, onClose }) {
         }
         setErreur("");
         setSubmitting(true);
-        setTimeout(() => {
-            setSubmitting(false);
-            setSuccess(true);
-            setTimeout(onClose, 1500);
-        }, 1200);
+        annulerStockPerte(item.id, motDePasse.trim())
+            .then(() => {
+                setSuccess(true);
+                onConfirm?.(item);
+                setTimeout(onClose, 1500);
+            })
+            .catch((err) => {
+                setErreur(err?.message || "Impossible d'annuler cette perte.");
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
     };
 
     if (success) {

@@ -3,10 +3,10 @@ import {
     AlertTriangle, Plus, AlertCircle, RefreshCw,
     Clock, ChevronRight, Trash2,
 } from "lucide-react";
-import pertesData from "../../../../mockups/gestionStocks/pertes.json";
 import ModalSignalerPerte from "./modalSignalerPerte.jsx";
 import ModalAnnulerPerte  from "./modalAnnulerPerte.jsx";
 import PaneDetailsPerte   from "./paneDetailsPerte.jsx";
+import { fetchStockPertes } from "../../../../services/gestionStock.js";
 import "../../../../assets/styles/components/modules/gestionStocks/listePertes.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -142,15 +142,25 @@ function ListePertes() {
     const charger = useCallback(() => {
         setLoading(true);
         setError(null);
-        const t = setTimeout(() => {
+        let active = true;
+
+        (async () => {
             try {
-                setItems(pertesData.data.pertes);
+                const payload = await fetchStockPertes({ limit: 100 });
+                if (!active) return;
+                setItems(payload.items ?? []);
             } catch {
-                setError("Impossible de charger les pertes.");
+                if (active) {
+                    setError("Impossible de charger les pertes.");
+                }
+            } finally {
+                if (active) setLoading(false);
             }
-            setLoading(false);
-        }, 700);
-        return () => clearTimeout(t);
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -279,12 +289,13 @@ function ListePertes() {
 
             {/* ─── Modals & Pane ───────────────────────────────────── */}
             {modalSignaler && (
-                <ModalSignalerPerte onClose={() => setModalSignaler(false)} />
+                <ModalSignalerPerte onClose={() => setModalSignaler(false)} onSaved={charger} />
             )}
             {perteAAnnuler && (
                 <ModalAnnulerPerte
                     item={perteAAnnuler}
                     onClose={() => setPerteAAnnuler(null)}
+                    onConfirm={() => { setPerteAAnnuler(null); charger(); }}
                 />
             )}
             {paneItem && (
