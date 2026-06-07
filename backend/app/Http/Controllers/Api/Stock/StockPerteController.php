@@ -278,41 +278,46 @@ class StockPerteController extends StockBaseController
                 ], 404);
             }
 
-            DB::transaction(function () use ($request, $perte, $produit, $user, $entreprise) {
-                $stockAvant = (float) $produit->stock_actuel;
-                $stockApres = $stockAvant + (float) $perte->quantite_perdu;
+            $stockAvant = (float) $produit->stock_actuel;
+            $stockApres = $stockAvant + (float) $perte->quantite_perdu;
 
-                $produit->update([
-                    'stock_actuel'      => $stockApres,
-                    'date_modification' => now(),
-                ]);
+            try {
+                 $produit->update([
+                     'stock_actuel'      => $stockApres,
+                     'date_modification' => now(),
+                 ]);
 
-                $this->history($this->productHistoryPayload(
-                    'annulation_perte',
-                    'produits',
-                    $produit->id,
-                    'Annulation d\'une perte et restauration du stock.',
-                    (string) $stockAvant,
-                    (string) $stockApres,
-                    $request,
-                    $user,
-                    $entreprise->id
-                ));
+                 $this->history($this->productHistoryPayload(
+                     'annulation_perte',
+                     'produits',
+                     $produit->id,
+                     'Annulation d\'une perte et restauration du stock.',
+                     (string) $stockAvant,
+                     (string) $stockApres,
+                     $request,
+                     $user,
+                     $entreprise->id
+                 ));
 
-                $this->history($this->productHistoryPayload(
-                    'annulation_perte',
-                    'pertes_produits',
-                    $perte->id,
-                    'Annulation de la perte produit.',
-                    $perte->motif_perte,
-                    'annulée',
-                    $request,
-                    $user,
-                    $entreprise->id
-                ));
+                 $this->history($this->productHistoryPayload(
+                     'annulation_perte',
+                     'pertes_produits',
+                     $perte->id,
+                     'Annulation de la perte produit.',
+                     $perte->motif_perte,
+                     'annulée',
+                     $request,
+                     $user,
+                     $entreprise->id
+                 ));
 
-                $perte->delete();
-            });
+                 $perte->delete();
+            } catch (\Throwable $e) {
+                // Annulation manuelle en cas d'erreur
+                $produit->update(['stock_actuel' => $stockAvant]); // Restaurer le stock
+                // La perte n'est pas recréée, mais on s'assure que le stock est correct.
+                throw $e; // Renvoyer l'exception pour qu'elle soit loggée
+            }
 
             return response()->json([
                 'message' => 'Perte annulée, stock restauré',
