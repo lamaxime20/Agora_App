@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, ExternalLink } from "lucide-react";
 import DetailsCommandeModal from "./DetailsCommandeModal.jsx";
+import "../../../../assets/styles/components/modules/finances/paiementPane.css";
 
 function PaiementPane({ paiement, onClose }) {
     const [showCommandeModal, setShowCommandeModal] = useState(false);

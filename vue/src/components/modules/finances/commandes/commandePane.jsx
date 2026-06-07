@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { X, CreditCard, PlusCircle, Package, Loader } from "lucide-react";
 import EnregistrerPaiementForm from "./EnregistrerPaiementForm.jsx";
 import { fetchCommandeDetail } from "../../../../services/financesDashboard.js";
+import "../../../../assets/styles/components/modules/finances/commandePane.css";
 
 function CommandePane({ commande, onClose }) {
     const [detail,          setDetail]          = useState(null);

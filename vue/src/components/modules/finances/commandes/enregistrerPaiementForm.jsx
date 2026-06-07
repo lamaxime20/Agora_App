@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, CheckCircle, AlertTriangle, ArrowLeft } from "lucide-react";
 import { creerPaiement } from "../../../../services/financesDashboard.js";
+import "../../../../assets/styles/components/modules/finances/enregistrerPaiementForm.css";
 
 const MODES = ["virement bancaire", "carte bancaire", "chèque", "espèces"];
 

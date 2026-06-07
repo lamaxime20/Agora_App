@@ -663,6 +663,42 @@ Chaque page de statistiques possède :
 Quand l'utilisateur arrive sur son espace de travail pour la gestion des livraisons, il y a une sidebar à gauche qui s'ouvre et se ferme et qui va lui permettre de sélectionner les pages sur lesquelles il veut travailler.
 La sideBar aura 05 onglets (Dashboard, Commandes à livrer, Liste livraisons, Statistiques) et sur le côté droit de la page, c'est l'interface correspondant à l'onglet sélectionné, qui va s'afficher.
 #### Dashboard
+
+Le dashboard livraison permet d'avoir une vue rapide sur l'état global des opérations de livraison de l'entreprise.
+
+Il affiche :
+
+##### KPI principaux
+
+- nombre de livraisons en cours ;
+- nombre de livraisons livrées aujourd'hui ;
+- nombre de livraisons échouées aujourd'hui ;
+- nombre de livraisons retournées aujourd'hui ;
+- taux de réussite des livraisons ;
+- nombre de livreurs actuellement actifs.
+
+##### Activité récente
+
+Affichage des dernières livraisons créées avec :
+
+- numéro de commande ;
+- livreur ;
+- statut ;
+- date de création.
+
+##### Graphiques
+
+- évolution des livraisons par jour ;
+- évolution des livraisons par semaine ;
+- répartition des statuts de livraison ;
+- classement des livreurs les plus performants.
+
+Chaque carte et graphique possède des filtres temporels :
+
+- aujourd'hui ;
+- cette semaine ;
+- ce mois ;
+- période personnalisée.
 #### Commandes à livrer
 Ici, l'interface de droite va montrer deux boutons en haut, un bouton Commandes à livrer, et un autre Historique des livraisons.
 ##### Commandes à livrer
@@ -671,6 +707,14 @@ Quand on clique sur assigner un livreur, une interface s'ouvre avec un formulair
 - choix du livreur, qui va permettre de selectionner un utilisateur parmis tous les utilisateurs qui ont le rôle employe_livreur dans l'entreprise
 - un bouton confirmer la création d'une livraison pour la commande
 Quand on confirme la création d'une livraison pour la commande, le backend crée un nouveau tuple livraison avec le statut 'en_cours' et lie celui ci à la commande actuelle
+Avant la création, le backend vérifie :
+
+- que la commande est validée ;
+- que le seuil minimum de paiement requis a été atteint ;
+- qu'aucune livraison livrée n'existe déjà pour cette commande ;
+- qu'aucune autre livraison en_cours n'existe déjà pour cette commande.
+
+Si l'une de ces conditions échoue, la création est refusée.
 ##### Historique des livraisons
 Ici, on va afficher toutes les livraisons quelque soit l'état et quand on clique sur une ligne, on affiche tous les détails de la livraison et ceux de la commande associée.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
@@ -690,6 +734,176 @@ Quand on clique sur retour de la livraison, un pane s'ouvre avec les champs:
 - un bouton pour confirmer le retour
 Quand on clique sur confirmer le retour, le backend marque la livraison comme retour avec le motif.
 Quand on clique sur valider la livraison, un pane s'ouvrir pour demander à l'utilisateur que la commande a été effectivement livrée, quand il valide, le backend marque la livraison comme livree et le stock réservé est réduit sur chacun des stock des produits de la commande associée.
+Quand on clique sur valider la livraison, un pane s'ouvre pour demander confirmation.
+
+Quand l'utilisateur confirme :
+
+- le backend marque la livraison comme livree ;
+- le backend renseigne date_livraison_effective ;
+- le backend diminue le stock_actuel de chaque produit physique présent dans la commande ;
+- le backend crée les entrées d'historique correspondantes ;
+- le backend envoie les notifications prévues.
 ##### Historique de mes livraisons
 Ici, on va afficher toutes les livraisons assignées à l'utilisateur quelque soit l'état et quand on clique sur une ligne, on affiche tous les détails de la livraison et ceux de la commande associée.
 Et il y aura tous les boutons pour les filtres, et un bouton pour génerer le rapport de la liste filtrée en .csv, .pdf ou .docx
+#### Statistiques
+
+Cette section permet d'analyser les performances logistiques de l'entreprise.
+
+Elle contient plusieurs pages :
+
+##### Vue générale
+
+- total des livraisons ;
+- livraisons réussies ;
+- livraisons échouées ;
+- livraisons retournées ;
+- taux global de réussite.
+
+##### Performance des livreurs
+
+Pour chaque livreur :
+
+- nombre total de livraisons ;
+- nombre de succès ;
+- nombre d'échecs ;
+- nombre de retours ;
+- taux de réussite.
+
+##### Activité temporelle
+
+- livraisons par jour ;
+- livraisons par semaine ;
+- livraisons par mois.
+
+##### Analyse des échecs
+
+- motifs d'échec les plus fréquents ;
+- motifs de retour les plus fréquents.
+
+Toutes les pages disposent :
+
+- de filtres ;
+- de recherche ;
+- d'export PDF ;
+- d'export CSV ;
+- d'export DOCX.
+#### Notifications automatiques
+
+Lorsqu'une livraison est créée :
+
+- une notification est envoyée au livreur assigné.
+
+Message :
+
+"Une nouvelle livraison vous a été assignée."
+
+Lorsqu'une livraison est lancée :
+
+- une notification est envoyée au responsable des ventes.
+
+Message :
+
+"La livraison de la commande {id_commande} a démarré."
+
+Lorsqu'une livraison est validée :
+
+- une notification est envoyée aux modules Vente et Finance.
+
+Message :
+
+"La livraison de la commande {id_commande} a été confirmée."
+
+Lorsqu'une livraison échoue :
+
+- une notification est envoyée au directeur et au responsable des ventes.
+
+Message :
+
+"La livraison de la commande {id_commande} a échoué."
+
+Lorsqu'une livraison est retournée :
+
+- une notification est envoyée au directeur, au responsable stock et au responsable des ventes.
+
+Message :
+
+"La livraison de la commande {id_commande} a été retournée."
+#### Contraintes métier backend
+
+Le backend applique systématiquement les règles suivantes.
+
+Pour une commande donnée :
+
+- une seule livraison peut être en cours à un instant donné ;
+- une commande livrée ne peut plus recevoir de nouvelle livraison ;
+- une commande annulée ne peut plus recevoir de nouvelle livraison ;
+- une livraison ne peut être créée que pour une commande validée ;
+- une livraison ne peut être créée que si le seuil minimum de paiement requis a été atteint.
+
+Lors de toute tentative de création de livraison, le backend vérifie ces règles avant insertion.
+#### États métier calculés des commandes
+
+Le backend calcule dynamiquement l'état métier affiché au frontend.
+
+Une commande est affichée comme :
+
+##### Reçue
+
+si :
+
+- commandes.statut = brouillon
+
+##### Validée
+
+si :
+
+- commandes.statut = validee
+- aucune livraison en cours n'existe pour cette commande
+
+##### En cours de livraison
+
+si :
+
+- commandes.statut = validee
+- le seuil minimum de paiement a été atteint
+- il existe une livraison dont le statut est en_cours
+
+##### Livrée
+
+si :
+
+- commandes.statut = validee
+- il existe une livraison dont le statut est livree
+
+##### Annulée
+
+si :
+
+- commandes.statut = annulee
+#### Gestion dynamique du stock réservé
+
+Le système ne stocke pas le stock réservé dans la base de données.
+
+Le backend calcule dynamiquement le stock réservé en analysant :
+
+- toutes les commandes validées ;
+- qui ne possèdent aucune livraison livrée.
+
+Pour chaque produit :
+
+stock_disponible = stock_actuel - stock_reserve_calcule
+
+Lorsqu'une livraison est marquée livree :
+
+- le stock_actuel est diminué.
+
+Lorsqu'une livraison est marquée echec :
+
+- aucun mouvement de stock n'est effectué.
+
+Lorsqu'une livraison est marquée retour :
+
+- aucun mouvement de stock n'est effectué.
+
+Cette logique garantit que les réservations restent toujours cohérentes sans avoir besoin de stocker une valeur de stock réservé.

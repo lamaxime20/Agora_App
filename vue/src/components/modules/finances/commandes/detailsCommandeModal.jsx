@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Package, CreditCard, Loader } from "lucide-react";
 import { fetchCommandeDetail } from "../../../../services/financesDashboard.js";
+import "../../../../assets/styles/components/modules/finances/detailsCommandeModal.css";
 
 function SkeletonSection() {
     return (

@@ -1,0 +1,296 @@
+/* ─── Overlay ─────────────────────────────────────────────────────────────────── */
+
+.finCommandes-modal__overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.40);
+    z-index: calc(var(--z-modal) + 1);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: finPayForm-fadeIn var(--duration-fast) var(--ease-out);
+}
+
+@media (min-width: 640px) {
+    .finCommandes-modal__overlay {
+        align-items: center;
+        padding: var(--space-4);
+    }
+}
+
+/* ─── Panneau modal ───────────────────────────────────────────────────────────── */
+
+.finCommandes-modal__panel {
+    width: 100%;
+    max-width: 500px;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    animation: finPayForm-slideUp var(--duration-normal) var(--ease-out);
+}
+
+@media (min-width: 640px) {
+    .finCommandes-modal__panel {
+        border-radius: var(--radius-2xl);
+        animation: finPayForm-scaleIn var(--duration-normal) var(--ease-out);
+    }
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────────── */
+
+.finCommandes-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-6) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.finCommandes-modal__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+}
+
+.finCommandes-modal__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.finCommandes-modal__close:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+/* ─── Body ────────────────────────────────────────────────────────────────────── */
+
+.finCommandes-modal__body {
+    padding: var(--space-5) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────────── */
+
+.finCommandes-modal__footer {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6) var(--space-5);
+    border-top: 1px solid var(--color-border);
+}
+
+/* ─── Récapitulatif de la commande ────────────────────────────────────────────── */
+
+.finCommandes-paiement-recap {
+    background-color: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.finCommandes-paiement-recap__nom {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+}
+
+.finCommandes-paiement-recap__montants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.finCommandes-paiement-recap__sep {
+    display: inline-block;
+    width: 1px;
+    height: 12px;
+    background-color: var(--color-border-strong);
+    align-self: center;
+}
+
+.finCommandes-paiement-recap__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.finCommandes-paiement-recap__item--reste {
+    color: var(--color-primary);
+    font-weight: var(--weight-semibold);
+}
+
+/* ─── Bandeau d'erreur inline ─────────────────────────────────────────────────── */
+
+.finCommandes-paiement-erreur {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background-color: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.25);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    color: var(--color-error);
+}
+
+/* ─── Champs de formulaire ────────────────────────────────────────────────────── */
+
+.finCommandes-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.finCommandes-form__label {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+}
+
+.finCommandes-form__select {
+    height: 48px;
+    padding: 0 var(--space-4);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    outline: none;
+    cursor: pointer;
+    transition:
+        border-color var(--duration-fast) var(--ease-out),
+        box-shadow   var(--duration-fast) var(--ease-out);
+}
+
+.finCommandes-form__select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* ─── Bloc de confirmation ────────────────────────────────────────────────────── */
+
+.finCommandes-confirmation-bloc {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    text-align: center;
+    padding: var(--space-5) var(--space-4);
+    background-color: rgba(243, 156, 18, 0.08);
+    border: 1px solid rgba(243, 156, 18, 0.25);
+    border-radius: var(--radius-xl);
+}
+
+.finCommandes-confirmation-bloc__icon {
+    color: var(--color-warning, #F39C12);
+}
+
+.finCommandes-confirmation-bloc__titre {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-base);
+    color: var(--color-text);
+}
+
+.finCommandes-confirmation-bloc__desc {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+}
+
+/* ─── Détails de confirmation ─────────────────────────────────────────────────── */
+
+.finCommandes-confirmation-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.finCommandes-confirmation-details .finCommandes-detail__row {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.finCommandes-confirmation-details .finCommandes-detail__row:last-child {
+    border-bottom: none;
+}
+
+/* ─── Lignes de détail (partagées avec la confirmation) ───────────────────────── */
+
+.finCommandes-detail__row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.finCommandes-detail__row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.finCommandes-detail__key {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-medium);
+    flex-shrink: 0;
+}
+
+.finCommandes-detail__val {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    text-align: right;
+    min-width: 0;
+    word-break: break-word;
+}
+
+.finCommandes-detail__val--amount {
+    font-family: var(--font-display);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ─── Animations ──────────────────────────────────────────────────────────────── */
+
+@keyframes finPayForm-fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes finPayForm-slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes finPayForm-scaleIn {
+    from { transform: scale(0.96); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
