@@ -1,9 +1,59 @@
 {
-  "depenses": [
-    { "id": "DEP-2026-001", "date": "2026-06-01", "montant": 89000,  "categorie": "Fournitures de bureau",    "description": "Achat de rames de papier A4 et fournitures de bureau" },
-    { "id": "DEP-2026-002", "date": "2026-06-03", "montant": 120000, "categorie": "Électricité / eau",         "description": "Paiement de la facture d'électricité du siège social" },
-    { "id": "DEP-2026-003", "date": "2026-06-05", "montant": 35000,  "categorie": "Maintenance et réparation", "description": "Maintenance informatique sur le serveur local" },
-    { "id": "DEP-2026-004", "date": "2026-06-07", "montant": 250000, "categorie": "Transport et carburant",    "description": "Carburant flotte de livraison — juin 2026" },
-    { "id": "DEP-2026-005", "date": "2026-06-10", "montant": 45000,  "categorie": "Communication et internet", "description": "Abonnement fibre optique bureau — juillet 2026" }
-  ]
+  "success": true,
+  "data": [
+    {
+      "id": "DEP-2026-001",
+      "date": "2026-06-01",
+      "montant": 89000,
+      "description": "Achat de rames de papier A4 et fournitures de bureau",
+      "utilisateur": "Jean Comptable"
+    },
+    {
+      "id": "DEP-2026-002",
+      "date": "2026-06-03",
+      "montant": 120000,
+      "description": "Électricité — paiement facture siège social",
+      "utilisateur": "Alice Caisse"
+    },
+    {
+      "id": "DEP-2026-003",
+      "date": "2026-06-05",
+      "montant": 35000,
+      "description": "Maintenance informatique sur le serveur local",
+      "utilisateur": "Jean Comptable"
+    },
+    {
+      "id": "DEP-2026-004",
+      "date": "2026-06-07",
+      "montant": 250000,
+      "description": "Transport et carburant — flotte livraison juin 2026",
+      "utilisateur": "Marie Finance"
+    },
+    {
+      "id": "DEP-2026-005",
+      "date": "2026-06-10",
+      "montant": 45000,
+      "description": "Internet — abonnement fibre optique juillet 2026",
+      "utilisateur": "Alice Caisse"
+    },
+    {
+      "id": "DEP-2026-006",
+      "date": "2026-06-13",
+      "montant": 380000,
+      "description": "Salaire exceptionnel — agent de terrain missions spéciales",
+      "utilisateur": "Marie Finance"
+    },
+    {
+      "id": "DEP-2026-007",
+      "date": "2026-06-15",
+      "montant": 72000,
+      "description": "Maintenance — entretien préventif climatiseurs bureaux",
+      "utilisateur": "Jean Comptable"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 7
+  }
 }

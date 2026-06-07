@@ -1,9 +1,52 @@
 {
-  "entrees": [
-    { "id": "ENT-2026-001", "date": "2026-06-02", "montant": 5000000, "origine": "Apport de capital",             "description": "Apport externe de capital — investisseur Fouda & Associés" },
-    { "id": "ENT-2026-002", "date": "2026-06-04", "montant": 150000,  "origine": "Remboursement reçu",            "description": "Remboursement suite à un trop-perçu par le prestataire LogiTrans" },
-    { "id": "ENT-2026-003", "date": "2026-06-06", "montant": 800000,  "origine": "Subvention ou aide publique",   "description": "Subvention PME — Ministère du Commerce — tranche juin 2026" },
-    { "id": "ENT-2026-004", "date": "2026-06-08", "montant": 320000,  "origine": "Vente de produits ou services", "description": "Vente de matériel de bureau reconditionné — lot juin" },
-    { "id": "ENT-2026-005", "date": "2026-06-11", "montant": 1200000, "origine": "Prêt bancaire reçu",            "description": "Déblocage crédit revolving — Banque Atlantique Cameroun" }
-  ]
+  "success": true,
+  "data": [
+    {
+      "id": "ENT-2026-001",
+      "date": "2026-06-02",
+      "montant": 5000000,
+      "description": "Apport associé — investisseur Fouda & Associés",
+      "utilisateur": "Marie Finance"
+    },
+    {
+      "id": "ENT-2026-002",
+      "date": "2026-06-04",
+      "montant": 150000,
+      "description": "Remboursement reçu du prestataire LogiTrans — trop-perçu",
+      "utilisateur": "Alice Caisse"
+    },
+    {
+      "id": "ENT-2026-003",
+      "date": "2026-06-06",
+      "montant": 800000,
+      "description": "Subvention PME — Ministère du Commerce — tranche juin 2026",
+      "utilisateur": "Marie Finance"
+    },
+    {
+      "id": "ENT-2026-004",
+      "date": "2026-06-08",
+      "montant": 320000,
+      "description": "Vente de matériel de bureau reconditionné — lot juin",
+      "utilisateur": "Jean Comptable"
+    },
+    {
+      "id": "ENT-2026-005",
+      "date": "2026-06-11",
+      "montant": 1200000,
+      "description": "Investissement — déblocage crédit revolving Banque Atlantique",
+      "utilisateur": "Marie Finance"
+    },
+    {
+      "id": "ENT-2026-006",
+      "date": "2026-06-14",
+      "montant": 450000,
+      "description": "Prime exceptionnelle client stratégique — contrat cadre Camtel",
+      "utilisateur": "Alice Caisse"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 6
+  }
 }

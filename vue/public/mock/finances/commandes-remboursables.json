@@ -1,0 +1,65 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "CMD-201",
+      "client": "Durand Jean",
+      "ref": "2026-201",
+      "totalFacture": 1200000,
+      "totalPaye": 1200000,
+      "montantRemboursable": 1200000,
+      "date": "2026-05-28",
+      "statut": "Payée"
+    },
+    {
+      "id": "CMD-202",
+      "client": "Moreau Sophie",
+      "ref": "2026-202",
+      "totalFacture": 600000,
+      "totalPaye": 450000,
+      "montantRemboursable": 450000,
+      "date": "2026-06-01",
+      "statut": "Partiellement payée"
+    },
+    {
+      "id": "CMD-203",
+      "client": "Lefevre Paul",
+      "ref": "2026-203",
+      "totalFacture": 900000,
+      "totalPaye": 900000,
+      "montantRemboursable": 900000,
+      "date": "2026-06-02",
+      "statut": "Payée"
+    },
+    {
+      "id": "CMD-204",
+      "client": "Ngo Essomba",
+      "ref": "2026-204",
+      "totalFacture": 3200000,
+      "totalPaye": 3200000,
+      "montantRemboursable": 3200000,
+      "date": "2026-06-05",
+      "statut": "Payée"
+    },
+    {
+      "id": "CMD-205",
+      "client": "Mvondo Christelle",
+      "ref": "2026-205",
+      "totalFacture": 680000,
+      "totalPaye": 680000,
+      "montantRemboursable": 680000,
+      "date": "2026-06-07",
+      "statut": "Payée"
+    },
+    {
+      "id": "CMD-206",
+      "client": "Biya Parfait",
+      "ref": "2026-206",
+      "totalFacture": 1500000,
+      "totalPaye": 750000,
+      "montantRemboursable": 750000,
+      "date": "2026-06-09",
+      "statut": "Partiellement payée"
+    }
+  ]
+}

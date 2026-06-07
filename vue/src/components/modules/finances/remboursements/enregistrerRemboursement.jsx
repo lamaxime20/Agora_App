@@ -1,112 +1,130 @@
 import { useState } from "react";
-import { Search, CheckCircle } from "lucide-react";
-import ChoixCommandePane from "./ChoixCommandePane.jsx";
+import { Search, CheckCircle, X, AlertTriangle } from "lucide-react";
+import ChoixCommandePane from "./choixCommandePane.jsx";
+import { creerRemboursement } from "../../../../services/financesP3.js";
+
+const SUGGESTIONS_CAUSE = [
+    "Rupture de stock",
+    "Geste commercial",
+    "Erreur de facturation",
+    "Annulation commande",
+    "Défaut produit",
+];
+
+const fmt = (n) =>
+    new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+
+const fmtDate = (d) =>
+    new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d));
 
 function EnregistrerRemboursement() {
     const [selectedCommande, setSelectedCommande] = useState(null);
     const [montant, setMontant]                   = useState("");
     const [cause, setCause]                       = useState("");
     const [showChoixPane, setShowChoixPane]       = useState(false);
+    const [showModal, setShowModal]               = useState(false);
     const [submitting, setSubmitting]             = useState(false);
-    const [success, setSuccess]                   = useState(false);
+    const [toast, setToast]                       = useState(null);
     const [error, setError]                       = useState("");
 
-    const formatMontant = (n) =>
-        new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+    const montantNum      = parseFloat(montant) || 0;
+    const maxRemboursable = selectedCommande ? (selectedCommande.montantRemboursable ?? selectedCommande.totalPaye) : 0;
+    const depasseMax      = montantNum > 0 && montantNum > maxRemboursable;
 
-    const handleSelect = (commande) => {
-        setSelectedCommande(commande);
+    const showToastMsg = (type, msg) => {
+        setToast({ type, msg });
+        setTimeout(() => setToast(null), 3500);
+    };
+
+    const handleSelect = (cmd) => {
+        setSelectedCommande(cmd);
         setShowChoixPane(false);
+        setMontant("");
         setError("");
     };
 
-    const handleSubmit = async (e) => {
+    const validate = () => {
+        if (!selectedCommande) return "Veuillez sélectionner une commande.";
+        if (!montant || montantNum <= 0) return "Veuillez saisir un montant valide.";
+        if (depasseMax) return `Le montant dépasse le maximum remboursable (${fmt(maxRemboursable)}).`;
+        if (!cause.trim()) return "La cause du remboursement est obligatoire.";
+        return "";
+    };
+
+    const handleSubmit = (e) => {
         e.preventDefault();
+        const err = validate();
+        if (err) { setError(err); return; }
         setError("");
+        setShowModal(true);
+    };
 
-        if (!selectedCommande) {
-            setError("Veuillez sélectionner une commande.");
-            return;
-        }
-        if (!montant || parseFloat(montant) <= 0) {
-            setError("Veuillez saisir un montant valide.");
-            return;
-        }
-        if (parseFloat(montant) > selectedCommande.totalPaye) {
-            setError(`Le montant ne peut pas dépasser le total payé (${formatMontant(selectedCommande.totalPaye)}).`);
-            return;
-        }
-        if (!cause.trim()) {
-            setError("La cause du remboursement est obligatoire.");
-            return;
-        }
-
+    const handleConfirm = async () => {
+        setShowModal(false);
         setSubmitting(true);
-        await new Promise(r => setTimeout(r, 900));
-        setSubmitting(false);
-        setSuccess(true);
-        setTimeout(() => {
-            setSuccess(false);
+        try {
+            await creerRemboursement({ commandeId: selectedCommande.id, montant: montantNum, cause });
+            showToastMsg("success", "Remboursement enregistré avec succès");
             setSelectedCommande(null);
             setMontant("");
             setCause("");
-        }, 2000);
+        } catch {
+            showToastMsg("error", "Une erreur est survenue, veuillez réessayer.");
+        } finally {
+            setSubmitting(false);
+        }
     };
-
-    if (success) {
-        return (
-            <div className="finRemb-empty" style={{ padding: "var(--space-16)" }}>
-                <CheckCircle size={48} style={{ color: "var(--color-success)" }} aria-hidden="true" />
-                <p className="finRemb-empty__title" style={{ color: "var(--color-success)" }}>
-                    Remboursement enregistré avec succès !
-                </p>
-            </div>
-        );
-    }
 
     return (
         <>
-            <section aria-label="Formulaire d'enregistrement de remboursement">
-                <div style={{ maxWidth: "640px", display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+            <section className="finRemb-form-section" aria-label="Formulaire d'enregistrement de remboursement">
+                <div className="finRemb-form__card">
 
                     {error && (
-                        <p style={{ fontSize: "var(--text-sm)", color: "var(--color-error)", background: "rgba(231,76,60,0.07)", padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(231,76,60,0.2)", margin: 0 }}>
+                        <div className="finRemb-form__error" role="alert">
+                            <AlertTriangle size={14} aria-hidden="true" />
                             {error}
-                        </p>
+                        </div>
                     )}
 
-                    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-                        {/* Sélection commande */}
+                    <form onSubmit={handleSubmit} className="finRemb-form__fields" noValidate>
+
+                        {/* Commande concernée */}
                         <div className="finRemb-form__field">
                             <label className="finRemb-form__label">
-                                Commande concernée <span style={{ color: "var(--color-error)" }}>*</span>
+                                Commande concernée <span style={{ color: "var(--color-error)" }} aria-hidden="true">*</span>
                             </label>
-                            <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "center" }}>
+                            <div className="finRemb-form__input-row">
                                 <input
                                     type="text"
                                     className="app-input"
                                     readOnly
                                     placeholder="Cliquer pour sélectionner une commande…"
-                                    value={selectedCommande ? `${selectedCommande.id} — ${selectedCommande.nom}` : ""}
-                                    style={{ flex: 1, cursor: "pointer" }}
+                                    value={selectedCommande ? `${selectedCommande.id} — ${selectedCommande.client}` : ""}
                                     onClick={() => setShowChoixPane(true)}
                                     aria-label="Commande sélectionnée"
+                                    style={{ cursor: "pointer", flex: 1 }}
                                 />
                                 <button
                                     type="button"
                                     className="app-button app-button--ghost app-button--sm"
                                     onClick={() => setShowChoixPane(true)}
                                     aria-label="Sélectionner une commande"
-                                    style={{ flexShrink: 0 }}
                                 >
                                     <Search size={16} aria-hidden="true" />
                                     Choisir
                                 </button>
                             </div>
                             {selectedCommande && (
-                                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", margin: "var(--space-1) 0 0" }}>
-                                    Total payé par le client : <strong style={{ color: "var(--color-success)" }}>{formatMontant(selectedCommande.totalPaye)}</strong>
-                                    &nbsp;·&nbsp;{selectedCommande.statutLivraison}
+                                <p className="finRemb-form__hint">
+                                    Maximum remboursable :{" "}
+                                    <strong style={{ color: "var(--color-success)" }}>
+                                        {fmt(maxRemboursable)}
+                                    </strong>
+                                    {" · "}
+                                    <span style={{ color: "var(--color-text-muted)" }}>
+                                        {selectedCommande.statut ?? selectedCommande.statutLivraison}
+                                    </span>
                                 </p>
                             )}
                         </div>
@@ -114,53 +132,159 @@ function EnregistrerRemboursement() {
                         {/* Montant */}
                         <div className="finRemb-form__field">
                             <label className="finRemb-form__label" htmlFor="remb-montant">
-                                Montant du remboursement (FCFA) <span style={{ color: "var(--color-error)" }}>*</span>
+                                Montant du remboursement (FCFA) <span style={{ color: "var(--color-error)" }} aria-hidden="true">*</span>
                             </label>
                             <input
                                 id="remb-montant"
                                 type="number"
                                 className="app-input"
                                 value={montant}
-                                onChange={e => setMontant(e.target.value)}
+                                onChange={e => { setMontant(e.target.value); setError(""); }}
                                 min="1"
                                 step="100"
-                                required
+                                placeholder="0"
+                                aria-describedby="remb-montant-hint"
                             />
+                            {selectedCommande && montantNum > 0 && (
+                                <p
+                                    id="remb-montant-hint"
+                                    className={`finRemb-form__hint${depasseMax ? " finRemb-form__hint--error" : ""}`}
+                                >
+                                    {depasseMax
+                                        ? `Dépasse le maximum autorisé de ${fmt(maxRemboursable)}`
+                                        : `Reste après remboursement : ${fmt(maxRemboursable - montantNum)}`}
+                                </p>
+                            )}
                         </div>
 
                         {/* Cause */}
                         <div className="finRemb-form__field">
                             <label className="finRemb-form__label" htmlFor="remb-cause">
-                                Cause du remboursement <span style={{ color: "var(--color-error)" }}>*</span>
+                                Cause du remboursement <span style={{ color: "var(--color-error)" }} aria-hidden="true">*</span>
                             </label>
+                            <div className="finRemb-suggestions" aria-label="Suggestions de causes">
+                                {SUGGESTIONS_CAUSE.map(s => (
+                                    <button
+                                        key={s}
+                                        type="button"
+                                        className={`finRemb-suggestion-chip${cause === s ? " finRemb-suggestion-chip--active" : ""}`}
+                                        onClick={() => { setCause(s); setError(""); }}
+                                    >
+                                        {s}
+                                    </button>
+                                ))}
+                            </div>
                             <textarea
                                 id="remb-cause"
                                 className="finRemb-form__textarea"
                                 value={cause}
-                                onChange={e => setCause(e.target.value)}
+                                onChange={e => { setCause(e.target.value); setError(""); }}
                                 placeholder="Ex : Rupture de stock, geste commercial, erreur de facturation…"
-                                required
                             />
                         </div>
 
-                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <div className="finRemb-form__actions">
                             <button
                                 type="submit"
                                 className="app-button app-button--primary"
-                                disabled={submitting}
+                                disabled={submitting || depasseMax}
                             >
-                                {submitting ? "Enregistrement…" : "Confirmer l'enregistrement"}
+                                {submitting ? "Enregistrement en cours…" : "Enregistrer le remboursement"}
                             </button>
                         </div>
                     </form>
                 </div>
             </section>
 
+            {/* Drawer sélection commande */}
             {showChoixPane && (
                 <ChoixCommandePane
                     onSelectCommande={handleSelect}
                     onClose={() => setShowChoixPane(false)}
                 />
+            )}
+
+            {/* Modal de confirmation */}
+            {showModal && selectedCommande && (
+                <div
+                    className="finRemb-modal__overlay"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="remb-confirm-title"
+                >
+                    <div className="finRemb-modal__panel">
+                        <div className="finRemb-modal__header">
+                            <h2 className="finRemb-modal__title" id="remb-confirm-title">
+                                Confirmer le remboursement
+                            </h2>
+                            <button
+                                className="finRemb-modal__close"
+                                onClick={() => setShowModal(false)}
+                                type="button"
+                                aria-label="Annuler"
+                            >
+                                <X size={18} aria-hidden="true" />
+                            </button>
+                        </div>
+
+                        <div className="finRemb-modal__body">
+                            <div className="finRemb-confirm__summary">
+                                <div className="finRemb-detail__row">
+                                    <span className="finRemb-detail__key">Commande</span>
+                                    <span className="finRemb-detail__val">
+                                        {selectedCommande.id} — {selectedCommande.client}
+                                    </span>
+                                </div>
+                                <div className="finRemb-detail__row">
+                                    <span className="finRemb-detail__key">Montant remboursé</span>
+                                    <span
+                                        className="finRemb-detail__val finRemb-detail__val--amount"
+                                        style={{ color: "var(--color-error)" }}
+                                    >
+                                        {fmt(montantNum)}
+                                    </span>
+                                </div>
+                                <div className="finRemb-detail__row">
+                                    <span className="finRemb-detail__key">Cause</span>
+                                    <span className="finRemb-detail__val" style={{ textAlign: "right", maxWidth: "240px" }}>
+                                        {cause}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="finRemb-modal__footer">
+                            <button
+                                className="app-button app-button--ghost"
+                                onClick={() => setShowModal(false)}
+                                type="button"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                className="app-button app-button--primary"
+                                onClick={handleConfirm}
+                                type="button"
+                            >
+                                Confirmer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Toast */}
+            {toast && (
+                <div
+                    className={`finRemb-toast finRemb-toast--${toast.type}`}
+                    role="status"
+                    aria-live="polite"
+                >
+                    {toast.type === "success"
+                        ? <CheckCircle size={16} aria-hidden="true" />
+                        : <AlertTriangle size={16} aria-hidden="true" />}
+                    {toast.msg}
+                </div>
             )}
         </>
     );

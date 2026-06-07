@@ -1,26 +1,26 @@
 import { useState } from "react";
 import { X, ExternalLink } from "lucide-react";
-import DetailsCommandeRemboursementModal from "./DetailsCommandeRemboursementModal.jsx";
+import DetailsCommandeRemboursementModal from "./detailsCommandeRemboursementModal.jsx";
+
+const fmt = (n) =>
+    new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+
+const fmtDate = (d) =>
+    new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d));
 
 function RemboursementPane({ remboursement, onClose }) {
     const [showCommandeModal, setShowCommandeModal] = useState(false);
 
-    const formatMontant = (n) =>
-        new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
-
-    const formatDate = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d));
+    const cmd = remboursement.commandeAssociee ?? {};
+    const cmdLabel = cmd.nom ?? `${cmd.client ?? ""} — ${cmd.id ?? ""}`.trim();
 
     return (
         <>
-            <div
-                className="finRemb-drawer__overlay"
-                onClick={onClose}
-                aria-hidden="true"
-            />
+            <div className="finRemb-drawer__overlay" onClick={onClose} aria-hidden="true" />
             <aside
                 className="finRemb-drawer"
-                role="complementary"
+                role="dialog"
+                aria-modal="true"
                 aria-label={`Détails du remboursement ${remboursement.id}`}
             >
                 <div className="finRemb-drawer__handle">
@@ -44,17 +44,22 @@ function RemboursementPane({ remboursement, onClose }) {
                         <p className="finRemb-detail__section-label">Détails du remboursement</p>
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Date</span>
-                            <span className="finRemb-detail__val">{formatDate(remboursement.date)}</span>
+                            <span className="finRemb-detail__val">{fmtDate(remboursement.date)}</span>
                         </div>
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Montant remboursé</span>
-                            <span className="finRemb-detail__val finRemb-detail__val--amount" style={{ color: "var(--color-error)" }}>
-                                {formatMontant(remboursement.montant)}
+                            <span
+                                className="finRemb-detail__val finRemb-detail__val--amount"
+                                style={{ color: "var(--color-error)" }}
+                            >
+                                {fmt(remboursement.montant)}
                             </span>
                         </div>
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Cause</span>
-                            <span className="finRemb-detail__val" style={{ textAlign: "right", maxWidth: "260px" }}>{remboursement.cause}</span>
+                            <span className="finRemb-detail__val" style={{ textAlign: "right", maxWidth: "260px" }}>
+                                {remboursement.cause}
+                            </span>
                         </div>
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Enregistré par</span>
@@ -66,26 +71,33 @@ function RemboursementPane({ remboursement, onClose }) {
                         <p className="finRemb-detail__section-label">Commande associée</p>
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Référence</span>
-                            <span className="finRemb-detail__val">{remboursement.commandeAssociee.id}</span>
+                            <span className="finRemb-detail__val">{cmd.id}</span>
                         </div>
                         <div className="finRemb-detail__row">
-                            <span className="finRemb-detail__key">Libellé</span>
+                            <span className="finRemb-detail__key">Client</span>
                             <span className="finRemb-detail__val" style={{ textAlign: "right", maxWidth: "260px" }}>
-                                {remboursement.commandeAssociee.nom}
+                                {cmdLabel}
                             </span>
                         </div>
-                        <div className="finRemb-detail__row">
-                            <span className="finRemb-detail__key">Total facturé</span>
-                            <span className="finRemb-detail__val finRemb-detail__val--amount">
-                                {formatMontant(remboursement.commandeAssociee.totalFacture)}
-                            </span>
-                        </div>
-                        <div className="finRemb-detail__row">
-                            <span className="finRemb-detail__key">Total payé</span>
-                            <span className="finRemb-detail__val finRemb-detail__val--amount" style={{ color: "var(--color-success)" }}>
-                                {formatMontant(remboursement.commandeAssociee.totalPaye)}
-                            </span>
-                        </div>
+                        {cmd.totalFacture != null && (
+                            <div className="finRemb-detail__row">
+                                <span className="finRemb-detail__key">Total facturé</span>
+                                <span className="finRemb-detail__val finRemb-detail__val--amount">
+                                    {fmt(cmd.totalFacture)}
+                                </span>
+                            </div>
+                        )}
+                        {cmd.totalPaye != null && (
+                            <div className="finRemb-detail__row">
+                                <span className="finRemb-detail__key">Total payé</span>
+                                <span
+                                    className="finRemb-detail__val finRemb-detail__val--amount"
+                                    style={{ color: "var(--color-success)" }}
+                                >
+                                    {fmt(cmd.totalPaye)}
+                                </span>
+                            </div>
+                        )}
                     </section>
                 </div>
 
@@ -104,7 +116,7 @@ function RemboursementPane({ remboursement, onClose }) {
 
             {showCommandeModal && (
                 <DetailsCommandeRemboursementModal
-                    commande={remboursement.commandeAssociee}
+                    commande={{ ...cmd, nom: cmdLabel }}
                     onClose={() => setShowCommandeModal(false)}
                 />
             )}

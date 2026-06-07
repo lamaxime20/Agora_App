@@ -1,51 +1,62 @@
-import { useState } from "react";
-import { Search, Download, ChevronDown, TrendingDown } from "lucide-react";
-import DepensePane from "./DepensePane.jsx";
+import { useState, useEffect } from "react";
+import { Search, Download, ChevronDown, ChevronLeft, ChevronRight, TrendingDown, AlertTriangle } from "lucide-react";
+import DepensePane from "./depensePane.jsx";
+import { fetchDepenses } from "../../../../services/financesP3.js";
 
-const MOCK_DEPENSES = [
-    { id: "DEP-2026-001", date: "2026-06-01", montant:  89000, categorie: "Fournitures de bureau",     description: "Achat de rames de papier A4 et fournitures de bureau" },
-    { id: "DEP-2026-002", date: "2026-06-03", montant: 120000, categorie: "Électricité / eau",          description: "Paiement de la facture d'électricité du siège social" },
-    { id: "DEP-2026-003", date: "2026-06-05", montant:  35000, categorie: "Maintenance et réparation",  description: "Maintenance informatique sur le serveur local" },
-    { id: "DEP-2026-004", date: "2026-06-07", montant: 250000, categorie: "Transport et carburant",     description: "Carburant flotte de livraison — juin 2026" },
-    { id: "DEP-2026-005", date: "2026-06-10", montant:  45000, categorie: "Communication et internet",  description: "Abonnement fibre optique bureau — juillet 2026" },
-];
+const fmt = (n) =>
+    new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+
+const fmtDate = (d) =>
+    new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+
+const SKELETON_ROWS = Array.from({ length: 5 });
 
 function HistoriqueDepenses() {
+    const [data, setData]             = useState([]);
+    const [meta, setMeta]             = useState({ page: 1, total: 0, per_page: 20 });
+    const [page, setPage]             = useState(1);
+    const [loading, setLoading]       = useState(true);
+    const [erreur, setErreur]         = useState(null);
     const [selectedDep, setSelectedDep] = useState(null);
-    const [filtreDate, setFiltreDate]   = useState("");
-    const [recherche, setRecherche]     = useState("");
-    const [exportOpen, setExportOpen]   = useState(false);
+    const [recherche, setRecherche]   = useState("");
+    const [filtreDate, setFiltreDate] = useState("");
+    const [exportOpen, setExportOpen] = useState(false);
 
-    const formatMontant = (n) =>
-        new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+    useEffect(() => {
+        setLoading(true);
+        setErreur(null);
+        fetchDepenses(page)
+            .then(res => { setData(res.data); setMeta(res.meta); setLoading(false); })
+            .catch(() => { setErreur("Impossible de charger l'historique."); setLoading(false); });
+    }, [page]);
 
-    const formatDate = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
-
-    const filtrees = MOCK_DEPENSES.filter(d => {
-        const matchDate = filtreDate ? d.date === filtreDate : true;
-        const q = recherche.toLowerCase();
+    const filtres = data.filter(d => {
+        const matchDate   = filtreDate ? d.date === filtreDate : true;
+        const q           = recherche.toLowerCase();
         const matchSearch = recherche
             ? d.id.toLowerCase().includes(q) ||
               d.description.toLowerCase().includes(q) ||
-              d.categorie.toLowerCase().includes(q)
+              d.utilisateur?.toLowerCase().includes(q)
             : true;
         return matchDate && matchSearch;
     });
 
-    const totalDepenses = filtrees.reduce((s, d) => s + d.montant, 0);
+    const totalDepenses = filtres.reduce((s, d) => s + d.montant, 0);
+    const totalPages    = Math.ceil(meta.total / meta.per_page);
 
     return (
         <>
-            {/* KPI résumé */}
-            <div className="finDep-kpis" style={{ gridTemplateColumns: "1fr 1fr", marginBottom: "var(--space-4)" }}>
+            {/* KPIs */}
+            <div className="finDep-kpis">
                 <div className="finDep-kpi">
-                    <p className="finDep-kpi__label">Nombre</p>
-                    <p className="finDep-kpi__value">{filtrees.length}</p>
+                    <p className="finDep-kpi__label">Opérations</p>
+                    <p className="finDep-kpi__value">{loading ? "—" : filtres.length}</p>
                 </div>
                 <div className="finDep-kpi">
                     <p className="finDep-kpi__label">Total dépensé</p>
-                    <p className="finDep-kpi__value finDep-kpi__value--error">{formatMontant(totalDepenses)}</p>
+                    <p className="finDep-kpi__value finDep-kpi__value--error">
+                        {loading ? "—" : fmt(totalDepenses)}
+                    </p>
                 </div>
             </div>
 
@@ -57,13 +68,12 @@ function HistoriqueDepenses() {
                         <input
                             type="search"
                             className="app-input finDep-search__input"
-                            placeholder="Rechercher par description, catégorie…"
+                            placeholder="Description, utilisateur…"
                             value={recherche}
                             onChange={e => setRecherche(e.target.value)}
                             aria-label="Rechercher une dépense"
                         />
                     </div>
-
                     <input
                         type="date"
                         className="finDep-filter-select"
@@ -71,13 +81,13 @@ function HistoriqueDepenses() {
                         onChange={e => setFiltreDate(e.target.value)}
                         aria-label="Filtrer par date"
                     />
-
                     <div style={{ position: "relative" }}>
                         <button
                             className="app-button app-button--ghost app-button--sm"
-                            onClick={() => setExportOpen(!exportOpen)}
+                            onClick={() => setExportOpen(v => !v)}
                             type="button"
                             aria-expanded={exportOpen}
+                            aria-haspopup="menu"
                         >
                             <Download size={16} aria-hidden="true" />
                             Exporter
@@ -85,15 +95,15 @@ function HistoriqueDepenses() {
                         </button>
                         {exportOpen && (
                             <div className="finCommandes-export-menu" role="menu">
-                                {[".csv", ".pdf", ".docx"].map(fmt => (
+                                {[".csv", ".pdf", ".xlsx"].map(f => (
                                     <button
-                                        key={fmt}
+                                        key={f}
                                         className="finCommandes-export-menu__item"
                                         onClick={() => setExportOpen(false)}
                                         role="menuitem"
                                         type="button"
                                     >
-                                        {fmt.toUpperCase()}
+                                        {f.toUpperCase()}
                                     </button>
                                 ))}
                             </div>
@@ -102,73 +112,137 @@ function HistoriqueDepenses() {
                 </div>
             </div>
 
+            {erreur && (
+                <div className="finDep-empty">
+                    <div className="finDep-empty__icon">
+                        <AlertTriangle size={28} aria-hidden="true" />
+                    </div>
+                    <p className="finDep-empty__title">{erreur}</p>
+                </div>
+            )}
+
             {/* Tableau desktop */}
-            <div className="finDep-tableWrap">
-                <table className="finDep-table" aria-label="Historique des dépenses">
-                    <thead className="finDep-table__head">
-                        <tr>
-                            <th scope="col">Référence</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Catégorie</th>
-                            <th scope="col">Montant</th>
-                            <th scope="col">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filtrees.length === 0 ? (
+            {!erreur && (
+                <div className="finDep-tableWrap">
+                    <table className="finDep-table" aria-label="Historique des dépenses">
+                        <thead className="finDep-table__head">
                             <tr>
-                                <td colSpan={5}>
-                                    <div className="finDep-empty">
-                                        <div className="finDep-empty__icon">
-                                            <TrendingDown size={32} aria-hidden="true" />
-                                        </div>
-                                        <p className="finDep-empty__title">Aucune dépense trouvée</p>
-                                        <p className="finDep-empty__desc">Modifiez les filtres pour afficher des résultats.</p>
-                                    </div>
-                                </td>
+                                <th scope="col">Date</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Montant</th>
+                                <th scope="col">Enregistré par</th>
                             </tr>
-                        ) : (
-                            filtrees.map(d => (
-                                <tr key={d.id} className="finDep-table__row" onClick={() => setSelectedDep(d)}>
-                                    <td className="finDep-table__id">{d.id}</td>
-                                    <td className="finDep-table__date">{formatDate(d.date)}</td>
-                                    <td>
-                                        <span className="fin-badge fin-badge--neutral">{d.categorie}</span>
-                                    </td>
-                                    <td className="finDep-table__amount">{formatMontant(d.montant)}</td>
-                                    <td className="finDep-table__desc">{d.description}</td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {loading
+                                ? SKELETON_ROWS.map((_, i) => (
+                                    <tr key={i} className="finDep-table__row--skeleton">
+                                        <td><span className="finDep-skeleton finDep-skeleton--sm" /></td>
+                                        <td><span className="finDep-skeleton finDep-skeleton--lg" /></td>
+                                        <td><span className="finDep-skeleton finDep-skeleton--md" /></td>
+                                        <td><span className="finDep-skeleton finDep-skeleton--md" /></td>
+                                    </tr>
+                                ))
+                                : filtres.length === 0
+                                    ? (
+                                        <tr>
+                                            <td colSpan={4}>
+                                                <div className="finDep-empty">
+                                                    <div className="finDep-empty__icon">
+                                                        <TrendingDown size={28} aria-hidden="true" />
+                                                    </div>
+                                                    <p className="finDep-empty__title">Aucune dépense trouvée</p>
+                                                    <p className="finDep-empty__desc">Modifiez les filtres pour afficher des résultats.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                    : filtres.map(d => (
+                                        <tr
+                                            key={d.id}
+                                            className="finDep-table__row"
+                                            onClick={() => setSelectedDep(d)}
+                                        >
+                                            <td className="finDep-table__date">{fmtDate(d.date)}</td>
+                                            <td className="finDep-table__desc">{d.description}</td>
+                                            <td className="finDep-table__amount">{fmt(d.montant)}</td>
+                                            <td style={{ fontSize: "var(--text-sm)" }}>{d.utilisateur ?? "—"}</td>
+                                        </tr>
+                                    ))
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Cartes mobile */}
-            <div className="finDep-cards">
-                {filtrees.length === 0 ? (
-                    <div className="finDep-empty">
-                        <div className="finDep-empty__icon">
-                            <TrendingDown size={32} aria-hidden="true" />
-                        </div>
-                        <p className="finDep-empty__title">Aucune dépense trouvée</p>
+            {!erreur && (
+                <div className="finDep-cards">
+                    {loading
+                        ? SKELETON_ROWS.map((_, i) => (
+                            <div key={i} className="finDep-card">
+                                <span className="finDep-skeleton finDep-skeleton--sm" />
+                                <span className="finDep-skeleton finDep-skeleton--lg" style={{ marginTop: "var(--space-2)", display: "block" }} />
+                                <span className="finDep-skeleton finDep-skeleton--md" style={{ marginTop: "var(--space-2)", display: "block" }} />
+                            </div>
+                        ))
+                        : filtres.length === 0
+                            ? (
+                                <div className="finDep-empty">
+                                    <div className="finDep-empty__icon">
+                                        <TrendingDown size={28} aria-hidden="true" />
+                                    </div>
+                                    <p className="finDep-empty__title">Aucune dépense trouvée</p>
+                                </div>
+                            )
+                            : filtres.map(d => (
+                                <article
+                                    key={d.id}
+                                    className="finDep-card"
+                                    onClick={() => setSelectedDep(d)}
+                                >
+                                    <div className="finDep-card__top">
+                                        <span className="finDep-card__id">{fmtDate(d.date)}</span>
+                                        <span className="fin-badge fin-badge--neutral">{d.utilisateur ?? "—"}</span>
+                                    </div>
+                                    <p className="finDep-card__desc">{d.description}</p>
+                                    <div className="finDep-card__meta">
+                                        <span className="finDep-card__amount">{fmt(d.montant)}</span>
+                                    </div>
+                                </article>
+                            ))
+                    }
+                </div>
+            )}
+
+            {/* Pagination */}
+            {!loading && !erreur && totalPages > 1 && (
+                <div className="finDep-pagination">
+                    <span className="finDep-pagination__info">
+                        Page {page} sur {totalPages} — {meta.total} résultat{meta.total > 1 ? "s" : ""}
+                    </span>
+                    <div style={{ display: "flex", gap: "var(--space-2)" }}>
+                        <button
+                            className="finDep-pagination__btn"
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page <= 1}
+                            type="button"
+                            aria-label="Page précédente"
+                        >
+                            <ChevronLeft size={16} aria-hidden="true" />
+                        </button>
+                        <button
+                            className="finDep-pagination__btn"
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page >= totalPages}
+                            type="button"
+                            aria-label="Page suivante"
+                        >
+                            <ChevronRight size={16} aria-hidden="true" />
+                        </button>
                     </div>
-                ) : (
-                    filtrees.map(d => (
-                        <article key={d.id} className="finDep-card" onClick={() => setSelectedDep(d)}>
-                            <div className="finDep-card__top">
-                                <span className="finDep-card__id">{d.id}</span>
-                                <span className="fin-badge fin-badge--neutral">{d.categorie}</span>
-                            </div>
-                            <p className="finDep-card__desc">{d.description}</p>
-                            <div className="finDep-card__meta">
-                                <span className="finDep-card__amount">{formatMontant(d.montant)}</span>
-                                <span className="finDep-card__date">{formatDate(d.date)}</span>
-                            </div>
-                        </article>
-                    ))
-                )}
-            </div>
+                </div>
+            )}
 
             {selectedDep && (
                 <DepensePane

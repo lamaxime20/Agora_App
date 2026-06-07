@@ -1,51 +1,62 @@
-import { useState } from "react";
-import { Search, Download, ChevronDown, TrendingUp } from "lucide-react";
-import EntreePane from "./EntreePane.jsx";
+import { useState, useEffect } from "react";
+import { Search, Download, ChevronDown, ChevronLeft, ChevronRight, TrendingUp, AlertTriangle } from "lucide-react";
+import EntreePane from "./entreePane.jsx";
+import { fetchEntrees } from "../../../../services/financesP3.js";
 
-const MOCK_ENTREES = [
-    { id: "ENT-2026-001", date: "2026-06-02", montant: 5000000, origine: "Apport de capital",              description: "Apport externe de capital — investisseur Fouda & Associés" },
-    { id: "ENT-2026-002", date: "2026-06-04", montant:  150000, origine: "Remboursement reçu",             description: "Remboursement suite à un trop-perçu par le prestataire LogiTrans" },
-    { id: "ENT-2026-003", date: "2026-06-06", montant:  800000, origine: "Subvention ou aide publique",    description: "Subvention PME — Ministère du Commerce — tranche juin 2026" },
-    { id: "ENT-2026-004", date: "2026-06-08", montant:  320000, origine: "Vente de produits ou services",  description: "Vente de matériel de bureau reconditionné — lot juin" },
-    { id: "ENT-2026-005", date: "2026-06-11", montant: 1200000, origine: "Prêt bancaire reçu",             description: "Déblocage crédit revolving — Banque Atlantique Cameroun" },
-];
+const fmt = (n) =>
+    new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+
+const fmtDate = (d) =>
+    new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+
+const SKELETON_ROWS = Array.from({ length: 5 });
 
 function HistoriqueEntrees() {
+    const [data, setData]             = useState([]);
+    const [meta, setMeta]             = useState({ page: 1, total: 0, per_page: 20 });
+    const [page, setPage]             = useState(1);
+    const [loading, setLoading]       = useState(true);
+    const [erreur, setErreur]         = useState(null);
     const [selectedEnt, setSelectedEnt] = useState(null);
-    const [filtreDate, setFiltreDate]   = useState("");
-    const [recherche, setRecherche]     = useState("");
-    const [exportOpen, setExportOpen]   = useState(false);
+    const [recherche, setRecherche]   = useState("");
+    const [filtreDate, setFiltreDate] = useState("");
+    const [exportOpen, setExportOpen] = useState(false);
 
-    const formatMontant = (n) =>
-        new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+    useEffect(() => {
+        setLoading(true);
+        setErreur(null);
+        fetchEntrees(page)
+            .then(res => { setData(res.data); setMeta(res.meta); setLoading(false); })
+            .catch(() => { setErreur("Impossible de charger l'historique."); setLoading(false); });
+    }, [page]);
 
-    const formatDate = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
-
-    const filtrees = MOCK_ENTREES.filter(e => {
-        const matchDate = filtreDate ? e.date === filtreDate : true;
-        const q = recherche.toLowerCase();
+    const filtres = data.filter(e => {
+        const matchDate   = filtreDate ? e.date === filtreDate : true;
+        const q           = recherche.toLowerCase();
         const matchSearch = recherche
             ? e.id.toLowerCase().includes(q) ||
               e.description.toLowerCase().includes(q) ||
-              e.origine.toLowerCase().includes(q)
+              e.utilisateur?.toLowerCase().includes(q)
             : true;
         return matchDate && matchSearch;
     });
 
-    const totalEntrees = filtrees.reduce((s, e) => s + e.montant, 0);
+    const totalEntrees = filtres.reduce((s, e) => s + e.montant, 0);
+    const totalPages   = Math.ceil(meta.total / meta.per_page);
 
     return (
         <>
-            {/* KPI résumé */}
-            <div className="finEnt-kpis" style={{ gridTemplateColumns: "1fr 1fr", marginBottom: "var(--space-4)" }}>
+            {/* KPIs */}
+            <div className="finEnt-kpis">
                 <div className="finEnt-kpi">
-                    <p className="finEnt-kpi__label">Nombre</p>
-                    <p className="finEnt-kpi__value">{filtrees.length}</p>
+                    <p className="finEnt-kpi__label">Opérations</p>
+                    <p className="finEnt-kpi__value">{loading ? "—" : filtres.length}</p>
                 </div>
                 <div className="finEnt-kpi">
                     <p className="finEnt-kpi__label">Total encaissé</p>
-                    <p className="finEnt-kpi__value finEnt-kpi__value--success">{formatMontant(totalEntrees)}</p>
+                    <p className="finEnt-kpi__value finEnt-kpi__value--success">
+                        {loading ? "—" : fmt(totalEntrees)}
+                    </p>
                 </div>
             </div>
 
@@ -57,13 +68,12 @@ function HistoriqueEntrees() {
                         <input
                             type="search"
                             className="app-input finEnt-search__input"
-                            placeholder="Rechercher par description, origine…"
+                            placeholder="Description, utilisateur…"
                             value={recherche}
                             onChange={e => setRecherche(e.target.value)}
                             aria-label="Rechercher une entrée"
                         />
                     </div>
-
                     <input
                         type="date"
                         className="finEnt-filter-select"
@@ -71,13 +81,13 @@ function HistoriqueEntrees() {
                         onChange={e => setFiltreDate(e.target.value)}
                         aria-label="Filtrer par date"
                     />
-
                     <div style={{ position: "relative" }}>
                         <button
                             className="app-button app-button--ghost app-button--sm"
-                            onClick={() => setExportOpen(!exportOpen)}
+                            onClick={() => setExportOpen(v => !v)}
                             type="button"
                             aria-expanded={exportOpen}
+                            aria-haspopup="menu"
                         >
                             <Download size={16} aria-hidden="true" />
                             Exporter
@@ -85,15 +95,15 @@ function HistoriqueEntrees() {
                         </button>
                         {exportOpen && (
                             <div className="finCommandes-export-menu" role="menu">
-                                {[".csv", ".pdf", ".docx"].map(fmt => (
+                                {[".csv", ".pdf", ".xlsx"].map(f => (
                                     <button
-                                        key={fmt}
+                                        key={f}
                                         className="finCommandes-export-menu__item"
                                         onClick={() => setExportOpen(false)}
                                         role="menuitem"
                                         type="button"
                                     >
-                                        {fmt.toUpperCase()}
+                                        {f.toUpperCase()}
                                     </button>
                                 ))}
                             </div>
@@ -102,73 +112,137 @@ function HistoriqueEntrees() {
                 </div>
             </div>
 
+            {erreur && (
+                <div className="finEnt-empty">
+                    <div className="finEnt-empty__icon">
+                        <AlertTriangle size={28} aria-hidden="true" />
+                    </div>
+                    <p className="finEnt-empty__title">{erreur}</p>
+                </div>
+            )}
+
             {/* Tableau desktop */}
-            <div className="finEnt-tableWrap">
-                <table className="finEnt-table" aria-label="Historique des entrées financières">
-                    <thead className="finEnt-table__head">
-                        <tr>
-                            <th scope="col">Référence</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Origine</th>
-                            <th scope="col">Montant</th>
-                            <th scope="col">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filtrees.length === 0 ? (
+            {!erreur && (
+                <div className="finEnt-tableWrap">
+                    <table className="finEnt-table" aria-label="Historique des entrées financières">
+                        <thead className="finEnt-table__head">
                             <tr>
-                                <td colSpan={5}>
-                                    <div className="finEnt-empty">
-                                        <div className="finEnt-empty__icon">
-                                            <TrendingUp size={32} aria-hidden="true" />
-                                        </div>
-                                        <p className="finEnt-empty__title">Aucune entrée trouvée</p>
-                                        <p className="finEnt-empty__desc">Modifiez les filtres pour afficher des résultats.</p>
-                                    </div>
-                                </td>
+                                <th scope="col">Date</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Montant</th>
+                                <th scope="col">Enregistré par</th>
                             </tr>
-                        ) : (
-                            filtrees.map(e => (
-                                <tr key={e.id} className="finEnt-table__row" onClick={() => setSelectedEnt(e)}>
-                                    <td className="finEnt-table__id">{e.id}</td>
-                                    <td className="finEnt-table__date">{formatDate(e.date)}</td>
-                                    <td>
-                                        <span className="fin-badge fin-badge--success">{e.origine}</span>
-                                    </td>
-                                    <td className="finEnt-table__amount">{formatMontant(e.montant)}</td>
-                                    <td className="finEnt-table__desc">{e.description}</td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {loading
+                                ? SKELETON_ROWS.map((_, i) => (
+                                    <tr key={i} className="finEnt-table__row--skeleton">
+                                        <td><span className="finEnt-skeleton finEnt-skeleton--sm" /></td>
+                                        <td><span className="finEnt-skeleton finEnt-skeleton--lg" /></td>
+                                        <td><span className="finEnt-skeleton finEnt-skeleton--md" /></td>
+                                        <td><span className="finEnt-skeleton finEnt-skeleton--md" /></td>
+                                    </tr>
+                                ))
+                                : filtres.length === 0
+                                    ? (
+                                        <tr>
+                                            <td colSpan={4}>
+                                                <div className="finEnt-empty">
+                                                    <div className="finEnt-empty__icon">
+                                                        <TrendingUp size={28} aria-hidden="true" />
+                                                    </div>
+                                                    <p className="finEnt-empty__title">Aucune entrée trouvée</p>
+                                                    <p className="finEnt-empty__desc">Modifiez les filtres pour afficher des résultats.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                    : filtres.map(e => (
+                                        <tr
+                                            key={e.id}
+                                            className="finEnt-table__row"
+                                            onClick={() => setSelectedEnt(e)}
+                                        >
+                                            <td className="finEnt-table__date">{fmtDate(e.date)}</td>
+                                            <td className="finEnt-table__desc">{e.description}</td>
+                                            <td className="finEnt-table__amount">{fmt(e.montant)}</td>
+                                            <td style={{ fontSize: "var(--text-sm)" }}>{e.utilisateur ?? "—"}</td>
+                                        </tr>
+                                    ))
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Cartes mobile */}
-            <div className="finEnt-cards">
-                {filtrees.length === 0 ? (
-                    <div className="finEnt-empty">
-                        <div className="finEnt-empty__icon">
-                            <TrendingUp size={32} aria-hidden="true" />
-                        </div>
-                        <p className="finEnt-empty__title">Aucune entrée trouvée</p>
+            {!erreur && (
+                <div className="finEnt-cards">
+                    {loading
+                        ? SKELETON_ROWS.map((_, i) => (
+                            <div key={i} className="finEnt-card">
+                                <span className="finEnt-skeleton finEnt-skeleton--sm" />
+                                <span className="finEnt-skeleton finEnt-skeleton--lg" style={{ marginTop: "var(--space-2)", display: "block" }} />
+                                <span className="finEnt-skeleton finEnt-skeleton--md" style={{ marginTop: "var(--space-2)", display: "block" }} />
+                            </div>
+                        ))
+                        : filtres.length === 0
+                            ? (
+                                <div className="finEnt-empty">
+                                    <div className="finEnt-empty__icon">
+                                        <TrendingUp size={28} aria-hidden="true" />
+                                    </div>
+                                    <p className="finEnt-empty__title">Aucune entrée trouvée</p>
+                                </div>
+                            )
+                            : filtres.map(e => (
+                                <article
+                                    key={e.id}
+                                    className="finEnt-card"
+                                    onClick={() => setSelectedEnt(e)}
+                                >
+                                    <div className="finEnt-card__top">
+                                        <span className="finEnt-card__id">{fmtDate(e.date)}</span>
+                                        <span className="fin-badge fin-badge--success">{e.utilisateur ?? "—"}</span>
+                                    </div>
+                                    <p className="finEnt-card__desc">{e.description}</p>
+                                    <div className="finEnt-card__meta">
+                                        <span className="finEnt-card__amount">{fmt(e.montant)}</span>
+                                    </div>
+                                </article>
+                            ))
+                    }
+                </div>
+            )}
+
+            {/* Pagination */}
+            {!loading && !erreur && totalPages > 1 && (
+                <div className="finEnt-pagination">
+                    <span className="finEnt-pagination__info">
+                        Page {page} sur {totalPages} — {meta.total} résultat{meta.total > 1 ? "s" : ""}
+                    </span>
+                    <div style={{ display: "flex", gap: "var(--space-2)" }}>
+                        <button
+                            className="finEnt-pagination__btn"
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page <= 1}
+                            type="button"
+                            aria-label="Page précédente"
+                        >
+                            <ChevronLeft size={16} aria-hidden="true" />
+                        </button>
+                        <button
+                            className="finEnt-pagination__btn"
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page >= totalPages}
+                            type="button"
+                            aria-label="Page suivante"
+                        >
+                            <ChevronRight size={16} aria-hidden="true" />
+                        </button>
                     </div>
-                ) : (
-                    filtrees.map(e => (
-                        <article key={e.id} className="finEnt-card" onClick={() => setSelectedEnt(e)}>
-                            <div className="finEnt-card__top">
-                                <span className="finEnt-card__id">{e.id}</span>
-                                <span className="fin-badge fin-badge--success">{e.origine}</span>
-                            </div>
-                            <p className="finEnt-card__desc">{e.description}</p>
-                            <div className="finEnt-card__meta">
-                                <span className="finEnt-card__amount">{formatMontant(e.montant)}</span>
-                                <span className="finEnt-card__date">{formatDate(e.date)}</span>
-                            </div>
-                        </article>
-                    ))
-                )}
-            </div>
+                </div>
+            )}
 
             {selectedEnt && (
                 <EntreePane

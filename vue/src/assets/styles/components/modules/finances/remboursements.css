@@ -683,3 +683,250 @@
         display: none;
     }
 }
+
+/* ============================================================
+   PARTIE 3 — Nouvelles classes
+   ============================================================ */
+
+/* ----- Form section & card ----- */
+.finRemb-form-section {
+    padding: var(--space-2) 0;
+}
+
+.finRemb-form__card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.finRemb-form__fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.finRemb-form__error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    color: var(--color-error);
+    font-size: var(--text-sm);
+}
+
+.finRemb-form__hint {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-top: var(--space-1);
+}
+
+.finRemb-form__hint--error {
+    color: var(--color-error);
+}
+
+.finRemb-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: var(--space-2);
+}
+
+/* ----- Suggestions rapides ----- */
+.finRemb-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.finRemb-suggestion-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: var(--color-surface-alt);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background 150ms ease-out, color 150ms ease-out;
+    white-space: nowrap;
+}
+
+.finRemb-suggestion-chip:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgba(243, 156, 18, 0.06);
+}
+
+.finRemb-suggestion-chip--active {
+    border-color: var(--color-primary);
+    background: rgba(243, 156, 18, 0.10);
+    color: var(--color-primary);
+    font-weight: var(--weight-medium);
+}
+
+/* ----- Toast ----- */
+.finRemb-toast {
+    position: fixed;
+    bottom: var(--space-6);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    animation: slideUpFade 300ms ease-out;
+    white-space: nowrap;
+}
+
+.finRemb-toast--success { background: var(--color-success); color: #fff; }
+.finRemb-toast--error   { background: var(--color-error);   color: #fff; }
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ----- Confirm summary ----- */
+.finRemb-confirm__summary {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+}
+
+/* ----- Choix commande pane ----- */
+.finRemb-choix__hint {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-3);
+}
+
+.finRemb-choix__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.finRemb-choix__card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    cursor: pointer;
+    transition: border-color 200ms ease-out, box-shadow 200ms ease-out;
+    position: relative;
+}
+
+.finRemb-choix__card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 16px rgba(243, 156, 18, 0.08);
+}
+
+.finRemb-choix__card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+}
+
+.finRemb-choix__card-ref {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.finRemb-choix__card-client {
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    font-size: var(--text-base);
+    margin: 0 0 var(--space-1);
+}
+
+.finRemb-choix__card-amounts {
+    display: flex;
+    gap: var(--space-4);
+    font-size: var(--text-sm);
+    flex-wrap: wrap;
+}
+
+.finRemb-choix__card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+}
+
+.finRemb-choix__card-date {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.finRemb-choix__card-select {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-lg);
+    background: transparent;
+    color: var(--color-primary);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: background 150ms ease-out;
+}
+
+.finRemb-choix__card-select:hover {
+    background: rgba(243, 156, 18, 0.08);
+}
+
+/* ----- Skeleton choix ----- */
+.finRemb-choix__skeleton-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.finRemb-choix__skeleton-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    height: 120px;
+}
+
+/* ----- Skeleton sizes ----- */
+.finRemb-skeleton--sm { display: inline-block; height: 12px; width: 60px; }
+.finRemb-skeleton--md { display: inline-block; height: 12px; width: 100px; }
+.finRemb-skeleton--lg { display: inline-block; height: 12px; width: 160px; }
+
+.finRemb-table__row--skeleton td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+@media (max-width: 480px) {
+    .finRemb-form__card {
+        padding: var(--space-4);
+    }
+    .finRemb-choix__card-amounts {
+        flex-direction: column;
+        gap: var(--space-1);
+    }
+}
