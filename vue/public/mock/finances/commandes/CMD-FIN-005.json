@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "data": {
+    "id": "CMD-FIN-005",
+    "nom": "Commande Epsilon — Biyong Crist.",
+    "client": "Biyong Cristophe",
+    "date": "2026-04-28",
+    "total": 5800000,
+    "minimumValidation": 5000000,
+    "paye": 5000000,
+    "statut": "partiellement payé",
+    "produits": [
+      { "reference": "PRD-009", "nom": "Système ERP Complet", "quantite": 1, "prix_unitaire": 4000000, "sous_total": 4000000 },
+      { "reference": "PRD-010", "nom": "Infrastructure Serveur", "quantite": 1, "prix_unitaire": 1200000, "sous_total": 1200000 },
+      { "reference": "PRD-011", "nom": "Formation & Déploiement", "quantite": 1, "prix_unitaire": 600000, "sous_total": 600000 }
+    ],
+    "paiements": [
+      { "id": "P-CMD005-01", "date": "2026-05-15", "montant": 2000000, "mode": "virement bancaire", "reference": "VIR-88123", "utilisateur": "Alice Caisse" },
+      { "id": "P-CMD005-02", "date": "2026-05-31", "montant": 3000000, "mode": "virement bancaire", "reference": "VIR-99001", "utilisateur": "Alice Caisse" }
+    ]
+  }
+}

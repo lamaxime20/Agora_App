@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "data": {
+    "paiements": [
+      { "id": "P-101", "date": "2026-06-02", "montant": 1500000, "mode": "virement bancaire", "reference": "VIR-77312", "utilisateur": "Alice Caisse",    "commandeAssociee": { "id": "CMD-889", "nom": "Commande Client Dupond", "total": 1500000 } },
+      { "id": "P-102", "date": "2026-06-05", "montant": 450000,  "mode": "espèces",           "reference": "",          "utilisateur": "Jean Comptable",  "commandeAssociee": { "id": "CMD-990", "nom": "Commande Client Martin", "total": 900000 } },
+      { "id": "P-103", "date": "2026-06-08", "montant": 3200000, "mode": "carte bancaire",    "reference": "CB-55841",  "utilisateur": "Marie Finance",   "commandeAssociee": { "id": "CMD-991", "nom": "Commande Ngo Essomba", "total": 3200000 } },
+      { "id": "P-104", "date": "2026-06-10", "montant": 800000,  "mode": "chèque",            "reference": "CHQ-0122",  "utilisateur": "Paul Trésorerie", "commandeAssociee": { "id": "CMD-992", "nom": "Commande Mvondo Paul", "total": 800000 } },
+      { "id": "P-105", "date": "2026-06-12", "montant": 5000000, "mode": "virement bancaire", "reference": "VIR-99001", "utilisateur": "Alice Caisse",    "commandeAssociee": { "id": "CMD-993", "nom": "Commande Biyong Crist.", "total": 5800000 } }
+    ],
+    "total": 5,
+    "page": 1,
+    "par_page": 20
+  }
+}

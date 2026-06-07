@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "data": {
+    "id": "CMD-FIN-004",
+    "nom": "Commande Delta — Mvondo Paul",
+    "client": "Mvondo Paul",
+    "date": "2026-06-01",
+    "total": 950000,
+    "minimumValidation": 950000,
+    "paye": 0,
+    "statut": "en attente de paiement",
+    "produits": [
+      { "reference": "PRD-007", "nom": "Logiciel Gestion RH", "quantite": 1, "prix_unitaire": 650000, "sous_total": 650000 },
+      { "reference": "PRD-008", "nom": "Support Technique Annuel", "quantite": 1, "prix_unitaire": 300000, "sous_total": 300000 }
+    ],
+    "paiements": []
+  }
+}

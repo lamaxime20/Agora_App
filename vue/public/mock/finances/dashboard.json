@@ -1,0 +1,48 @@
+{
+  "success": true,
+  "data": {
+    "argent_virtuel": 2450000,
+    "variation_mois": 12,
+    "variation_positive": true,
+    "entrees": 530000,
+    "sorties": 120000,
+    "benefice": 410000,
+    "paiements": 32,
+    "remboursements": 4,
+    "depenses": 12,
+    "variations": {
+      "entrees": 8,
+      "sorties": -3,
+      "benefice": 15,
+      "paiements": 5,
+      "remboursements": -2,
+      "depenses": -7
+    },
+    "alertes": [
+      {
+        "id": "ALT-001",
+        "type": "warning",
+        "titre": "3 abonnements arrivent à échéance",
+        "detail": "Dans les 7 prochains jours",
+        "count": 3,
+        "module": "abonnements"
+      },
+      {
+        "id": "ALT-002",
+        "type": "danger",
+        "titre": "5 commandes attendent un paiement",
+        "detail": "Dont 2 dépassent 30 jours sans règlement",
+        "count": 5,
+        "module": "commandes"
+      },
+      {
+        "id": "ALT-003",
+        "type": "info",
+        "titre": "2 remboursements importants en cours",
+        "detail": "Total estimé : 850 000 FCFA",
+        "count": 2,
+        "module": "remboursements"
+      }
+    ]
+  }
+}

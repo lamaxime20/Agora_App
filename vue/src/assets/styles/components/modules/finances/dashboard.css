@@ -1,0 +1,1031 @@
+/* ============================================================
+   DASHBOARD FINANCES — Prefix : finDash-*
+   Mobile-first — Design System AGORA
+   ============================================================ */
+
+/* ─── Root ───────────────────────────────────────────────────────────────────── */
+
+.finDash-root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    animation: fadeInUp 0.3s var(--ease-out) both;
+}
+
+/* ─── Skeleton shimmer ───────────────────────────────────────────────────────── */
+
+@keyframes shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position:  600px 0; }
+}
+
+.finDash-skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--color-border) 25%,
+        var(--color-surface-alt) 50%,
+        var(--color-border) 75%
+    );
+    background-size: 1200px 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    border-radius: var(--radius-md);
+}
+
+.finDash-skeleton--label  { height: 14px; width: 120px; }
+.finDash-skeleton--value  { height: 36px; width: 220px; margin-top: var(--space-2); }
+.finDash-skeleton--badge  { height: 24px; width: 100px; border-radius: var(--radius-full); margin-top: var(--space-3); }
+.finDash-skeleton--title  { height: 16px; width: 160px; }
+.finDash-skeleton--line   { height: 13px; width: 80%; }
+.finDash-skeleton--icon   { height: 36px; width: 36px; border-radius: var(--radius-lg); flex-shrink: 0; }
+.finDash-skeleton--icon-sm{ height: 32px; width: 32px; border-radius: var(--radius-lg); flex-shrink: 0; }
+.finDash-skeleton--amount { height: 14px; width: 80px; }
+
+/* ─── Ligne 1 : Argent Virtuel + Bilan ──────────────────────────────────────── */
+
+.finDash-row1 {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ─── Carte Argent Virtuel ───────────────────────────────────────────────────── */
+
+.finDash-argent {
+    width: 100%;
+    min-height: 160px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #F39C12 0%, #e67e22 55%, #d35400 100%);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    box-shadow: 0 8px 32px rgba(243, 156, 18, 0.35);
+    position: relative;
+    overflow: hidden;
+}
+
+.finDash-argent::before {
+    content: "";
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+}
+
+.finDash-argent::after {
+    content: "";
+    position: absolute;
+    bottom: -60px;
+    left: -20px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.finDash-argent--skeleton {
+    background: var(--color-border);
+    justify-content: flex-start;
+    gap: var(--space-3);
+}
+
+.finDash-argent--skeleton .finDash-skeleton {
+    background: linear-gradient(90deg, rgba(0,0,0,0.08) 25%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.08) 75%);
+    background-size: 600px 100%;
+}
+
+.finDash-argent__eyebrow {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: rgba(255, 255, 255, 0.80);
+    letter-spacing: 0.04em;
+    position: relative;
+    z-index: 1;
+}
+
+.finDash-argent__value {
+    font-family: var(--font-display);
+    font-size: clamp(26px, 6vw, 36px);
+    font-weight: var(--weight-bold);
+    color: #fff;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    position: relative;
+    z-index: 1;
+}
+
+.finDash-argent__currency {
+    font-size: 0.55em;
+    font-weight: var(--weight-medium);
+    opacity: 0.85;
+}
+
+.finDash-argent__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 4px var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    width: fit-content;
+    position: relative;
+    z-index: 1;
+}
+
+.finDash-argent__badge--up {
+    background-color: rgba(39, 174, 96, 0.25);
+    color: #a8f0c0;
+}
+
+.finDash-argent__badge--down {
+    background-color: rgba(231, 76, 60, 0.25);
+    color: #ffa59e;
+}
+
+/* ─── Bilan Card ─────────────────────────────────────────────────────────────── */
+
+.finDash-bilan {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    box-shadow: var(--shadow-xs);
+}
+
+.finDash-bilan--skeleton {
+    gap: var(--space-4);
+}
+
+.finDash-bilan__row--skeleton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.finDash-bilan__title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    margin-bottom: var(--space-1);
+}
+
+.finDash-bilan__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.finDash-bilan__row:last-child { border-bottom: none; }
+
+.finDash-bilan__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+}
+
+.finDash-bilan__icon--success { background: rgba(39, 174, 96, 0.12);  color: var(--color-success); }
+.finDash-bilan__icon--error   { background: rgba(231, 76, 60, 0.12);  color: var(--color-error); }
+.finDash-bilan__icon--primary { background: rgba(243, 156, 18, 0.12); color: var(--color-primary); }
+
+.finDash-bilan__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.finDash-bilan__label {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-medium);
+}
+
+.finDash-bilan__amount {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.finDash-bilan__variation {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: var(--weight-semibold);
+    flex-shrink: 0;
+}
+
+.finDash-bilan__variation--up   { color: var(--color-success); }
+.finDash-bilan__variation--down { color: var(--color-error); }
+
+/* ─── KPI Cards ──────────────────────────────────────────────────────────────── */
+
+.finDash-kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+}
+
+.finDash-kpi {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    box-shadow: var(--shadow-xs);
+    transition:
+        box-shadow  var(--duration-normal) var(--ease-out),
+        transform   var(--duration-fast)   var(--ease-out),
+        border-color var(--duration-fast)   var(--ease-out);
+    min-height: 110px;
+}
+
+.finDash-kpi:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--color-border-strong);
+}
+
+.finDash-kpi--skeleton {
+    gap: var(--space-3);
+}
+
+.finDash-kpi__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-lg);
+}
+
+.finDash-kpi--success .finDash-kpi__icon { background: rgba(39, 174, 96, 0.12);  color: var(--color-success); }
+.finDash-kpi--error   .finDash-kpi__icon { background: rgba(231, 76, 60, 0.12);  color: var(--color-error); }
+.finDash-kpi--primary .finDash-kpi__icon { background: rgba(243, 156, 18, 0.12); color: var(--color-primary); }
+.finDash-kpi--info    .finDash-kpi__icon { background: rgba(52, 152, 219, 0.12); color: var(--color-info); }
+.finDash-kpi--warning .finDash-kpi__icon { background: rgba(241, 196, 15, 0.12); color: #b8860b; }
+.finDash-kpi--muted   .finDash-kpi__icon { background: var(--color-surface-alt); color: var(--color-text-muted); }
+
+.finDash-kpi__label {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+}
+
+.finDash-kpi__value {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.finDash-kpi__variation {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: var(--weight-semibold);
+    width: fit-content;
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+    margin-top: auto;
+}
+
+.finDash-kpi__variation--up {
+    background: rgba(39, 174, 96, 0.10);
+    color: var(--color-success);
+}
+
+.finDash-kpi__variation--down {
+    background: rgba(231, 76, 60, 0.10);
+    color: var(--color-error);
+}
+
+/* ─── Ligne 3 : Chart + Activités ───────────────────────────────────────────── */
+
+.finDash-row3 {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ─── Graphique Trésorerie ───────────────────────────────────────────────────── */
+
+.finDash-chart {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-xs);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-height: 240px;
+}
+
+.finDash-chart__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.finDash-chart__title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.finDash-chart__period {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    background-color: var(--color-surface-alt);
+    padding: 3px var(--space-3);
+    border-radius: var(--radius-full);
+}
+
+.finDash-chart__wrap {
+    position: relative;
+    width: 100%;
+    flex: 1;
+}
+
+.finDash-chart__svg {
+    width: 100%;
+    height: 100%;
+    min-height: 160px;
+    display: block;
+    overflow: visible;
+}
+
+.finDash-chart__skeleton-graph {
+    height: 160px;
+    border-radius: var(--radius-lg);
+}
+
+.finDash-chart__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.finDash-chart__tooltip {
+    position: absolute;
+    transform: translate(-50%, calc(-100% - 12px));
+    background-color: var(--color-text);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: var(--space-2) var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: var(--shadow-lg);
+}
+
+.finDash-chart__tooltip-date {
+    font-size: 10px;
+    opacity: 0.7;
+    font-weight: var(--weight-medium);
+}
+
+.finDash-chart__tooltip-val {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ─── Activité Récente ───────────────────────────────────────────────────────── */
+
+.finDash-activite {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-xs);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.finDash-activite__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.finDash-activite__title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.finDash-activite__count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 var(--space-2);
+    background-color: var(--color-surface-alt);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+}
+
+.finDash-activite__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.finDash-activite__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    background: transparent;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    width: 100%;
+    text-align: left;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        transform        var(--duration-fast) var(--ease-out);
+    border-radius: 0;
+}
+
+.finDash-activite__list li:last-child .finDash-activite__item {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.finDash-activite__item:hover {
+    background-color: var(--color-surface-alt);
+    transform: translateX(2px);
+}
+
+.finDash-activite__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+}
+
+.finDash-activite__icon--entree { background: rgba(39, 174, 96, 0.12);  color: var(--color-success); }
+.finDash-activite__icon--sortie { background: rgba(231, 76, 60, 0.12);  color: var(--color-error); }
+
+.finDash-activite__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.finDash-activite__item-title {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.finDash-activite__item-date {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.finDash-activite__montant {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.finDash-activite__montant--entree { color: var(--color-success); }
+.finDash-activite__montant--sortie { color: var(--color-error); }
+
+.finDash-activite__item--skeleton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.finDash-activite__item-body--skeleton {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.finDash-activite__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-10) var(--space-4);
+    color: var(--color-text-muted);
+    text-align: center;
+    font-size: var(--text-sm);
+}
+
+/* ─── Alertes Financières ────────────────────────────────────────────────────── */
+
+.finDash-alertes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.finDash-alertes__title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.finDash-alertes__grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.finDash-alerte {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-4);
+    border-radius: var(--radius-xl);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+        box-shadow  var(--duration-normal) var(--ease-out),
+        transform   var(--duration-fast)   var(--ease-out);
+}
+
+.finDash-alerte:hover {
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.finDash-alerte--warning {
+    background-color: rgba(241, 196, 15, 0.08);
+    border-color: rgba(241, 196, 15, 0.25);
+}
+
+.finDash-alerte--danger {
+    background-color: rgba(231, 76, 60, 0.08);
+    border-color: rgba(231, 76, 60, 0.25);
+}
+
+.finDash-alerte--info {
+    background-color: rgba(52, 152, 219, 0.08);
+    border-color: rgba(52, 152, 219, 0.20);
+}
+
+.finDash-alerte__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-xl);
+    flex-shrink: 0;
+}
+
+.finDash-alerte--warning .finDash-alerte__icon { background: rgba(241, 196, 15, 0.15); color: #b8860b; }
+.finDash-alerte--danger  .finDash-alerte__icon { background: rgba(231, 76, 60, 0.15);  color: var(--color-error); }
+.finDash-alerte--info    .finDash-alerte__icon { background: rgba(52, 152, 219, 0.15); color: var(--color-info); }
+
+.finDash-alerte__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.finDash-alerte__titre {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.finDash-alerte__detail {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.finDash-alerte__count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    flex-shrink: 0;
+}
+
+.finDash-alerte--warning .finDash-alerte__count { background: rgba(241, 196, 15, 0.20); color: #b8860b; }
+.finDash-alerte--danger  .finDash-alerte__count { background: rgba(231, 76, 60, 0.20);  color: var(--color-error); }
+.finDash-alerte--info    .finDash-alerte__count { background: rgba(52, 152, 219, 0.20); color: var(--color-info); }
+
+.finDash-alerte__arrow {
+    color: var(--color-text-light);
+    flex-shrink: 0;
+}
+
+.finDash-alerte--skeleton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background-color: var(--color-surface-alt);
+    border-radius: var(--radius-xl);
+}
+
+.finDash-alerte__body--skeleton {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+/* ─── Drawer Activité (Pane) ─────────────────────────────────────────────────── */
+
+.finDash-pane__overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.35);
+    z-index: calc(var(--z-modal) - 1);
+    animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+.finDash-pane {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100dvh;
+    width: min(560px, 100vw);
+    background-color: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    z-index: var(--z-modal);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    animation: slideInRight var(--duration-normal) var(--ease-out);
+}
+
+.finDash-pane__handle {
+    display: none;
+    justify-content: center;
+    padding: var(--space-3) 0 var(--space-1);
+    flex-shrink: 0;
+}
+
+.finDash-pane__handle-bar {
+    width: 48px;
+    height: 5px;
+    background-color: var(--color-border-strong);
+    border-radius: var(--radius-full);
+}
+
+.finDash-pane__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.finDash-pane__header-left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.finDash-pane__type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 3px var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    width: fit-content;
+}
+
+.finDash-pane__type-badge--entree {
+    background: rgba(39, 174, 96, 0.12);
+    color: var(--color-success);
+}
+
+.finDash-pane__type-badge--sortie {
+    background: rgba(231, 76, 60, 0.12);
+    color: var(--color-error);
+}
+
+.finDash-pane__title {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.finDash-pane__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.finDash-pane__close:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+.finDash-pane__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.finDash-pane__amount-block {
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.finDash-pane__amount-block--entree {
+    background: rgba(39, 174, 96, 0.08);
+    border: 1px solid rgba(39, 174, 96, 0.20);
+}
+
+.finDash-pane__amount-block--sortie {
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.20);
+}
+
+.finDash-pane__amount-label {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+}
+
+.finDash-pane__amount-value {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+}
+
+.finDash-pane__amount-block--entree .finDash-pane__amount-value { color: var(--color-success); }
+.finDash-pane__amount-block--sortie .finDash-pane__amount-value { color: var(--color-error); }
+
+.finDash-pane__section-label {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-3);
+}
+
+.finDash-pane__row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.finDash-pane__row:last-child { border-bottom: none; }
+
+.finDash-pane__row-key {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-medium);
+    flex-shrink: 0;
+    min-width: 100px;
+}
+
+.finDash-pane__row-val {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    text-align: right;
+    min-width: 0;
+    word-break: break-word;
+}
+
+/* ─── État d'erreur ──────────────────────────────────────────────────────────── */
+
+.finDash-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-16) var(--space-8);
+    text-align: center;
+    color: var(--color-text-muted);
+}
+
+.finDash-error__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+.finDash-error__desc {
+    font-size: var(--text-sm);
+    max-width: 300px;
+    line-height: var(--line-height-relaxed);
+}
+
+/* ─── Responsive — Tablettes ─────────────────────────────────────────────────── */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .finDash-kpis {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .finDash-row3 {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .finDash-chart    { flex: 3; }
+    .finDash-activite { flex: 2; }
+}
+
+/* ─── Responsive — Ordinateurs portables ─────────────────────────────────────── */
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+    .finDash-row1 {
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .finDash-argent { flex: 2; }
+    .finDash-bilan  { flex: 1; }
+
+    .finDash-kpis {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .finDash-row3 {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .finDash-chart    { flex: 2; }
+    .finDash-activite { flex: 1; }
+
+    .finDash-alertes__grid {
+        flex-direction: row;
+    }
+
+    .finDash-pane__handle { display: none; }
+}
+
+/* ─── Responsive — Desktops et Écrans plats ──────────────────────────────────── */
+
+@media (min-width: 1201px) {
+    .finDash-root { gap: var(--space-5); }
+
+    .finDash-row1 {
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .finDash-argent { flex: 2; }
+    .finDash-bilan  { flex: 1; }
+
+    .finDash-kpis {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .finDash-row3 {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: var(--space-4);
+    }
+
+    .finDash-chart    { flex: 2; }
+    .finDash-activite { flex: 1; min-width: 320px; }
+
+    .finDash-alertes__grid {
+        flex-direction: row;
+    }
+
+    .finDash-alerte {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .finDash-pane__handle { display: none; }
+}
+
+/* ─── Responsive — Mobiles ───────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .finDash-argent__value {
+        font-size: 26px;
+    }
+
+    .finDash-kpi__value {
+        font-size: var(--text-sm);
+    }
+
+    .finDash-pane {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        max-height: 92dvh;
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        animation: slideInUp var(--duration-normal) var(--ease-out);
+    }
+
+    .finDash-pane__handle { display: flex; }
+}

@@ -1,53 +1,93 @@
-import { useState } from "react";
-import { Search, Edit2, Receipt, AlertCircle } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Search, Receipt, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import CommandePane from "./CommandePane.jsx";
+import { fetchCommandes } from "../../../../services/financesDashboard.js";
 
-const MOCK_COMMANDES = [
-    { id: "CMD-FIN-001", nom: "Commande Alpha — Dupond Jean",    total: 1500,  minimumValidation: 1500,  paye: 500,  statut: "partiellement payé" },
-    { id: "CMD-FIN-002", nom: "Commande Beta — Martin Sophie",   total: 800,   minimumValidation: 800,   paye: 0,    statut: "en attente de paiement" },
-    { id: "CMD-FIN-003", nom: "Commande Gamma — Ngo Essomba",    total: 3200,  minimumValidation: 2000,  paye: 1200, statut: "partiellement payé" },
-    { id: "CMD-FIN-004", nom: "Commande Delta — Mvondo Paul",    total: 950,   minimumValidation: 950,   paye: 0,    statut: "en attente de paiement" },
-    { id: "CMD-FIN-005", nom: "Commande Epsilon — Biyong Crist.",total: 5800,  minimumValidation: 5000,  paye: 5000, statut: "partiellement payé" },
-];
+const PER_PAGE = 20;
+
+function SkeletonRow() {
+    return (
+        <tr className="finCommandes-table__row--skeleton">
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--sm" /></td>
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--lg" /></td>
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--md" /></td>
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--md" /></td>
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--lg" /></td>
+            <td><span className="finCommandes-skeleton__badge" /></td>
+        </tr>
+    );
+}
+
+function SkeletonCard() {
+    return (
+        <div className="finCommandes-card finCommandes-card--skeleton" aria-hidden="true">
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "var(--space-2)" }}>
+                <span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--sm" />
+                <span className="finCommandes-skeleton__badge" />
+            </div>
+            <span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--lg" style={{ marginBottom: "var(--space-3)" }} />
+            <span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--md" />
+        </div>
+    );
+}
 
 function CommandesEnAttente() {
-    const [selectedCommande, setSelectedCommande]   = useState(null);
-    const [commandes, setCommandes]                 = useState(MOCK_COMMANDES);
-    const [recherche, setRecherche]                 = useState("");
-    const [seuilModal, setSeuilModal]               = useState(null);
-    const [nouveauSeuil, setNouveauSeuil]           = useState("");
+    const [commandes,         setCommandes]         = useState([]);
+    const [loading,           setLoading]           = useState(true);
+    const [error,             setError]             = useState(null);
+    const [selectedCommande,  setSelectedCommande]  = useState(null);
+    const [recherche,         setRecherche]         = useState("");
+    const [filtreStatut,      setFiltreStatut]      = useState("");
+    const [page,              setPage]              = useState(1);
 
-    const commandesFiltrees = commandes.filter(cmd =>
-        cmd.nom.toLowerCase().includes(recherche.toLowerCase()) ||
-        cmd.id.toLowerCase().includes(recherche.toLowerCase())
-    );
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+        fetchCommandes()
+            .then(data => setCommandes(data.commandes ?? []))
+            .catch(setError)
+            .finally(() => setLoading(false));
+    }, []);
 
-    const ouvrirSeuilModal = (e, cmd) => {
-        e.stopPropagation();
-        setSeuilModal(cmd);
-        setNouveauSeuil(String(cmd.minimumValidation));
-    };
+    const commandesFiltrees = useMemo(() => {
+        return commandes.filter(cmd => {
+            const q = recherche.toLowerCase();
+            const matchSearch = !q ||
+                cmd.nom.toLowerCase().includes(q) ||
+                cmd.id.toLowerCase().includes(q);
+            const matchStatut = !filtreStatut || cmd.statut === filtreStatut;
+            return matchSearch && matchStatut;
+        });
+    }, [commandes, recherche, filtreStatut]);
 
-    const confirmerSeuil = () => {
-        const val = parseFloat(nouveauSeuil);
-        if (!isNaN(val) && val > 0) {
-            setCommandes(commandes.map(c =>
-                c.id === seuilModal.id ? { ...c, minimumValidation: val } : c
-            ));
-        }
-        setSeuilModal(null);
-    };
+    const totalPages = Math.max(1, Math.ceil(commandesFiltrees.length / PER_PAGE));
+    const paginated  = commandesFiltrees.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+    const handleRecherche = (v) => { setRecherche(v); setPage(1); };
+    const handleStatut    = (v) => { setFiltreStatut(v); setPage(1); };
 
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-    const getPourcentage = (paye, total) => Math.min(100, Math.round((paye / total) * 100));
+    const getPct = (paye, total) => Math.min(100, Math.round((paye / total) * 100));
 
-    const SKELETONS = [1, 2, 3, 4, 5];
+    const STATUTS = ["", "partiellement payé", "en attente de paiement"];
+
+    if (error) {
+        return (
+            <div className="finCommandes-empty">
+                <div className="finCommandes-empty__icon" style={{ color: "var(--color-error)" }}>
+                    <AlertCircle size={32} aria-hidden="true" />
+                </div>
+                <p className="finCommandes-empty__title">Impossible de charger les commandes</p>
+                <p className="finCommandes-empty__desc">Vérifiez votre connexion et rechargez la page.</p>
+            </div>
+        );
+    }
 
     return (
         <>
-            {/* Barre recherche */}
+            {/* Barre recherche + filtres */}
             <div className="finCommandes-toolbar">
                 <div className="finCommandes-toolbar__row">
                     <div className="finCommandes-search">
@@ -57,10 +97,21 @@ function CommandesEnAttente() {
                             className="app-input finCommandes-search__input"
                             placeholder="Rechercher par référence ou client…"
                             value={recherche}
-                            onChange={e => setRecherche(e.target.value)}
+                            onChange={e => handleRecherche(e.target.value)}
                             aria-label="Rechercher une commande"
                         />
                     </div>
+                    <select
+                        className="finCommandes-filter-select"
+                        value={filtreStatut}
+                        onChange={e => handleStatut(e.target.value)}
+                        aria-label="Filtrer par statut"
+                    >
+                        <option value="">Tous les statuts</option>
+                        {STATUTS.filter(Boolean).map(s => (
+                            <option key={s} value={s}>{s}</option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
@@ -71,14 +122,16 @@ function CommandesEnAttente() {
                         <tr>
                             <th scope="col">Référence</th>
                             <th scope="col">Client / Libellé</th>
-                            <th scope="col">Montant total</th>
+                            <th scope="col">Total</th>
                             <th scope="col">Seuil validation</th>
                             <th scope="col">Avancement</th>
                             <th scope="col">Statut</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {commandesFiltrees.length === 0 ? (
+                        {loading ? (
+                            [1,2,3,4,5].map(i => <SkeletonRow key={i} />)
+                        ) : paginated.length === 0 ? (
                             <tr>
                                 <td colSpan={6}>
                                     <div className="finCommandes-empty">
@@ -86,34 +139,26 @@ function CommandesEnAttente() {
                                             <Receipt size={32} aria-hidden="true" />
                                         </div>
                                         <p className="finCommandes-empty__title">Aucune commande en attente</p>
-                                        <p className="finCommandes-empty__desc">Toutes les commandes ont été réglées.</p>
+                                        <p className="finCommandes-empty__desc">Toutes les commandes ont été réglées ou aucun résultat ne correspond à votre recherche.</p>
                                     </div>
                                 </td>
                             </tr>
                         ) : (
-                            commandesFiltrees.map(cmd => {
-                                const pct = getPourcentage(cmd.paye, cmd.total);
+                            paginated.map(cmd => {
+                                const pct = getPct(cmd.paye, cmd.total);
                                 return (
                                     <tr
                                         key={cmd.id}
                                         className="finCommandes-table__row"
                                         onClick={() => setSelectedCommande(cmd)}
+                                        tabIndex={0}
+                                        onKeyDown={e => e.key === "Enter" && setSelectedCommande(cmd)}
+                                        aria-label={`Voir détail de ${cmd.nom}`}
                                     >
                                         <td className="finCommandes-table__id">{cmd.id}</td>
                                         <td className="finCommandes-table__name">{cmd.nom}</td>
                                         <td className="finCommandes-table__amount">{formatMontant(cmd.total)}</td>
-                                        <td>
-                                            <button
-                                                className="finCommandes-table__seuil-btn"
-                                                onClick={e => ouvrirSeuilModal(e, cmd)}
-                                                title="Modifier le seuil de validation"
-                                                type="button"
-                                                aria-label={`Modifier le seuil de validation de ${cmd.nom}`}
-                                            >
-                                                <Edit2 size={12} aria-hidden="true" />
-                                                {formatMontant(cmd.minimumValidation)}
-                                            </button>
-                                        </td>
+                                        <td className="finCommandes-table__amount">{formatMontant(cmd.minimumValidation)}</td>
                                         <td>
                                             <div className="finCommandes-progress">
                                                 <div className="finCommandes-progress__bar">
@@ -126,7 +171,9 @@ function CommandesEnAttente() {
                                                         aria-valuemax={100}
                                                     />
                                                 </div>
-                                                <span className="finCommandes-progress__text">{formatMontant(cmd.paye)} / {formatMontant(cmd.total)}</span>
+                                                <span className="finCommandes-progress__text">
+                                                    {formatMontant(cmd.paye)} / {formatMontant(cmd.total)}
+                                                </span>
                                             </div>
                                         </td>
                                         <td>
@@ -144,7 +191,9 @@ function CommandesEnAttente() {
 
             {/* Cartes mobile */}
             <div className="finCommandes-cards">
-                {commandesFiltrees.length === 0 ? (
+                {loading ? (
+                    [1,2,3,4].map(i => <SkeletonCard key={i} />)
+                ) : paginated.length === 0 ? (
                     <div className="finCommandes-empty">
                         <div className="finCommandes-empty__icon">
                             <Receipt size={32} aria-hidden="true" />
@@ -152,13 +201,15 @@ function CommandesEnAttente() {
                         <p className="finCommandes-empty__title">Aucune commande en attente</p>
                     </div>
                 ) : (
-                    commandesFiltrees.map(cmd => {
-                        const pct = getPourcentage(cmd.paye, cmd.total);
+                    paginated.map(cmd => {
+                        const pct = getPct(cmd.paye, cmd.total);
                         return (
                             <article
                                 key={cmd.id}
                                 className="finCommandes-card"
                                 onClick={() => setSelectedCommande(cmd)}
+                                tabIndex={0}
+                                onKeyDown={e => e.key === "Enter" && setSelectedCommande(cmd)}
                             >
                                 <div className="finCommandes-card__top">
                                     <span className="finCommandes-card__id">{cmd.id}</span>
@@ -167,25 +218,20 @@ function CommandesEnAttente() {
                                     </span>
                                 </div>
                                 <p className="finCommandes-card__name">{cmd.nom}</p>
-                                <div className="finCommandes-progress">
+                                <div className="finCommandes-progress" style={{ marginBottom: "var(--space-3)" }}>
                                     <div className="finCommandes-progress__bar">
                                         <div
                                             className={`finCommandes-progress__fill${pct >= 100 ? " finCommandes-progress__fill--complete" : ""}`}
                                             style={{ width: `${pct}%` }}
                                         />
                                     </div>
-                                    <span className="finCommandes-progress__text">{formatMontant(cmd.paye)} / {formatMontant(cmd.total)}</span>
+                                    <span className="finCommandes-progress__text">
+                                        {formatMontant(cmd.paye)} / {formatMontant(cmd.total)}
+                                    </span>
                                 </div>
                                 <div className="finCommandes-card__footer">
                                     <span className="finCommandes-card__amount">{formatMontant(cmd.total)}</span>
-                                    <button
-                                        className="finCommandes-table__seuil-btn"
-                                        onClick={e => ouvrirSeuilModal(e, cmd)}
-                                        type="button"
-                                    >
-                                        <Edit2 size={12} aria-hidden="true" />
-                                        Seuil : {formatMontant(cmd.minimumValidation)}
-                                    </button>
+                                    <span className="finCommandes-card__date">Seuil : {formatMontant(cmd.minimumValidation)}</span>
                                 </div>
                             </article>
                         );
@@ -193,65 +239,43 @@ function CommandesEnAttente() {
                 )}
             </div>
 
+            {/* Pagination */}
+            {!loading && commandesFiltrees.length > PER_PAGE && (
+                <div className="finCommandes-pagination">
+                    <span className="finCommandes-pagination__info">
+                        {commandesFiltrees.length} commande{commandesFiltrees.length > 1 ? "s" : ""}
+                        &nbsp;— page {page} / {totalPages}
+                    </span>
+                    <div className="finCommandes-pagination__controls">
+                        <button
+                            className="finCommandes-pagination__btn"
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            aria-label="Page précédente"
+                            type="button"
+                        >
+                            <ChevronLeft size={16} aria-hidden="true" />
+                        </button>
+                        <span className="finCommandes-pagination__page">{page} / {totalPages}</span>
+                        <button
+                            className="finCommandes-pagination__btn"
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            aria-label="Page suivante"
+                            type="button"
+                        >
+                            <ChevronRight size={16} aria-hidden="true" />
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Drawer détail commande */}
             {selectedCommande && (
                 <CommandePane
                     commande={selectedCommande}
                     onClose={() => setSelectedCommande(null)}
                 />
-            )}
-
-            {/* Modal modification seuil */}
-            {seuilModal && (
-                <div className="finCommandes-seuil-modal__overlay" role="dialog" aria-modal="true" aria-labelledby="seuil-modal-title">
-                    <div className="finCommandes-seuil-modal__panel">
-                        <div className="finCommandes-seuil-modal__header">
-                            <h2 className="finCommandes-seuil-modal__title" id="seuil-modal-title">
-                                Modifier le seuil de validation
-                            </h2>
-                            <button
-                                className="finCommandes-drawer__close"
-                                onClick={() => setSeuilModal(null)}
-                                type="button"
-                                aria-label="Fermer"
-                            >
-                                <AlertCircle size={18} aria-hidden="true" />
-                            </button>
-                        </div>
-                        <div className="finCommandes-seuil-modal__body">
-                            <div className="finCommandes-form__field">
-                                <label className="finCommandes-form__label" htmlFor="nouveau-seuil">
-                                    Nouveau seuil (FCFA)
-                                </label>
-                                <input
-                                    id="nouveau-seuil"
-                                    type="number"
-                                    className="app-input"
-                                    value={nouveauSeuil}
-                                    onChange={e => setNouveauSeuil(e.target.value)}
-                                    min="1"
-                                    step="100"
-                                />
-                            </div>
-                        </div>
-                        <div className="finCommandes-seuil-modal__footer">
-                            <button
-                                className="app-button app-button--ghost"
-                                onClick={() => setSeuilModal(null)}
-                                type="button"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                className="app-button app-button--primary"
-                                onClick={confirmerSeuil}
-                                type="button"
-                            >
-                                Confirmer
-                            </button>
-                        </div>
-                    </div>
-                </div>
             )}
         </>
     );

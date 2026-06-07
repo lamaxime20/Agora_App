@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "message": "Paiement enregistré avec succès.",
+  "data": {
+    "id": "P-NEW",
+    "date": "2026-06-07",
+    "statut": "confirmé"
+  }
+}

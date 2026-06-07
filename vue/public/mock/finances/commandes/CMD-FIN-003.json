@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "data": {
+    "id": "CMD-FIN-003",
+    "nom": "Commande Gamma — Ngo Essomba",
+    "client": "Ngo Essomba",
+    "date": "2026-05-10",
+    "total": 3200000,
+    "minimumValidation": 2000000,
+    "paye": 1200000,
+    "statut": "partiellement payé",
+    "produits": [
+      { "reference": "PRD-005", "nom": "Équipement Bureautique Lot A", "quantite": 4, "prix_unitaire": 500000, "sous_total": 2000000 },
+      { "reference": "PRD-006", "nom": "Mobilier de Bureau", "quantite": 2, "prix_unitaire": 600000, "sous_total": 1200000 }
+    ],
+    "paiements": [
+      { "id": "P-CMD003-01", "date": "2026-05-25", "montant": 800000, "mode": "espèces", "reference": "", "utilisateur": "Jean Comptable" },
+      { "id": "P-CMD003-02", "date": "2026-06-04", "montant": 400000, "mode": "carte bancaire", "reference": "CB-55841", "utilisateur": "Alice Caisse" }
+    ]
+  }
+}

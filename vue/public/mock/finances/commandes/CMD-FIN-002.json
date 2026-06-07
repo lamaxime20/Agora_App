@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "data": {
+    "id": "CMD-FIN-002",
+    "nom": "Commande Beta — Martin Sophie",
+    "client": "Martin Sophie",
+    "date": "2026-05-20",
+    "total": 800000,
+    "minimumValidation": 800000,
+    "paye": 0,
+    "statut": "en attente de paiement",
+    "produits": [
+      { "reference": "PRD-003", "nom": "Service Conseil Mensuel", "quantite": 1, "prix_unitaire": 500000, "sous_total": 500000 },
+      { "reference": "PRD-004", "nom": "Formation Équipe", "quantite": 1, "prix_unitaire": 300000, "sous_total": 300000 }
+    ],
+    "paiements": []
+  }
+}

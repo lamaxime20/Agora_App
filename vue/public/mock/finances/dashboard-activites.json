@@ -1,0 +1,105 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "ACT-001",
+      "type": "entree",
+      "titre": "Paiement commande CMD-FIN-001",
+      "montant": 500000,
+      "date": "2026-06-07T14:32:00",
+      "description": "Virement bancaire reçu",
+      "utilisateur": "Alice Caisse",
+      "reference": "VIR-77312"
+    },
+    {
+      "id": "ACT-002",
+      "type": "sortie",
+      "titre": "Dépense transport et carburant",
+      "montant": 35000,
+      "date": "2026-06-07T11:15:00",
+      "description": "Remboursement frais de déplacement",
+      "utilisateur": "Jean Comptable",
+      "reference": "DEP-0291"
+    },
+    {
+      "id": "ACT-003",
+      "type": "entree",
+      "titre": "Entrée de fonds — apport capital",
+      "montant": 1200000,
+      "date": "2026-06-06T09:00:00",
+      "description": "Apport en capital mensuel",
+      "utilisateur": "Direction",
+      "reference": "ENT-0045"
+    },
+    {
+      "id": "ACT-004",
+      "type": "sortie",
+      "titre": "Paiement abonnement plateforme",
+      "montant": 25000,
+      "date": "2026-06-05T16:45:00",
+      "description": "Abonnement plateforme marketing mensuel",
+      "utilisateur": "Marie Finance",
+      "reference": "ABO-0022"
+    },
+    {
+      "id": "ACT-005",
+      "type": "entree",
+      "titre": "Paiement commande CMD-FIN-003",
+      "montant": 1200000,
+      "date": "2026-06-04T10:22:00",
+      "description": "Paiement partiel par carte bancaire",
+      "utilisateur": "Alice Caisse",
+      "reference": "CB-55841"
+    },
+    {
+      "id": "ACT-006",
+      "type": "sortie",
+      "titre": "Réapprovisionnement stock principal",
+      "montant": 450000,
+      "date": "2026-06-03T08:30:00",
+      "description": "Achat fournisseur principal — lot mensuel",
+      "utilisateur": "Paul Trésorerie",
+      "reference": "REA-0118"
+    },
+    {
+      "id": "ACT-007",
+      "type": "entree",
+      "titre": "Remboursement client partiel",
+      "montant": 80000,
+      "date": "2026-06-02T14:10:00",
+      "description": "Remboursement suite à commande annulée",
+      "utilisateur": "Jean Comptable",
+      "reference": "RMB-0034"
+    },
+    {
+      "id": "ACT-008",
+      "type": "sortie",
+      "titre": "Facture électricité mensuelle",
+      "montant": 120000,
+      "date": "2026-06-01T11:00:00",
+      "description": "Règlement facture électricité — mai 2026",
+      "utilisateur": "Marie Finance",
+      "reference": "DEP-0290"
+    },
+    {
+      "id": "ACT-009",
+      "type": "entree",
+      "titre": "Paiement commande CMD-FIN-005",
+      "montant": 5000000,
+      "date": "2026-05-31T15:30:00",
+      "description": "Virement bancaire — règlement commande",
+      "utilisateur": "Alice Caisse",
+      "reference": "VIR-99001"
+    },
+    {
+      "id": "ACT-010",
+      "type": "sortie",
+      "titre": "Paiement salaires — équipe vente",
+      "montant": 800000,
+      "date": "2026-05-30T09:00:00",
+      "description": "Paiement mensuel salaires équipe commerciale",
+      "utilisateur": "Direction",
+      "reference": "SAL-0012"
+    }
+  ]
+}

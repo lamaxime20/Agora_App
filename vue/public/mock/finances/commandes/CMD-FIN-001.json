@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "data": {
+    "id": "CMD-FIN-001",
+    "nom": "Commande Alpha — Dupond Jean",
+    "client": "Dupond Jean",
+    "date": "2026-05-15",
+    "total": 1500000,
+    "minimumValidation": 1500000,
+    "paye": 500000,
+    "statut": "partiellement payé",
+    "produits": [
+      { "reference": "PRD-001", "nom": "Produit A Premium", "quantite": 5, "prix_unitaire": 200000, "sous_total": 1000000 },
+      { "reference": "PRD-002", "nom": "Produit B Standard", "quantite": 2, "prix_unitaire": 250000, "sous_total": 500000 }
+    ],
+    "paiements": [
+      { "id": "P-CMD001-01", "date": "2026-06-01", "montant": 500000, "mode": "virement bancaire", "reference": "VIR-77312", "utilisateur": "Alice Caisse" }
+    ]
+  }
+}

@@ -1,40 +1,81 @@
-import { useState } from "react";
-import { Search, ChevronDown, Download, Receipt } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Search, ChevronDown, Download, Receipt, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import PaiementPane from "./PaiementPane.jsx";
+import { fetchPaiements } from "../../../../services/financesDashboard.js";
 
-const MOCK_PAIEMENTS = [
-    { id: "P-101", date: "2026-06-02", montant: 1500,  mode: "virement bancaire", reference: "VIR-77312", utilisateur: "Alice Caisse",    commandeAssociee: { id: "CMD-889", nom: "Commande Client Dupond", total: 1500 } },
-    { id: "P-102", date: "2026-06-05", montant: 450,   mode: "espèces",           reference: "",          utilisateur: "Jean Comptable",  commandeAssociee: { id: "CMD-990", nom: "Commande Client Martin", total: 900 } },
-    { id: "P-103", date: "2026-06-08", montant: 3200,  mode: "carte bancaire",    reference: "CB-55841",  utilisateur: "Marie Finance",   commandeAssociee: { id: "CMD-991", nom: "Commande Ngo Essomba", total: 3200 } },
-    { id: "P-104", date: "2026-06-10", montant: 800,   mode: "chèque",            reference: "CHQ-0122",  utilisateur: "Paul Trésorerie", commandeAssociee: { id: "CMD-992", nom: "Commande Mvondo Paul", total: 800 } },
-    { id: "P-105", date: "2026-06-12", montant: 5000,  mode: "virement bancaire", reference: "VIR-99001", utilisateur: "Alice Caisse",    commandeAssociee: { id: "CMD-993", nom: "Commande Biyong Crist.", total: 5800 } },
-];
+const PER_PAGE = 20;
+const MODES    = ["carte bancaire", "virement bancaire", "espèces", "chèque"];
 
-const MODES = ["", "carte bancaire", "virement bancaire", "espèces", "chèque"];
+function SkeletonRow() {
+    return (
+        <tr className="finCommandes-table__row--skeleton">
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--sm" /></td>
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--sm" /></td>
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--md" /></td>
+            <td><span className="finCommandes-skeleton__badge" /></td>
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--sm" /></td>
+            <td><span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--md" /></td>
+        </tr>
+    );
+}
 
 function HistoriquePaiements() {
+    const [paiements,        setPaiements]       = useState([]);
+    const [loading,          setLoading]         = useState(true);
+    const [error,            setError]           = useState(null);
     const [selectedPaiement, setSelectedPaiement] = useState(null);
-    const [filtreDate, setFiltreDate]             = useState("");
-    const [filtreMode, setFiltreMode]             = useState("");
-    const [recherche, setRecherche]               = useState("");
-    const [exportOpen, setExportOpen]             = useState(false);
+    const [recherche,        setRecherche]       = useState("");
+    const [filtreDate,       setFiltreDate]      = useState("");
+    const [filtreMode,       setFiltreMode]      = useState("");
+    const [exportOpen,       setExportOpen]      = useState(false);
+    const [page,             setPage]            = useState(1);
 
-    const paiementsFiltres = MOCK_PAIEMENTS.filter(p => {
-        const matchDate = filtreDate ? p.date === filtreDate : true;
-        const matchMode = filtreMode ? p.mode === filtreMode : true;
-        const matchSearch = recherche
-            ? p.id.toLowerCase().includes(recherche.toLowerCase()) ||
-              p.utilisateur.toLowerCase().includes(recherche.toLowerCase()) ||
-              p.commandeAssociee.nom.toLowerCase().includes(recherche.toLowerCase())
-            : true;
-        return matchDate && matchMode && matchSearch;
-    });
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+        fetchPaiements()
+            .then(data => setPaiements(data.data?.paiements ?? []))
+            .catch(setError)
+            .finally(() => setLoading(false));
+    }, []);
+
+    const paiementsFiltres = useMemo(() => {
+        return paiements.filter(p => {
+            const q = recherche.toLowerCase();
+            const matchSearch = !q ||
+                p.id.toLowerCase().includes(q) ||
+                p.utilisateur.toLowerCase().includes(q) ||
+                p.commandeAssociee.nom.toLowerCase().includes(q);
+            const matchDate = !filtreDate || p.date === filtreDate;
+            const matchMode = !filtreMode || p.mode === filtreMode;
+            return matchSearch && matchDate && matchMode;
+        });
+    }, [paiements, recherche, filtreDate, filtreMode]);
+
+    const totalPages = Math.max(1, Math.ceil(paiementsFiltres.length / PER_PAGE));
+    const paginated  = paiementsFiltres.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+    const handleRecherche = (v) => { setRecherche(v); setPage(1); };
+    const handleDate      = (v) => { setFiltreDate(v); setPage(1); };
+    const handleMode      = (v) => { setFiltreMode(v); setPage(1); };
 
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
     const formatDate = (d) =>
         new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+
+    if (error) {
+        return (
+            <div className="finCommandes-empty">
+                <div className="finCommandes-empty__icon" style={{ color: "var(--color-error)" }}>
+                    <AlertCircle size={32} aria-hidden="true" />
+                </div>
+                <p className="finCommandes-empty__title">Impossible de charger l'historique</p>
+                <p className="finCommandes-empty__desc">Vérifiez votre connexion et rechargez la page.</p>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -48,7 +89,7 @@ function HistoriquePaiements() {
                             className="app-input finCommandes-search__input"
                             placeholder="Rechercher par référence, client…"
                             value={recherche}
-                            onChange={e => setRecherche(e.target.value)}
+                            onChange={e => handleRecherche(e.target.value)}
                             aria-label="Rechercher un paiement"
                         />
                     </div>
@@ -57,23 +98,33 @@ function HistoriquePaiements() {
                         type="date"
                         className="finCommandes-filter-select"
                         value={filtreDate}
-                        onChange={e => setFiltreDate(e.target.value)}
+                        onChange={e => handleDate(e.target.value)}
                         aria-label="Filtrer par date"
                     />
 
                     <select
                         className="finCommandes-filter-select"
                         value={filtreMode}
-                        onChange={e => setFiltreMode(e.target.value)}
+                        onChange={e => handleMode(e.target.value)}
                         aria-label="Filtrer par mode de paiement"
                     >
                         <option value="">Tous les modes</option>
-                        {MODES.filter(Boolean).map(m => (
+                        {MODES.map(m => (
                             <option key={m} value={m}>{m}</option>
                         ))}
                     </select>
 
-                    <div className="finCommandes-export-wrap">
+                    {(filtreDate || filtreMode || recherche) && (
+                        <button
+                            className="app-button app-button--ghost app-button--sm"
+                            onClick={() => { handleRecherche(""); handleDate(""); handleMode(""); }}
+                            type="button"
+                        >
+                            Réinitialiser
+                        </button>
+                    )}
+
+                    <div className="finCommandes-export-wrap" style={{ marginLeft: "auto" }}>
                         <button
                             className="app-button app-button--ghost app-button--sm"
                             onClick={() => setExportOpen(!exportOpen)}
@@ -117,7 +168,9 @@ function HistoriquePaiements() {
                         </tr>
                     </thead>
                     <tbody>
-                        {paiementsFiltres.length === 0 ? (
+                        {loading ? (
+                            [1,2,3,4,5].map(i => <SkeletonRow key={i} />)
+                        ) : paginated.length === 0 ? (
                             <tr>
                                 <td colSpan={6}>
                                     <div className="finCommandes-empty">
@@ -130,11 +183,13 @@ function HistoriquePaiements() {
                                 </td>
                             </tr>
                         ) : (
-                            paiementsFiltres.map(p => (
+                            paginated.map(p => (
                                 <tr
                                     key={p.id}
                                     className="finCommandes-table__row"
                                     onClick={() => setSelectedPaiement(p)}
+                                    tabIndex={0}
+                                    onKeyDown={e => e.key === "Enter" && setSelectedPaiement(p)}
                                 >
                                     <td className="finCommandes-table__id">{p.id}</td>
                                     <td className="finCommandes-table__date">{formatDate(p.date)}</td>
@@ -153,27 +208,80 @@ function HistoriquePaiements() {
 
             {/* Cartes mobile */}
             <div className="finCommandes-cards">
-                {paiementsFiltres.map(p => (
-                    <article
-                        key={p.id}
-                        className="finCommandes-card"
-                        onClick={() => setSelectedPaiement(p)}
-                    >
-                        <div className="finCommandes-card__top">
-                            <span className="finCommandes-card__id">{p.id}</span>
-                            <span className="fin-badge fin-badge--info">{p.mode}</span>
+                {loading ? (
+                    [1,2,3].map(i => (
+                        <div key={i} className="finCommandes-card" aria-hidden="true">
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "var(--space-2)" }}>
+                                <span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--sm" />
+                                <span className="finCommandes-skeleton__badge" />
+                            </div>
+                            <span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--lg" style={{ marginBottom: "var(--space-3)" }} />
+                            <span className="finCommandes-skeleton__cell finCommandes-skeleton__cell--md" />
                         </div>
-                        <p className="finCommandes-card__name">{p.commandeAssociee.nom}</p>
-                        <div className="finCommandes-card__meta">
-                            <span className="finCommandes-card__amount">{formatMontant(p.montant)}</span>
-                            <span className="finCommandes-card__date">{formatDate(p.date)}</span>
+                    ))
+                ) : paginated.length === 0 ? (
+                    <div className="finCommandes-empty">
+                        <div className="finCommandes-empty__icon">
+                            <Receipt size={32} aria-hidden="true" />
                         </div>
-                        <div className="finCommandes-card__footer">
-                            <span className="finCommandes-card__id">{p.utilisateur}</span>
-                        </div>
-                    </article>
-                ))}
+                        <p className="finCommandes-empty__title">Aucun paiement trouvé</p>
+                    </div>
+                ) : (
+                    paginated.map(p => (
+                        <article
+                            key={p.id}
+                            className="finCommandes-card"
+                            onClick={() => setSelectedPaiement(p)}
+                            tabIndex={0}
+                            onKeyDown={e => e.key === "Enter" && setSelectedPaiement(p)}
+                        >
+                            <div className="finCommandes-card__top">
+                                <span className="finCommandes-card__id">{p.id}</span>
+                                <span className="fin-badge fin-badge--info">{p.mode}</span>
+                            </div>
+                            <p className="finCommandes-card__name">{p.commandeAssociee.nom}</p>
+                            <div className="finCommandes-card__meta">
+                                <span className="finCommandes-card__amount">{formatMontant(p.montant)}</span>
+                                <span className="finCommandes-card__date">{formatDate(p.date)}</span>
+                            </div>
+                            <div className="finCommandes-card__footer">
+                                <span className="finCommandes-card__id">{p.utilisateur}</span>
+                            </div>
+                        </article>
+                    ))
+                )}
             </div>
+
+            {/* Pagination */}
+            {!loading && paiementsFiltres.length > PER_PAGE && (
+                <div className="finCommandes-pagination">
+                    <span className="finCommandes-pagination__info">
+                        {paiementsFiltres.length} paiement{paiementsFiltres.length > 1 ? "s" : ""}
+                        &nbsp;— page {page} / {totalPages}
+                    </span>
+                    <div className="finCommandes-pagination__controls">
+                        <button
+                            className="finCommandes-pagination__btn"
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            aria-label="Page précédente"
+                            type="button"
+                        >
+                            <ChevronLeft size={16} aria-hidden="true" />
+                        </button>
+                        <span className="finCommandes-pagination__page">{page} / {totalPages}</span>
+                        <button
+                            className="finCommandes-pagination__btn"
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            aria-label="Page suivante"
+                            type="button"
+                        >
+                            <ChevronRight size={16} aria-hidden="true" />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {selectedPaiement && (
                 <PaiementPane

@@ -16,6 +16,7 @@ import {
 
 import Sidebar           from "../../components/modules/finances/Sidebar.jsx";
 import FinancesBottomNav from "../../components/modules/finances/FinancesBottomNav.jsx";
+import Dashboard         from "../../components/modules/finances/dashboard.jsx";
 import Commandes         from "../../components/modules/finances/commandes.jsx";
 import Remboursements    from "../../components/modules/finances/remboursements.jsx";
 import Depenses          from "../../components/modules/finances/depenses.jsx";
@@ -40,7 +41,7 @@ const ONGLET_LABELS = {
 };
 
 const ONGLET_CONTENT = {
-    [FINANCES_DASHBOARD]:            <div className="finances-notFound"><p className="finances-notFound__text">Dashboard en construction.</p></div>,
+    [FINANCES_DASHBOARD]:            <Dashboard />,
     [FINANCES_COMMANDES]:            <Commandes />,
     [FINANCES_REMBOURSEMENTS]:       <Remboursements />,
     [FINANCES_DEPENSES]:             <Depenses />,
