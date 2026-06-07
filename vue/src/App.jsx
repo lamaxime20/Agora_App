@@ -44,6 +44,7 @@ import {
     FINANCES_ABONNEMENTS,
     FINANCES_REAPPROVISIONNEMENTS,
     FINANCES_SALAIRES,
+    FINANCES_JOURNAL_FINANCIER,
     FINANCES_STATISTIQUES
 } from "./services/finances.js";
 
@@ -95,6 +96,7 @@ function App() {
                                 <Route path="abonnements" element={<Finances onglet={FINANCES_ABONNEMENTS} />} />
                                 <Route path="reapprovisionnements" element={<Finances onglet={FINANCES_REAPPROVISIONNEMENTS} />} />
                                 <Route path="salaires" element={<Finances onglet={FINANCES_SALAIRES} />} />
+                                <Route path="journal" element={<Finances onglet={FINANCES_JOURNAL_FINANCIER} />} />
                                 <Route path="statistiques" element={<Finances onglet={FINANCES_STATISTIQUES} />} />
                             </Route>
                             <Route path="/application/ressources-humaines" element={<RessourcesHumaines />} />

@@ -197,3 +197,286 @@
 @media (min-width: 1025px) {
     .finStats-kpis { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ============================================================
+   PARTIE 5 — Tabs, Charts, SVG, Rapports
+   ============================================================ */
+
+/* ----- Tabs navigation ----- */
+.finStats-tabs {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+}
+
+.finStats-tabs__scroll {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: var(--space-1);
+    gap: var(--space-1);
+}
+
+.finStats-tabs__scroll::-webkit-scrollbar { display: none; }
+
+.finStats-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-lg);
+    border: none;
+    background: none;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 150ms ease-out, color 150ms ease-out;
+}
+
+.finStats-tab:hover { background: var(--color-surface-alt); color: var(--color-text); }
+
+.finStats-tab--active {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.finStats-tab--active:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.finStats-tab__icon { flex-shrink: 0; }
+
+/* ----- Tab content ----- */
+.finStats-tab-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-top: var(--space-2);
+}
+
+/* ----- 5-column KPI grid ----- */
+.finStats-kpis--5col {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 769px) {
+    .finStats-kpis--5col { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* ----- KPI trend ----- */
+.finStats-kpi__trend {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+.finStats-kpi__trend--up   { color: var(--color-success); }
+.finStats-kpi__trend--down { color: var(--color-error); }
+
+/* ----- Chart toolbar ----- */
+.finStats-chart-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+}
+
+/* ----- Period selector ----- */
+.finStats-period-selector {
+    display: flex;
+    gap: var(--space-1);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-lg);
+    padding: 2px;
+}
+
+.finStats-period-btn {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-md);
+    border: none;
+    background: none;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: background 150ms ease-out, color 150ms ease-out;
+}
+
+.finStats-period-btn:hover { background: var(--color-surface); color: var(--color-text); }
+.finStats-period-btn--active {
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* ----- CSS Bar chart ----- */
+.finStats-barchart {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+    height: 200px;
+    padding-bottom: 24px;
+    position: relative;
+}
+
+.finStats-barchart__col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    gap: var(--space-1);
+}
+
+.finStats-barchart__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    width: 100%;
+    height: calc(100% - 20px);
+}
+
+.finStats-barchart__bar {
+    flex: 1;
+    min-height: 2px;
+    border-radius: 3px 3px 0 0;
+    transition: height 400ms ease-out, opacity 200ms ease-out;
+}
+
+.finStats-barchart__bar:hover { opacity: 0.8; }
+
+.finStats-barchart__label {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    position: absolute;
+    bottom: 0;
+}
+
+/* Legend */
+.finStats-barchart-legend {
+    display: flex;
+    gap: var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-3);
+}
+
+.finStats-barchart-legend span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.finStats-barchart-legend__dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.finStats-barchart-legend__dot--entree { background: var(--color-success); }
+.finStats-barchart-legend__dot--sortie { background: var(--color-error); }
+
+/* Dual bars: side-by-side, tighter */
+.finStats-barchart--dual .finStats-barchart__bars { gap: 1px; }
+
+/* ----- SVG Line chart ----- */
+.finStats-svg-chart {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+}
+
+/* ----- Skeleton ----- */
+@keyframes statsShimmer {
+    0%   { background-position: 200% center; }
+    100% { background-position: -200% center; }
+}
+
+.finStats-skeleton {
+    border-radius: var(--radius-md);
+    background: linear-gradient(90deg, var(--color-surface-alt) 25%, var(--color-border) 50%, var(--color-surface-alt) 75%);
+    background-size: 200% 100%;
+    animation: statsShimmer 1.4s ease-in-out infinite;
+}
+
+.finStats-skeleton--sm  { height: 12px; width: 60px; }
+.finStats-skeleton--md  { height: 16px; width: 120px; }
+
+/* ----- Rapports ----- */
+.finStats-rapport-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+}
+
+@media (min-width: 769px) {
+    .finStats-rapport-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.finStats-rapport-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    transition: border-color 200ms ease-out, box-shadow 200ms ease-out;
+}
+
+.finStats-rapport-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 16px rgba(243,156,18,0.06);
+}
+
+.finStats-rapport-card__title  { font-weight: var(--weight-semibold); color: var(--color-text); font-size: var(--text-sm); margin: 0; }
+.finStats-rapport-card__desc   { font-size: var(--text-xs); color: var(--color-text-muted); margin: 0; }
+.finStats-rapport-card__period { font-size: var(--text-xs); color: var(--color-text-muted); margin: 0; }
+
+.finStats-rapport-card__actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-top: var(--space-1);
+}
+
+.finStats-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-lg);
+    border: 1px solid currentColor;
+    background: none;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: opacity 150ms ease-out;
+}
+
+.finStats-export-btn:hover   { opacity: 0.8; }
+.finStats-export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.finStats-export-btn__spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

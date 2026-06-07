@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "data": [
+    { "id": "JRN-2026-045", "date": "2026-06-07", "type": "Paiement commande", "montant": 500000, "sens": "entree", "description": "Paiement reçu pour la commande CMD-2026-045", "utilisateur": "Paul Nkoa", "reference": "CMD-2026-045", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-044", "date": "2026-06-06", "type": "Dépense", "montant": 150000, "sens": "sortie", "description": "Carburant véhicules de livraison — juin 2026", "utilisateur": "Marie Finance", "reference": "DEP-2026-018", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-043", "date": "2026-06-05", "type": "Abonnement", "montant": 4900000, "sens": "sortie", "description": "Paiement abonnement AWS Hébergement Serveur Cloud", "utilisateur": "Système", "reference": "ABO-01", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-042", "date": "2026-06-05", "type": "Paiement commande", "montant": 750000, "sens": "entree", "description": "Paiement partiel commande CMD-2026-041", "utilisateur": "Jean Comptable", "reference": "CMD-2026-041", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-041", "date": "2026-06-04", "type": "Réapprovisionnement", "montant": 1700000, "sens": "sortie", "description": "Validation achat Écrans 24 pouces Full HD x10 — REAPP-2026-H004", "utilisateur": "Paul Nkoa", "reference": "REAPP-2026-H004", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-040", "date": "2026-06-04", "type": "Entrée", "montant": 2000000, "sens": "entree", "description": "Apport exceptionnel de capital — T2 2026", "utilisateur": "Marie Finance", "reference": "ENT-2026-012", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-039", "date": "2026-06-03", "type": "Réapprovisionnement", "montant": 1600000, "sens": "sortie", "description": "Achat Climatiseurs 18 000 BTU x5 — REAPP-2026-H005", "utilisateur": "Paul Nkoa", "reference": "REAPP-2026-H005", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-038", "date": "2026-06-02", "type": "Dépense", "montant": 89000, "sens": "sortie", "description": "Fournitures de bureau — juin 2026", "utilisateur": "Alice Caisse", "reference": "DEP-2026-017", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-037", "date": "2026-06-01", "type": "Abonnement", "montant": 1499000, "sens": "sortie", "description": "Paiement abonnement Figma — Outil de Design Collaboratif", "utilisateur": "Système", "reference": "ABO-02", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-036", "date": "2026-06-01", "type": "Paiement commande", "montant": 320000, "sens": "entree", "description": "Paiement commande CMD-2026-038 — Solartek Industries", "utilisateur": "Alice Caisse", "reference": "CMD-2026-038", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-035", "date": "2026-05-29", "type": "Réapprovisionnement", "montant": 550000, "sens": "sortie", "description": "Achat Enveloppes cartonnées DL x2000 — REAPP-2026-H003", "utilisateur": "Paul Nkoa", "reference": "REAPP-2026-H003", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-034", "date": "2026-05-28", "type": "Salaire", "montant": 3120000, "sens": "sortie", "description": "Versement salaires mai 2026 — 8 employés", "utilisateur": "Système", "reference": "SAL-2026-05", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-033", "date": "2026-05-27", "type": "Paiement commande", "montant": 1200000, "sens": "entree", "description": "Paiement complet commande CMD-2026-032 — TechBuild Ltd", "utilisateur": "Jean Comptable", "reference": "CMD-2026-032", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-032", "date": "2026-05-26", "type": "Remboursement", "montant": 120000, "sens": "sortie", "description": "Remboursement commande CMD-2026-029 — article défectueux", "utilisateur": "Marie Finance", "reference": "RMB-2026-008", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-031", "date": "2026-05-25", "type": "Dépense", "montant": 120000, "sens": "sortie", "description": "Facture électricité mai 2026", "utilisateur": "Alice Caisse", "reference": "DEP-2026-016", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-030", "date": "2026-05-22", "type": "Entrée", "montant": 800000, "sens": "entree", "description": "Subvention PME — Programme MINEFI mai 2026", "utilisateur": "Marie Finance", "reference": "ENT-2026-011", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-029", "date": "2026-05-21", "type": "Réapprovisionnement", "montant": 900000, "sens": "sortie", "description": "Achat Rames de papier A4 x200 — REAPP-2026-H001", "utilisateur": "Paul Nkoa", "reference": "REAPP-2026-H001", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-028", "date": "2026-05-20", "type": "Paiement commande", "montant": 2500000, "sens": "entree", "description": "Acompte 50% commande CMD-2026-028 — SABC", "utilisateur": "Paul Nkoa", "reference": "CMD-2026-028", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-027", "date": "2026-05-15", "type": "Abonnement", "montant": 590000, "sens": "sortie", "description": "Paiement abonnement Google Suite Bureautique", "utilisateur": "Système", "reference": "ABO-04", "entite": "AGORA SARL" },
+    { "id": "JRN-2026-026", "date": "2026-05-10", "type": "Abonnement", "montant": 4900000, "sens": "sortie", "description": "Paiement abonnement AWS — mai 2026", "utilisateur": "Système", "reference": "ABO-01", "entite": "AGORA SARL" }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 45
+  },
+  "kpis": {
+    "totalMouvements": 45,
+    "totalEntrees": 12570000,
+    "totalSorties": 8268000,
+    "soldeNet": 4302000
+  }
+}

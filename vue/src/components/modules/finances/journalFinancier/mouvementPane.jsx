@@ -1,0 +1,174 @@
+import { useEffect, useState } from "react";
+import { X, ArrowUpRight, ArrowDownLeft, ExternalLink } from "lucide-react";
+import { fetchMouvementDetail } from "../../../../services/financesP5.js";
+
+const fmt = (n) =>
+    new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+
+const fmtDate = (d) =>
+    d ? new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d)) : "—";
+
+const TYPE_MODULE = {
+    "Paiement commande":   "/application/finances/commandes",
+    "Dépense":             "/application/finances/depenses",
+    "Abonnement":          "/application/finances/abonnements",
+    "Réapprovisionnement": "/application/finances/reapprovisionnements",
+    "Entrée":              "/application/finances/entrees",
+    "Salaire":             "/application/finances/salaires",
+    "Remboursement":       "/application/finances/remboursements",
+};
+
+function DetailSkeleton() {
+    return (
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+            <div className="finJrn-skeleton finJrn-skeleton--lg" />
+            {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="finJrn-detail__row">
+                    <div className="finJrn-skeleton finJrn-skeleton--md" />
+                    <div className="finJrn-skeleton finJrn-skeleton--sm" />
+                </div>
+            ))}
+        </div>
+    );
+}
+
+function MouvementPane({ mouvementId, onClose }) {
+    const [loading, setLoading]     = useState(true);
+    const [mouvement, setMouvement] = useState(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        setLoading(true);
+        fetchMouvementDetail(mouvementId)
+            .then(d => { if (!cancelled) { setMouvement(d); setLoading(false); } })
+            .catch(() => { if (!cancelled) setLoading(false); });
+        return () => { cancelled = true; };
+    }, [mouvementId]);
+
+    const isEntree = mouvement?.sens === "entree";
+    const moduleLink = mouvement ? TYPE_MODULE[mouvement.type] : null;
+
+    return (
+        <>
+            <div className="finJrn-drawer__overlay" onClick={onClose} aria-hidden="true" />
+            <aside
+                className="finJrn-drawer"
+                role="complementary"
+                aria-label={mouvement ? `Mouvement ${mouvement.id}` : "Chargement"}
+            >
+                <div className="finJrn-drawer__handle">
+                    <div className="finJrn-drawer__handle-bar" />
+                </div>
+
+                <div className="finJrn-drawer__header">
+                    <h2 className="finJrn-drawer__title">
+                        {loading ? "Chargement…" : mouvement ? mouvement.id : "Introuvable"}
+                    </h2>
+                    <button className="finJrn-drawer__close" onClick={onClose} aria-label="Fermer" type="button">
+                        <X size={18} aria-hidden="true" />
+                    </button>
+                </div>
+
+                <div className="finJrn-drawer__body">
+                    {loading ? (
+                        <DetailSkeleton />
+                    ) : !mouvement ? (
+                        <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
+                            Mouvement introuvable.
+                        </p>
+                    ) : (
+                        <>
+                            {/* Montant hero */}
+                            <div className="finJrn-pane-hero">
+                                <div className={`finJrn-pane-hero__icon ${isEntree ? "finJrn-pane-hero__icon--entree" : "finJrn-pane-hero__icon--sortie"}`}>
+                                    {isEntree
+                                        ? <ArrowUpRight size={24} aria-hidden="true" />
+                                        : <ArrowDownLeft size={24} aria-hidden="true" />
+                                    }
+                                </div>
+                                <div>
+                                    <p className={`finJrn-pane-hero__amount ${isEntree ? "finJrn-pane-hero__amount--entree" : "finJrn-pane-hero__amount--sortie"}`}>
+                                        {isEntree ? "+" : "−"}{fmt(mouvement.montant)}
+                                    </p>
+                                    <p className="finJrn-pane-hero__type">{mouvement.type}</p>
+                                </div>
+                            </div>
+
+                            {/* Détails */}
+                            <section>
+                                <p className="finJrn-detail__section-label">Détails du mouvement</p>
+                                <div className="finJrn-detail__row">
+                                    <span className="finJrn-detail__key">Identifiant</span>
+                                    <span className="finJrn-detail__val" style={{ fontFamily: "var(--font-mono)" }}>{mouvement.id}</span>
+                                </div>
+                                <div className="finJrn-detail__row">
+                                    <span className="finJrn-detail__key">Date</span>
+                                    <span className="finJrn-detail__val">{fmtDate(mouvement.date)}</span>
+                                </div>
+                                <div className="finJrn-detail__row">
+                                    <span className="finJrn-detail__key">Type</span>
+                                    <span className="finJrn-detail__val">{mouvement.type}</span>
+                                </div>
+                                <div className="finJrn-detail__row">
+                                    <span className="finJrn-detail__key">Sens</span>
+                                    <span className="finJrn-detail__val">
+                                        <span className={`fin-badge ${isEntree ? "fin-badge--success" : "fin-badge--error"}`}>
+                                            {isEntree ? "Entrée" : "Sortie"}
+                                        </span>
+                                    </span>
+                                </div>
+                                <div className="finJrn-detail__row">
+                                    <span className="finJrn-detail__key">Référence</span>
+                                    <span className="finJrn-detail__val" style={{ fontFamily: "var(--font-mono)" }}>{mouvement.reference}</span>
+                                </div>
+                                <div className="finJrn-detail__row">
+                                    <span className="finJrn-detail__key">Entité</span>
+                                    <span className="finJrn-detail__val">{mouvement.entite}</span>
+                                </div>
+                                <div className="finJrn-detail__row">
+                                    <span className="finJrn-detail__key">Utilisateur</span>
+                                    <span className="finJrn-detail__val">{mouvement.utilisateur}</span>
+                                </div>
+                            </section>
+
+                            {/* Description */}
+                            <section>
+                                <p className="finJrn-detail__section-label">Description</p>
+                                <div className="finJrn-justify-block">
+                                    {mouvement.description}
+                                </div>
+                            </section>
+
+                            {/* Voir élément associé */}
+                            {moduleLink && (
+                                <section>
+                                    <p className="finJrn-detail__section-label">Élément associé</p>
+                                    <a
+                                        href={moduleLink}
+                                        className="finJrn-associated-link"
+                                    >
+                                        <span>{mouvement.reference}</span>
+                                        <ExternalLink size={14} aria-hidden="true" />
+                                    </a>
+                                </section>
+                            )}
+                        </>
+                    )}
+                </div>
+
+                <div className="finJrn-drawer__footer">
+                    <button
+                        className="app-button app-button--ghost"
+                        style={{ width: "100%" }}
+                        onClick={onClose}
+                        type="button"
+                    >
+                        Fermer
+                    </button>
+                </div>
+            </aside>
+        </>
+    );
+}
+
+export default MouvementPane;

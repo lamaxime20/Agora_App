@@ -1,0 +1,310 @@
+<?php
+
+namespace App\Http\Controllers\Api\Stock;
+
+use App\Models\Produit;
+use App\Models\Ravitaillement;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
+class StockRavitaillementController extends StockBaseController
+{
+    public function index(Request $request): JsonResponse
+    {
+        $entreprise = $this->currentEntreprise($request);
+        $page = max(1, (int) $request->query('page', 1));
+        $limit = min(100, max(1, (int) $request->query('limit', 25)));
+        $statut = $request->query('statut');
+        $produitId = $request->query('produit');
+        [$dateDebut, $dateFin] = $this->daterange($request->query('dateDebut'), $request->query('dateFin'));
+
+        $query = Ravitaillement::with(['produit.categorie', 'utilisateurDemande', 'utilisateurConfirmation', 'utilisateurAnnulation'])
+            ->where('entreprise', $entreprise->id);
+
+        if ($statut) {
+            $query->where('statut', $statut);
+        }
+
+        if ($produitId) {
+            $query->where('produit', $produitId);
+        }
+
+        if ($dateDebut) {
+            $query->where('date_creation', '>=', $dateDebut);
+        }
+
+        if ($dateFin) {
+            $query->where('date_creation', '<=', $dateFin);
+        }
+
+        $total = $query->count();
+
+        $ravitaillements = $query->orderByDesc('date_creation')
+            ->forPage($page, $limit)
+            ->get()
+            ->map(fn(Ravitaillement $ravitaillement) => [
+                'id'                    => $ravitaillement->id,
+                'date_creation'         => $ravitaillement->date_creation,
+                'statut'                => $ravitaillement->statut,
+                'quantite'              => (float) $ravitaillement->quantite,
+                'montant_a_depenser'    => (float) $ravitaillement->montant_a_depenser,
+                'date_validation'       => $ravitaillement->date_validation,
+                'date_execution'        => $ravitaillement->date_execution,
+                'date_annulation'       => $ravitaillement->date_annulation,
+                'raison_annulation'     => $ravitaillement->raison_annulation,
+                'produit'               => $ravitaillement->produit ? [
+                    'id'    => $ravitaillement->produit->id,
+                    'nom'   => $ravitaillement->produit->nom,
+                    'image' => $ravitaillement->produit->image,
+                ] : null,
+                'utilisateur_demande'   => $ravitaillement->utilisateurDemande ? [
+                    'id'    => $ravitaillement->utilisateurDemande->id,
+                    'nom'   => $ravitaillement->utilisateurDemande->name,
+                    'prenom'=> $ravitaillement->utilisateurDemande->prename,
+                ] : null,
+                'utilisateur_confirmation' => $ravitaillement->utilisateurConfirmation ? [
+                    'id'    => $ravitaillement->utilisateurConfirmation->id,
+                    'nom'   => $ravitaillement->utilisateurConfirmation->name,
+                    'prenom'=> $ravitaillement->utilisateurConfirmation->prename,
+                ] : null,
+                'utilisateur_annulation' => $ravitaillement->utilisateurAnnulation ? [
+                    'id'    => $ravitaillement->utilisateurAnnulation->id,
+                    'nom'   => $ravitaillement->utilisateurAnnulation->name,
+                    'prenom'=> $ravitaillement->utilisateurAnnulation->prename,
+                ] : null,
+            ]);
+
+        return response()->json([
+            'data' => [
+                'ravitaillements' => $ravitaillements,
+                'total'           => $total,
+            ],
+        ], 200);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'produit_id'          => 'required|uuid',
+            'quantite'            => 'required|numeric|min:0.01',
+            'montant_a_depenser'  => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'ok'     => false,
+                'code'   => 'VALIDATION_ERROR',
+                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+            ], 422);
+        }
+
+        $entreprise = $this->currentEntreprise($request);
+        $user = $this->currentUser($request);
+
+        $produit = Produit::where('id', $request->input('produit_id'))
+            ->where('entreprise', $entreprise->id)
+            ->where('statut', 'actif')
+            ->first();
+
+        if (!$produit || $produit->type_produit !== 'physique') {
+            return response()->json([
+                'ok'      => false,
+                'code'    => 'PRODUCT_NOT_ALLOWED',
+                'message' => 'Le produit doit être physique et actif pour créer un ravitaillement.',
+            ], 403);
+        }
+
+        $ravitaillement = Ravitaillement::create([
+            'date_creation'        => now(),
+            'statut'               => 'en_attente',
+            'quantite'             => $request->input('quantite'),
+            'montant_a_depenser'   => $request->input('montant_a_depenser'),
+            'actif'                => true,
+            'utilisateur_demande'  => $user->id,
+            'produit'              => $produit->id,
+            'entreprise'           => $entreprise->id,
+        ]);
+
+        $this->history($this->productHistoryPayload(
+            'creation',
+            'ravitaillements',
+            $ravitaillement->id,
+            'Création d\'un ravitaillement.',
+            null,
+            $ravitaillement->statut,
+            $request,
+            $user,
+            $entreprise->id
+        ));
+
+        // TODO: créer la notification de ravitaillement pour le directeur de l'entreprise ici.
+        // Notification::create([...]);
+
+        return response()->json([
+            'data' => [
+                'ravitaillement' => $ravitaillement->load('produit'),
+            ],
+        ], 201);
+    }
+
+    public function cancel(Request $request, string $id): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'raison_annulation' => 'required|string|min:10',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'ok'     => false,
+                'code'   => 'VALIDATION_ERROR',
+                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+            ], 422);
+        }
+
+        $entreprise = $this->currentEntreprise($request);
+        $user = $this->currentUser($request);
+
+        $ravitaillement = Ravitaillement::where('id', $id)
+            ->where('entreprise', $entreprise->id)
+            ->first();
+
+        if (!$ravitaillement || !in_array($ravitaillement->statut, ['en_attente', 'en_cours'], true)) {
+            return response()->json([
+                'ok'      => false,
+                'code'    => 'INVALID_STATE',
+                'message' => 'Le ravitaillement ne peut pas être annulé.',
+            ], 409);
+        }
+
+        $ravitaillement->update([
+            'statut'               => 'annule',
+            'date_annulation'      => now(),
+            'raison_annulation'    => $request->input('raison_annulation'),
+            'utilisateur_annulation'=> $user->id,
+        ]);
+
+        $this->history($this->productHistoryPayload(
+            'annulation',
+            'ravitaillements',
+            $ravitaillement->id,
+            'Annulation d\'un ravitaillement.',
+            'en_attente',
+            'annule',
+            $request,
+            $user,
+            $entreprise->id
+        ));
+
+        // TODO: créer la notification d'annulation du ravitaillement avec la raison ici.
+        // Notification::create([...]);
+
+        return response()->json([
+            'data' => [
+                'ravitaillement' => $ravitaillement->fresh()->load('produit'),
+            ],
+        ], 200);
+    }
+
+    public function confirm(Request $request, string $id): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'ok'     => false,
+                'code'   => 'VALIDATION_ERROR',
+                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+            ], 422);
+        }
+
+        $entreprise = $this->currentEntreprise($request);
+        $user = $this->currentUser($request);
+
+        if (!Hash::check($request->input('password'), $user->password_hash)) {
+            return response()->json([
+                'ok'      => false,
+                'code'    => 'INVALID_PASSWORD',
+                'message' => 'Mot de passe incorrect.',
+            ], 422);
+        }
+
+        $ravitaillement = Ravitaillement::where('id', $id)
+            ->where('entreprise', $entreprise->id)
+            ->first();
+
+        if (!$ravitaillement || !in_array($ravitaillement->statut, ['en_attente', 'en_cours'], true)) {
+            return response()->json([
+                'ok'      => false,
+                'code'    => 'INVALID_STATE',
+                'message' => 'Le ravitaillement ne peut pas être confirmé.',
+            ], 409);
+        }
+
+        $produit = Produit::where('id', $ravitaillement->produit)
+            ->where('entreprise', $entreprise->id)
+            ->first();
+
+        if (!$produit) {
+            return response()->json([
+                'ok'      => false,
+                'code'    => 'NOT_FOUND',
+                'message' => 'Produit introuvable.',
+            ], 404);
+        }
+
+        DB::transaction(function () use ($request, $ravitaillement, $produit, $user, $entreprise) {
+            $stockAvant = (float) $produit->stock_actuel;
+            $stockApres = $stockAvant + (float) $ravitaillement->quantite;
+
+            $produit->update([
+                'stock_actuel'     => $stockApres,
+                'date_modification' => now(),
+            ]);
+
+            $ravitaillement->update([
+                'statut'          => 'termine',
+                'date_validation' => now(),
+                'date_execution'  => now(),
+                'user_confirmation'=> $user->id,
+            ]);
+
+            $this->history($this->productHistoryPayload(
+                'ravitaillement',
+                'produits',
+                $produit->id,
+                'Ravitaillement confirmé et stock mis à jour.',
+                (string) $stockAvant,
+                (string) $stockApres,
+                $request,
+                $user,
+                $entreprise->id
+            ));
+
+            $this->history($this->productHistoryPayload(
+                'validation_ravitaillement',
+                'ravitaillements',
+                $ravitaillement->id,
+                'Validation définitive du ravitaillement.',
+                'en_cours',
+                'termine',
+                $request,
+                $user,
+                $entreprise->id
+            ));
+        });
+
+        // TODO: créer la notification de confirmation du ravitaillement pour les modules concernés ici.
+        // Notification::create([...]);
+
+        return response()->json([
+            'data' => [
+                'ravitaillement' => $ravitaillement->fresh()->load('produit'),
+            ],
+        ], 200);
+    }
+}

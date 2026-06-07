@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "data": {
+    "kpis": {
+      "argentVirtuel": 15200000,
+      "entrees": 12570000,
+      "sorties": 8268000,
+      "beneficeNet": 4302000,
+      "commandesPayees": 45,
+      "montantRemboursements": 450000,
+      "montantDepenses": 539000,
+      "montantSalaires": 3120000,
+      "montantAbonnements": 7239000,
+      "montantReapprovisionnements": 2890000
+    },
+    "tendances": {
+      "entrees": 12,
+      "sorties": -3,
+      "benefice": 24
+    },
+    "repartitionDepenses": [
+      { "categorie": "Abonnements",          "montant": 7239000,  "couleur": "#E74C3C" },
+      { "categorie": "Salaires",             "montant": 3120000,  "couleur": "#F39C12" },
+      { "categorie": "Réapprovisionnements", "montant": 2890000,  "couleur": "#3498DB" },
+      { "categorie": "Remboursements",       "montant": 450000,   "couleur": "#9B59B6" },
+      { "categorie": "Dépenses",             "montant": 539000,   "couleur": "#2ECC71" }
+    ],
+    "fluxMensuels": [
+      { "mois": "Jan", "entrees": 6200000, "sorties": 5100000 },
+      { "mois": "Fév", "entrees": 7400000, "sorties": 5800000 },
+      { "mois": "Mar", "entrees": 8100000, "sorties": 6200000 },
+      { "mois": "Avr", "entrees": 9200000, "sorties": 7100000 },
+      { "mois": "Mai", "entrees": 11500000, "sorties": 7900000 },
+      { "mois": "Juin", "entrees": 12570000, "sorties": 8268000 }
+    ]
+  }
+}

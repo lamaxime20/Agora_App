@@ -11,6 +11,7 @@ import {
     FINANCES_ABONNEMENTS,
     FINANCES_REAPPROVISIONNEMENTS,
     FINANCES_SALAIRES,
+    FINANCES_JOURNAL_FINANCIER,
     FINANCES_STATISTIQUES,
 } from "../../services/finances.js";
 
@@ -24,6 +25,7 @@ import Entree            from "../../components/modules/finances/entree.jsx";
 import Abonnements       from "../../components/modules/finances/abonnements.jsx";
 import Reapprovisionnements from "../../components/modules/finances/reapprovisionnements.jsx";
 import Salaires          from "../../components/modules/finances/salaires.jsx";
+import JournalFinancier  from "../../components/modules/finances/journalFinancier.jsx";
 import Statistiques      from "../../components/modules/finances/statistiques.jsx";
 
 import "../../assets/styles/pages/finances.css";
@@ -37,6 +39,7 @@ const ONGLET_LABELS = {
     [FINANCES_ABONNEMENTS]:          "Abonnements",
     [FINANCES_REAPPROVISIONNEMENTS]: "Réapprovisionnements",
     [FINANCES_SALAIRES]:             "Salaires",
+    [FINANCES_JOURNAL_FINANCIER]:    "Journal financier",
     [FINANCES_STATISTIQUES]:         "Statistiques",
 };
 
@@ -49,6 +52,7 @@ const ONGLET_CONTENT = {
     [FINANCES_ABONNEMENTS]:          <Abonnements />,
     [FINANCES_REAPPROVISIONNEMENTS]: <Reapprovisionnements />,
     [FINANCES_SALAIRES]:             <Salaires />,
+    [FINANCES_JOURNAL_FINANCIER]:    <JournalFinancier />,
     [FINANCES_STATISTIQUES]:         <Statistiques />,
 };
 

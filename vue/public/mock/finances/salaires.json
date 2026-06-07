@@ -1,29 +1,178 @@
 {
-  "salaries": [
-    { "id": "EMP-001", "nom": "Alice Caisse",    "poste": "Caissière",              "salaireNet": 250000, "statut": "Actif" },
-    { "id": "EMP-002", "nom": "Jean Comptable",  "poste": "Comptable principal",    "salaireNet": 380000, "statut": "Actif" },
-    { "id": "EMP-003", "nom": "Marie Finance",   "poste": "Responsable financière", "salaireNet": 520000, "statut": "Actif" },
-    { "id": "EMP-004", "nom": "Paul Trésorerie", "poste": "Trésorier",              "salaireNet": 430000, "statut": "Actif" },
-    { "id": "EMP-005", "nom": "Sophie Logist.",  "poste": "Responsable logistique", "salaireNet": 310000, "statut": "Congé" }
+  "success": true,
+  "data": [
+    {
+      "id": "EMP-001",
+      "nom": "Caisse",
+      "prenom": "Alice",
+      "email": "alice.caisse@agora-cm.com",
+      "telephone": "+237 655 001 001",
+      "poste": "Caissière",
+      "salaireNet": 250000,
+      "dateEmbauche": "2025-01-01",
+      "statut": "actif",
+      "dernierPaiement": "2026-05-28",
+      "prochaineEcheance": "2026-06-28",
+      "totalPaye": 3750000,
+      "nombrePaiements": 15,
+      "paiementsRecents": [
+        { "id": "PAY-2026-05-001", "date": "2026-05-28", "montant": 250000, "mode": "Virement bancaire", "reference": "VIR-5501", "periode": "Mai 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-04-001", "date": "2026-04-28", "montant": 250000, "mode": "Virement bancaire", "reference": "VIR-4401", "periode": "Avril 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-03-001", "date": "2026-03-28", "montant": 250000, "mode": "Virement bancaire", "reference": "VIR-3301", "periode": "Mars 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-02-001", "date": "2026-02-28", "montant": 250000, "mode": "Virement bancaire", "reference": "VIR-2201", "periode": "Février 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-01-001", "date": "2026-01-28", "montant": 250000, "mode": "Virement bancaire", "reference": "VIR-1101", "periode": "Janvier 2026", "utilisateur": "Système" }
+      ]
+    },
+    {
+      "id": "EMP-002",
+      "nom": "Comptable",
+      "prenom": "Jean",
+      "email": "jean.comptable@agora-cm.com",
+      "telephone": "+237 655 002 002",
+      "poste": "Comptable principal",
+      "salaireNet": 380000,
+      "dateEmbauche": "2024-06-01",
+      "statut": "actif",
+      "dernierPaiement": "2026-05-28",
+      "prochaineEcheance": "2026-06-28",
+      "totalPaye": 8360000,
+      "nombrePaiements": 22,
+      "paiementsRecents": [
+        { "id": "PAY-2026-05-002", "date": "2026-05-28", "montant": 380000, "mode": "Virement bancaire", "reference": "VIR-5502", "periode": "Mai 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-04-002", "date": "2026-04-28", "montant": 380000, "mode": "Virement bancaire", "reference": "VIR-4402", "periode": "Avril 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-03-002", "date": "2026-03-28", "montant": 380000, "mode": "Virement bancaire", "reference": "VIR-3302", "periode": "Mars 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-02-002", "date": "2026-02-28", "montant": 380000, "mode": "Virement bancaire", "reference": "VIR-2202", "periode": "Février 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-01-002", "date": "2026-01-28", "montant": 380000, "mode": "Virement bancaire", "reference": "VIR-1102", "periode": "Janvier 2026", "utilisateur": "Système" }
+      ]
+    },
+    {
+      "id": "EMP-003",
+      "nom": "Finance",
+      "prenom": "Marie",
+      "email": "marie.finance@agora-cm.com",
+      "telephone": "+237 655 003 003",
+      "poste": "Responsable financière",
+      "salaireNet": 520000,
+      "dateEmbauche": "2023-09-15",
+      "statut": "actif",
+      "dernierPaiement": "2026-05-28",
+      "prochaineEcheance": "2026-06-28",
+      "totalPaye": 17160000,
+      "nombrePaiements": 33,
+      "paiementsRecents": [
+        { "id": "PAY-2026-05-003", "date": "2026-05-28", "montant": 520000, "mode": "Virement bancaire", "reference": "VIR-5503", "periode": "Mai 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-04-003", "date": "2026-04-28", "montant": 520000, "mode": "Virement bancaire", "reference": "VIR-4403", "periode": "Avril 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-03-003", "date": "2026-03-28", "montant": 520000, "mode": "Virement bancaire", "reference": "VIR-3303", "periode": "Mars 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-02-003", "date": "2026-02-28", "montant": 520000, "mode": "Virement bancaire", "reference": "VIR-2203", "periode": "Février 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-01-003", "date": "2026-01-28", "montant": 520000, "mode": "Virement bancaire", "reference": "VIR-1103", "periode": "Janvier 2026", "utilisateur": "Système" }
+      ]
+    },
+    {
+      "id": "EMP-004",
+      "nom": "Trésorerie",
+      "prenom": "Paul",
+      "email": "paul.tresorerie@agora-cm.com",
+      "telephone": "+237 655 004 004",
+      "poste": "Trésorier",
+      "salaireNet": 430000,
+      "dateEmbauche": "2024-02-01",
+      "statut": "actif",
+      "dernierPaiement": "2026-05-28",
+      "prochaineEcheance": "2026-06-28",
+      "totalPaye": 10320000,
+      "nombrePaiements": 24,
+      "paiementsRecents": [
+        { "id": "PAY-2026-05-004", "date": "2026-05-28", "montant": 430000, "mode": "Virement bancaire", "reference": "VIR-5504", "periode": "Mai 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-04-004", "date": "2026-04-28", "montant": 430000, "mode": "Virement bancaire", "reference": "VIR-4404", "periode": "Avril 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-03-004", "date": "2026-03-28", "montant": 430000, "mode": "Virement bancaire", "reference": "VIR-3304", "periode": "Mars 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-02-004", "date": "2026-02-28", "montant": 430000, "mode": "Virement bancaire", "reference": "VIR-2204", "periode": "Février 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-01-004", "date": "2026-01-28", "montant": 430000, "mode": "Virement bancaire", "reference": "VIR-1104", "periode": "Janvier 2026", "utilisateur": "Système" }
+      ]
+    },
+    {
+      "id": "EMP-005",
+      "nom": "Logistique",
+      "prenom": "Sophie",
+      "email": "sophie.logistique@agora-cm.com",
+      "telephone": "+237 655 005 005",
+      "poste": "Responsable logistique",
+      "salaireNet": 310000,
+      "dateEmbauche": "2024-04-10",
+      "statut": "conge",
+      "dernierPaiement": "2026-05-28",
+      "prochaineEcheance": "2026-06-28",
+      "totalPaye": 6820000,
+      "nombrePaiements": 22,
+      "paiementsRecents": [
+        { "id": "PAY-2026-05-005", "date": "2026-05-28", "montant": 310000, "mode": "Virement bancaire", "reference": "VIR-5505", "periode": "Mai 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-04-005", "date": "2026-04-28", "montant": 310000, "mode": "Virement bancaire", "reference": "VIR-4405", "periode": "Avril 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-03-005", "date": "2026-03-28", "montant": 310000, "mode": "Virement bancaire", "reference": "VIR-3305", "periode": "Mars 2026", "utilisateur": "Système" }
+      ]
+    },
+    {
+      "id": "EMP-006",
+      "nom": "Nkoa",
+      "prenom": "Patrick",
+      "email": "patrick.nkoa@agora-cm.com",
+      "telephone": "+237 655 006 006",
+      "poste": "Directeur commercial",
+      "salaireNet": 680000,
+      "dateEmbauche": "2023-01-05",
+      "statut": "actif",
+      "dernierPaiement": "2026-05-28",
+      "prochaineEcheance": "2026-06-28",
+      "totalPaye": 23120000,
+      "nombrePaiements": 34,
+      "paiementsRecents": [
+        { "id": "PAY-2026-05-006", "date": "2026-05-28", "montant": 680000, "mode": "Virement bancaire", "reference": "VIR-5506", "periode": "Mai 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-04-006", "date": "2026-04-28", "montant": 680000, "mode": "Virement bancaire", "reference": "VIR-4406", "periode": "Avril 2026", "utilisateur": "Système" }
+      ]
+    },
+    {
+      "id": "EMP-007",
+      "nom": "Boka",
+      "prenom": "Claire",
+      "email": "claire.boka@agora-cm.com",
+      "telephone": "+237 655 007 007",
+      "poste": "Assistante administrative",
+      "salaireNet": 200000,
+      "dateEmbauche": "2025-05-01",
+      "statut": "actif",
+      "dernierPaiement": "2026-05-28",
+      "prochaineEcheance": "2026-06-28",
+      "totalPaye": 2600000,
+      "nombrePaiements": 13,
+      "paiementsRecents": [
+        { "id": "PAY-2026-05-007", "date": "2026-05-28", "montant": 200000, "mode": "Virement bancaire", "reference": "VIR-5507", "periode": "Mai 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-04-007", "date": "2026-04-28", "montant": 200000, "mode": "Virement bancaire", "reference": "VIR-4407", "periode": "Avril 2026", "utilisateur": "Système" }
+      ]
+    },
+    {
+      "id": "EMP-008",
+      "nom": "Mensah",
+      "prenom": "Kofi",
+      "email": "kofi.mensah@agora-cm.com",
+      "telephone": "+237 655 008 008",
+      "poste": "Responsable des stocks",
+      "salaireNet": 350000,
+      "dateEmbauche": "2024-10-01",
+      "statut": "actif",
+      "dernierPaiement": "2026-05-28",
+      "prochaineEcheance": "2026-06-28",
+      "totalPaye": 2800000,
+      "nombrePaiements": 8,
+      "paiementsRecents": [
+        { "id": "PAY-2026-05-008", "date": "2026-05-28", "montant": 350000, "mode": "Virement bancaire", "reference": "VIR-5508", "periode": "Mai 2026", "utilisateur": "Système" },
+        { "id": "PAY-2026-04-008", "date": "2026-04-28", "montant": 350000, "mode": "Virement bancaire", "reference": "VIR-4408", "periode": "Avril 2026", "utilisateur": "Système" }
+      ]
+    }
   ],
-  "paiements": {
-    "EMP-001": [
-      { "id": "PAY-2026-05-001", "date": "2026-05-28", "montant": 250000, "mode": "virement bancaire", "reference": "VIR-5501", "periode": "Mai 2026" },
-      { "id": "PAY-2026-04-001", "date": "2026-04-28", "montant": 250000, "mode": "virement bancaire", "reference": "VIR-4401", "periode": "Avril 2026" }
-    ],
-    "EMP-002": [
-      { "id": "PAY-2026-05-002", "date": "2026-05-28", "montant": 380000, "mode": "virement bancaire", "reference": "VIR-5502", "periode": "Mai 2026" },
-      { "id": "PAY-2026-04-002", "date": "2026-04-28", "montant": 380000, "mode": "virement bancaire", "reference": "VIR-4402", "periode": "Avril 2026" }
-    ],
-    "EMP-003": [
-      { "id": "PAY-2026-05-003", "date": "2026-05-28", "montant": 520000, "mode": "virement bancaire", "reference": "VIR-5503", "periode": "Mai 2026" },
-      { "id": "PAY-2026-04-003", "date": "2026-04-28", "montant": 520000, "mode": "virement bancaire", "reference": "VIR-4403", "periode": "Avril 2026" }
-    ],
-    "EMP-004": [
-      { "id": "PAY-2026-05-004", "date": "2026-05-28", "montant": 430000, "mode": "virement bancaire", "reference": "VIR-5504", "periode": "Mai 2026" }
-    ],
-    "EMP-005": [
-      { "id": "PAY-2026-05-005", "date": "2026-05-28", "montant": 310000, "mode": "virement bancaire", "reference": "VIR-5505", "periode": "Mai 2026" }
-    ]
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 8,
+    "masseSalariale": 3120000,
+    "dernierPaiement": "2026-05-28",
+    "prochaineEcheance": "2026-06-28"
   }
 }

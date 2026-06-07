@@ -8,6 +8,7 @@ import {
     Repeat,
     Truck,
     Users,
+    FileText,
     BarChart2,
     ArrowLeft,
     X,
@@ -22,6 +23,7 @@ import {
     FINANCES_ABONNEMENTS,
     FINANCES_REAPPROVISIONNEMENTS,
     FINANCES_SALAIRES,
+    FINANCES_JOURNAL_FINANCIER,
     FINANCES_STATISTIQUES,
 } from "../../../services/finances.js";
 
@@ -36,6 +38,7 @@ const NAV_ITEMS = [
     { id: FINANCES_ABONNEMENTS,        label: "Abonnements",           href: "/application/finances/abonnements",          Icon: Repeat          },
     { id: FINANCES_REAPPROVISIONNEMENTS, label: "Réapprovisionnements", href: "/application/finances/reapprovisionnements", Icon: Truck           },
     { id: FINANCES_SALAIRES,           label: "Salaires",              href: "/application/finances/salaires",             Icon: Users           },
+    { id: FINANCES_JOURNAL_FINANCIER,  label: "Journal financier",     href: "/application/finances/journal",              Icon: FileText        },
     { id: FINANCES_STATISTIQUES,       label: "Statistiques",          href: "/application/finances/statistiques",         Icon: BarChart2       },
 ];
 
