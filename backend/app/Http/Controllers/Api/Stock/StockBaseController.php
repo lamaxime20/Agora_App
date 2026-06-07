@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Stock;
 use App\Http\Controllers\Controller;
 use App\Models\Entreprise;
 use App\Models\Historique;
-use App\Models\Produit;
 use App\Models\Utilisateur;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -94,7 +93,7 @@ abstract class StockBaseController extends Controller
         return $map;
     }
 
-    protected function stockDisponible(Produit $produit, array $reservedMap): float
+    protected function stockDisponible(object $produit, array $reservedMap): float
     {
         if ($produit->type_produit === 'service') {
             return 0.0;
@@ -105,7 +104,7 @@ abstract class StockBaseController extends Controller
         return max(0, (float) $produit->stock_actuel - $reserved);
     }
 
-    protected function availabilityLabel(Produit $produit, float $stockDisponible): string
+    protected function availabilityLabel(object $produit, float $stockDisponible): string
     {
         if ($produit->type_produit === 'service') {
             return 'service';
