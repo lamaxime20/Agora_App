@@ -763,6 +763,112 @@
     border-top: 1px solid var(--color-border);
 }
 
+/* ─── Modal large (détails commande) ─────────────────────────────────────────── */
+
+.finCommandes-modal__panel--large {
+    max-width: 680px;
+}
+
+.finCommandes-modal__panel--large .finCommandes-modal__body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* ─── Récap commande dans formulaire paiement ─────────────────────────────────── */
+
+.finCommandes-paiement-recap {
+    background-color: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.finCommandes-paiement-recap__nom {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+}
+
+.finCommandes-paiement-recap__montants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.finCommandes-paiement-recap__item--reste {
+    color: var(--color-primary);
+    font-weight: var(--weight-semibold);
+}
+
+/* ─── Erreur dans formulaire paiement ────────────────────────────────────────── */
+
+.finCommandes-paiement-erreur {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background-color: rgba(var(--color-error-rgb, 231, 76, 60), 0.08);
+    border: 1px solid rgba(var(--color-error-rgb, 231, 76, 60), 0.25);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    color: var(--color-error);
+}
+
+/* ─── Écran de confirmation ───────────────────────────────────────────────────── */
+
+.finCommandes-confirmation-bloc {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    text-align: center;
+    padding: var(--space-5) var(--space-4);
+    background-color: rgba(var(--color-warning-rgb, 243, 156, 18), 0.08);
+    border: 1px solid rgba(var(--color-warning-rgb, 243, 156, 18), 0.25);
+    border-radius: var(--radius-xl);
+}
+
+.finCommandes-confirmation-bloc__icon {
+    color: var(--color-warning, #F39C12);
+}
+
+.finCommandes-confirmation-bloc__titre {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-base);
+    color: var(--color-text);
+}
+
+.finCommandes-confirmation-bloc__desc {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+}
+
+.finCommandes-confirmation-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.finCommandes-confirmation-details .finCommandes-detail__row {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.finCommandes-confirmation-details .finCommandes-detail__row:last-child {
+    border-bottom: none;
+}
+
 /* ─── Formulaire dans modal ───────────────────────────────────────────────────── */
 
 .finCommandes-form__field {
