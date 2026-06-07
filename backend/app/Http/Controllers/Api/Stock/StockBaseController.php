@@ -9,11 +9,42 @@ use App\Models\Produit;
 use App\Models\Utilisateur;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 abstract class StockBaseController extends Controller
 {
+    protected function stockErrorResponse(\Throwable $e, Request $request, string $method, array $context = []): JsonResponse
+    {
+        $payload = array_merge([
+            'method' => $method,
+            'url' => $request->fullUrl(),
+            'user_id' => $request->attributes->get('authorizedUser')?->id
+                ?? $request->attributes->get('authUser')?->id
+                ?? null,
+            'entreprise_id' => $request->attributes->get('currentEntreprise')?->id ?? null,
+        ], $context);
+
+        Log::error('Erreur module stock', [
+            'message' => $e->getMessage(),
+            'exception' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => collect($e->getTrace())->take(10)->toArray(),
+            'context' => $payload,
+        ]);
+
+        report($e);
+
+        return response()->json([
+            'ok' => false,
+            'code' => 'STOCK_INTERNAL_ERROR',
+            'message' => 'Une erreur est survenue côté serveur.',
+        ], 500);
+    }
+
     protected function currentUser(Request $request): Utilisateur
     {
         /** @var Utilisateur $user */

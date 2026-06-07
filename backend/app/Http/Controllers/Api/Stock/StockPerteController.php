@@ -15,7 +15,8 @@ class StockPerteController extends StockBaseController
 {
     public function index(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $page = max(1, (int) $request->query('page', 1));
         $limit = min(100, max(1, (int) $request->query('limit', 25)));
         $motif = trim((string) $request->query('motif', ''));
@@ -69,29 +70,33 @@ class StockPerteController extends StockBaseController
                 ];
             });
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'pertes' => $pertes,
                 'total'  => $total,
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'index']);
+        }
     }
 
     public function store(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        try {
+            $validator = Validator::make($request->all(), [
             'produit_id'      => 'required|uuid',
             'quantite_perdu'  => 'required|numeric|min:0.01',
             'motif_perte'     => 'required|string|min:5',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'ok'     => false,
-                'code'   => 'VALIDATION_ERROR',
-                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+                ], 422);
+            }
 
         $entreprise = $this->currentEntreprise($request);
         $user = $this->currentUser($request);
@@ -170,26 +175,30 @@ class StockPerteController extends StockBaseController
             // Notification::create([...]);
         }
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'perte' => $perte->load('produit'),
             ],
-        ], 201);
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'store']);
+        }
     }
 
     public function destroy(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        try {
+            $validator = Validator::make($request->all(), [
             'password' => 'required|string',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'ok'     => false,
-                'code'   => 'VALIDATION_ERROR',
-                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+                ], 422);
+            }
 
         $entreprise = $this->currentEntreprise($request);
         $user = $this->currentUser($request);
@@ -278,8 +287,11 @@ class StockPerteController extends StockBaseController
             $perte->delete();
         });
 
-        return response()->json([
+            return response()->json([
             'message' => 'Perte annulée, stock restauré',
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'destroy', 'id' => $id]);
+        }
     }
 }

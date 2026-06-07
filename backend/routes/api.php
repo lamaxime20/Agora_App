@@ -62,6 +62,9 @@ Route::prefix('stock')
     });
 
 Route::prefix('stock')
+    ->middleware([
+        MiddlewareTokenAuthorization::class,
+    ])
     ->group(function () {
         Route::get('produits', [StockProduitController::class, 'index']);
         Route::post('produits', [StockProduitController::class, 'store']);

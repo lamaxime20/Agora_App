@@ -12,7 +12,8 @@ class StockReservationController extends StockBaseController
 {
     public function index(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $page = max(1, (int) $request->query('page', 1));
         $limit = min(100, max(1, (int) $request->query('limit', 25)));
         $search = trim((string) $request->query('search', ''));
@@ -57,7 +58,7 @@ class StockReservationController extends StockBaseController
             ->selectRaw('COUNT(DISTINCT c.id) as commandes_actives, COALESCE(SUM(cp.quantite), 0) as articles_total, COALESCE(SUM(cp.montant), 0) as valeur_totale')
             ->first();
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'commandes' => $commandes,
                 'total'     => $total,
@@ -67,12 +68,16 @@ class StockReservationController extends StockBaseController
                     'valeur_totale' => (float) ($kpis->valeur_totale ?? 0),
                 ],
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'index']);
+        }
     }
 
     public function show(Request $request, string $id): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
 
         $commande = Commande::with(['client', 'utilisateurEnregistre', 'utilisateurValide', 'lignes.produit', 'livraisons'])
             ->where('id', $id)
@@ -87,7 +92,7 @@ class StockReservationController extends StockBaseController
             ], 404);
         }
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'commande' => $this->commandePayload($commande, true),
                 'lignes'   => $commande->lignes->map(fn($ligne) => [
@@ -105,7 +110,10 @@ class StockReservationController extends StockBaseController
                 ])->values(),
                 'livraison' => $commande->livraisons->first() ? $this->livraisonPayload($commande->livraisons->first()) : null,
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'show', 'id' => $id]);
+        }
     }
 
     private function commandePayload(Commande $commande, bool $withLines = false): array

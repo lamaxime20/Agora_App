@@ -14,7 +14,8 @@ class StockRavitaillementController extends StockBaseController
 {
     public function index(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $page = max(1, (int) $request->query('page', 1));
         $limit = min(100, max(1, (int) $request->query('limit', 25)));
         $statut = $request->query('statut');
@@ -77,29 +78,33 @@ class StockRavitaillementController extends StockBaseController
                 ] : null,
             ]);
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'ravitaillements' => $ravitaillements,
                 'total'           => $total,
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'index']);
+        }
     }
 
     public function store(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        try {
+            $validator = Validator::make($request->all(), [
             'produit_id'          => 'required|uuid',
             'quantite'            => 'required|numeric|min:0.01',
             'montant_a_depenser'  => 'required|numeric|min:0',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'ok'     => false,
-                'code'   => 'VALIDATION_ERROR',
-                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+                ], 422);
+            }
 
         $entreprise = $this->currentEntreprise($request);
         $user = $this->currentUser($request);
@@ -143,26 +148,30 @@ class StockRavitaillementController extends StockBaseController
         // TODO: créer la notification de ravitaillement pour le directeur de l'entreprise ici.
         // Notification::create([...]);
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'ravitaillement' => $ravitaillement->load('produit'),
             ],
-        ], 201);
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'store']);
+        }
     }
 
     public function cancel(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        try {
+            $validator = Validator::make($request->all(), [
             'raison_annulation' => 'required|string|min:10',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'ok'     => false,
-                'code'   => 'VALIDATION_ERROR',
-                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+                ], 422);
+            }
 
         $entreprise = $this->currentEntreprise($request);
         $user = $this->currentUser($request);
@@ -201,26 +210,30 @@ class StockRavitaillementController extends StockBaseController
         // TODO: créer la notification d'annulation du ravitaillement avec la raison ici.
         // Notification::create([...]);
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'ravitaillement' => $ravitaillement->fresh()->load('produit'),
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'cancel', 'id' => $id]);
+        }
     }
 
     public function confirm(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        try {
+            $validator = Validator::make($request->all(), [
             'password' => 'required|string',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'ok'     => false,
-                'code'   => 'VALIDATION_ERROR',
-                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+                ], 422);
+            }
 
         $entreprise = $this->currentEntreprise($request);
         $user = $this->currentUser($request);
@@ -301,10 +314,13 @@ class StockRavitaillementController extends StockBaseController
         // TODO: créer la notification de confirmation du ravitaillement pour les modules concernés ici.
         // Notification::create([...]);
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'ravitaillement' => $ravitaillement->fresh()->load('produit'),
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'confirm', 'id' => $id]);
+        }
     }
 }

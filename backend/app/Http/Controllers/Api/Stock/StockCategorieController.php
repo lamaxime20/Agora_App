@@ -11,8 +11,9 @@ class StockCategorieController extends StockBaseController
 {
     public function index(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
-        $search = trim((string) $request->query('search', ''));
+        try {
+            $entreprise = $this->currentEntreprise($request);
+            $search = trim((string) $request->query('search', ''));
 
         $query = CategorieProduit::query()
             ->where('entreprise', $entreprise->id)
@@ -35,17 +36,23 @@ class StockCategorieController extends StockBaseController
             ];
         });
 
-        return response()->json([
-            'data' => [
-                'categories' => $categories,
-                'total'      => $categories->count(),
-            ],
-        ], 200);
+            return response()->json([
+                'data' => [
+                    'categories' => $categories,
+                    'total'      => $categories->count(),
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, [
+                'action' => 'index',
+            ]);
+        }
     }
 
     public function store(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        try {
+            $validator = Validator::make($request->all(), [
             'categorie'   => 'required|string|min:2|max:150',
             'description' => 'nullable|string',
         ], [
@@ -53,13 +60,13 @@ class StockCategorieController extends StockBaseController
             'categorie.min'      => 'Le nom de la catégorie doit contenir au moins 2 caractères.',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'ok'     => false,
-                'code'   => 'VALIDATION_ERROR',
-                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+                ], 422);
+            }
 
         $entreprise = $this->currentEntreprise($request);
         $user = $this->currentUser($request);
@@ -95,10 +102,15 @@ class StockCategorieController extends StockBaseController
             $entreprise->id
         ));
 
-        return response()->json([
-            'data' => [
-                'categorie' => $categorie,
-            ],
-        ], 201);
+            return response()->json([
+                'data' => [
+                    'categorie' => $categorie,
+                ],
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, [
+                'action' => 'store',
+            ]);
+        }
     }
 }

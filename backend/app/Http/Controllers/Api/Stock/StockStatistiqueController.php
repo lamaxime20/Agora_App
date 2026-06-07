@@ -15,7 +15,8 @@ class StockStatistiqueController extends StockBaseController
 {
     public function vueGenerale(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         [$dateDebut, $dateFin] = $this->daterange($request->query('dateDebut'), $request->query('dateFin'));
 
         $produitsActifs = Produit::where('entreprise', $entreprise->id)->where('statut', 'actif')->count();
@@ -79,7 +80,7 @@ class StockStatistiqueController extends StockBaseController
             ->orderBy('date')
             ->get();
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'kpis' => [
                     'produits_actifs'        => $produitsActifs,
@@ -93,12 +94,16 @@ class StockStatistiqueController extends StockBaseController
                 'evolution_pertes'          => $evolutionPertes,
                 'evolution_ravitaillements' => $evolutionRavitaillements,
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'vueGenerale']);
+        }
     }
 
     public function produits(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $produits = Produit::where('entreprise', $entreprise->id)
             ->where('statut', 'actif')
             ->with('categorie')
@@ -126,19 +131,23 @@ class StockStatistiqueController extends StockBaseController
                 ];
             });
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'kpis' => [
                     'total_produits' => Produit::where('entreprise', $entreprise->id)->where('statut', 'actif')->count(),
                 ],
                 'produits' => $produits,
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'produits']);
+        }
     }
 
     public function stock(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $reservedMap = $this->reservedQuantitiesByProduct($entreprise->id);
 
         $produits = Produit::with('categorie')
@@ -161,16 +170,20 @@ class StockStatistiqueController extends StockBaseController
                 ];
             });
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'produits' => $produits,
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'stock']);
+        }
     }
 
     public function ravitaillements(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $ravitaillements = Ravitaillement::where('entreprise', $entreprise->id)
             ->selectRaw('statut, COUNT(*) as total, COALESCE(SUM(montant_a_depenser), 0) as montant_total, COALESCE(SUM(quantite), 0) as quantite_total')
             ->groupBy('statut')
@@ -183,7 +196,7 @@ class StockStatistiqueController extends StockBaseController
             ->orderBy('date')
             ->get();
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'kpis' => [
                     'total' => Ravitaillement::where('entreprise', $entreprise->id)->count(),
@@ -191,12 +204,16 @@ class StockStatistiqueController extends StockBaseController
                 'statuts' => $ravitaillements,
                 'timeline' => $timeline,
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'ravitaillements']);
+        }
     }
 
     public function pertes(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $pertes = PerteProduit::where('entreprise', $entreprise->id)
             ->selectRaw('COUNT(*) as total_pertes, COALESCE(SUM(quantite_perdu), 0) as quantite_totale')
             ->first();
@@ -207,7 +224,7 @@ class StockStatistiqueController extends StockBaseController
             ->orderBy('date')
             ->get();
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'kpis' => [
                     'total_pertes'     => (int) ($pertes->total_pertes ?? 0),
@@ -215,6 +232,9 @@ class StockStatistiqueController extends StockBaseController
                 ],
                 'evolution' => $evolution,
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'pertes']);
+        }
     }
 }

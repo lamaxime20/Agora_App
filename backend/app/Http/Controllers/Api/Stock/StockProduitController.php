@@ -18,7 +18,8 @@ class StockProduitController extends StockBaseController
 {
     public function index(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $reservedMap = $this->reservedQuantitiesByProduct($entreprise->id);
 
         $page = max(1, (int) $request->query('page', 1));
@@ -75,19 +76,23 @@ class StockProduitController extends StockBaseController
                 ];
             });
 
-        return response()->json([
-            'data' => [
-                'produits' => $produits,
-                'total'    => $total,
-                'page'     => $page,
-                'limit'    => $limit,
-            ],
-        ], 200);
+            return response()->json([
+                'data' => [
+                    'produits' => $produits,
+                    'total'    => $total,
+                    'page'     => $page,
+                    'limit'    => $limit,
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'index']);
+        }
     }
 
     public function store(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        try {
+            $validator = Validator::make($request->all(), [
             'nom'            => 'required|string|min:2|max:255',
             'prix_unitaire'  => 'required|numeric|min:0',
             'type_produit'   => 'required|in:physique,service',
@@ -101,13 +106,13 @@ class StockProduitController extends StockBaseController
             'categorie.uuid' => 'Identifiant de catégorie invalide.',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'ok'     => false,
-                'code'   => 'VALIDATION_ERROR',
-                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+                ], 422);
+            }
 
         $entreprise = $this->currentEntreprise($request);
         $user = $this->currentUser($request);
@@ -177,16 +182,20 @@ class StockProduitController extends StockBaseController
             // ]);
         }
 
-        return response()->json([
-            'data' => [
-                'produit' => $produit->load('categorie'),
-            ],
-        ], 201);
+            return response()->json([
+                'data' => [
+                    'produit' => $produit->load('categorie'),
+                ],
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'store']);
+        }
     }
 
     public function show(Request $request, string $id): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $reservedMap = $this->reservedQuantitiesByProduct($entreprise->id);
 
         $produit = Produit::with('categorie')
@@ -242,43 +251,47 @@ class StockProduitController extends StockBaseController
             ])
             ->values();
 
-        return response()->json([
-            'data' => [
-                'produit' => [
-                    'id'                   => $produit->id,
-                    'nom'                  => $produit->nom,
-                    'image'                => $produit->image,
-                    'prix_unitaire'        => (float) $produit->prix_unitaire,
-                    'seuil_alerte'         => (float) $produit->seuil_alerte,
-                    'type_produit'         => $produit->type_produit,
-                    'stock_actuel'         => (float) $produit->stock_actuel,
-                    'stock_disponible'     => $stockDisponible,
-                    'unite_mesure'         => $produit->unite_mesure,
-                    'description'          => $produit->description,
-                    'statut'               => $produit->statut,
-                    'categorie'            => $produit->categorie ? [
-                        'id'          => $produit->categorie->id,
-                        'categorie'   => $produit->categorie->categorie,
-                        'description' => $produit->categorie->description,
-                    ] : null,
-                    'statut_disponibilite' => $this->availabilityLabel($produit, $stockDisponible),
+            return response()->json([
+                'data' => [
+                    'produit' => [
+                        'id'                   => $produit->id,
+                        'nom'                  => $produit->nom,
+                        'image'                => $produit->image,
+                        'prix_unitaire'        => (float) $produit->prix_unitaire,
+                        'seuil_alerte'         => (float) $produit->seuil_alerte,
+                        'type_produit'         => $produit->type_produit,
+                        'stock_actuel'         => (float) $produit->stock_actuel,
+                        'stock_disponible'     => $stockDisponible,
+                        'unite_mesure'         => $produit->unite_mesure,
+                        'description'          => $produit->description,
+                        'statut'               => $produit->statut,
+                        'categorie'            => $produit->categorie ? [
+                            'id'          => $produit->categorie->id,
+                            'categorie'   => $produit->categorie->categorie,
+                            'description' => $produit->categorie->description,
+                        ] : null,
+                        'statut_disponibilite' => $this->availabilityLabel($produit, $stockDisponible),
+                    ],
+                    'statistiques' => [
+                        'nb_ravitaillements'         => $nbRavitaillements,
+                        'montant_total_reappro'      => $montantTotalReappro,
+                        'nb_pertes'                  => $nbPertes,
+                        'quantite_perdue_totale'     => $quantitePerdueTotale,
+                        'nb_ventes'                  => (int) ($venteStats->nb_commandes ?? 0),
+                        'ca_total'                   => (float) ($venteStats->ca_total ?? 0),
+                    ],
+                    'evolution_stock_7j' => $evolutionStock,
                 ],
-                'statistiques' => [
-                    'nb_ravitaillements'         => $nbRavitaillements,
-                    'montant_total_reappro'      => $montantTotalReappro,
-                    'nb_pertes'                  => $nbPertes,
-                    'quantite_perdue_totale'     => $quantitePerdueTotale,
-                    'nb_ventes'                  => (int) ($venteStats->nb_commandes ?? 0),
-                    'ca_total'                   => (float) ($venteStats->ca_total ?? 0),
-                ],
-                'evolution_stock_7j' => $evolutionStock,
-            ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'show', 'id' => $id]);
+        }
     }
 
     public function update(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        try {
+            $validator = Validator::make($request->all(), [
             'nom'            => 'nullable|string|min:2|max:255',
             'prix_unitaire'  => 'nullable|numeric|min:0',
             'seuil_alerte'   => 'nullable|numeric|min:0',
@@ -288,13 +301,13 @@ class StockProduitController extends StockBaseController
             'image'          => 'nullable|image|max:5120',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'ok'     => false,
-                'code'   => 'VALIDATION_ERROR',
-                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+                ], 422);
+            }
 
         $entreprise = $this->currentEntreprise($request);
         $user = $this->currentUser($request);
@@ -391,28 +404,32 @@ class StockProduitController extends StockBaseController
             // Notification::create([...]);
         }
 
-        return response()->json([
-            'data' => [
-                'produit' => $produit->fresh()->load('categorie'),
-            ],
-        ], 200);
+            return response()->json([
+                'data' => [
+                    'produit' => $produit->fresh()->load('categorie'),
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'update', 'id' => $id]);
+        }
     }
 
     public function destroy(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        try {
+            $validator = Validator::make($request->all(), [
             'password' => 'required|string',
         ], [
             'password.required' => 'Le mot de passe est requis.',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'ok'     => false,
-                'code'   => 'VALIDATION_ERROR',
-                'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => collect($validator->errors()->toArray())->map(fn($e) => $e[0])->toArray(),
+                ], 422);
+            }
 
         $user = $this->currentUser($request);
         $entreprise = $this->currentEntreprise($request);
@@ -451,8 +468,11 @@ class StockProduitController extends StockBaseController
             $entreprise->id
         ));
 
-        return response()->json([
-            'message' => 'Produit archivé',
-        ], 200);
+            return response()->json([
+                'message' => 'Produit archivé',
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'destroy', 'id' => $id]);
+        }
     }
 }

@@ -15,7 +15,8 @@ class StockHistoriqueController extends StockBaseController
 {
     public function index(Request $request): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
         $page = max(1, (int) $request->query('page', 1));
         $limit = min(100, max(1, (int) $request->query('limit', 25)));
         $module = $request->query('module', 'stock');
@@ -64,17 +65,21 @@ class StockHistoriqueController extends StockBaseController
             ->map(fn(Historique $historique) => $this->historiquePayload($historique))
             ->values();
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'transactions' => $transactions,
                 'total'        => $total,
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'index']);
+        }
     }
 
     public function show(Request $request, string $id): JsonResponse
     {
-        $entreprise = $this->currentEntreprise($request);
+        try {
+            $entreprise = $this->currentEntreprise($request);
 
         $historique = Historique::with(['utilisateur', 'entreprise'])
             ->where('id', $id)
@@ -89,14 +94,17 @@ class StockHistoriqueController extends StockBaseController
             ], 404);
         }
 
-        return response()->json([
+            return response()->json([
             'data' => [
                 'transaction' => [
                     'historique' => $this->historiquePayload($historique),
                     'element'    => $this->resolveLinkedEntity($historique),
                 ],
             ],
-        ], 200);
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'show', 'id' => $id]);
+        }
     }
 
     private function historiquePayload(Historique $historique): array
