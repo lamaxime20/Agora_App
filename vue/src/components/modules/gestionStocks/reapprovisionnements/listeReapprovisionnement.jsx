@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
     Plus, RefreshCw, AlertCircle, Package2,
     ChevronRight, Check, X, Clock, CheckCircle2,
@@ -8,6 +8,7 @@ import ModalAnnulerReapprovisionnement   from "./modalAnnulerReapprovisionnement
 import ModalConfirmerReapprovisionnement from "./modalConfirmerReapprovisionnement.jsx";
 import PaneDetailsReapprovisionnement    from "./paneDetailsReapprovisionnement.jsx";
 import { fetchStockRavitaillements } from "../../../../services/gestionStock.js";
+import { useStockData } from "../../../../services/useStockData.js";
 import "../../../../assets/styles/components/modules/gestionStocks/listeReapprovisionnement.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -100,41 +101,15 @@ function EmptyState({ onAdd }) {
 /* ─── Composant principal ─────────────────────────────────────────────────────── */
 
 function ListeReapprovisionnement() {
-    const [items, setItems]               = useState([]);
-    const [loading, setLoading]           = useState(true);
-    const [error, setError]               = useState(null);
+    const { data, loading, error, refresh }   = useStockData(
+        () => fetchStockRavitaillements({ limit: 100 }),
+        "reapprovisionnements-liste"
+    );
+    const items                               = data?.items ?? [];
     const [modalCreation, setModalCreation]   = useState(false);
     const [itemAAnnuler, setItemAAnnuler]     = useState(null);
     const [itemAConfirmer, setItemAConfirmer] = useState(null);
     const [paneItem, setPaneItem]             = useState(null);
-
-    const charger = useCallback(() => {
-        setLoading(true);
-        setError(null);
-        let active = true;
-
-        (async () => {
-            try {
-                const payload = await fetchStockRavitaillements({ limit: 100 });
-                if (!active) return;
-                setItems(payload.items ?? []);
-            } catch {
-                if (active) {
-                    setError("Impossible de charger les réapprovisionnements.");
-                }
-            } finally {
-                if (active) setLoading(false);
-            }
-        })();
-
-        return () => {
-            active = false;
-        };
-    }, []);
-
-    useEffect(() => {
-        return charger();
-    }, [charger]);
 
     /* Seuls les en_attente et en_cours sont affichés dans cet onglet */
     const itemsActifs = items.filter(i => i.statut === "en_attente" || i.statut === "en_cours");
@@ -200,7 +175,7 @@ function ListeReapprovisionnement() {
                     <p>{error}</p>
                     <button
                         className="app-button app-button--ghost app-button--sm"
-                        onClick={charger}
+                        onClick={refresh}
                         type="button"
                     >
                         <RefreshCw size={14} aria-hidden="true" />
@@ -363,20 +338,20 @@ function ListeReapprovisionnement() {
 
             {/* ─── Modals & Pane ───────────────────────────────────────────── */}
             {modalCreation && (
-                <ModalCreationReapprovisionnement onClose={() => setModalCreation(false)} onSaved={charger} />
+                <ModalCreationReapprovisionnement onClose={() => setModalCreation(false)} onSaved={refresh} />
             )}
             {itemAAnnuler && (
                 <ModalAnnulerReapprovisionnement
                     item={itemAAnnuler}
                     onClose={() => setItemAAnnuler(null)}
-                    onSaved={charger}
+                    onSaved={refresh}
                 />
             )}
             {itemAConfirmer && (
                 <ModalConfirmerReapprovisionnement
                     item={itemAConfirmer}
                     onClose={() => setItemAConfirmer(null)}
-                    onSaved={charger}
+                    onSaved={refresh}
                 />
             )}
             {paneItem && (

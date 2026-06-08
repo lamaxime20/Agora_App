@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import {
     AlertTriangle, Plus, AlertCircle, RefreshCw,
     Clock, ChevronRight, Trash2,
@@ -7,6 +7,7 @@ import ModalSignalerPerte from "./modalSignalerPerte.jsx";
 import ModalAnnulerPerte  from "./modalAnnulerPerte.jsx";
 import PaneDetailsPerte   from "./paneDetailsPerte.jsx";
 import { fetchStockPertes } from "../../../../services/gestionStock.js";
+import { useStockData } from "../../../../services/useStockData.js";
 import "../../../../assets/styles/components/modules/gestionStocks/listePertes.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -132,40 +133,14 @@ function EmptyState({ onSignaler }) {
 /* ─── Composant principal ─────────────────────────────────────────────────────── */
 
 function ListePertes() {
-    const [items, setItems]             = useState([]);
-    const [loading, setLoading]         = useState(true);
-    const [error, setError]             = useState(null);
+    const { data, loading, error, refresh } = useStockData(
+        () => fetchStockPertes({ limit: 100 }),
+        "pertes-liste"
+    );
+    const items                             = data?.items ?? [];
     const [modalSignaler, setModalSignaler] = useState(false);
     const [perteAAnnuler, setPerteAAnnuler] = useState(null);
     const [paneItem, setPaneItem]           = useState(null);
-
-    const charger = useCallback(() => {
-        setLoading(true);
-        setError(null);
-        let active = true;
-
-        (async () => {
-            try {
-                const payload = await fetchStockPertes({ limit: 100 });
-                if (!active) return;
-                setItems(payload.items ?? []);
-            } catch {
-                if (active) {
-                    setError("Impossible de charger les pertes.");
-                }
-            } finally {
-                if (active) setLoading(false);
-            }
-        })();
-
-        return () => {
-            active = false;
-        };
-    }, []);
-
-    useEffect(() => {
-        return charger();
-    }, [charger]);
 
     const peutAnnuler = (item) => {
         if (!item.date_limite_annulation) return false;
@@ -207,7 +182,7 @@ function ListePertes() {
                     <p>{error}</p>
                     <button
                         className="app-button app-button--ghost app-button--sm"
-                        onClick={charger}
+                        onClick={refresh}
                         type="button"
                     >
                         <RefreshCw size={13} aria-hidden="true" />
@@ -289,13 +264,13 @@ function ListePertes() {
 
             {/* ─── Modals & Pane ───────────────────────────────────── */}
             {modalSignaler && (
-                <ModalSignalerPerte onClose={() => setModalSignaler(false)} onSaved={charger} />
+                <ModalSignalerPerte onClose={() => setModalSignaler(false)} onSaved={refresh} />
             )}
             {perteAAnnuler && (
                 <ModalAnnulerPerte
                     item={perteAAnnuler}
                     onClose={() => setPerteAAnnuler(null)}
-                    onConfirm={() => { setPerteAAnnuler(null); charger(); }}
+                    onConfirm={() => { setPerteAAnnuler(null); refresh(); }}
                 />
             )}
             {paneItem && (

@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import {
     ShoppingCart, AlertCircle, RefreshCw, Search,
     Download, Filter, ChevronRight, Calendar,
 } from "lucide-react";
 import PaneDetailsReservation from "./reservations/paneDetailsReservation.jsx";
 import { fetchStockReservations } from "../../../services/gestionStock.js";
+import { useStockData } from "../../../services/useStockData.js";
 import "../../../assets/styles/components/modules/gestionStocks/reservations.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -79,43 +80,17 @@ function SkeletonRow() {
 /* ─── Composant principal ─────────────────────────────────────────────────────── */
 
 function Reservations() {
-    const [items, setItems]               = useState([]);
-    const [loading, setLoading]           = useState(true);
-    const [error, setError]               = useState(null);
-    const [recherche, setRecherche]       = useState("");
-    const [filtreStatut, setFiltreStatut] = useState("");
-    const [filtreDebut, setFiltreDebut]   = useState("");
-    const [filtreFin, setFiltreFin]       = useState("");
-    const [showFilters, setShowFilters]   = useState(false);
-    const [paneItem, setPaneItem]         = useState(null);
-
-    const charger = useCallback(() => {
-        setLoading(true);
-        setError(null);
-        let active = true;
-
-        (async () => {
-            try {
-                const payload = await fetchStockReservations({ limit: 100 });
-                if (!active) return;
-                setItems(payload.items ?? []);
-            } catch {
-                if (active) {
-                    setError("Impossible de charger les réservations.");
-                }
-            } finally {
-                if (active) setLoading(false);
-            }
-        })();
-
-        return () => {
-            active = false;
-        };
-    }, []);
-
-    useEffect(() => {
-        return charger();
-    }, [charger]);
+    const { data, loading, error, refresh } = useStockData(
+        () => fetchStockReservations({ limit: 100 }),
+        "reservations-liste"
+    );
+    const items                             = data?.items ?? [];
+    const [recherche, setRecherche]         = useState("");
+    const [filtreStatut, setFiltreStatut]   = useState("");
+    const [filtreDebut, setFiltreDebut]     = useState("");
+    const [filtreFin, setFiltreFin]         = useState("");
+    const [showFilters, setShowFilters]     = useState(false);
+    const [paneItem, setPaneItem]           = useState(null);
 
     const itemsFiltres = items.filter(item => {
         const q = recherche.toLowerCase();
@@ -288,7 +263,7 @@ function Reservations() {
                     <p>{error}</p>
                     <button
                         className="app-button app-button--ghost app-button--sm"
-                        onClick={charger}
+                        onClick={refresh}
                         type="button"
                     >
                         <RefreshCw size={13} aria-hidden="true" />

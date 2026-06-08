@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Plus, FolderPlus, AlertCircle, Package } from "lucide-react";
 import ModalAjoutProduit from "./modalAjoutProduit.jsx";
 import ModalAjoutCategorie from "./modalAjoutCategorie.jsx";
 import { fetchStockProduits } from "../../../../services/gestionStock.js";
+import { useStockData } from "../../../../services/useStockData.js";
 import "../../../../assets/styles/components/modules/gestionStocks/listeProduits.css";
 
 function BadgeStatut({ statut, type }) {
@@ -60,40 +61,14 @@ function EmptyState({ onAdd }) {
 }
 
 function ListeProduits() {
-    const [produits, setProduits]             = useState([]);
-    const [loading, setLoading]               = useState(true);
-    const [error, setError]                   = useState(null);
+    const { data, loading, error, refresh }   = useStockData(
+        () => fetchStockProduits({ limit: 100 }),
+        "produits-liste"
+    );
+    const produits                            = data?.items ?? [];
     const [recherche, setRecherche]           = useState("");
     const [modalProduit, setModalProduit]     = useState(false);
     const [modalCategorie, setModalCategorie] = useState(false);
-
-    const charger = useCallback(() => {
-        setLoading(true);
-        setError(null);
-        let active = true;
-
-        (async () => {
-            try {
-                const payload = await fetchStockProduits({ limit: 100 });
-                if (!active) return;
-                setProduits(payload.items ?? []);
-            } catch {
-                if (active) {
-                    setError("Impossible de charger les produits.");
-                }
-            } finally {
-                if (active) setLoading(false);
-            }
-        })();
-
-        return () => {
-            active = false;
-        };
-    }, []);
-
-    useEffect(() => {
-        return charger();
-    }, [charger]);
 
     const produitsFiltres = produits.filter(p => {
         const q = recherche.toLowerCase();
@@ -260,10 +235,10 @@ function ListeProduits() {
             )}
 
             {modalProduit && (
-                <ModalAjoutProduit onClose={() => setModalProduit(false)} onSaved={charger} />
+                <ModalAjoutProduit onClose={() => setModalProduit(false)} onSaved={refresh} />
             )}
             {modalCategorie && (
-                <ModalAjoutCategorie onClose={() => setModalCategorie(false)} onSaved={charger} />
+                <ModalAjoutCategorie onClose={() => setModalCategorie(false)} onSaved={refresh} />
             )}
         </div>
     );

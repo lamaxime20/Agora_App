@@ -5,7 +5,9 @@ import {
     fetchStockRavitaillements,
     fetchStockPertes,
 } from "./gestionStock.js";
+import { readCache, writeCache, clearCache } from "./stockCache.js";
 
+// Cache mémoire intra-session (évite l'appel API lors d'une navigation rapide).
 const cache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
 
@@ -274,86 +276,89 @@ function normalizePertes(payload, items) {
 }
 
 export function useStatistiques(page) {
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [tick, setTick] = useState(0);
+    const [data,    setData]    = useState(() => readCache(`stats-${page}`));
+    const [loading, setLoading] = useState(() => !readCache(`stats-${page}`));
+    const [error,   setError]   = useState(null);
+    const [tick,    setTick]    = useState(0);
     const abortRef = useRef(null);
 
     const refresh = useCallback(() => {
         cache.delete(`stats-${page}`);
+        clearCache(`stats-${page}`);
         setTick((n) => n + 1);
     }, [page]);
 
     useEffect(() => {
-        const token = { alive: true };
-        abortRef.current = token;
-
-        const cached = getCached(`stats-${page}`);
-        if (cached) {
-            setData(cached);
+        // Couche 1 — cache mémoire intra-session : aucun appel réseau.
+        const memCached = getCached(`stats-${page}`);
+        if (memCached) {
+            setData(memCached);
             setLoading(false);
             setError(null);
-            return () => {
-                token.alive = false;
-            };
+            return;
         }
 
-        setLoading(true);
-        setError(null);
+        // Couche 2 — localStorage : affichage immédiat + rafraîchissement en arrière-plan.
+        const localCached = readCache(`stats-${page}`);
+        if (localCached) {
+            setData(localCached);
+            setLoading(false);
+            setCached(`stats-${page}`, localCached); // promotion en mémoire
+        } else {
+            setData(null);
+            setLoading(true);
+            setError(null);
+        }
+
+        const token = { alive: true };
+        abortRef.current = token;
 
         (async () => {
             try {
                 if (!token.alive) return;
 
+                let normalized;
+
                 if (page === "vueGenerale") {
                     const payload = await fetchStockStatistiques("vueGenerale");
-                    const normalized = normalizeVueGenerale(payload);
-                    setCached(`stats-${page}`, normalized);
-                    if (token.alive) setData(normalized);
+                    normalized = normalizeVueGenerale(payload);
                 } else if (page === "produits") {
                     const payload = await fetchStockStatistiques("produits");
-                    const normalized = normalizeProduits(payload);
-                    setCached(`stats-${page}`, normalized);
-                    if (token.alive) setData(normalized);
+                    normalized = normalizeProduits(payload);
                 } else if (page === "stock") {
                     const [stockPayload, produitsPayload, vueGeneralePayload] = await Promise.all([
                         fetchStockStatistiques("stock"),
                         fetchStockProduits({ limit: 100 }),
                         fetchStockStatistiques("vueGenerale"),
                     ]);
-                    const normalized = normalizeStock(
+                    normalized = normalizeStock(
                         {
                             ...stockPayload,
                             evolution_stock: vueGeneralePayload?.evolutionValeurStock ?? vueGeneralePayload?.evolution_valeur_stock ?? [],
                         },
                         produitsPayload.items ?? produitsPayload
                     );
-                    setCached(`stats-${page}`, normalized);
-                    if (token.alive) setData(normalized);
                 } else if (page === "reapprovisionnements") {
                     const [statsPayload, reapproPayload] = await Promise.all([
                         fetchStockStatistiques("reapprovisionnements"),
                         fetchStockRavitaillements({ limit: 100 }),
                     ]);
-                    const normalized = normalizeRavitaillements(statsPayload, reapproPayload.items ?? []);
-                    setCached(`stats-${page}`, normalized);
-                    if (token.alive) setData(normalized);
+                    normalized = normalizeRavitaillements(statsPayload, reapproPayload.items ?? []);
                 } else if (page === "pertes") {
                     const [statsPayload, pertesPayload] = await Promise.all([
                         fetchStockStatistiques("pertes"),
                         fetchStockPertes({ limit: 100 }),
                     ]);
-                    const normalized = normalizePertes(statsPayload, pertesPayload.items ?? []);
-                    setCached(`stats-${page}`, normalized);
-                    if (token.alive) setData(normalized);
+                    normalized = normalizePertes(statsPayload, pertesPayload.items ?? []);
                 } else {
                     throw new Error("Page de statistiques inconnue.");
                 }
+
+                setCached(`stats-${page}`, normalized);
+                writeCache(`stats-${page}`, normalized);
+                if (token.alive) { setData(normalized); setError(null); }
             } catch {
-                if (token.alive) {
-                    setError("Impossible de charger les statistiques.");
-                }
+                if (token.alive) setError("Impossible de charger les statistiques.");
             } finally {
                 if (token.alive) setLoading(false);
             }
