@@ -553,3 +553,24 @@ export async function fetchStockProductsForLookup() {
     const produits = payload?.data?.produits ?? [];
     return produits.map(normalizeProduct);
 }
+
+/**
+ * Récupère les détails complets d'un produit, y compris ses statistiques.
+ * @param {string} produitId - L'ID du produit à récupérer.
+ * @returns {Promise<Object>} Les données détaillées du produit.
+ */
+export async function fetchProduitDetail(produitId) {
+    if (!produitId) {
+        throw new Error("L'ID du produit est requis.");
+    }
+    try {
+        const response = await apiFetch(`stock/produits/${produitId}`);
+        const data = response.data;
+        console.log({data});
+        return response.data;
+    } catch (error) {
+        console.error(`Erreur lors de la récupération du produit ${produitId}:`, error);
+        // Propage l'erreur pour que le composant puisse la gérer
+        throw error;
+    }
+}

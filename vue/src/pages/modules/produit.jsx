@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
-    ArrowLeft, Package, AlertTriangle, Pencil, Trash2,
-    RefreshCcw, TrendingDown, Eye, X
+    ArrowLeft, Package, AlertTriangle, Pencil, Trash2, RefreshCcw,
+    TrendingDown, X, Loader
 } from "lucide-react";
-import produitsData  from "../../mockups/gestionStocks/produits.json";
-import detailData    from "../../mockups/gestionStocks/produit-detail.json";
+import { fetchProduitDetail } from "../../services/gestionStock.js";
 import ModalAjoutProduit from "../../components/modules/gestionStocks/produits/modalAjoutProduit.jsx";
 import "../../assets/styles/pages/produit.css";
 
@@ -239,18 +238,10 @@ function ModalSupprimer({ produit, onClose }) {
 
 function ProduitSkeleton() {
     return (
-        <div className="produitPage-root produitPage-skeleton">
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--color-surface-alt)" }} />
-                <div className="skeleton-line skeleton-line--lg" style={{ height: 20, width: 200 }} />
-            </div>
-            <div style={{ display: "flex", gap: "var(--space-6)", flexWrap: "wrap" }}>
-                <div style={{ width: 280, height: 280, borderRadius: "var(--radius-2xl)", background: "var(--color-surface-alt)", flexShrink: 0 }} />
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--space-4)", justifyContent: "center" }}>
-                    <div className="skeleton-line skeleton-line--lg" style={{ height: 28, width: "80%" }} />
-                    <div className="skeleton-line skeleton-line--md" style={{ height: 16 }} />
-                    <div className="skeleton-line skeleton-line--sm" style={{ height: 16 }} />
-                </div>
+        <div className="produitPage-root">
+            <div className="produitPage-skeleton-loader">
+                <Loader size={32} className="produitPage-skeleton-loader__icon" />
+                <p>Chargement du produit...</p>
             </div>
         </div>
     );
@@ -259,33 +250,40 @@ function ProduitSkeleton() {
 /* ─── Page Produit ───────────────────────────────────────────────────────────── */
 
 function ProduitPage() {
-    const { id }     = useParams();
-    const navigate   = useNavigate();
-
-    const [produit, setProduit]   = useState(null);
-    const [detail, setDetail]     = useState(null);
-    const [loading, setLoading]   = useState(true);
-    const [modal, setModal]       = useState(null);
+    const { id } = useParams();
+    const [detail, setDetail] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [modal, setModal] = useState(null);
 
     useEffect(() => {
-        const t = setTimeout(() => {
-            const found = produitsData.data.produits.find(p => p.id === id);
-            setProduit(found ?? null);
-            setDetail(detailData.data);
-            setLoading(false);
-        }, 700);
-        return () => clearTimeout(t);
+        const fetchProduct = () => {
+            setLoading(true);
+            setError(null);
+            fetchProduitDetail(id)
+                .then(data => {
+                    setDetail(data);
+                })
+                .catch(err => {
+                    console.error(err);
+                    setError("Impossible de charger les données du produit.");
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        };
+        fetchProduct();
     }, [id]);
 
     if (loading) return <ProduitSkeleton />;
-
-    if (!produit) {
+    
+    if (error || !detail?.produit) {
         return (
             <div className="produitPage-root">
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-4)", padding: "var(--space-16)", textAlign: "center" }}>
-                    <AlertTriangle size={48} color="var(--color-warning)" aria-hidden="true" />
-                    <h2>Produit introuvable</h2>
-                    <p style={{ color: "var(--color-text-muted)" }}>Ce produit n'existe pas ou a été supprimé.</p>
+                    <AlertTriangle size={48} color={error ? "var(--color-error)" : "var(--color-warning)"} aria-hidden="true" />
+                    <h2>{error ? "Erreur de chargement" : "Produit introuvable"}</h2>
+                    <p style={{ color: "var(--color-text-muted)" }}>{error || "Ce produit n'existe pas ou a été supprimé."}</p>
                     <Link to="/application/stock/produits" className="app-button app-button--primary">
                         Retour aux produits
                     </Link>
@@ -294,10 +292,10 @@ function ProduitPage() {
         );
     }
 
-    const estPhysique = produit.type === "physique";
-    const dispo       = Math.max(0, (produit.quantite_stock ?? 0) - (produit.stock_reserve ?? 0));
-    const stats       = detail?.statistiques;
-    const stock       = detail?.stock;
+    const { produit } = detail;
+    const estPhysique = produit.type_produit === "physique";
+    const stats = detail?.statistiques;
+    const stock = detail?.stock;
 
     return (
         <div className="produitPage-root">
@@ -327,12 +325,12 @@ function ProduitPage() {
                     <div className="produitPage-hero__meta">
                         <span className="produitPage-hero__meta-item">{produit.categorie.nom}</span>
                         <span className="produitPage-hero__meta-sep" aria-hidden="true">·</span>
-                        <span className="produitPage-hero__meta-item">Réf. {produit.reference}</span>
+                        <span className="produitPage-hero__meta-item">Réf. {produit.reference ?? produit.id}</span>
                         <span className="produitPage-hero__meta-sep" aria-hidden="true">·</span>
-                        <BadgeStatut statut={produit.statut} type={produit.type} />
+                        <BadgeStatut statut={produit.statut_disponibilite} type={produit.type_produit} />
                     </div>
                     <p className="produitPage-price">
-                        {produit.prix_unitaire.toLocaleString("fr-FR")} FCFA
+                        {(produit.prix_unitaire ?? 0).toLocaleString("fr-FR")} FCFA
                         {produit.unite && <span style={{ fontSize: "var(--text-sm)", fontWeight: 400, color: "var(--color-text-muted)" }}>  / {produit.unite}</span>}
                     </p>
                     {produit.description && (
@@ -347,15 +345,15 @@ function ProduitPage() {
                     <div className="produitPage-stock">
                         <div className="produitPage-stock__card produitPage-stock__card--actuel">
                             <span className="produitPage-stock__label">Stock actuel</span>
-                            <span className="produitPage-stock__value">{stock?.stock_actuel ?? produit.quantite_stock}</span>
+                            <span className="produitPage-stock__value">{produit?.stock_actuel ?? 0}</span>
                         </div>
                         <div className="produitPage-stock__card produitPage-stock__card--reserve">
                             <span className="produitPage-stock__label">Réservé</span>
-                            <span className="produitPage-stock__value">{stock?.stock_reserve ?? produit.stock_reserve ?? 0}</span>
+                            <span className="produitPage-stock__value">{produit?.stock_reserve ?? 0}</span>
                         </div>
                         <div className="produitPage-stock__card produitPage-stock__card--dispo">
                             <span className="produitPage-stock__label">Disponible</span>
-                            <span className="produitPage-stock__value">{stock?.stock_disponible ?? dispo}</span>
+                            <span className="produitPage-stock__value">{produit?.stock_disponible ?? 0}</span>
                         </div>
                     </div>
                 </section>
@@ -406,15 +404,15 @@ function ProduitPage() {
                     <div className="produitPage-stats-grid">
                         <div className="produitPage-stat-card">
                             <span className="produitPage-stat-card__label">Quantité vendue</span>
-                            <span className="produitPage-stat-card__value">{stats.quantite_vendue}</span>
+                            <span className="produitPage-stat-card__value">{stats.nb_ventes ?? 0}</span>
                         </div>
                         <div className="produitPage-stat-card">
                             <span className="produitPage-stat-card__label">Chiffre d'affaires</span>
-                            <span className="produitPage-stat-card__value">{stats.chiffre_affaires.toLocaleString("fr-FR")} FCFA</span>
+                            <span className="produitPage-stat-card__value">{(stats.ca_total ?? 0).toLocaleString("fr-FR")} FCFA</span>
                         </div>
                         <div className="produitPage-stat-card">
                             <span className="produitPage-stat-card__label">Commandes</span>
-                            <span className="produitPage-stat-card__value">{stats.nb_commandes}</span>
+                            <span className="produitPage-stat-card__value">{stats.nb_commandes ?? stats.nb_ventes ?? 0}</span>
                         </div>
                         {estPhysique && (
                             <>
@@ -424,26 +422,26 @@ function ProduitPage() {
                                 </div>
                                 <div className="produitPage-stat-card">
                                     <span className="produitPage-stat-card__label">Qté réapprovisionnée</span>
-                                    <span className="produitPage-stat-card__value">{stats.quantite_reapprovisionnee}</span>
+                                    <span className="produitPage-stat-card__value">{stats.quantite_reapprovisionnee ?? 0}</span>
                                 </div>
                                 <div className="produitPage-stat-card">
                                     <span className="produitPage-stat-card__label">Coût réappro.</span>
-                                    <span className="produitPage-stat-card__value">{stats.cout_reapprovisionnements.toLocaleString("fr-FR")} FCFA</span>
+                                    <span className="produitPage-stat-card__value">{(stats.montant_total_reappro ?? 0).toLocaleString("fr-FR")} FCFA</span>
                                 </div>
                                 <div className="produitPage-stat-card">
                                     <span className="produitPage-stat-card__label">Quantité perdue</span>
-                                    <span className="produitPage-stat-card__value">{stats.quantite_perdue}</span>
+                                    <span className="produitPage-stat-card__value">{stats.quantite_perdue_totale ?? 0}</span>
                                 </div>
                                 <div className="produitPage-stat-card">
                                     <span className="produitPage-stat-card__label">Valeur pertes</span>
-                                    <span className="produitPage-stat-card__value">{stats.valeur_perdue.toLocaleString("fr-FR")} FCFA</span>
+                                    <span className="produitPage-stat-card__value">{(stats.valeur_perdue ?? 0).toLocaleString("fr-FR")} FCFA</span>
                                 </div>
                             </>
                         )}
                     </div>
 
                     {/* Graphiques */}
-                    {detail?.evolution_7j && (
+                    {detail?.evolution_stock_7j && (
                         <div className="produitPage-charts">
                             <LineChart points={detail.evolution_7j}  label="Ventes — 7 derniers jours" />
                             <LineChart points={detail.evolution_30j} label="Ventes — 30 derniers jours" />
