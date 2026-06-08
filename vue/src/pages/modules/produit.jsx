@@ -323,7 +323,7 @@ function ProduitPage() {
                 <div className="produitPage-hero__info">
                     <h2 className="produitPage-hero__name">{produit.nom}</h2>
                     <div className="produitPage-hero__meta">
-                        <span className="produitPage-hero__meta-item">{produit.categorie.nom}</span>
+                        <span className="produitPage-hero__meta-item">{produit.categorie.categorie}</span>
                         <span className="produitPage-hero__meta-sep" aria-hidden="true">·</span>
                         <span className="produitPage-hero__meta-item">Réf. {produit.reference ?? produit.id}</span>
                         <span className="produitPage-hero__meta-sep" aria-hidden="true">·</span>
@@ -331,7 +331,7 @@ function ProduitPage() {
                     </div>
                     <p className="produitPage-price">
                         {(produit.prix_unitaire ?? 0).toLocaleString("fr-FR")} FCFA
-                        {produit.unite && <span style={{ fontSize: "var(--text-sm)", fontWeight: 400, color: "var(--color-text-muted)" }}>  / {produit.unite}</span>}
+                        {produit.unite_mesure && <span style={{ fontSize: "var(--text-sm)", fontWeight: 400, color: "var(--color-text-muted)" }}>  / {produit.unite_mesure}</span>}
                     </p>
                     {produit.description && (
                         <p className="produitPage-description">{produit.description}</p>

@@ -375,12 +375,11 @@ class StockProduitController extends StockBaseController
                 }
             }
 
-            DB::transaction(function () use ($request, $produit, $fields, $newImageUrl, $user, $entreprise, &$changes) {
+            try {
                 foreach ($fields as $field => $value) {
                     if ($value === null) {
                         continue;
                     }
-
                     $oldValue = $produit->{$field};
                     if ((string) $oldValue === (string) $value) {
                         continue;
@@ -399,20 +398,29 @@ class StockProduitController extends StockBaseController
                 $produit->date_modification = now();
                 $produit->save();
 
-                foreach ($changes as $field => [$oldValue, $newValue]) {
                     $this->history($this->productHistoryPayload(
                         'mise_a_jour',
                         'produits',
                         $produit->id,
                         'Mise à jour du champ ' . $field . '.',
                         (string) $oldValue,
-                        (string) $newValue,
+                        (string) $value,
                         $request,
                         $user,
                         $entreprise->id
                     ));
+            } catch (\Throwable $e) {
+                // Annulation manuelle en cas d'erreur
+                if ($storedImagePath) {
+                    Storage::disk('public')->delete($storedImagePath);
                 }
-            });
+                // Restaurer les anciennes valeurs
+                foreach ($changes as $field => [$oldValue, $newValue]) {
+                    $produit->{$field} = $oldValue;
+                }
+                $produit->save(); // Sauvegarder la restauration
+                throw $e; // Renvoyer l'exception pour qu'elle soit loggée
+            }
 
             if ($produit->type_produit === 'physique' && (float) $produit->stock_actuel <= (float) $produit->seuil_alerte) {
                 // TODO: créer la notification de stock faible mise à jour ici.
