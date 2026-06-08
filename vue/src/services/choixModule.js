@@ -36,6 +36,15 @@ export const modules = [
         roles: ['directeur', 'manager_rh', 'employe_rh'],
     },
     {
+        name: 'Livraison',
+        description: 'Livraisons, livreurs et suivi logistique',
+        icon: 'Truck',
+        color: '#0EA5E9',
+        colorRgb: '14, 165, 233',
+        route: '/application/livraison',
+        roles: ['directeur', 'manager_livraison', 'employe_livreur'],
+    },
+    {
         name: 'Paramètres',
         description: "Configuration de l'entreprise",
         icon: 'Settings',

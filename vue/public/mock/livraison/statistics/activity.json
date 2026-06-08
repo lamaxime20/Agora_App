@@ -1,0 +1,35 @@
+{
+  "parJour": [
+    { "jour": "Lun", "livrees": 42, "echecs": 3, "retours": 1 },
+    { "jour": "Mar", "livrees": 58, "echecs": 2, "retours": 2 },
+    { "jour": "Mer", "livrees": 51, "echecs": 4, "retours": 1 },
+    { "jour": "Jeu", "livrees": 67, "echecs": 1, "retours": 3 },
+    { "jour": "Ven", "livrees": 49, "echecs": 3, "retours": 0 },
+    { "jour": "Sam", "livrees": 28, "echecs": 2, "retours": 1 },
+    { "jour": "Dim", "livrees": 15, "echecs": 1, "retours": 0 }
+  ],
+  "parSemaine": [
+    { "semaine": "S1",   "livrees": 180, "echecs": 12, "retours": 5 },
+    { "semaine": "S2",   "livrees": 210, "echecs": 8,  "retours": 4 },
+    { "semaine": "S3",   "livrees": 195, "echecs": 10, "retours": 6 },
+    { "semaine": "S4",   "livrees": 227, "echecs": 9,  "retours": 3 }
+  ],
+  "parMois": [
+    { "mois": "Jan", "livrees": 680 },
+    { "mois": "Fév", "livrees": 720 },
+    { "mois": "Mar", "livrees": 695 },
+    { "mois": "Avr", "livrees": 810 },
+    { "mois": "Mai", "livrees": 856 },
+    { "mois": "Jun", "livrees": 495 }
+  ],
+  "joursActifs": [
+    { "date": "2026-06-01", "count": 45 },
+    { "date": "2026-06-02", "count": 62 },
+    { "date": "2026-06-03", "count": 38 },
+    { "date": "2026-06-04", "count": 71 },
+    { "date": "2026-06-05", "count": 55 },
+    { "date": "2026-06-06", "count": 29 },
+    { "date": "2026-06-07", "count": 18 },
+    { "date": "2026-06-08", "count": 34 }
+  ]
+}

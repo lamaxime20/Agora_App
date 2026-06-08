@@ -1,0 +1,13 @@
+{
+  "data": [
+    { "id": "user1", "nom": "Paul Mbarga",   "livraisons": 542, "success": 512, "failures": 20, "returns": 10, "successRate": 94.5, "tempsMoyenMin": 82 },
+    { "id": "user2", "nom": "Jean Fotso",    "livraisons": 487, "success": 451, "failures": 22, "returns": 14, "successRate": 92.6, "tempsMoyenMin": 95 },
+    { "id": "user3", "nom": "Marc Nkomo",    "livraisons": 398, "success": 385, "failures": 8,  "returns": 5,  "successRate": 96.7, "tempsMoyenMin": 78 },
+    { "id": "user4", "nom": "Sara Bella",    "livraisons": 621, "success": 576, "failures": 30, "returns": 15, "successRate": 92.7, "tempsMoyenMin": 91 },
+    { "id": "user5", "nom": "Alain Tagne",   "livraisons": 285, "success": 278, "failures": 5,  "returns": 2,  "successRate": 97.5, "tempsMoyenMin": 72 },
+    { "id": "user6", "nom": "Cédric Nnanga", "livraisons": 123, "success": 108, "failures": 13, "returns": 2,  "successRate": 87.8, "tempsMoyenMin": 105 }
+  ],
+  "meilleurLivreur": "Alain Tagne",
+  "plusRapide": "Alain Tagne",
+  "plusActif": "Sara Bella"
+}

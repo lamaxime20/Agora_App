@@ -1,0 +1,182 @@
+/* ─── Backdrop ───────────────────────────────────────────────────────────────── */
+
+.deliveryDrawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.40);
+    z-index: calc(var(--z-modal) - 1);
+    animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+/* ─── Drawer ─────────────────────────────────────────────────────────────────── */
+
+.deliveryDrawer-root {
+    position: fixed;
+    z-index: var(--z-modal);
+    background: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: drawerSlideUp var(--duration-normal) var(--ease-out);
+}
+
+/* Mobile : plein écran bas → haut */
+@media (max-width: 1024px) {
+    .deliveryDrawer-root {
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-height: 92dvh;
+        border-radius: 24px 24px 0 0;
+    }
+}
+
+/* Desktop : panneau latéral droit */
+@media (min-width: 1025px) {
+    .deliveryDrawer-root {
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 520px;
+        animation: drawerSlideRight var(--duration-normal) var(--ease-out);
+    }
+}
+
+@keyframes drawerSlideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+@keyframes drawerSlideRight {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────────── */
+
+.deliveryDrawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.deliveryDrawer-header__info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.deliveryDrawer-header__numero {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    color: var(--color-accent);
+}
+
+.deliveryDrawer-header__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.deliveryDrawer-header__close:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+}
+
+/* ─── Corps ──────────────────────────────────────────────────────────────────── */
+
+.deliveryDrawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+/* ─── Section ────────────────────────────────────────────────────────────────── */
+
+.deliveryDrawer-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.deliveryDrawer-section__title {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* ─── DL (definition list) ───────────────────────────────────────────────────── */
+
+.deliveryDrawer-dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-2) var(--space-4);
+}
+
+.deliveryDrawer-dl dt {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
+.deliveryDrawer-dl dd {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    margin: 0;
+    word-break: break-word;
+}
+
+.deliveryDrawer-dl__amount {
+    font-weight: var(--weight-bold);
+    color: var(--color-accent);
+}
+
+.deliveryDrawer-dl__motif {
+    color: var(--color-error);
+}
+
+/* ─── Produits ───────────────────────────────────────────────────────────────── */
+
+.deliveryDrawer-produits {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    list-style: none;
+}
+
+.deliveryDrawer-produit {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+}
+
+.deliveryDrawer-produit__icon { color: var(--color-text-muted); flex-shrink: 0; }
+.deliveryDrawer-produit__nom  { flex: 1; font-size: var(--text-sm); color: var(--color-text); }
+.deliveryDrawer-produit__qty  { font-size: var(--text-sm); color: var(--color-text-muted); }
+.deliveryDrawer-produit__prix { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-accent); }

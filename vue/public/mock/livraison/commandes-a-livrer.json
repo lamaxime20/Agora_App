@@ -1,0 +1,29 @@
+{
+  "data": [
+    { "id": "cmd1",  "numero": "CMD-1011", "client": "Alice Ngono",    "montant": 45000,  "date": "2026-06-07", "etatPaiement": "valide" },
+    { "id": "cmd2",  "numero": "CMD-1012", "client": "Bernard Essama", "montant": 28500,  "date": "2026-06-07", "etatPaiement": "valide" },
+    { "id": "cmd3",  "numero": "CMD-1013", "client": "Claire Abena",   "montant": 67000,  "date": "2026-06-06", "etatPaiement": "partiel" },
+    { "id": "cmd4",  "numero": "CMD-1014", "client": "David Mfoula",   "montant": 15000,  "date": "2026-06-06", "etatPaiement": "valide" },
+    { "id": "cmd5",  "numero": "CMD-1015", "client": "Eva Owona",      "montant": 89000,  "date": "2026-06-05", "etatPaiement": "valide" },
+    { "id": "cmd6",  "numero": "CMD-1016", "client": "François Ateba", "montant": 32000,  "date": "2026-06-05", "etatPaiement": "partiel" },
+    { "id": "cmd7",  "numero": "CMD-1017", "client": "Grace Nkeng",    "montant": 54500,  "date": "2026-06-04", "etatPaiement": "valide" },
+    { "id": "cmd8",  "numero": "CMD-1018", "client": "Henri Biyong",   "montant": 21000,  "date": "2026-06-04", "etatPaiement": "valide" },
+    { "id": "cmd9",  "numero": "CMD-1019", "client": "Irène Mendomo",  "montant": 76500,  "date": "2026-06-03", "etatPaiement": "partiel" },
+    { "id": "cmd10", "numero": "CMD-1020", "client": "Jules Ekambi",   "montant": 38000,  "date": "2026-06-03", "etatPaiement": "valide" },
+    { "id": "cmd11", "numero": "CMD-1021", "client": "Karen Ntsama",   "montant": 92000,  "date": "2026-06-02", "etatPaiement": "valide" },
+    { "id": "cmd12", "numero": "CMD-1022", "client": "Louis Beyeme",   "montant": 17500,  "date": "2026-06-02", "etatPaiement": "valide" },
+    { "id": "cmd13", "numero": "CMD-1023", "client": "Marie Nkoa",     "montant": 43000,  "date": "2026-06-01", "etatPaiement": "valide" },
+    { "id": "cmd14", "numero": "CMD-1024", "client": "Nicolas Elong",  "montant": 61500,  "date": "2026-06-01", "etatPaiement": "partiel" },
+    { "id": "cmd15", "numero": "CMD-1025", "client": "Odile Manga",    "montant": 29000,  "date": "2026-05-31", "etatPaiement": "valide" },
+    { "id": "cmd16", "numero": "CMD-1026", "client": "Pierre Nkemelu", "montant": 83000,  "date": "2026-05-31", "etatPaiement": "valide" },
+    { "id": "cmd17", "numero": "CMD-1027", "client": "Quentin Abolo",  "montant": 25500,  "date": "2026-05-30", "etatPaiement": "valide" },
+    { "id": "cmd18", "numero": "CMD-1028", "client": "Rachel Oyono",   "montant": 58000,  "date": "2026-05-30", "etatPaiement": "partiel" },
+    { "id": "cmd19", "numero": "CMD-1029", "client": "Samuel Bello",   "montant": 11000,  "date": "2026-05-29", "etatPaiement": "valide" },
+    { "id": "cmd20", "numero": "CMD-1030", "client": "Thérèse Ondoa",  "montant": 47000,  "date": "2026-05-29", "etatPaiement": "valide" }
+  ],
+  "pagination": {
+    "page": 1,
+    "totalPages": 8,
+    "total": 156
+  }
+}

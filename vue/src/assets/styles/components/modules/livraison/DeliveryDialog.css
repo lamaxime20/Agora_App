@@ -1,0 +1,305 @@
+/* ─── Backdrop ───────────────────────────────────────────────────────────────── */
+
+.deliveryDialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: calc(var(--z-modal) + 1);
+    animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+/* ─── Sheet (bottom sheet mobile / modal desktop) ───────────────────────────── */
+
+.deliveryDialog-sheet {
+    position: fixed;
+    z-index: calc(var(--z-modal) + 2);
+    background: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+    .deliveryDialog-sheet {
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-height: 75vh;
+        border-radius: 24px 24px 0 0;
+        animation: dialogSlideUp var(--duration-normal) var(--ease-out);
+    }
+    .deliveryDialog-sheet--sm  { max-height: 45vh; }
+    .deliveryDialog-sheet--lg  { max-height: 85vh; }
+}
+
+@media (min-width: 1025px) {
+    .deliveryDialog-sheet {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 520px;
+        max-height: 80vh;
+        border-radius: var(--radius-2xl);
+        box-shadow: var(--shadow-xl);
+        animation: scaleIn var(--duration-normal) var(--ease-out);
+    }
+    .deliveryDialog-sheet--sm  { width: 420px; }
+}
+
+@keyframes dialogSlideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────────── */
+
+.deliveryDialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.deliveryDialog-title {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    color: var(--color-accent);
+    margin: 0;
+}
+
+.deliveryDialog-subtitle {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-3);
+}
+
+.deliveryDialog-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color var(--duration-fast), color var(--duration-fast);
+}
+
+.deliveryDialog-close:hover { background: var(--color-border); color: var(--color-text); }
+
+/* ─── Body ───────────────────────────────────────────────────────────────────── */
+
+.deliveryDialog-body {
+    flex: 1;
+    padding: var(--space-5);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.deliveryDialog-body--centered {
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+}
+
+/* ─── Icon (validation, etc.) ────────────────────────────────────────────────── */
+
+.deliveryDialog-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.deliveryDialog-icon--success { background: rgba(39,174,96,.12);  color: var(--color-success); }
+.deliveryDialog-icon--danger  { background: rgba(231,76,60,.12);   color: var(--color-error);   }
+.deliveryDialog-icon--primary { background: rgba(243,156,18,.12);  color: var(--color-primary); }
+.deliveryDialog-icon--warning { background: rgba(241,196,15,.12);  color: var(--color-warning); }
+
+.deliveryDialog-message {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    line-height: var(--line-height-relaxed);
+    max-width: 320px;
+}
+
+/* ─── Search ─────────────────────────────────────────────────────────────────── */
+
+.deliveryDialog-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.deliveryDialog-search__icon {
+    position: absolute;
+    left: var(--space-3);
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.deliveryDialog-search__input {
+    width: 100%;
+    height: 44px;
+    padding: 0 var(--space-3) 0 calc(var(--space-3) + 20px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    background: var(--color-surface);
+    outline: none;
+    transition: border-color var(--duration-fast);
+}
+
+.deliveryDialog-search__input:focus { border-color: var(--color-primary); }
+
+/* ─── Drivers list ───────────────────────────────────────────────────────────── */
+
+.deliveryDialog-drivers {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    overflow-y: auto;
+    max-height: 40vh;
+}
+
+.deliveryDialog-driver {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    cursor: pointer;
+    text-align: left;
+    transition:
+        border-color var(--duration-fast),
+        background var(--duration-fast);
+}
+
+.deliveryDialog-driver:hover { border-color: var(--color-primary-light); background: var(--color-primary-light); }
+.deliveryDialog-driver--selected { border-color: var(--color-primary); background: rgba(243,156,18,.06); }
+
+.deliveryDialog-driver__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-surface-alt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.deliveryDialog-driver--selected .deliveryDialog-driver__avatar { background: rgba(243,156,18,.15); color: var(--color-primary); }
+
+.deliveryDialog-driver__info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.deliveryDialog-driver__name { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-text); }
+.deliveryDialog-driver__phone { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+.deliveryDialog-driver__count {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ─── Textarea ───────────────────────────────────────────────────────────────── */
+
+.deliveryDialog-textarea {
+    width: 100%;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    background: var(--color-surface);
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
+    transition: border-color var(--duration-fast);
+}
+
+.deliveryDialog-textarea:focus { border-color: var(--color-primary); }
+
+.deliveryDialog-hint { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+/* ─── Errors & states ────────────────────────────────────────────────────────── */
+
+.deliveryDialog-error { font-size: var(--text-sm); color: var(--color-error); }
+.deliveryDialog-empty { font-size: var(--text-sm); color: var(--color-text-muted); text-align: center; padding: var(--space-4); }
+
+.deliveryDialog-loading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.deliveryDialog-loading__spin { animation: spin 1s linear infinite; }
+
+/* ─── Footer ─────────────────────────────────────────────────────────────────── */
+
+.deliveryDialog-footer {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+/* ─── Boutons dialog ─────────────────────────────────────────────────────────── */
+
+.deliveryDialog-btn {
+    flex: 1;
+    height: 44px;
+    border: none;
+    border-radius: var(--radius-xl);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        opacity var(--duration-fast);
+}
+
+.deliveryDialog-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.deliveryDialog-btn--ghost   { background: var(--color-surface-alt); color: var(--color-text-muted); }
+.deliveryDialog-btn--ghost:hover:not(:disabled) { background: var(--color-border); }
+
+.deliveryDialog-btn--primary { background: var(--color-primary); color: #fff; }
+.deliveryDialog-btn--primary:hover:not(:disabled) { background: var(--color-primary-hover); }
+
+.deliveryDialog-btn--success { background: var(--color-success); color: #fff; }
+.deliveryDialog-btn--success:hover:not(:disabled) { background: #229954; }
+
+.deliveryDialog-btn--danger  { background: var(--color-error); color: #fff; }
+.deliveryDialog-btn--danger:hover:not(:disabled) { background: #CB4335; }
+
+.deliveryDialog-btn--warning { background: var(--color-warning); color: var(--color-accent); }
+.deliveryDialog-btn--warning:hover:not(:disabled) { background: #D4AC0D; }

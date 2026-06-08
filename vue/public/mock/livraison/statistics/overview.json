@@ -1,0 +1,27 @@
+{
+  "kpis": {
+    "total": 2456,
+    "success": 2310,
+    "failures": 98,
+    "returns": 48,
+    "successRate": 94.1,
+    "livreursActifs": 6,
+    "aujourd_hui": 34,
+    "cette_semaine": 187,
+    "ce_mois": 812,
+    "tempsMoyenMinutes": 87
+  },
+  "evolution": [
+    { "mois": "Jan", "livrees": 180, "echecs": 12, "retours": 5 },
+    { "mois": "Fév", "livrees": 210, "echecs": 8,  "retours": 4 },
+    { "mois": "Mar", "livrees": 195, "echecs": 10, "retours": 6 },
+    { "mois": "Avr", "livrees": 230, "echecs": 9,  "retours": 3 },
+    { "mois": "Mai", "livrees": 245, "echecs": 11, "retours": 7 },
+    { "mois": "Jun", "livrees": 198, "echecs": 7,  "retours": 4 }
+  ],
+  "repartitionStatuts": {
+    "livrees": 2310,
+    "echecs": 98,
+    "retours": 48
+  }
+}

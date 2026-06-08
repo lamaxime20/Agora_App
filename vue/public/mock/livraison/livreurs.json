@@ -1,0 +1,10 @@
+{
+  "data": [
+    { "id": "user1", "nom": "Paul Mbarga",   "telephone": "690001234", "livraisonsEnCours": 3 },
+    { "id": "user2", "nom": "Jean Fotso",    "telephone": "691002345", "livraisonsEnCours": 2 },
+    { "id": "user3", "nom": "Marc Nkomo",    "telephone": "692003456", "livraisonsEnCours": 1 },
+    { "id": "user4", "nom": "Sara Bella",    "telephone": "693004567", "livraisonsEnCours": 4 },
+    { "id": "user5", "nom": "Alain Tagne",   "telephone": "694005678", "livraisonsEnCours": 0 },
+    { "id": "user6", "nom": "Cédric Nnanga", "telephone": "695006789", "livraisonsEnCours": 2 }
+  ]
+}

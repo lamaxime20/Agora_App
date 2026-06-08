@@ -1,0 +1,30 @@
+{
+  "data": [
+    {
+      "id": "liv006", "numero": "LIV-0006", "commande": "CMD-1006", "client": "François Ateba",
+      "telephone": "677123456", "adresse": "Essos, Yaoundé, face à la station Total",
+      "montant": 32000, "statut": "en_cours",
+      "dateCreation": "2026-06-08T07:00:00", "dateLancement": "2026-06-08T09:30:00",
+      "produits": [{ "nom": "Clavier mécanique", "quantite": 1, "prix": 32000 }]
+    },
+    {
+      "id": "liv008", "numero": "LIV-0008", "commande": "CMD-1008", "client": "Henri Biyong",
+      "telephone": "677987654", "adresse": "Djoungolo, Yaoundé, derrière l'église",
+      "montant": 21000, "statut": "en_cours",
+      "dateCreation": "2026-06-08T08:00:00", "dateLancement": null,
+      "produits": [{ "nom": "Souris sans fil", "quantite": 3, "prix": 7000 }]
+    },
+    {
+      "id": "liv010", "numero": "LIV-0010", "commande": "CMD-1010", "client": "Jules Ekambi",
+      "telephone": "699456789", "adresse": "Ngousso, Yaoundé",
+      "montant": 38000, "statut": "en_cours",
+      "dateCreation": "2026-06-08T09:00:00", "dateLancement": null,
+      "produits": [{ "nom": "Webcam HD", "quantite": 2, "prix": 19000 }]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 3
+  }
+}

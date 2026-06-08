@@ -1,0 +1,79 @@
+/* ─── BottomNav Livraison ────────────────────────────────────────────────────── */
+
+.livraisonBottomNav-root {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    display: flex;
+    align-items: stretch;
+    background-color: #FFFFFF;
+    border-top: 1px solid #E5E7EB;
+    z-index: var(--z-sticky);
+    padding: 0 var(--space-2);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.livraisonBottomNav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    text-decoration: none;
+    padding: var(--space-2) var(--space-1);
+    border-radius: var(--radius-xl);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.livraisonBottomNav-item__pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 26px;
+    border-radius: var(--radius-full);
+    transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.livraisonBottomNav-item__icon {
+    color: #9CA3AF;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.livraisonBottomNav-item__label {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: var(--weight-medium);
+    color: #9CA3AF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 72px;
+    text-align: center;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.livraisonBottomNav-item--active .livraisonBottomNav-item__pill { background-color: #FFF4E5; }
+.livraisonBottomNav-item--active .livraisonBottomNav-item__icon { color: #F39C12; }
+.livraisonBottomNav-item--active .livraisonBottomNav-item__label {
+    color: #F39C12;
+    font-weight: var(--weight-semibold);
+}
+
+@media (hover: hover) {
+    .livraisonBottomNav-item:not(.livraisonBottomNav-item--active):hover .livraisonBottomNav-item__pill {
+        background-color: #F5F5F5;
+    }
+    .livraisonBottomNav-item:not(.livraisonBottomNav-item--active):hover .livraisonBottomNav-item__icon,
+    .livraisonBottomNav-item:not(.livraisonBottomNav-item--active):hover .livraisonBottomNav-item__label {
+        color: #4B5563;
+    }
+}
+
+@media (min-width: 1025px) {
+    .livraisonBottomNav-root { display: none; }
+}

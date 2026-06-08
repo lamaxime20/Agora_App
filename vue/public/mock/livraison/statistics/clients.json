@@ -1,0 +1,16 @@
+{
+  "kpis": {
+    "clientPlusLivre": "Eva Owona",
+    "clientPlusRetours": "Bernard Essama",
+    "clientPlusFidele": "Alice Ngono"
+  },
+  "data": [
+    { "client": "Alice Ngono",    "commandes": 45, "livraisons": 43, "retours": 1,  "echecs": 1  },
+    { "client": "Eva Owona",      "commandes": 67, "livraisons": 61, "retours": 3,  "echecs": 3  },
+    { "client": "François Ateba", "commandes": 23, "livraisons": 20, "retours": 2,  "echecs": 1  },
+    { "client": "Bernard Essama", "commandes": 38, "livraisons": 30, "retours": 6,  "echecs": 2  },
+    { "client": "Claire Abena",   "commandes": 19, "livraisons": 18, "retours": 0,  "echecs": 1  },
+    { "client": "David Mfoula",   "commandes": 12, "livraisons": 10, "retours": 2,  "echecs": 0  }
+  ],
+  "pagination": { "page": 1, "limit": 20, "total": 124 }
+}

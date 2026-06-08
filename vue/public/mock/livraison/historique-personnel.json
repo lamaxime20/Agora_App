@@ -1,0 +1,38 @@
+{
+  "data": [
+    {
+      "id": "liv001", "numero": "LIV-0001", "commande": "CMD-1001", "client": "Alice Ngono",
+      "montant": 45000, "statut": "livree",
+      "dateCreation": "2026-06-01T08:00:00", "dateLancement": "2026-06-01T09:15:00", "dateLivraison": "2026-06-01T11:30:00",
+      "adresse": "Bastos, Yaoundé",
+      "produits": [{ "nom": "Téléphone Android", "quantite": 1, "prix": 45000 }]
+    },
+    {
+      "id": "liv004", "numero": "LIV-0004", "commande": "CMD-1004", "client": "David Mfoula",
+      "montant": 15000, "statut": "retour",
+      "dateCreation": "2026-06-03T07:45:00", "dateLancement": "2026-06-03T09:00:00", "dateLivraison": null,
+      "motif": "Client refuse la commande - produit non conforme",
+      "adresse": "Emana, Yaoundé",
+      "produits": [{ "nom": "Casque Bluetooth", "quantite": 2, "prix": 7500 }]
+    },
+    {
+      "id": "liv005", "numero": "LIV-0005", "commande": "CMD-1005", "client": "Eva Owona",
+      "montant": 89000, "statut": "livree",
+      "dateCreation": "2026-06-03T10:00:00", "dateLancement": "2026-06-03T11:15:00", "dateLivraison": "2026-06-03T14:00:00",
+      "adresse": "Biyem-Assi, Yaoundé",
+      "produits": [{ "nom": "Tablette", "quantite": 1, "prix": 55000 }, { "nom": "Housse protection", "quantite": 1, "prix": 34000 }]
+    },
+    {
+      "id": "liv009", "numero": "LIV-0009", "commande": "CMD-1009", "client": "Irène Mendomo",
+      "montant": 76500, "statut": "livree",
+      "dateCreation": "2026-06-05T08:00:00", "dateLancement": "2026-06-05T09:30:00", "dateLivraison": "2026-06-05T12:00:00",
+      "adresse": "Mfoundi, Yaoundé",
+      "produits": [{ "nom": "Routeur WiFi", "quantite": 3, "prix": 25500 }]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 47
+  }
+}

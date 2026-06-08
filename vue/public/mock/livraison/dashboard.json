@@ -1,0 +1,36 @@
+{
+  "kpis": {
+    "enCours": 12,
+    "livrees": 34,
+    "echecs": 2,
+    "retours": 1,
+    "tauxReussite": 94,
+    "livreursActifs": 6
+  },
+  "activiteRecente": [
+    { "id": "liv001", "commande": "CMD-1001", "livreur": "Paul Mbarga", "statut": "en_cours", "heure": "10:35" },
+    { "id": "liv002", "commande": "CMD-1002", "livreur": "Jean Fotso", "statut": "livree",   "heure": "10:12" },
+    { "id": "liv003", "commande": "CMD-1003", "livreur": "Marc Nkomo", "statut": "en_cours", "heure": "09:58" },
+    { "id": "liv004", "commande": "CMD-1004", "livreur": "Paul Mbarga", "statut": "echec",   "heure": "09:44" },
+    { "id": "liv005", "commande": "CMD-1005", "livreur": "Sara Bella",  "statut": "livree",   "heure": "09:30" },
+    { "id": "liv006", "commande": "CMD-1006", "livreur": "Jean Fotso",  "statut": "retour",   "heure": "09:15" },
+    { "id": "liv007", "commande": "CMD-1007", "livreur": "Marc Nkomo",  "statut": "livree",   "heure": "08:55" },
+    { "id": "liv008", "commande": "CMD-1008", "livreur": "Sara Bella",  "statut": "en_cours", "heure": "08:40" },
+    { "id": "liv009", "commande": "CMD-1009", "livreur": "Paul Mbarga", "statut": "livree",   "heure": "08:20" },
+    { "id": "liv010", "commande": "CMD-1010", "livreur": "Jean Fotso",  "statut": "livree",   "heure": "08:05" }
+  ],
+  "graphiqueJours": [
+    { "jour": "Lun", "livrees": 8,  "echecs": 1, "retours": 0 },
+    { "jour": "Mar", "livrees": 12, "echecs": 0, "retours": 1 },
+    { "jour": "Mer", "livrees": 9,  "echecs": 2, "retours": 0 },
+    { "jour": "Jeu", "livrees": 15, "echecs": 1, "retours": 2 },
+    { "jour": "Ven", "livrees": 11, "echecs": 0, "retours": 0 },
+    { "jour": "Sam", "livrees": 6,  "echecs": 1, "retours": 0 },
+    { "jour": "Dim", "livrees": 4,  "echecs": 0, "retours": 0 }
+  ],
+  "repartitionStatuts": {
+    "livrees": 65,
+    "retours": 12,
+    "echecs": 23
+  }
+}

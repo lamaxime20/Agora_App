@@ -1,0 +1,17 @@
+{
+  "kpis": {
+    "total": 98,
+    "taux": 3.99,
+    "clientsAbsents": 45,
+    "adresseIncorrecte": 21,
+    "telephoneInjoignable": 18,
+    "autres": 14
+  },
+  "data": [
+    { "motif": "Client absent", "count": 45, "pourcentage": 45.9 },
+    { "motif": "Adresse introuvable", "count": 21, "pourcentage": 21.4 },
+    { "motif": "Téléphone injoignable", "count": 18, "pourcentage": 18.4 },
+    { "motif": "Refus de réception", "count": 8, "pourcentage": 8.2 },
+    { "motif": "Autres", "count": 6, "pourcentage": 6.1 }
+  ]
+}

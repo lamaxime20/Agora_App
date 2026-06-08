@@ -1,0 +1,67 @@
+{
+  "data": [
+    {
+      "id": "liv001", "numero": "LIV-0001", "commande": "CMD-1001", "client": "Alice Ngono",
+      "livreur": "Paul Mbarga", "statut": "livree",
+      "dateCreation": "2026-06-01T08:00:00", "dateLancement": "2026-06-01T09:15:00", "dateLivraison": "2026-06-01T11:30:00",
+      "montant": 45000, "adresse": "Bastos, Yaoundé",
+      "produits": [{ "nom": "Téléphone Android", "quantite": 1, "prix": 45000 }]
+    },
+    {
+      "id": "liv002", "numero": "LIV-0002", "commande": "CMD-1002", "client": "Bernard Essama",
+      "livreur": "Jean Fotso", "statut": "echec",
+      "dateCreation": "2026-06-02T08:30:00", "dateLancement": "2026-06-02T10:00:00", "dateLivraison": null,
+      "motif": "Client absent au moment de la livraison",
+      "montant": 28500, "adresse": "Mvan, Yaoundé",
+      "produits": [{ "nom": "Imprimante", "quantite": 1, "prix": 28500 }]
+    },
+    {
+      "id": "liv003", "numero": "LIV-0003", "commande": "CMD-1003", "client": "Claire Abena",
+      "livreur": "Marc Nkomo", "statut": "livree",
+      "dateCreation": "2026-06-02T09:00:00", "dateLancement": "2026-06-02T10:30:00", "dateLivraison": "2026-06-02T13:00:00",
+      "montant": 67000, "adresse": "Nlongkak, Yaoundé",
+      "produits": [{ "nom": "Ordinateur portable", "quantite": 1, "prix": 67000 }]
+    },
+    {
+      "id": "liv004", "numero": "LIV-0004", "commande": "CMD-1004", "client": "David Mfoula",
+      "livreur": "Sara Bella", "statut": "retour",
+      "dateCreation": "2026-06-03T07:45:00", "dateLancement": "2026-06-03T09:00:00", "dateLivraison": null,
+      "motif": "Client refuse la commande - produit non conforme",
+      "montant": 15000, "adresse": "Emana, Yaoundé",
+      "produits": [{ "nom": "Casque Bluetooth", "quantite": 2, "prix": 7500 }]
+    },
+    {
+      "id": "liv005", "numero": "LIV-0005", "commande": "CMD-1005", "client": "Eva Owona",
+      "livreur": "Paul Mbarga", "statut": "livree",
+      "dateCreation": "2026-06-03T10:00:00", "dateLancement": "2026-06-03T11:15:00", "dateLivraison": "2026-06-03T14:00:00",
+      "montant": 89000, "adresse": "Biyem-Assi, Yaoundé",
+      "produits": [{ "nom": "Tablette", "quantite": 1, "prix": 55000 }, { "nom": "Housse protection", "quantite": 1, "prix": 34000 }]
+    },
+    {
+      "id": "liv006", "numero": "LIV-0006", "commande": "CMD-1006", "client": "François Ateba",
+      "livreur": "Jean Fotso", "statut": "en_cours",
+      "dateCreation": "2026-06-08T07:00:00", "dateLancement": "2026-06-08T09:30:00", "dateLivraison": null,
+      "montant": 32000, "adresse": "Essos, Yaoundé",
+      "produits": [{ "nom": "Clavier mécanique", "quantite": 1, "prix": 32000 }]
+    },
+    {
+      "id": "liv007", "numero": "LIV-0007", "commande": "CMD-1007", "client": "Grace Nkeng",
+      "livreur": "Marc Nkomo", "statut": "livree",
+      "dateCreation": "2026-06-04T08:00:00", "dateLancement": "2026-06-04T09:00:00", "dateLivraison": "2026-06-04T11:45:00",
+      "montant": 54500, "adresse": "Mfoundi, Yaoundé",
+      "produits": [{ "nom": "Écran 24\"", "quantite": 1, "prix": 54500 }]
+    },
+    {
+      "id": "liv008", "numero": "LIV-0008", "commande": "CMD-1008", "client": "Henri Biyong",
+      "livreur": "Sara Bella", "statut": "en_cours",
+      "dateCreation": "2026-06-08T08:00:00", "dateLancement": null, "dateLivraison": null,
+      "montant": 21000, "adresse": "Djoungolo, Yaoundé",
+      "produits": [{ "nom": "Souris sans fil", "quantite": 3, "prix": 7000 }]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 250
+  }
+}

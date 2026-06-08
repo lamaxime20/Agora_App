@@ -19,6 +19,7 @@ import ProduitPage from './pages/modules/produit';
 import Ventes from './pages/modules/ventes';
 import Finances from './pages/modules/finances';
 import RessourcesHumaines from './pages/modules/ressourcesHumaines';
+import Livraison from './pages/modules/livraison';
 
 import {
     GESTION_STOCK_DASHBOARD, GESTION_STOCK_PERTES,
@@ -47,6 +48,13 @@ import {
     FINANCES_JOURNAL_FINANCIER,
     FINANCES_STATISTIQUES
 } from "./services/finances.js";
+
+import {
+    LIVRAISON_DASHBOARD,
+    LIVRAISON_COMMANDES,
+    LIVRAISON_MES_LIVRAISONS,
+    LIVRAISON_STATISTIQUES,
+} from "./services/livraison.js";
 
 import './App.css';
 
@@ -100,6 +108,12 @@ function App() {
                                 <Route path="statistiques" element={<Finances onglet={FINANCES_STATISTIQUES} />} />
                             </Route>
                             <Route path="/application/ressources-humaines" element={<RessourcesHumaines />} />
+                            <Route path="/application/livraison">
+                                <Route index element={<Livraison onglet={LIVRAISON_DASHBOARD} />} />
+                                <Route path="commandes" element={<Livraison onglet={LIVRAISON_COMMANDES} />} />
+                                <Route path="mes-livraisons" element={<Livraison onglet={LIVRAISON_MES_LIVRAISONS} />} />
+                                <Route path="statistiques" element={<Livraison onglet={LIVRAISON_STATISTIQUES} />} />
+                            </Route>
                         </Route>
 
                         <Route path="/404" element={<div>Page 404</div>} />

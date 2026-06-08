@@ -1,0 +1,13 @@
+{
+  "kpis": {
+    "villeActive": "Yaoundé",
+    "villeDifficile": "Bafoussam",
+    "villeRentable": "Yaoundé"
+  },
+  "data": [
+    { "ville": "Yaoundé",    "livraisons": 1420, "succes": 1350, "echecs": 45, "retours": 25 },
+    { "ville": "Douala",     "livraisons": 780,  "succes": 722,  "echecs": 38, "retours": 20 },
+    { "ville": "Bafoussam",  "livraisons": 156,  "succes": 138,  "echecs": 12, "retours": 6  },
+    { "ville": "Garoua",     "livraisons": 100,  "succes": 100,  "echecs": 3,  "retours": 2  }
+  ]
+}

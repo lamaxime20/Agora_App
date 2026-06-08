@@ -1,0 +1,13 @@
+{
+  "kpis": {
+    "total": 48,
+    "refusClient": 22,
+    "produitNonConforme": 15,
+    "erreurCommande": 11
+  },
+  "data": [
+    { "motif": "Refus client", "count": 22, "pourcentage": 45.8 },
+    { "motif": "Produit non conforme", "count": 15, "pourcentage": 31.3 },
+    { "motif": "Erreur de commande", "count": 11, "pourcentage": 22.9 }
+  ]
+}
