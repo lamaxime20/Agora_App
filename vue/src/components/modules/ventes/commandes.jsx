@@ -548,9 +548,23 @@ function Commandes() {
         setSelectedOrder(order);
         setDetailData(null);
         setLoadingDetail(true);
+
+        // 1. Lire et afficher les données du cache immédiatement si elles existent.
+        const cachedData = readCache(`commande_${order.id}`);
+        if (cachedData) {
+            setDetailData(cachedData);
+            setLoadingDetail(false); // On peut désactiver le loader principal
+        }
+
+        // 2. Lancer le fetch pour rafraîchir les données (stale-while-revalidate).
         fetchVentesCommandeById(order.id)
             .then(data => setDetailData(data))
-            .catch(() => setDetailData({ error: true }))
+            .catch(() => {
+                // Si le fetch échoue mais qu'on a du cache, on le garde. Sinon, on marque une erreur.
+                if (!cachedData) {
+                    setDetailData({ error: true });
+                }
+            })
             .finally(() => setLoadingDetail(false));
     };
 
