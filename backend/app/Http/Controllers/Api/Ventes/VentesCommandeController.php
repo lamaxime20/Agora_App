@@ -322,41 +322,34 @@ class VentesCommandeController extends VentesBaseController
                 ];
             }
 
-            $commandeId = DB::transaction(function () use (
-                $request, $entrepriseId, $user, $clientId,
-                $produitsData, $montantTotal
-            ) {
-                $commandeId = (string) Str::uuid();
+            $commandeId = (string) Str::uuid();
 
-                DB::table('commandes')->insert([
-                    'id'                       => $commandeId,
-                    'statut'                   => 'brouillon',
-                    'etat_payement'            => 'non_paye',
-                    'montant_commande'         => $montantTotal,
-                    'montant_minimum_validation'=> $montantTotal,
-                    'adresse_livraison'        => $request->input('adresse_livraison'),
-                    'date_livraison_prevue'    => $request->input('date_livraison_prevue'),
-                    'notes_supplementaires'    => $request->input('notes_supplementaires'),
-                    'utilisateur_enregistre'   => $user->id,
-                    'client'                   => $clientId,
-                    'entreprise'               => $entrepriseId,
-                    'actif'                    => true,
-                    'date_commande'            => now(),
+            DB::table('commandes')->insert([
+                'id'                        => $commandeId,
+                'statut'                    => 'brouillon',
+                'etat_payement'             => 'non_paye',
+                'montant_commande'          => $montantTotal,
+                'montant_minimum_validation'=> $montantTotal,
+                'adresse_livraison'         => $request->input('adresse_livraison'),
+                'date_livraison_prevue'     => $request->input('date_livraison_prevue'),
+                'notes_supplementaires'     => $request->input('notes_supplementaires'),
+                'utilisateur_enregistre'    => $user->id,
+                'client'                    => $clientId,
+                'entreprise'                => $entrepriseId,
+                'actif'                     => true,
+                'date_commande'             => now(),
+            ]);
+
+            foreach ($produitsData as $p) {
+                DB::table('contenir_produit')->insert([
+                    'commande_id'  => $commandeId,
+                    'produit_id'   => $p['produit_id'],
+                    'quantite'     => $p['quantite'],
+                    'prix_unitaire'=> $p['prix_unitaire'],
+                    'reduction'    => $p['reduction'],
+                    'montant'      => $p['montant'],
                 ]);
-
-                foreach ($produitsData as $p) {
-                    DB::table('contenir_produit')->insert([
-                        'commande_id'  => $commandeId,
-                        'produit_id'   => $p['produit_id'],
-                        'quantite'     => $p['quantite'],
-                        'prix_unitaire'=> $p['prix_unitaire'],
-                        'reduction'    => $p['reduction'],
-                        'montant'      => $p['montant'],
-                    ]);
-                }
-
-                return $commandeId;
-            });
+            }
 
             $numero = DB::table('commandes as c')
                 ->where('c.id', $commandeId)
@@ -560,16 +553,18 @@ class VentesCommandeController extends VentesBaseController
      */
     public function export(Request $request): JsonResponse
     {
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX.
+        $format = $request->query('format', 'pdf');
+
+        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX ($format).
         // Même logique que index() sans pagination.
         // Inclure pour chaque commande : numéro, client (nom + prénom + téléphone), montant,
         // statut calculé, date commande, adresse livraison, notes, liste des produits
         // (nom, quantité, prix unitaire, montant), historique des paiements (date, montant, mode, référence).
-        // Insérer dans historiques : action = 'export commandes', details_action = format.
+        // Insérer dans historiques : action = 'export commandes', details_action = $format.
         return response()->json([
             'ok'      => false,
             'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
+            'message' => "Export {$format} non encore implémenté.",
         ], 501);
     }
 }

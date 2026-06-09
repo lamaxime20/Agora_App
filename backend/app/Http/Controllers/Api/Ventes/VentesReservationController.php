@@ -266,14 +266,16 @@ class VentesReservationController extends VentesBaseController
      */
     public function export(Request $request): JsonResponse
     {
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX.
+        $format = $request->query('format', 'pdf');
+
+        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX ($format).
         // Même logique que index() sans pagination.
         // Inclure pour chaque réservation : produit, quantité, client, numéro de commande,
         // statut, date, stock actuel, stock réservé, stock disponible.
         return response()->json([
             'ok'      => false,
             'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
+            'message' => "Export {$format} non encore implémenté.",
         ], 501);
     }
 

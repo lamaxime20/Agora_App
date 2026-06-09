@@ -251,14 +251,16 @@ class VentesClientController extends VentesBaseController
      */
     public function export(Request $request): JsonResponse
     {
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX.
+        $format = $request->query('format', 'pdf');
+
+        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX ($format).
         // Même logique que index() sans pagination.
         // Colonnes : nom, prénom, email, téléphone, nombre de commandes, CA total.
-        // Insérer dans historiques : action = 'export clients', details_action = format.
+        // Insérer dans historiques : action = 'export clients', details_action = $format.
         return response()->json([
             'ok'      => false,
             'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
+            'message' => "Export {$format} non encore implémenté.",
         ], 501);
     }
 }
