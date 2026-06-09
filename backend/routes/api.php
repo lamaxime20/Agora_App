@@ -10,6 +10,16 @@ use App\Http\Controllers\Api\Stock\StockProduitController;
 use App\Http\Controllers\Api\Stock\StockRavitaillementController;
 use App\Http\Controllers\Api\Stock\StockReservationController;
 use App\Http\Controllers\Api\Stock\StockStatistiqueController;
+use App\Http\Controllers\Api\Finances\FinancesDashboardController;
+use App\Http\Controllers\Api\Finances\FinancesCommandeController;
+use App\Http\Controllers\Api\Finances\FinancesRemboursementController;
+use App\Http\Controllers\Api\Finances\FinancesDepenseController;
+use App\Http\Controllers\Api\Finances\FinancesEntreeController;
+use App\Http\Controllers\Api\Finances\FinancesAbonnementController;
+use App\Http\Controllers\Api\Finances\FinancesReapprovisionnementController;
+use App\Http\Controllers\Api\Finances\FinancesSalaireController;
+use App\Http\Controllers\Api\Finances\FinancesJournalController;
+use App\Http\Controllers\Api\Finances\FinancesStatistiqueController;
 use App\Http\Controllers\Api\SignupController;
 use App\Http\Middleware\MiddlewareTokenEntrepriseCreation;
 use App\Http\Middleware\MiddlewareTokenAuth;
@@ -95,4 +105,136 @@ Route::prefix('stock')
         Route::get('statistiques/stock', [StockStatistiqueController::class, 'stock']);
         Route::get('statistiques/ravitaillements', [StockStatistiqueController::class, 'ravitaillements']);
         Route::get('statistiques/pertes', [StockStatistiqueController::class, 'pertes']);
+    });
+
+// ─── Routes protégées module finances ───────────────────────────────────────
+
+Route::prefix('finances')
+    ->middleware(MiddlewareTokenAuthorization::class)
+    ->group(function () {
+
+        // ── Dashboard ─────────────────────────────────────────────────────────
+        // Route 1
+        Route::get('dashboard', [FinancesDashboardController::class, 'index']);
+
+        // ── Commandes ─────────────────────────────────────────────────────────
+        // Route 2 — liste des commandes en attente de validation Finance
+        Route::get('commandes/a-valider', [FinancesCommandeController::class, 'aValider']);
+
+        // Route 8 — liste de tous les paiements
+        Route::get('paiements/export', [FinancesCommandeController::class, 'exportPaiements']);
+        Route::get('paiements', [FinancesCommandeController::class, 'indexPaiements']);
+
+        // Route 4 — liste des commandes validées non soldées
+        Route::get('commandes', [FinancesCommandeController::class, 'index']);
+
+        // Route 5 — détail d'une commande
+        Route::get('commandes/{id}', [FinancesCommandeController::class, 'show']);
+
+        // Route 3 — valider une commande brouillon
+        Route::post('commandes/{id}/valider', [FinancesCommandeController::class, 'valider']);
+
+        // Route 6 — modifier le montant minimum de validation
+        Route::patch('commandes/{id}/montant-minimum', [FinancesCommandeController::class, 'updateMontantMinimum']);
+
+        // Route 7 — enregistrer un paiement sur une commande
+        Route::post('commandes/{id}/paiements', [FinancesCommandeController::class, 'storePaiement']);
+
+        // ── Remboursements ───────────────────────────────────────────────────
+        // Route 13 — export (avant route générique)
+        Route::get('remboursements/export', [FinancesRemboursementController::class, 'export']);
+
+        // Route 10 — liste des remboursements
+        Route::get('remboursements', [FinancesRemboursementController::class, 'index']);
+
+        // Route 11 — commandes remboursables
+        Route::get('commandes-remboursables', [FinancesRemboursementController::class, 'commandesRemboursables']);
+
+        // Route 12 — enregistrer un remboursement
+        Route::post('remboursements', [FinancesRemboursementController::class, 'store']);
+
+        // ── Dépenses ─────────────────────────────────────────────────────────
+        // Route 16 — export (avant route générique)
+        Route::get('depenses/export', [FinancesDepenseController::class, 'export']);
+
+        // Route 14 — liste des dépenses
+        Route::get('depenses', [FinancesDepenseController::class, 'index']);
+
+        // Route 15 — enregistrer une dépense
+        Route::post('depenses', [FinancesDepenseController::class, 'store']);
+
+        // ── Entrées ──────────────────────────────────────────────────────────
+        // Route 19 — export (avant route générique)
+        Route::get('entrees/export', [FinancesEntreeController::class, 'export']);
+
+        // Route 17 — liste des entrées
+        Route::get('entrees', [FinancesEntreeController::class, 'index']);
+
+        // Route 18 — enregistrer une entrée
+        Route::post('entrees', [FinancesEntreeController::class, 'store']);
+
+        // ── Abonnements ──────────────────────────────────────────────────────
+        // Route 25 — export (avant route avec {id})
+        Route::get('abonnements/export', [FinancesAbonnementController::class, 'export']);
+
+        // Route 20 — liste des abonnements
+        Route::get('abonnements', [FinancesAbonnementController::class, 'index']);
+
+        // Route 22 — créer un abonnement
+        Route::post('abonnements', [FinancesAbonnementController::class, 'store']);
+
+        // Route 21 — détail d'un abonnement
+        Route::get('abonnements/{id}', [FinancesAbonnementController::class, 'show']);
+
+        // Route 23 — résilier un abonnement
+        Route::post('abonnements/{id}/resilier', [FinancesAbonnementController::class, 'resilier']);
+
+        // Route 24 — réactiver un abonnement
+        Route::post('abonnements/{id}/reactiver', [FinancesAbonnementController::class, 'reactiver']);
+
+        // ── Réapprovisionnements ─────────────────────────────────────────────
+        // Route 30 — export (avant routes avec {id})
+        Route::get('reapprovisionnements/export', [FinancesReapprovisionnementController::class, 'export']);
+
+        // Route 26 — liste en attente (avant route générique)
+        Route::get('reapprovisionnements/en-attente', [FinancesReapprovisionnementController::class, 'enAttente']);
+
+        // Route 27 — historique des réapprovisionnements
+        Route::get('reapprovisionnements', [FinancesReapprovisionnementController::class, 'index']);
+
+        // Route 28 — valider un réapprovisionnement
+        Route::post('reapprovisionnements/{id}/valider', [FinancesReapprovisionnementController::class, 'valider']);
+
+        // Route 29 — refuser un réapprovisionnement
+        Route::post('reapprovisionnements/{id}/refuser', [FinancesReapprovisionnementController::class, 'refuser']);
+
+        // ── Salaires ─────────────────────────────────────────────────────────
+        // Route 33 — export (avant route avec {id})
+        Route::get('salaires/export', [FinancesSalaireController::class, 'export']);
+
+        // Route 31 — liste des salaires
+        Route::get('salaires', [FinancesSalaireController::class, 'index']);
+
+        // Route 32 — historique des paiements d'un salaire
+        Route::get('salaires/{id}/paiements', [FinancesSalaireController::class, 'paiements']);
+
+        // ── Journal financier ─────────────────────────────────────────────────
+        // Route 36 — export (avant route avec {id})
+        Route::get('journal/export', [FinancesJournalController::class, 'export']);
+
+        // Route 34 — liste du journal
+        Route::get('journal', [FinancesJournalController::class, 'index']);
+
+        // Route 35 — détail d'un mouvement financier
+        Route::get('journal/{id}', [FinancesJournalController::class, 'show']);
+
+        // ── Statistiques ──────────────────────────────────────────────────────
+        // Route 37 — statistiques générales
+        Route::get('statistiques/general', [FinancesStatistiqueController::class, 'general']);
+
+        // Route 38 — évolution de la trésorerie
+        Route::get('statistiques/tresorerie', [FinancesStatistiqueController::class, 'tresorerie']);
+
+        // Route 39 — statistiques thématiques détaillées
+        Route::get('statistiques/autres', [FinancesStatistiqueController::class, 'autres']);
     });
