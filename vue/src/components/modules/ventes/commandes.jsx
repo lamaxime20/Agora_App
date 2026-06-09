@@ -7,7 +7,8 @@ import {
 import {
     getBadgeConfig, formatMontant, formatDate,
     fetchVentesCommandes, fetchVentesCommandeById, createVentesCommande, annulerVentesCommande,
-    fetchVentesClients, fetchVentesProduits, fetchVentesNotifications, createVentesClient
+    fetchVentesClients, fetchVentesProduits, fetchVentesNotifications, createVentesClient,
+    readCache
 } from "../../../services/ventes.js";
 import "../../../assets/styles/components/modules/ventes/commandes.css";
 
@@ -432,15 +433,31 @@ function Commandes() {
     // ── CLIENTS (chargés à l'ouverture du formulaire) ──────────────────────────
     useEffect(() => {
         if (view !== "new") return;
-        fetchVentesClients()
-            .then(data => setClients(data.data || []))
-            .catch(() => {});
+
+        // 1. Lire et afficher les données du cache immédiatement
+        const cachedClients = readCache("clients?page=1&per_page=100");
+        if (cachedClients?.data) {
+            setClients(cachedClients.data);
+        }
+
+        // 2. Lancer le fetch pour rafraîchir
+        fetchVentesClients().then(data => {
+            setClients(data.data || []);
+        }).catch(() => {
+            setFormError("Erreur de connexion. Les données affichées peuvent être obsolètes.");
+        });
     }, [view]);
 
     // ── PRODUITS (chargés à la première ouverture du catalogue) ────────────────
     useEffect(() => {
         if (!showProductPane || products.length > 0) return;
-        fetchVentesProduits().then(setProducts).catch(() => {});
+        const cachedProducts = readCache("produits");
+        if (cachedProducts) {
+            setProducts(cachedProducts);
+        }
+        fetchVentesProduits().then(setProducts).catch(() => {
+            setFormError("Erreur de connexion. Les données affichées peuvent être obsolètes.");
+        });
     }, [showProductPane, products.length]);
 
     // ── DEBOUNCE 300ms ─────────────────────────────────────────────────────────
