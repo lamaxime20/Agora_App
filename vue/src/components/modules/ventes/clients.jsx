@@ -4,7 +4,7 @@ import {
     Phone, Mail, Calendar, ShoppingBag, TrendingUp,
     AlertCircle, SlidersHorizontal, ReceiptText
 } from "lucide-react";
-import { fetchWithCache, getBadgeConfig, formatMontant, formatDate } from "../../../services/ventes.js";
+import { getBadgeConfig, formatMontant, formatDate, fetchVentesClients, fetchVentesClientById } from "../../../services/ventes.js";
 import "../../../assets/styles/components/modules/ventes/clients.css";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ function Clients() {
 
     // ── Fetch liste ────────────────────────────────────────────────────────────
     useEffect(() => {
-        fetchWithCache("/mock/ventes/clients/list.json")
+        fetchVentesClients()
             .then(json => setClients(json.data ?? []))
             .catch(err => setFetchError(err.message))
             .finally(() => setLoading(false));
@@ -102,7 +102,7 @@ function Clients() {
         setDetailData(null);
         setDetailError(null);
         setLoadingDetail(true);
-        fetchWithCache(`/mock/ventes/clients/${client.id}.json`)
+        fetchVentesClientById(client.id)
             .then(data => setDetailData(data))
             .catch(err => setDetailError(err.message))
             .finally(() => setLoadingDetail(false));
@@ -117,7 +117,7 @@ function Clients() {
     // ── Préchargement au hover (desktop) ───────────────────────────────────────
     const handleMouseEnter = useCallback((client) => {
         prefetchTimerRef.current = setTimeout(() => {
-            fetchWithCache(`/mock/ventes/clients/${client.id}.json`).catch(() => {});
+            fetchVentesClientById(client.id).catch(() => {});
         }, 150);
     }, []);
 
@@ -249,7 +249,7 @@ function Clients() {
                         onClick={() => {
                             setFetchError(null);
                             setLoading(true);
-                            fetchWithCache("/mock/ventes/clients/list.json")
+                            fetchVentesClients()
                                 .then(j => setClients(j.data ?? []))
                                 .catch(e => setFetchError(e.message))
                                 .finally(() => setLoading(false));

@@ -4,7 +4,7 @@ import {
     Package, User, Info, AlertCircle, CheckCircle2, Clock,
     TrendingDown, BarChart2, ChevronRight
 } from "lucide-react";
-import { fetchWithCache, getBadgeConfig, formatDate } from "../../../services/ventes.js";
+import { getBadgeConfig, formatDate, fetchVentesReservations, fetchVentesReservationDetail } from "../../../services/ventes.js";
 import "../../../assets/styles/components/modules/ventes/reservations.css";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ function Reservations() {
     useEffect(() => {
         setLoading(true);
         setFetchError(null);
-        fetchWithCache("/mock/ventes/reservations/list.json")
+        fetchVentesReservations()
             .then(json => setReservations(json.data ?? []))
             .catch(err => setFetchError(err.message))
             .finally(() => setLoading(false));
@@ -155,7 +155,7 @@ function Reservations() {
         setDetailData(null);
         setDetailError(null);
         setLoadingDetail(true);
-        fetchWithCache(`/mock/ventes/reservations/${item.id}.json`)
+        fetchVentesReservationDetail(item.id)
             .then(data => setDetailData(data))
             .catch(err => setDetailError(err.message))
             .finally(() => setLoadingDetail(false));
@@ -360,7 +360,7 @@ function Reservations() {
                         onClick={() => {
                             setFetchError(null);
                             setLoading(true);
-                            fetchWithCache("/mock/ventes/reservations/list.json")
+                            fetchVentesReservations()
                                 .then(j => setReservations(j.data ?? []))
                                 .catch(e => setFetchError(e.message))
                                 .finally(() => setLoading(false));

@@ -4,19 +4,13 @@ import {
     Download, User, Package, XCircle, CheckCircle, Bell,
     Clock, RefreshCw, SlidersHorizontal, FileDown, CreditCard, Truck,
 } from "lucide-react";
-import { getBadgeConfig, formatMontant, formatDate, fetchWithCache, invalidateCache } from "../../../services/ventes.js";
+import {
+    getBadgeConfig, formatMontant, formatDate,
+    fetchVentesCommandes, fetchVentesCommandeById, createVentesCommande, annulerVentesCommande,
+    fetchVentesClients, fetchVentesProduits, fetchVentesNotifications,
+} from "../../../services/ventes.js";
 import "../../../assets/styles/components/modules/ventes/commandes.css";
 
-// ─── Produits catalogue local (sera remplacé par un vrai endpoint) ─────────────
-const CATALOGUE = [
-    { id: "prod_1", nom: "Huile de palme raffinée 1L",  prix_unitaire: 2500,  reduction: 0,    stock: 48 },
-    { id: "prod_2", nom: "Farine de blé 50kg",           prix_unitaire: 10500, reduction: 500,  stock: 12 },
-    { id: "prod_3", nom: "Sucre cristallisé 25kg",        prix_unitaire: 8000,  reduction: 0,    stock: 30 },
-    { id: "prod_4", nom: "Riz long grain 50kg",           prix_unitaire: 22000, reduction: 1000, stock: 7  },
-    { id: "prod_5", nom: "Savon de ménage x12",           prix_unitaire: 3600,  reduction: 0,    stock: 62 },
-    { id: "prod_6", nom: "Tomates concentrées 400g",      prix_unitaire: 1200,  reduction: 0,    stock: 95 },
-    { id: "prod_7", nom: "Lait en poudre 2,5kg",          prix_unitaire: 6500,  reduction: 300,  stock: 18 },
-];
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -385,6 +379,7 @@ function Commandes() {
     const [showClientPane, setShowClientPane]   = useState(false);
     const [showProductPane, setShowProductPane] = useState(false);
     const [clients, setClients]                 = useState([]);
+    const [products, setProducts]               = useState([]);
     const [clientSearch, setClientSearch]       = useState("");
     const [productSearch, setProductSearch]     = useState("");
     const [newClientForm, setNewClientForm] = useState({ nom: "", prenom: "", email: "", telephone: "" });
@@ -406,7 +401,7 @@ function Commandes() {
     useEffect(() => {
         setLoading(true);
         setFetchError(null);
-        fetchWithCache("/mock/ventes/commandes/list.json")
+        fetchVentesCommandes()
             .then(data => {
                 setOrders(data.data || []);
                 setHasMore(data.meta?.has_more ?? false);
@@ -418,7 +413,7 @@ function Commandes() {
 
     // ── NOTIFICATIONS ──────────────────────────────────────────────────────────
     useEffect(() => {
-        fetchWithCache("/mock/notifications/ventes.json")
+        fetchVentesNotifications()
             .then(data => {
                 setNotifCount(data.non_lues || 0);
                 setNotifications(data.notifications || []);
@@ -429,10 +424,16 @@ function Commandes() {
     // ── CLIENTS (chargés à l'ouverture du formulaire) ──────────────────────────
     useEffect(() => {
         if (view !== "new") return;
-        fetchWithCache("/mock/ventes/clients/list.json")
+        fetchVentesClients()
             .then(data => setClients(data.data || []))
             .catch(() => {});
     }, [view]);
+
+    // ── PRODUITS (chargés à la première ouverture du catalogue) ────────────────
+    useEffect(() => {
+        if (!showProductPane || products.length > 0) return;
+        fetchVentesProduits().then(setProducts).catch(() => {});
+    }, [showProductPane, products.length]);
 
     // ── DEBOUNCE 300ms ─────────────────────────────────────────────────────────
     useEffect(() => {
@@ -444,7 +445,7 @@ function Commandes() {
     const loadMoreOrders = useCallback(() => {
         if (loadingMore || !hasMore) return;
         setLoadingMore(true);
-        fetchWithCache(`/mock/ventes/commandes/page-${currentPage + 1}.json`)
+        fetchVentesCommandes({ page: currentPage + 1 })
             .then(data => {
                 setOrders(prev => [...prev, ...(data.data || [])]);
                 setHasMore(data.meta?.has_more ?? false);
@@ -521,7 +522,7 @@ function Commandes() {
         setSelectedOrder(order);
         setDetailData(null);
         setLoadingDetail(true);
-        fetchWithCache(`/mock/ventes/commandes/${order.id}.json`)
+        fetchVentesCommandeById(order.id)
             .then(data => setDetailData(data))
             .catch(() => setDetailData({ error: true }))
             .finally(() => setLoadingDetail(false));
@@ -572,29 +573,25 @@ function Commandes() {
             }
         }
         setSaving(true);
-        fetch("/mock/ventes/commandes/create.json", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                client_id:      newOrder.client_id,
-                produits:       newOrder.items.map(it => ({ id: it.id, quantite: it.quantite })),
-                adresse:        newOrder.adresse,
-                date_livraison: newOrder.date_livraison,
-                notes:          newOrder.notes,
-            }),
+        createVentesCommande({
+            client_id:      newOrder.client_id,
+            produits:       newOrder.items.map(it => ({ id: it.id, quantite: it.quantite })),
+            adresse:        newOrder.adresse,
+            date_livraison: newOrder.date_livraison,
+            notes:          newOrder.notes,
         })
-            .then(() => {
-                const numero = `CMD-2026-${String(orders.length + 1).padStart(5, "0")}`;
-                const newCmd = {
-                    id:      `cmd_${Date.now()}`,
+            .then(res => {
+                const created = res.data ?? res ?? {};
+                const numero  = created.numero ?? `CMD-${new Date().getFullYear()}-${String(orders.length + 1).padStart(5, "0")}`;
+                const newCmd  = {
+                    id:      created.id ?? `cmd_${Date.now()}`,
                     numero,
                     client:  newOrder.client,
                     montant: calcTotal(newOrder.items),
-                    statut:  "reçu",
+                    statut:  created.statut ?? "reçu",
                     date:    new Date().toISOString().slice(0, 10),
                 };
                 setOrders(prev => [newCmd, ...prev]);
-                invalidateCache("/mock/ventes/commandes/list.json");
                 setNewOrder({ client_id: "", client: "", items: [], adresse: "", date_livraison: "", notes: "" });
                 setFormError("");
                 setView("list");
@@ -612,11 +609,7 @@ function Commandes() {
             return;
         }
         setCanceling(true);
-        fetch("/mock/ventes/commandes/annulation.json", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ commande_id: orderToCancel.id, raison: cancelReason }),
-        })
+        annulerVentesCommande(orderToCancel.id, cancelReason)
             .then(() => {
                 setOrders(prev => prev.map(o => o.id === orderToCancel.id ? { ...o, statut: "annulé" } : o));
                 if (selectedOrder?.id === orderToCancel.id) {
@@ -1266,7 +1259,7 @@ function Commandes() {
             {/* ── Sélection produits ── */}
             {showProductPane && (
                 <ProductPane
-                    products={CATALOGUE}
+                    products={products}
                     selected={newOrder.items}
                     productSearch={productSearch}
                     setProductSearch={setProductSearch}

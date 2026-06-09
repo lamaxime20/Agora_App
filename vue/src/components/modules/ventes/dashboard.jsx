@@ -1,14 +1,12 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
     ShoppingCart, Inbox, CheckCircle, Truck, PackageCheck,
     XCircle, Users, TrendingUp, AlertTriangle, Package, CreditCard,
     RefreshCw, Plus, CheckSquare, ArrowRight,
 } from "lucide-react";
-import { formatMontant } from "../../../services/ventes.js";
+import { formatMontant, fetchVentesDashboard } from "../../../services/ventes.js";
+import { useStockData } from "../../../services/useStockData.js";
 import "../../../assets/styles/components/modules/ventes/dashboard.css";
-
-// ─── Cache module-level (session) ─────────────────────────────────────────────
-const _cache = {};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -29,7 +27,7 @@ function formatDateShort(dateStr) {
 function formatRelativeTime(dateStr) {
     if (!dateStr) return "";
     const d   = new Date(dateStr);
-    const now = new Date("2026-06-05T18:00:00"); // date mock
+    const now = new Date();
     const diffMs = now - d;
     const diffH  = Math.floor(diffMs / 3_600_000);
     if (diffH < 1)  return "Il y a moins d'1 h";
@@ -65,35 +63,11 @@ const KPI_DESKTOP = [
 // Sur mobile : 4 KPIs essentiels
 const KPI_MOBILE_KEYS = ["total_commandes", "ca_total", "clients", "livraisons_en_cours"];
 
-// ─── Hook fetch avec cache ─────────────────────────────────────────────────────
-
-function useDashboardData() {
-    const [data,    setData]    = useState(_cache.dashboard ?? null);
-    const [loading, setLoading] = useState(!_cache.dashboard);
-    const [error,   setError]   = useState(null);
-
-    function load() {
-        setLoading(true);
-        setError(null);
-        fetch("/mock/ventes/dashboard.json")
-            .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-            .then((d) => { _cache.dashboard = d; setData(d); })
-            .catch((e) => setError(e.message))
-            .finally(() => setLoading(false));
-    }
-
-    useEffect(() => {
-        if (_cache.dashboard) return;
-        load();
-    }, []);
-
-    return { data, loading, error, retry: load };
-}
 
 // ─── Composant principal ───────────────────────────────────────────────────────
 
 function Dashboard() {
-    const { data, loading, error, retry } = useDashboardData();
+    const { data, loading, error, refresh: retry } = useStockData(fetchVentesDashboard, "ventes-dashboard");
     const [chartPeriod, setChartPeriod]   = useState("30j");
 
     if (loading) return <DashboardSkeleton />;

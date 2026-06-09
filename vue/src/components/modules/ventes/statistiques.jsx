@@ -4,7 +4,7 @@ import {
     TrendingUp, TrendingDown, Truck, CheckCircle2,
     XCircle, AlertTriangle, Award, ChevronUp, ChevronDown
 } from "lucide-react";
-import { fetchWithCache, formatMontant, formatDate } from "../../../services/ventes.js";
+import { formatMontant, formatDate, fetchVentesStatistiquesGeneral, fetchVentesStatistiquesClients, fetchVentesStatistiquesCommandes } from "../../../services/ventes.js";
 import "../../../assets/styles/components/modules/ventes/statistiques.css";
 
 // ─── Configuration des onglets ─────────────────────────────────────────────────
@@ -86,7 +86,7 @@ function Statistiques() {
 
     // ── Fetch vue générale au montage ──────────────────────────────────────────
     useEffect(() => {
-        fetchWithCache("/mock/ventes/statistiques/general.json")
+        fetchVentesStatistiquesGeneral()
             .then(d => setGeneralData(d))
             .catch(e => setErrorGeneral(e.message))
             .finally(() => setLoadingGeneral(false));
@@ -96,14 +96,14 @@ function Statistiques() {
     useEffect(() => {
         if (activeTab === "clients" && !clientsData && !loadingClients) {
             setLoadingClients(true);
-            fetchWithCache("/mock/ventes/statistiques/clients.json")
+            fetchVentesStatistiquesClients()
                 .then(d => setClientsData(d))
                 .catch(e => setErrorClients(e.message))
                 .finally(() => setLoadingClients(false));
         }
         if (activeTab === "commandes" && !commandesData && !loadingCommandes) {
             setLoadingCommandes(true);
-            fetchWithCache("/mock/ventes/statistiques/commandes.json")
+            fetchVentesStatistiquesCommandes()
                 .then(d => setCommandesData(d))
                 .catch(e => setErrorCommandes(e.message))
                 .finally(() => setLoadingCommandes(false));
@@ -113,7 +113,7 @@ function Statistiques() {
     const retryGeneral = () => {
         setErrorGeneral(null);
         setLoadingGeneral(true);
-        fetchWithCache("/mock/ventes/statistiques/general.json")
+        fetchVentesStatistiquesGeneral()
             .then(d => setGeneralData(d))
             .catch(e => setErrorGeneral(e.message))
             .finally(() => setLoadingGeneral(false));
@@ -123,7 +123,7 @@ function Statistiques() {
         setErrorClients(null);
         setClientsData(null);
         setLoadingClients(true);
-        fetchWithCache("/mock/ventes/statistiques/clients.json")
+        fetchVentesStatistiquesClients()
             .then(d => setClientsData(d))
             .catch(e => setErrorClients(e.message))
             .finally(() => setLoadingClients(false));
@@ -133,7 +133,7 @@ function Statistiques() {
         setErrorCommandes(null);
         setCommandesData(null);
         setLoadingCommandes(true);
-        fetchWithCache("/mock/ventes/statistiques/commandes.json")
+        fetchVentesStatistiquesCommandes()
             .then(d => setCommandesData(d))
             .catch(e => setErrorCommandes(e.message))
             .finally(() => setLoadingCommandes(false));
