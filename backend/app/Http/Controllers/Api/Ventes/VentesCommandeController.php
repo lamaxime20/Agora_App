@@ -294,6 +294,7 @@ class VentesCommandeController extends VentesBaseController
                     ], 422);
                 }
 
+                // Si le produit est de type 'physique', on vérifie le stock.
                 if ($produit->type_produit === 'physique') {
                     $stockReserve     = $this->getStockReserve($produit->id, $entrepriseId);
                     $stockDisponible  = (float) $produit->stock_actuel - $stockReserve;

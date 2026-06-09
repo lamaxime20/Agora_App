@@ -8,8 +8,8 @@ import {
     getBadgeConfig, formatMontant, formatDate,
     fetchVentesCommandes, fetchVentesCommandeById, createVentesCommande, annulerVentesCommande,
     fetchVentesClients, fetchVentesProduits, fetchVentesNotifications, createVentesClient,
-    readCache
 } from "../../../services/ventes.js";
+import { readCache } from "../../../services/ventesCache.js"
 import "../../../assets/styles/components/modules/ventes/commandes.css";
 
 
@@ -604,9 +604,12 @@ function Commandes() {
         if (!newOrder.client_id) { setFormError("Veuillez sélectionner un client."); return; }
         if (!newOrder.items.length) { setFormError("Veuillez ajouter au moins un produit."); return; }
         for (const it of newOrder.items) {
-            if (it.quantite > it.stock) {
-                setFormError(`Stock insuffisant pour « ${it.nom} ».`);
-                return;
+            // On ne vérifie le stock que pour les produits physiques
+            if (it.type === 'physique') {
+                if (it.quantite > it.stock) {
+                    setFormError(`Stock insuffisant pour « ${it.nom} ».`);
+                    return;
+                }
             }
         }
         setSaving(true);
