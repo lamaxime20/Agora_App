@@ -7,7 +7,7 @@ import {
 import {
     getBadgeConfig, formatMontant, formatDate,
     fetchVentesCommandes, fetchVentesCommandeById, createVentesCommande, annulerVentesCommande,
-    fetchVentesClients, fetchVentesProduits, fetchVentesNotifications,
+    fetchVentesClients, fetchVentesProduits, fetchVentesNotifications, createVentesClient
 } from "../../../services/ventes.js";
 import "../../../assets/styles/components/modules/ventes/commandes.css";
 
@@ -108,7 +108,7 @@ function NotifPanel({ notifications, onClose }) {
     );
 }
 
-function ClientPane({ clients, clientSearch, setClientSearch, showAddForm, setShowAddForm, newClientForm, setNewClientForm, formError, setFormError, onSelect, onAddClient, onClose }) {
+function ClientPane({ clients, clientSearch, setClientSearch, showAddForm, setShowAddForm, newClientForm, setNewClientForm, formError, setFormError, onSelect, onAddClient, onClose, isAddingClient }) {
     return (
         <div className="commandes-clientPane__overlay" role="dialog" aria-modal="true" aria-label="Sélection client">
             <div className="commandes-clientPane__panel">
@@ -150,11 +150,18 @@ function ClientPane({ clients, clientSearch, setClientSearch, showAddForm, setSh
                                 </div>
                             ))}
                             <div className="commandes-clientPane__addForm-actions">
-                                <button className="app-button app-button--ghost" style={{ flex: 1 }} onClick={() => setShowAddForm(false)} type="button">
+                                <button className="app-button app-button--ghost" style={{ flex: 1 }} onClick={() => setShowAddForm(false)} type="button" disabled={isAddingClient}>
                                     Retour
                                 </button>
-                                <button className="app-button app-button--primary" style={{ flex: 1 }} onClick={onAddClient} type="button">
-                                    Enregistrer
+                                <button className="app-button app-button--primary" style={{ flex: 1 }} onClick={onAddClient} type="button" disabled={isAddingClient}>
+                                    {isAddingClient ? (
+                                        <>
+                                            <RefreshCw size={16} className="commandes-spin" aria-hidden="true" />
+                                            Enregistrement...
+                                        </>
+                                    ) : (
+                                        "Enregistrer"
+                                    )}
                                 </button>
                             </div>
                         </div>
@@ -385,6 +392,7 @@ function Commandes() {
     const [newClientForm, setNewClientForm] = useState({ nom: "", prenom: "", email: "", telephone: "" });
     const [showAddClientForm, setShowAddClientForm] = useState(false);
     const [saving, setSaving]     = useState(false);
+    const [isAddingClient, setIsAddingClient] = useState(false);
     const [formError, setFormError] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
 
@@ -544,22 +552,34 @@ function Commandes() {
     };
 
     // ── CRÉATION CLIENT ────────────────────────────────────────────────────────
-    const handleAddClientSubmit = () => {
+    const handleAddClientSubmit = async () => {
+        setFormError("");
         if (!newClientForm.nom || !newClientForm.email) {
             setFormError("Le nom et l'email sont obligatoires.");
             return;
         }
-        if (clients.some(c => c.email.toLowerCase() === newClientForm.email.toLowerCase())) {
-            setFormError("Un client avec cet email existe déjà.");
-            return;
+
+        setIsAddingClient(true);
+        try {
+            const response = await createVentesClient({ ...newClientForm });
+            const createdClient = response.client;
+
+            setClients(prev => [createdClient, ...prev]);
+            setNewOrder(p => ({ ...p, client_id: createdClient.id, client: `${createdClient.nom} ${createdClient.prenom}`.trim() }));
+            setNewClientForm({ nom: "", prenom: "", email: "", telephone: "" });
+            setShowAddClientForm(false);
+            setShowClientPane(false);
+            setFormError("");
+        } catch (error) {
+            // L'erreur de l'API (ex: 409 Duplicate Email) a un `message`
+            if (error.body?.message) {
+                setFormError(error.body.message);
+            } else {
+                setFormError("Une erreur est survenue. Veuillez réessayer.");
+            }
+        } finally {
+            setIsAddingClient(false);
         }
-        const created = { id: `cli_${Date.now()}`, ...newClientForm };
-        setClients(prev => [created, ...prev]);
-        setNewOrder(p => ({ ...p, client_id: created.id, client: `${created.nom} ${created.prenom}` }));
-        setNewClientForm({ nom: "", prenom: "", email: "", telephone: "" });
-        setShowAddClientForm(false);
-        setShowClientPane(false);
-        setFormError("");
     };
 
     // ── SOUMETTRE COMMANDE ─────────────────────────────────────────────────────
@@ -1248,11 +1268,13 @@ function Commandes() {
                     setFormError={setFormError}
                     onSelect={c => {
                         setNewOrder(p => ({ ...p, client_id: c.id, client: `${c.nom} ${c.prenom}` }));
+                        setFormError("");
                         setShowClientPane(false);
                         setClientSearch("");
                     }}
                     onAddClient={handleAddClientSubmit}
                     onClose={() => { setShowClientPane(false); setShowAddClientForm(false); setFormError(""); }}
+                    isAddingClient={isAddingClient}
                 />
             )}
 
