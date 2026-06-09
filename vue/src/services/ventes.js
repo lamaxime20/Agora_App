@@ -102,7 +102,9 @@ export async function createVentesCommande(body) {
 
 /** Annulation d'une commande */
 export async function annulerVentesCommande(id, raison) {
-    return apiFetch(`ventes/commandes/${id}/annuler`, { method: "POST", body: { raison } });
+    return apiFetch(`ventes/commandes/${id}/annuler`, { method: "POST", body: { 
+raison_annulation : raison,
+    } });
 }
 
 // ─── Clients ──────────────────────────────────────────────────────────────────

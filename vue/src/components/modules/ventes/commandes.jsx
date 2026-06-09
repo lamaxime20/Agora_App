@@ -402,6 +402,7 @@ function Commandes() {
     const [orderToCancel, setOrderToCancel]     = useState(null);
     const [cancelReason, setCancelReason]       = useState("");
     const [canceling, setCanceling]             = useState(false);
+    const [cancelError, setCancelError]         = useState("");
 
     const sentinelRef = useRef(null);
     const notifRef    = useRef(null);
@@ -644,8 +645,9 @@ function Commandes() {
 
     // ── ANNULATION ─────────────────────────────────────────────────────────────
     const handleCancelConfirm = () => {
+        setCancelError("");
         if (cancelReason.trim().length < 20) {
-            alert("Le motif doit contenir au moins 20 caractères.");
+            setCancelError("Le motif doit contenir au moins 20 caractères.");
             return;
         }
         setCanceling(true);
@@ -658,14 +660,19 @@ function Commandes() {
                 setShowCancelModal(false);
                 setOrderToCancel(null);
                 setCancelReason("");
+                setCancelError("");
             })
-            .catch(() => alert("Erreur lors de l'annulation."))
+            .catch((err) => {
+                const apiMsg = err.body?.message || "Une erreur est survenue lors de l'annulation.";
+                setCancelError(apiMsg);
+            })
             .finally(() => setCanceling(false));
     };
 
     const openCancel = (order, e) => {
         e?.stopPropagation();
         setOrderToCancel(order);
+        setCancelError("");
         setShowCancelModal(true);
     };
 
@@ -1393,7 +1400,7 @@ function Commandes() {
                             <h2 className="commandes-modal__title">Annuler la commande</h2>
                             <button
                                 className="commandes-modal__close"
-                                onClick={() => { setShowCancelModal(false); setCancelReason(""); }}
+                                onClick={() => { setShowCancelModal(false); setCancelReason(""); setCancelError(""); }}
                                 type="button"
                                 aria-label="Fermer"
                             >
@@ -1401,6 +1408,12 @@ function Commandes() {
                             </button>
                         </div>
                         <div className="commandes-modal__body">
+                            {cancelError && (
+                                <div className="commandes-error" role="alert" style={{ marginBottom: "var(--space-4)" }}>
+                                    <AlertTriangle size={16} aria-hidden="true" />
+                                    {cancelError}
+                                </div>
+                            )}
                             <p className="commandes-modal__desc">
                                 Vous êtes sur le point d'annuler la commande{" "}
                                 <strong>{orderToCancel.numero}</strong>{" "}
@@ -1429,7 +1442,7 @@ function Commandes() {
                             <button
                                 className="app-button app-button--ghost"
                                 style={{ flex: 1 }}
-                                onClick={() => { setShowCancelModal(false); setCancelReason(""); }}
+                                onClick={() => { setShowCancelModal(false); setCancelReason(""); setCancelError(""); }}
                                 type="button"
                             >
                                 Retour

@@ -30,6 +30,7 @@ export async function apiFetch(endpoint, { method = 'GET', body = null } = {}) {
     let response;
     try {
         response = await fetch(`${BASE_URL}/api/${endpoint}`, config);
+        console.log(response);
     } catch {
         throw new ApiError('Impossible de joindre le serveur.', {
             status: 0,
@@ -40,6 +41,7 @@ export async function apiFetch(endpoint, { method = 'GET', body = null } = {}) {
     let payload;
     try {
         payload = await response.json();
+        console.log(payload);
     } catch {
         throw new ApiError('La réponse du serveur est invalide.', {
             status: response.status,
