@@ -1,14 +1,35 @@
 import { apiFetch } from "./api.js";
+import { readCache, writeCache } from "./financesCache.js";
 
 // ─── REMBOURSEMENTS ─────────────────────────────────────────────────────────────
 
 export async function fetchRemboursements(page = 1) {
-    return apiFetch(`finances/remboursements?page=${page}&per_page=20`);
+    const cacheKey = `remboursements_${page}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`finances/remboursements?page=${page}&per_page=20`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les remboursements.");
+    }
+    return result;
 }
 
 export async function fetchCommandesRemboursables() {
-    const res = await apiFetch("finances/commandes-remboursables");
-    return res.data ?? res.commandes ?? res ?? [];
+    const cacheKey = "commandes-remboursables";
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        const res = await apiFetch("finances/commandes-remboursables");
+        result = res.data ?? res.commandes ?? res ?? [];
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les commandes remboursables.");
+    }
+    return result;
 }
 
 export async function creerRemboursement(payload) {
@@ -18,7 +39,17 @@ export async function creerRemboursement(payload) {
 // ─── DÉPENSES ───────────────────────────────────────────────────────────────────
 
 export async function fetchDepenses(page = 1) {
-    return apiFetch(`finances/depenses?page=${page}&per_page=20`);
+    const cacheKey = `depenses_${page}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`finances/depenses?page=${page}&per_page=20`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les dépenses.");
+    }
+    return result;
 }
 
 export async function creerDepense(payload) {
@@ -28,7 +59,17 @@ export async function creerDepense(payload) {
 // ─── ENTRÉES ────────────────────────────────────────────────────────────────────
 
 export async function fetchEntrees(page = 1) {
-    return apiFetch(`finances/entrees?page=${page}&per_page=20`);
+    const cacheKey = `entrees_${page}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`finances/entrees?page=${page}&per_page=20`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les entrées.");
+    }
+    return result;
 }
 
 export async function creerEntree(payload) {

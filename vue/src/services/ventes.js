@@ -1,4 +1,5 @@
 import { apiFetch } from "./api.js";
+import { readCache, writeCache } from "./ventesCache.js";
 
 // ─── Constantes de navigation ─────────────────────────────────────────────────
 
@@ -65,16 +66,37 @@ function buildQuery(params = {}) {
  */
 export async function fetchVentesCommandes(params = {}) {
     const qs = buildQuery({ page: 1, per_page: 50, ...params });
-    return apiFetch(`ventes/commandes${qs}`);
+    const cacheKey = `commandes${qs}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`ventes/commandes${qs}`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les commandes.");
+    }
+    return result;
 }
 
 /** Détail complet : {commande, client, produits, paiements, livraisons} */
 export async function fetchVentesCommandeById(id) {
-    return apiFetch(`ventes/commandes/${id}`);
+    const cacheKey = `commande_${id}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`ventes/commandes/${id}`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger le détail de la commande.");
+    }
+    return result;
 }
 
 /** Création d'une commande */
 export async function createVentesCommande(body) {
+    console.log(JSON.stringify(body));
     return apiFetch("ventes/commandes", { method: "POST", body });
 }
 
@@ -90,12 +112,32 @@ export async function annulerVentesCommande(id, raison) {
  */
 export async function fetchVentesClients(params = {}) {
     const qs = buildQuery({ page: 1, per_page: 100, ...params });
-    return apiFetch(`ventes/clients${qs}`);
+    const cacheKey = `clients${qs}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`ventes/clients${qs}`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les clients.");
+    }
+    return result;
 }
 
 /** Détail client : {client, resume, dernieres_commandes} */
 export async function fetchVentesClientById(id) {
-    return apiFetch(`ventes/clients/${id}`);
+    const cacheKey = `client_${id}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`ventes/clients/${id}`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger le détail du client.");
+    }
+    return result;
 }
 
 /** Création d'un client */
@@ -111,15 +153,25 @@ export async function createVentesClient(body) {
  */
 export async function fetchVentesProduits(params = {}) {
     const qs = buildQuery(params);
-    const res = await apiFetch(`ventes/produits${qs}`);
-    return (res.data ?? []).map(p => ({
-        id:            p.id,
-        nom:           p.nom ?? "—",
-        prix_unitaire: Number(p.prix_unitaire ?? 0),
-        reduction:     Number(p.reduction ?? 0),
-        stock:         Number(p.stock_disponible ?? p.stock_actuel ?? 0),
-        type:          p.type_produit ?? "physique",
-    }));
+    const cacheKey = `produits${qs}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        const res = await apiFetch(`ventes/produits${qs}`);
+        result = (res.data ?? []).map(p => ({
+            id:            p.id,
+            nom:           p.nom ?? "—",
+            prix_unitaire: Number(p.prix_unitaire ?? 0),
+            reduction:     Number(p.reduction ?? 0),
+            stock:         Number(p.stock_disponible ?? p.stock_actuel ?? 0),
+            type:          p.type_produit ?? "physique",
+        }));
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les produits.");
+    }
+    return result;
 }
 
 // ─── Réservations ─────────────────────────────────────────────────────────────
@@ -130,7 +182,17 @@ export async function fetchVentesProduits(params = {}) {
  */
 export async function fetchVentesReservations(params = {}) {
     const qs = buildQuery({ page: 1, per_page: 100, ...params });
-    return apiFetch(`ventes/reservations${qs}`);
+    const cacheKey = `reservations${qs}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`ventes/reservations${qs}`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les réservations.");
+    }
+    return result;
 }
 
 /**
@@ -138,10 +200,20 @@ export async function fetchVentesReservations(params = {}) {
  * Les UUIDs n'ayant pas de "_", le premier "_" est le séparateur.
  */
 export async function fetchVentesReservationDetail(itemId) {
-    const sep = itemId.indexOf("_");
-    const commandeId = itemId.slice(0, sep);
-    const produitId  = itemId.slice(sep + 1);
-    return apiFetch(`ventes/reservations/${commandeId}/${produitId}`);
+    const cacheKey = `reservation_${itemId}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        const sep = itemId.indexOf("_");
+        const commandeId = itemId.slice(0, sep);
+        const produitId  = itemId.slice(sep + 1);
+        result = await apiFetch(`ventes/reservations/${commandeId}/${produitId}`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger le détail de la réservation.");
+    }
+    return result;
 }
 
 // ─── Statistiques ─────────────────────────────────────────────────────────────
@@ -153,7 +225,17 @@ export async function fetchVentesReservationDetail(itemId) {
  */
 export async function fetchVentesStatistiquesGeneral(params = {}) {
     const qs = buildQuery(params);
-    return apiFetch(`ventes/statistiques/general${qs}`);
+    const cacheKey = `stats_general${qs}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`ventes/statistiques/general${qs}`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les statistiques générales.");
+    }
+    return result;
 }
 
 /**
@@ -161,7 +243,17 @@ export async function fetchVentesStatistiquesGeneral(params = {}) {
  */
 export async function fetchVentesStatistiquesClients(params = {}) {
     const qs = buildQuery(params);
-    return apiFetch(`ventes/statistiques/clients${qs}`);
+    const cacheKey = `stats_clients${qs}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`ventes/statistiques/clients${qs}`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les statistiques clients.");
+    }
+    return result;
 }
 
 /**
@@ -169,7 +261,17 @@ export async function fetchVentesStatistiquesClients(params = {}) {
  */
 export async function fetchVentesStatistiquesCommandes(params = {}) {
     const qs = buildQuery(params);
-    return apiFetch(`ventes/statistiques/commandes${qs}`);
+    const cacheKey = `stats_commandes${qs}`;
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch(`ventes/statistiques/commandes${qs}`);
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les statistiques commandes.");
+    }
+    return result;
 }
 
 /**
@@ -178,40 +280,60 @@ export async function fetchVentesStatistiquesCommandes(params = {}) {
  * attendue par dashboard.jsx : {stats, courbe_ca, alertes, activites, top_clients}.
  */
 export async function fetchVentesDashboard() {
-    const [general, clients] = await Promise.all([
-        apiFetch("ventes/statistiques/general"),
-        apiFetch("ventes/statistiques/clients").catch(() => ({})),
-    ]);
+    const cacheKey = "dashboard_composite";
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        const [general, clients] = await Promise.all([
+            apiFetch("ventes/statistiques/general"),
+            apiFetch("ventes/statistiques/clients").catch(() => ({})),
+        ]);
 
-    const kpis = general.kpis ?? {};
+        const kpis = general.kpis ?? {};
 
-    return {
-        stats: {
-            total_commandes:     kpis.nb_commandes               ?? 0,
-            commandes_recues:    kpis.nb_commandes               ?? 0,
-            commandes_validees:  0,
-            livraisons_en_cours: general.commandes_en_livraison  ?? 0,
-            commandes_livrees:   general.commandes_livrees       ?? 0,
-            commandes_annulees:  general.commandes_annulees      ?? 0,
-            clients:             kpis.nb_clients                 ?? 0,
-            ca_total:            kpis.ca_total                   ?? 0,
-        },
-        courbe_ca:   [],
-        alertes:     [],
-        activites:   [],
-        top_clients: (clients.top_clients ?? []).map(c => ({
-            id:              c.id,
-            nom:             c.nom ?? "—",
-            initiales:       (c.nom ?? "").split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2) || "?",
-            total_commandes: c.commandes ?? 0,
-            ca_total:        c.ca        ?? 0,
-        })),
-    };
+        result = {
+            stats: {
+                total_commandes:     kpis.nb_commandes               ?? 0,
+                commandes_recues:    kpis.nb_commandes               ?? 0,
+                commandes_validees:  0,
+                livraisons_en_cours: general.commandes_en_livraison  ?? 0,
+                commandes_livrees:   general.commandes_livrees       ?? 0,
+                commandes_annulees:  general.commandes_annulees      ?? 0,
+                clients:             kpis.nb_clients                 ?? 0,
+                ca_total:            kpis.ca_total                   ?? 0,
+            },
+            courbe_ca:   [],
+            alertes:     [],
+            activites:   [],
+            top_clients: (clients.top_clients ?? []).map(c => ({
+                id:              c.id,
+                nom:             c.nom ?? "—",
+                initiales:       (c.nom ?? "").split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2) || "?",
+                total_commandes: c.commandes ?? 0,
+                ca_total:        c.ca        ?? 0,
+            })),
+        };
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger le tableau de bord des ventes.");
+    }
+    return result;
 }
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 
 /** Notifications de ventes non lues. */
 export async function fetchVentesNotifications() {
-    return apiFetch("ventes/notifications");
+    const cacheKey = "notifications";
+    const stale = readCache(cacheKey);
+    let result;
+    try {
+        result = await apiFetch("ventes/notifications");
+        writeCache(cacheKey, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les notifications.");
+    }
+    return result;
 }
