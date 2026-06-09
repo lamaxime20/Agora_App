@@ -20,6 +20,12 @@ use App\Http\Controllers\Api\Finances\FinancesReapprovisionnementController;
 use App\Http\Controllers\Api\Finances\FinancesSalaireController;
 use App\Http\Controllers\Api\Finances\FinancesJournalController;
 use App\Http\Controllers\Api\Finances\FinancesStatistiqueController;
+use App\Http\Controllers\Api\Ventes\VentesClientController;
+use App\Http\Controllers\Api\Ventes\VentesCommandeController;
+use App\Http\Controllers\Api\Ventes\VentesProduitController;
+use App\Http\Controllers\Api\Ventes\VentesReservationController;
+use App\Http\Controllers\Api\Ventes\VentesStatistiqueController;
+use App\Http\Controllers\Api\Ventes\VentesNotificationController;
 use App\Http\Controllers\Api\SignupController;
 use App\Http\Middleware\MiddlewareTokenEntrepriseCreation;
 use App\Http\Middleware\MiddlewareTokenAuth;
@@ -237,4 +243,68 @@ Route::prefix('finances')
 
         // Route 39 — statistiques thématiques détaillées
         Route::get('statistiques/autres', [FinancesStatistiqueController::class, 'autres']);
+    });
+
+// ─── Routes protégées module ventes ─────────────────────────────────────────
+
+Route::prefix('ventes')
+    ->middleware(MiddlewareTokenAuthorization::class)
+    ->group(function () {
+
+        // ── Clients ──────────────────────────────────────────────────────────
+        // Route 4 — export (avant route avec {id})
+        Route::get('clients/export', [VentesClientController::class, 'export']);
+
+        // Route 1 — liste des clients
+        Route::get('clients', [VentesClientController::class, 'index']);
+
+        // Route 3 — créer un client
+        Route::post('clients', [VentesClientController::class, 'store']);
+
+        // Route 2 — détail d'un client
+        Route::get('clients/{id}', [VentesClientController::class, 'show']);
+
+        // ── Commandes ────────────────────────────────────────────────────────
+        // Route 9 — export (avant route avec {id})
+        Route::get('commandes/export', [VentesCommandeController::class, 'export']);
+
+        // Route 5 — liste des commandes
+        Route::get('commandes', [VentesCommandeController::class, 'index']);
+
+        // Route 7 — créer une commande
+        Route::post('commandes', [VentesCommandeController::class, 'store']);
+
+        // Route 6 — détail d'une commande
+        Route::get('commandes/{id}', [VentesCommandeController::class, 'show']);
+
+        // Route 8 — annuler une commande
+        Route::post('commandes/{id}/annuler', [VentesCommandeController::class, 'annuler']);
+
+        // ── Produits ─────────────────────────────────────────────────────────
+        // Route 10 — liste des produits actifs avec stock disponible
+        Route::get('produits', [VentesProduitController::class, 'index']);
+
+        // ── Réservations ─────────────────────────────────────────────────────
+        // Route 13 — export (avant routes avec paramètres)
+        Route::get('reservations/export', [VentesReservationController::class, 'export']);
+
+        // Route 11 — liste des réservations
+        Route::get('reservations', [VentesReservationController::class, 'index']);
+
+        // Route 12 — détail d'une réservation (commande_id + produit_id)
+        Route::get('reservations/{commande_id}/{produit_id}', [VentesReservationController::class, 'show']);
+
+        // ── Statistiques ─────────────────────────────────────────────────────
+        // Route 14 — KPIs généraux
+        Route::get('statistiques/general', [VentesStatistiqueController::class, 'general']);
+
+        // Route 15 — classement des clients
+        Route::get('statistiques/clients', [VentesStatistiqueController::class, 'clients']);
+
+        // Route 16 — statistiques des commandes et produits
+        Route::get('statistiques/commandes', [VentesStatistiqueController::class, 'commandes']);
+
+        // ── Notifications ────────────────────────────────────────────────────
+        // Route 17 — notifications de l'utilisateur connecté
+        Route::get('notifications', [VentesNotificationController::class, 'index']);
     });
