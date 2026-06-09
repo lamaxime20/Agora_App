@@ -4,6 +4,7 @@ import {
     Package, User, Info, AlertCircle, CheckCircle2, Clock,
     TrendingDown, BarChart2, ChevronRight
 } from "lucide-react";
+import { readCache } from "../../../services/ventesCache.js";
 import { getBadgeConfig, formatDate, fetchVentesReservations, fetchVentesReservationDetail } from "../../../services/ventes.js";
 import "../../../assets/styles/components/modules/ventes/reservations.css";
 
@@ -135,8 +136,18 @@ function Reservations() {
 
     // ── Fetch liste ────────────────────────────────────────────────────────────
     useEffect(() => {
-        setLoading(true);
         setFetchError(null);
+
+        // 1. Lire et afficher les données du cache immédiatement
+        const cachedData = readCache("reservations?page=1&per_page=100");
+        if (cachedData?.data) {
+            setReservations(cachedData.data);
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
+
+        // 2. Lancer le fetch pour rafraîchir
         fetchVentesReservations()
             .then(json => setReservations(json.data ?? []))
             .catch(err => setFetchError(err.message))
@@ -422,7 +433,7 @@ function Reservations() {
                                             role="button"
                                             aria-label={`Voir détail réservation ${r.id}`}
                                         >
-                                            <td className="reservations-table__id">{r.id.toUpperCase()}</td>
+                                            <td className="reservations-table__id" title={r.id}>{r.id.split('_')[0].substring(0, 8)}...</td>
                                             <td className="reservations-table__product">{r.produit_nom}</td>
                                             <td className="reservations-table__qty">{r.quantite}</td>
                                             <td className="reservations-table__client">{r.client}</td>
