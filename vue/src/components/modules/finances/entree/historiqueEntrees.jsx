@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Search, Download, ChevronDown, ChevronLeft, ChevronRight, TrendingUp, AlertTriangle } from "lucide-react";
 import EntreePane from "./entreePane.jsx";
 import { fetchEntrees } from "../../../../services/financesP3.js";
+import { readCache } from "../../../../services/financesCache.js";
 
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -23,12 +24,22 @@ function HistoriqueEntrees() {
     const [exportOpen, setExportOpen] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
+        const cacheKey = `entrees_${page}`;
+        const cached = readCache(cacheKey);
+
+        if (cached) {
+            setData(cached.data);
+            setMeta(cached.meta);
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
+
         setErreur(null);
         fetchEntrees(page)
             .then(res => { setData(res.data); setMeta(res.meta); setLoading(false); })
             .catch(() => { setErreur("Impossible de charger l'historique."); setLoading(false); });
-    }, [page]);
+    }, [page]); // Le cache est lu à chaque changement de page.
 
     const filtres = data.filter(e => {
         const matchDate   = filtreDate ? e.date === filtreDate : true;

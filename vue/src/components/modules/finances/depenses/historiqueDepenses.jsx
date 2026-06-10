@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Search, Download, ChevronDown, ChevronLeft, ChevronRight, TrendingDown, AlertTriangle } from "lucide-react";
 import DepensePane from "./depensePane.jsx";
 import { fetchDepenses } from "../../../../services/financesP3.js";
+import { readCache } from "../../../../services/financesCache.js";
 
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -23,12 +24,22 @@ function HistoriqueDepenses() {
     const [exportOpen, setExportOpen] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
+        const cacheKey = `depenses_${page}`;
+        const cached = readCache(cacheKey);
+
+        if (cached) {
+            setData(cached.data);
+            setMeta(cached.meta);
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
+
         setErreur(null);
         fetchDepenses(page)
             .then(res => { setData(res.data); setMeta(res.meta); setLoading(false); })
             .catch(() => { setErreur("Impossible de charger l'historique."); setLoading(false); });
-    }, [page]);
+    }, [page]); // Le cache est lu à chaque changement de page.
 
     const filtres = data.filter(d => {
         const matchDate   = filtreDate ? d.date === filtreDate : true;
