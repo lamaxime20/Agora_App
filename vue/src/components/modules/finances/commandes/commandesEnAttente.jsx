@@ -152,7 +152,6 @@ function CommandesEnAttente() {
             setCommandes(donneesCache ?? []);
             setLoading(false);
         }
-        console.log(donneesCache);
         fetchCommandes()
             .then(data => setCommandes(data.data ?? []))
             .catch(setError)
@@ -280,7 +279,6 @@ function CommandesEnAttente() {
                             </tr>
                         ) : (
                             paginated.map(cmd => {
-                                console.log("commande :", cmd)
                                 const pct = getPct(cmd.total_paye, cmd.montant_commande);
                                 return (
                                     <tr

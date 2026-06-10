@@ -47,6 +47,7 @@ export async function fetchCommandeDetail(id) {
     let result;
     try {
         result = await apiFetch(`finances/commandes/${id}`);
+        console.log("finances dashboard", result);
         writeCache(cacheKey, result);
     } catch {
         if (stale) return stale;
@@ -75,6 +76,5 @@ export async function creerPaiement(payload) {
 
 export async function modifierMontantMinimum(id, montant_minimum_validation) {
     const body = { montant_minimum_validation };
-    console.log(body);
     return apiFetch(`finances/commandes/${id}/montant-minimum`, { method: "PATCH", body: body });
 }

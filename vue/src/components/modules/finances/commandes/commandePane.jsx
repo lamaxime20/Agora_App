@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { X, CreditCard, PlusCircle, Package, Loader } from "lucide-react";
-import EnregistrerPaiementForm from "./EnregistrerPaiementForm.jsx";
+import EnregistrerPaiementForm from "./enregistrerPaiementForm.jsx";
 import { fetchCommandeDetail } from "../../../../services/financesDashboard.js";
+import { readCache } from "../../../../services/financesCache.js";
 import "../../../../assets/styles/components/modules/finances/commandePane.css";
 
 function CommandePane({ commande, onClose }) {
@@ -11,22 +12,40 @@ function CommandePane({ commande, onClose }) {
 
     useEffect(() => {
         setLoadingDetail(true);
+        const cacheKey = `commande_detail_${commande.id}`;
+        const donneesCache = readCache(cacheKey);
+        console.log('hello')
+        if (donneesCache) {
+            setDetail(donneesCache);
+            setLoadingDetail(false);
+        }
         fetchCommandeDetail(commande.id)
-            .then(res => setDetail(res.data))
+            .then(res => setDetail(res)) // La réponse est directement l'objet attendu
             .catch(() => setDetail(null))
             .finally(() => setLoadingDetail(false));
+
+        console.log("les détails sont :", detail)
     }, [commande.id]);
 
-    const data = detail ?? commande;
+    // Fusionne les données de base avec les détails chargés
+    const data = detail ? { ...commande, ...detail.commande } : commande;
+    const client = detail?.client;
+    const produits = detail?.produits ?? [];
+    const paiements = detail?.paiements ?? [];
 
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
     const formatDate = (d) =>
         new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
-
-    const resteAPayer = data.total - data.paye;
-    const pct = Math.min(100, Math.round((data.paye / data.total) * 100));
+    
+    // Utilisation des bonnes clés du JSON
+    const montantCommande = data.montant_commande ?? 0;
+    const totalPaye = data.total_paye ?? 0;
+    const resteAPayer = montantCommande - totalPaye;
+    const pct = montantCommande > 0
+        ? Math.min(100, Math.round((totalPaye / montantCommande) * 100))
+        : 0;
 
     return (
         <>
@@ -38,14 +57,14 @@ function CommandePane({ commande, onClose }) {
             <aside
                 className="finCommandes-drawer"
                 role="complementary"
-                aria-label={`Détails de ${data.nom}`}
+                aria-label={`Détails de ${data.numero}`}
             >
                 <div className="finCommandes-drawer__handle">
                     <div className="finCommandes-drawer__handle-bar" />
                 </div>
 
                 <div className="finCommandes-drawer__header">
-                    <h2 className="finCommandes-drawer__title">{data.nom}</h2>
+                    <h2 className="finCommandes-drawer__title">{data.numero ?? "Détails"}</h2>
                     <button
                         className="finCommandes-drawer__close"
                         onClick={onClose}
@@ -77,32 +96,32 @@ function CommandePane({ commande, onClose }) {
                                 <p className="finCommandes-detail__section-label">Informations</p>
                                 <div className="finCommandes-detail__row">
                                     <span className="finCommandes-detail__key">Référence</span>
-                                    <span className="finCommandes-detail__val">{data.id}</span>
+                                    <span className="finCommandes-detail__val">{data.numero}</span>
                                 </div>
-                                {data.client && (
+                                {client && (
                                     <div className="finCommandes-detail__row">
                                         <span className="finCommandes-detail__key">Client</span>
-                                        <span className="finCommandes-detail__val">{data.client}</span>
+                                        <span className="finCommandes-detail__val">{`${client.prenom} ${client.nom}`}</span>
                                     </div>
                                 )}
-                                {data.date && (
+                                {data.date_commande && (
                                     <div className="finCommandes-detail__row">
                                         <span className="finCommandes-detail__key">Date</span>
-                                        <span className="finCommandes-detail__val">{formatDate(data.date)}</span>
+                                        <span className="finCommandes-detail__val">{formatDate(data.date_commande)}</span>
                                     </div>
                                 )}
                                 <div className="finCommandes-detail__row">
                                     <span className="finCommandes-detail__key">Montant total</span>
-                                    <span className="finCommandes-detail__val finCommandes-detail__val--amount">{formatMontant(data.total)}</span>
+                                    <span className="finCommandes-detail__val finCommandes-detail__val--amount">{formatMontant(montantCommande)}</span>
                                 </div>
                                 <div className="finCommandes-detail__row">
                                     <span className="finCommandes-detail__key">Seuil de validation</span>
-                                    <span className="finCommandes-detail__val finCommandes-detail__val--amount">{formatMontant(data.minimumValidation)}</span>
+                                    <span className="finCommandes-detail__val finCommandes-detail__val--amount">{formatMontant(data.montant_minimum_validation)}</span>
                                 </div>
                                 <div className="finCommandes-detail__row">
                                     <span className="finCommandes-detail__key">Montant payé</span>
                                     <span className="finCommandes-detail__val finCommandes-detail__val--amount" style={{ color: "var(--color-success)" }}>
-                                        {formatMontant(data.paye)}
+                                        {formatMontant(totalPaye)}
                                     </span>
                                 </div>
                                 <div className="finCommandes-detail__row">
@@ -111,7 +130,7 @@ function CommandePane({ commande, onClose }) {
                                         {formatMontant(resteAPayer)}
                                     </span>
                                 </div>
-                                <div className="finCommandes-detail__row">
+                                {data.etat_payement && (<div className="finCommandes-detail__row">
                                     <span className="finCommandes-detail__key">Statut</span>
                                     <span className="finCommandes-detail__val">
                                         <span className={`fin-badge ${data.statut === "partiellement payé" ? "fin-badge--warning" : "fin-badge--neutral"}`}>
@@ -119,6 +138,7 @@ function CommandePane({ commande, onClose }) {
                                         </span>
                                     </span>
                                 </div>
+                                )}
                             </section>
 
                             {/* Avancement */}
@@ -136,13 +156,13 @@ function CommandePane({ commande, onClose }) {
                                         />
                                     </div>
                                     <span className="finCommandes-progress__text">
-                                        {pct}% — {formatMontant(data.paye)} payés sur {formatMontant(data.total)}
+                                        {pct}% — {formatMontant(totalPaye)} payés sur {formatMontant(montantCommande)}
                                     </span>
                                 </div>
                             </section>
 
                             {/* Produits */}
-                            {data.produits?.length > 0 && (
+                            {produits.length > 0 && (
                                 <section>
                                     <p className="finCommandes-detail__section-label">
                                         <Package size={12} aria-hidden="true" style={{ display: "inline", marginRight: "4px" }} />
@@ -157,11 +177,11 @@ function CommandePane({ commande, onClose }) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {data.produits.map(p => (
-                                                <tr key={p.reference}>
+                                            {produits.map(p => (
+                                                <tr key={p.id}>
                                                     <td>{p.nom}</td>
                                                     <td>{p.quantite}</td>
-                                                    <td><strong>{formatMontant(p.sous_total)}</strong></td>
+                                                    <td><strong>{formatMontant(p.montant)}</strong></td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -175,7 +195,7 @@ function CommandePane({ commande, onClose }) {
                                     <CreditCard size={12} aria-hidden="true" style={{ display: "inline", marginRight: "4px" }} />
                                     Paiements associés
                                 </p>
-                                {!data.paiements?.length ? (
+                                {!paiements.length ? (
                                     <p className="finCommandes-payments__empty">Aucun paiement enregistré.</p>
                                 ) : (
                                     <table className="finCommandes-payments__table">
@@ -188,11 +208,11 @@ function CommandePane({ commande, onClose }) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {data.paiements.map((p, i) => (
+                                            {paiements.map((p, i) => (
                                                 <tr key={p.id ?? i}>
-                                                    <td>{formatDate(p.date)}</td>
+                                                    <td>{formatDate(p.date_payement)}</td>
                                                     <td><strong>{formatMontant(p.montant)}</strong></td>
-                                                    <td>{p.mode}</td>
+                                                    <td>{p.mode_payement}</td>
                                                     <td>{p.reference || "—"}</td>
                                                 </tr>
                                             ))}
@@ -220,7 +240,12 @@ function CommandePane({ commande, onClose }) {
 
             {showFormPaiement && (
                 <EnregistrerPaiementForm
-                    commande={data}
+                    commande={{
+                        id: data.id,
+                        nom: data.numero,
+                        total: montantCommande,
+                        paye: totalPaye
+                    }}
                     onClose={() => setShowFormPaiement(false)}
                 />
             )}
