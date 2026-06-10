@@ -5,7 +5,7 @@ import { fetchPaiements } from "../../../../services/financesDashboard.js";
 import { readCache } from "../../../../services/financesCache.js";
 
 const PER_PAGE = 20;
-const MODES    = ["carte bancaire", "virement bancaire", "espèces", "chèque"];
+const MODES    = { "carte_bancaire": "carte bancaire", "virement": "virement bancaire", "cash": "espèces", "cheque": "chèque" };
 
 function SkeletonRow() {
     return (
@@ -116,8 +116,8 @@ function HistoriquePaiements() {
                         aria-label="Filtrer par mode de paiement"
                     >
                         <option value="">Tous les modes</option>
-                        {MODES.map(m => (
-                            <option key={m} value={m}>{m}</option>
+                        {Object.entries(MODES).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
                         ))}
                     </select>
 
