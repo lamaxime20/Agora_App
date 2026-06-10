@@ -65,6 +65,9 @@ class FinancesRemboursementController extends FinancesBaseController
                     'r.cause',
                     'r.date_remboursement',
                     DB::raw("CONCAT(cl.nom, ' ', cl.prenom) as client"),
+                    'c.id as commande_id',
+                    'c.montant_commande as totalFacture',
+                    DB::raw("(SELECT COALESCE(SUM(p.montant), 0) FROM payements p WHERE p.commande = c.id AND p.actif = true) as total_paye"),
                     DB::raw("CONCAT(u.name, ' ', u.prename) as enregistre_par"),
                     $this->numeroCommandeRaw(),
                 ])
@@ -77,6 +80,11 @@ class FinancesRemboursementController extends FinancesBaseController
                     'cause'              => $row->cause,
                     'date_remboursement' => substr($row->date_remboursement, 0, 10),
                     'enregistre_par'     => $row->enregistre_par,
+                    'commandeAssociee' => [
+                        'id_commande' => $row->commande_id,
+                        'totalFacture' => (float) $row->totalFacture,
+                        'totalPaye' => (float) $row->total_paye,
+                    ],
                 ]);
 
             return response()->json([

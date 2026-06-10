@@ -4,6 +4,8 @@ function DetailsCommandeRemboursementModal({ commande, onClose }) {
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
+    console.log("commande :", commande);
+
     return (
         <div className="finRemb-modal__overlay" role="dialog" aria-modal="true" aria-labelledby="detailcmd-remb-title">
             <div className="finRemb-modal__panel">

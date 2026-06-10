@@ -17,8 +17,6 @@ function RemboursementPane({ remboursement, onClose }) {
     const cmd = remboursement.commandeAssociee ?? {};
     const cmdLabel = cmd.nom ?? `${cmd.client ?? ""} — ${cmd.id ?? ""}`.trim();
 
-    console.log("remboursement :", remboursement);
-
     return (
         <>
             <div className="finRemb-drawer__overlay" onClick={onClose} aria-hidden="true" />
@@ -130,6 +128,8 @@ function RemboursementPane({ remboursement, onClose }) {
                         id: remboursement.commande_numero,
                         nom: remboursement.client,
                         client: remboursement.client,
+                        totalFacture: cmd.totalFacture,
+                        totalPaye: cmd.totalPaye,
                         // Les autres détails de la commande (totalFacture, totalPaye) devront être récupérés si nécessaire
                     }}
                     onClose={() => setShowCommandeModal(false)}
