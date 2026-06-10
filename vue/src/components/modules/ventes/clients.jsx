@@ -5,6 +5,7 @@ import {
     AlertCircle, SlidersHorizontal, ReceiptText
 } from "lucide-react";
 import { getBadgeConfig, formatMontant, formatDate, fetchVentesClients, fetchVentesClientById } from "../../../services/ventes.js";
+import { readCache } from "../../../services/ventesCache.js";
 import "../../../assets/styles/components/modules/ventes/clients.css";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -84,6 +85,18 @@ function Clients() {
 
     // ── Fetch liste ────────────────────────────────────────────────────────────
     useEffect(() => {
+        setFetchError(null);
+
+        // 1. Lire et afficher les données du cache immédiatement
+        const cachedData = readCache("clients?page=1&per_page=100");
+        if (cachedData?.data) {
+            setClients(cachedData.data);
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
+
+        // 2. Lancer le fetch pour rafraîchir
         fetchVentesClients()
             .then(json => setClients(json.data ?? []))
             .catch(err => setFetchError(err.message))
@@ -101,12 +114,24 @@ function Clients() {
         setSelectedClient(client);
         setDetailData(null);
         setDetailError(null);
-        setLoadingDetail(true);
+
+        const cacheKey = `client_${client.id}`;
+        const cachedData = readCache(cacheKey);
+
+        if (cachedData) {
+            setDetailData(cachedData);
+            setLoadingDetail(false);
+        } else {
+            setLoadingDetail(true);
+        }
+
         fetchVentesClientById(client.id)
             .then(data => setDetailData(data))
-            .catch(err => setDetailError(err.message))
+            .catch(err => {
+                if (!cachedData) setDetailError(err.message);
+            })
             .finally(() => setLoadingDetail(false));
-    }, []);
+    }, []); // readCache est une fonction pure, pas besoin de l'ajouter aux dépendances
 
     const closeDetail = useCallback(() => {
         setSelectedClient(null);

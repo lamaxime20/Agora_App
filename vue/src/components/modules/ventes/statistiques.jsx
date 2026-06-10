@@ -4,6 +4,7 @@ import {
     TrendingUp, TrendingDown, Truck, CheckCircle2,
     XCircle, AlertTriangle, Award, ChevronUp, ChevronDown
 } from "lucide-react";
+import { readCache } from "../../../services/ventesCache.js";
 import { formatMontant, formatDate, fetchVentesStatistiquesGeneral, fetchVentesStatistiquesClients, fetchVentesStatistiquesCommandes } from "../../../services/ventes.js";
 import "../../../assets/styles/components/modules/ventes/statistiques.css";
 
@@ -86,6 +87,14 @@ function Statistiques() {
 
     // ── Fetch vue générale au montage ──────────────────────────────────────────
     useEffect(() => {
+        const cachedData = readCache("stats_general");
+        if (cachedData) {
+            setGeneralData(cachedData);
+            setLoadingGeneral(false);
+        } else {
+            setLoadingGeneral(true);
+        }
+
         fetchVentesStatistiquesGeneral()
             .then(d => setGeneralData(d))
             .catch(e => setErrorGeneral(e.message))
@@ -95,20 +104,32 @@ function Statistiques() {
     // ── Fetch au changement d'onglet ───────────────────────────────────────────
     useEffect(() => {
         if (activeTab === "clients" && !clientsData && !loadingClients) {
-            setLoadingClients(true);
+            const cachedData = readCache("stats_clients");
+            if (cachedData) {
+                setClientsData(cachedData);
+                setLoadingClients(false);
+            } else {
+                setLoadingClients(true);
+            }
             fetchVentesStatistiquesClients()
                 .then(d => setClientsData(d))
                 .catch(e => setErrorClients(e.message))
                 .finally(() => setLoadingClients(false));
         }
         if (activeTab === "commandes" && !commandesData && !loadingCommandes) {
-            setLoadingCommandes(true);
+            const cachedData = readCache("stats_commandes");
+            if (cachedData) {
+                setCommandesData(cachedData);
+                setLoadingCommandes(false);
+            } else {
+                setLoadingCommandes(true);
+            }
             fetchVentesStatistiquesCommandes()
                 .then(d => setCommandesData(d))
                 .catch(e => setErrorCommandes(e.message))
                 .finally(() => setLoadingCommandes(false));
         }
-    }, [activeTab]);
+    }, [activeTab, clientsData, loadingClients, commandesData, loadingCommandes]);
 
     const retryGeneral = () => {
         setErrorGeneral(null);
