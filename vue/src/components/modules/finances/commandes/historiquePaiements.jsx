@@ -40,9 +40,8 @@ function HistoriquePaiements() {
             setPaiements(donneesCache ?? []);
             setLoading(false);
         }
-        console.log(donneesCache);
         fetchPaiements()
-            .then(data => setPaiements(data.data?.paiements ?? []))
+            .then(data => setPaiements(data.data ?? []))
             .catch(setError)
             .finally(() => setLoading(false));
     }, []);
@@ -51,14 +50,14 @@ function HistoriquePaiements() {
         return paiements.filter(p => {
             const q = recherche.toLowerCase();
             const matchSearch = !q ||
-                p.id.toLowerCase().includes(q) ||
-                p.utilisateur.toLowerCase().includes(q) ||
-                p.commandeAssociee.nom.toLowerCase().includes(q);
-            const matchDate = !filtreDate || p.date === filtreDate;
-            const matchMode = !filtreMode || p.mode === filtreMode;
+                p.id.toLowerCase().includes(q) || //
+                p.client.toLowerCase().includes(q) ||
+                p.commande_numero.toLowerCase().includes(q);
+            const matchDate = !filtreDate || p.date_payement === filtreDate;
+            const matchMode = !filtreMode || p.mode_payement === filtreMode;
             return matchSearch && matchDate && matchMode;
         });
-    }, [paiements, recherche, filtreDate, filtreMode]);
+    }, [paiements, recherche, filtreDate, filtreMode]); //
 
     const totalPages = Math.max(1, Math.ceil(paiementsFiltres.length / PER_PAGE));
     const paginated  = paiementsFiltres.slice((page - 1) * PER_PAGE, page * PER_PAGE);
@@ -200,13 +199,13 @@ function HistoriquePaiements() {
                                     onKeyDown={e => e.key === "Enter" && setSelectedPaiement(p)}
                                 >
                                     <td className="finCommandes-table__id">{p.id}</td>
-                                    <td className="finCommandes-table__date">{formatDate(p.date)}</td>
+                                    <td className="finCommandes-table__date">{formatDate(p.date_payement)}</td>
                                     <td className="finCommandes-table__amount">{formatMontant(p.montant)}</td>
                                     <td>
-                                        <span className="fin-badge fin-badge--info">{p.mode}</span>
+                                        <span className="fin-badge fin-badge--info">{p.mode_payement}</span>
                                     </td>
-                                    <td className="finCommandes-table__id">{p.reference || "—"}</td>
-                                    <td className="finCommandes-table__name">{p.utilisateur}</td>
+                                    <td className="finCommandes-table__id">{p.reference_transaction || "—"}</td>
+                                    <td className="finCommandes-table__name">{p.enregistre_par}</td>
                                 </tr>
                             ))
                         )}
@@ -245,15 +244,15 @@ function HistoriquePaiements() {
                         >
                             <div className="finCommandes-card__top">
                                 <span className="finCommandes-card__id">{p.id}</span>
-                                <span className="fin-badge fin-badge--info">{p.mode}</span>
+                                <span className="fin-badge fin-badge--info">{p.mode_payement}</span>
                             </div>
-                            <p className="finCommandes-card__name">{p.commandeAssociee.nom}</p>
+                            <p className="finCommandes-card__name">{p.client} ({p.commande_numero})</p>
                             <div className="finCommandes-card__meta">
                                 <span className="finCommandes-card__amount">{formatMontant(p.montant)}</span>
-                                <span className="finCommandes-card__date">{formatDate(p.date)}</span>
+                                <span className="finCommandes-card__date">{formatDate(p.date_payement)}</span>
                             </div>
-                            <div className="finCommandes-card__footer">
-                                <span className="finCommandes-card__id">{p.utilisateur}</span>
+                            <div className="finCommandes-card__footer" style={{ justifyContent: 'flex-end' }}>
+                                <span className="finCommandes-card__id">Par: {p.enregistre_par}</span>
                             </div>
                         </article>
                     ))
@@ -293,7 +292,19 @@ function HistoriquePaiements() {
 
             {selectedPaiement && (
                 <PaiementPane
-                    paiement={selectedPaiement}
+                    paiement={{
+                        id: selectedPaiement.id,
+                        date: selectedPaiement.date_payement,
+                        montant: selectedPaiement.montant,
+                        mode: selectedPaiement.mode_payement,
+                        reference: selectedPaiement.reference_transaction,
+                        utilisateur: selectedPaiement.enregistre_par,
+                        commandeAssociee: {
+                            id: selectedPaiement.commande_numero,
+                            nom: selectedPaiement.client,
+                            total: selectedPaiement.montant_commande,
+                        }
+                    }}
                     onClose={() => setSelectedPaiement(null)}
                 />
             )}

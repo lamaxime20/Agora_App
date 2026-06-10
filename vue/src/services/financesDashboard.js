@@ -62,7 +62,7 @@ export async function fetchPaiements(page = 1) {
     let result;
     try {
         result = await apiFetch(`finances/paiements?page=${page}&per_page=20`);
-        writeCache(cacheKey, result.paiements ?? []);
+        writeCache(cacheKey, result.data ?? []);
     } catch {
         if (stale) return stale;
         throw new Error("Impossible de charger les paiements.");
