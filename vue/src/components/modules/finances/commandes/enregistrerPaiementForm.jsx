@@ -6,11 +6,11 @@ import "../../../../assets/styles/components/modules/finances/enregistrerPaiemen
 const MODES = ["virement bancaire", "carte bancaire", "chèque", "espèces"];
 
 /* ── Étape 1 : saisie du formulaire ── */
-function EtapeFormulaire({ commande, onSubmit, onClose }) {
+function EtapeFormulaire({ commande, onSubmit, onClose, apiError }) {
     const [montant,      setMontant]      = useState("");
     const [mode,         setMode]         = useState("virement bancaire");
     const [reference,    setReference]    = useState("");
-    const [erreur,       setErreur]       = useState("");
+    const [erreur,       setErreur]       = useState(apiError ?? "");
 
     const fmt = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -242,23 +242,27 @@ function EtapeSucces({ onClose }) {
 /* ── Composant principal ── */
 function EnregistrerPaiementForm({ commande, onClose }) {
     const [etape,     setEtape]     = useState("form");
+    const [apiError,  setApiError]  = useState(null);
     const [paiement,  setPaiement]  = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
     const handleFormSubmit = (data) => {
+        setApiError(null);
         setPaiement(data);
         setEtape("confirm");
     };
 
     const handleConfirm = async () => {
         setSubmitting(true);
+        setApiError(null);
         try {
             await creerPaiement({
                 commande_id: commande.id,
                 ...paiement,
             }, commande.id);
             setEtape("success");
-        } catch {
+        } catch (err) {
+            setApiError(err.message || "Une erreur inattendue est survenue.");
             setEtape("form");
         } finally {
             setSubmitting(false);
@@ -301,6 +305,7 @@ function EnregistrerPaiementForm({ commande, onClose }) {
                     <EtapeFormulaire
                         commande={commande}
                         onSubmit={handleFormSubmit}
+                        apiError={apiError}
                         onClose={onClose}
                     />
                 )}

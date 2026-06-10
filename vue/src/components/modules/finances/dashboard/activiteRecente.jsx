@@ -8,8 +8,10 @@ function ActiviteRecente({ loading, activites }) {
     const fmt = (n) =>
         new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(n);
 
-    const formatDate = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short" }).format(new Date(d));
+    const formatDate = (d) => {
+        if (!d) return "";
+        return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short" }).format(new Date(d));
+    }
 
     if (loading) {
         return (
