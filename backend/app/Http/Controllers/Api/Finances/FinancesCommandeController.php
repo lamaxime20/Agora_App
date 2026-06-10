@@ -408,11 +408,11 @@ class FinancesCommandeController extends FinancesBaseController
                 ], 404);
             }
 
-            if ($commande->statut !== 'validee' || $commande->etat_payement === 'paye') {
+            if ($commande->statut == 'validee' || $commande->etat_payement === 'paye') {
                 return response()->json([
                     'ok'      => false,
                     'code'    => 'INVALID_STATUS',
-                    'message' => 'Impossible de modifier le montant minimum : commande déjà soldée ou non validée.',
+                    'message' => 'Impossible de modifier le montant minimum : commande déjà soldée ou validée.',
                 ], 422);
             }
 

@@ -72,3 +72,9 @@ export async function fetchPaiements(page = 1) {
 export async function creerPaiement(payload) {
     return apiFetch("finances/paiements", { method: "POST", body: payload });
 }
+
+export async function modifierMontantMinimum(id, montant_minimum_validation) {
+    const body = { montant_minimum_validation };
+    console.log(body);
+    return apiFetch(`finances/commandes/${id}/montant-minimum`, { method: "PATCH", body: body });
+}

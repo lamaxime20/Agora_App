@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Receipt, AlertCircle, ChevronLeft, ChevronRight, Edit2, X } from "lucide-react";
+import { Search, Receipt, AlertCircle, ChevronLeft, ChevronRight, Edit2, X, AlertTriangle } from "lucide-react";
 import CommandePane from "./CommandePane.jsx";
-import { fetchCommandes } from "../../../../services/financesDashboard.js";
+import { fetchCommandes, modifierMontantMinimum } from "../../../../services/financesDashboard.js";
 import { readCache } from "../../../../services/financesCache.js";
 
 const PER_PAGE = 20;
@@ -33,15 +33,25 @@ function SkeletonCard() {
 }
 
 function SeuilModal({ commande, onClose, onConfirm }) {
-    const [valeur, setValeur] = useState(String(commande.minimumValidation));
+    const [valeur,     setValeur]     = useState(String(commande.montant_minimum_validation));
+    const [submitting, setSubmitting] = useState(false);
+    const [error,      setError]      = useState(null);
 
     const fmt = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         const val = parseFloat(valeur);
-        if (!isNaN(val) && val > 0 && val <= commande.total) {
-            onConfirm(val);
+        if (isNaN(val) || val <= 0 || val > commande.montant_commande) return;
+
+        setSubmitting(true);
+        setError(null);
+        try {
+            await onConfirm(val);
+        } catch (err) {
+            setError(err.message || "Une erreur est survenue.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -68,7 +78,7 @@ function SeuilModal({ commande, onClose, onConfirm }) {
                 </div>
                 <div className="finCommandes-seuil-modal__body">
                     <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)", lineHeight: "var(--line-height-relaxed)" }}>
-                        Commande <strong style={{ color: "var(--color-text)" }}>{commande.id}</strong>.
+                        Commande <strong style={{ color: "var(--color-text)" }}>{commande.numero}</strong>.
                         Total facturé : <strong style={{ color: "var(--color-text)" }}>{fmt(commande.montant_commande)}</strong>.
                     </p>
                     <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", background: "rgba(243,156,18,0.07)", border: "1px solid rgba(243,156,18,0.2)", borderRadius: "var(--radius-lg)", padding: "var(--space-3) var(--space-4)" }}>
@@ -76,6 +86,12 @@ function SeuilModal({ commande, onClose, onConfirm }) {
                     </p>
                     <div className="finCommandes-form__field">
                         <label className="finCommandes-form__label" htmlFor="nouveau-seuil">
+                            {error && (
+                                <div className="finCommandes-paiement-erreur" style={{ marginBottom: "var(--space-3)" }}>
+                                    <AlertTriangle size={15} aria-hidden="true" />
+                                    {error}
+                                </div>
+                            )}
                             Nouveau seuil de validation (FCFA)
                         </label>
                         <input
@@ -98,17 +114,18 @@ function SeuilModal({ commande, onClose, onConfirm }) {
                     <button
                         className="app-button app-button--ghost"
                         onClick={onClose}
+                        disabled={submitting}
                         type="button"
                     >
                         Annuler
                     </button>
                     <button
                         className="app-button app-button--primary"
-                        onClick={handleConfirm}
+                        onClick={!submitting ? handleConfirm : undefined}
                         type="button"
-                        disabled={!valeur || parseFloat(valeur) <= 0 || parseFloat(valeur) > commande.total}
+                        disabled={submitting || !valeur || parseFloat(valeur) <= 0 || parseFloat(valeur) > commande.montant_commande}
                     >
-                        Confirmer
+                        {submitting ? "Confirmation..." : "Confirmer"}
                     </button>
                 </div>
             </div>
@@ -159,15 +176,22 @@ function CommandesEnAttente() {
     const handleRecherche = (v) => { setRecherche(v); setPage(1); };
     const handleStatut    = (v) => { setFiltreStatut(v); setPage(1); };
 
-    const confirmerSeuil = (nouvelleValeur) => {
-        setCommandes(prev =>
-            prev.map(c =>
-                c.id === seuilModal.id
-                    ? { ...c, minimumValidation: nouvelleValeur }
-                    : c
-            )
-        );
-        setSeuilModal(null);
+    const confirmerSeuil = async (nouvelleValeur) => {
+        if (!seuilModal) return;
+
+        try {
+            await modifierMontantMinimum(seuilModal.id, nouvelleValeur);
+            setCommandes(prev =>
+                prev.map(c =>
+                    c.id === seuilModal.id
+                        ? { ...c, montant_minimum_validation: nouvelleValeur }
+                        : c
+                )
+            );
+            setSeuilModal(null);
+        } catch (error) {
+            throw error; // L'erreur sera gérée par la modale
+        }
     };
 
     const ouvrirSeuilModal = (e, cmd) => {
@@ -267,7 +291,7 @@ function CommandesEnAttente() {
                                         onKeyDown={e => e.key === "Enter" && setSelectedCommande(cmd)}
                                         aria-label={`Voir détail de ${cmd.client}`}
                                     >
-                                        <td className="finCommandes-table__id">{cmd.id}</td>
+                                        <td className="finCommandes-table__id">{cmd.numero}</td>
                                         <td className="finCommandes-table__name">{cmd.client}</td>
                                         <td className="finCommandes-table__amount">{formatMontant(cmd.montant_commande)}</td>
                                         <td>
@@ -335,7 +359,7 @@ function CommandesEnAttente() {
                                 onKeyDown={e => e.key === "Enter" && setSelectedCommande(cmd)}
                             >
                                 <div className="finCommandes-card__top">
-                                    <span className="finCommandes-card__id">{cmd.id}</span>
+                                    <span className="finCommandes-card__id">{cmd.numero}</span>
                                     <span className={`fin-badge ${cmd.etat_payement === "partiellement payé" ? "fin-badge--warning" : "fin-badge--neutral"}`}>
                                         {cmd.etat_payement}
                                     </span>
