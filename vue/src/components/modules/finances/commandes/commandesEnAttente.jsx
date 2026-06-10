@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Search, Receipt, AlertCircle, ChevronLeft, ChevronRight, Edit2, X } from "lucide-react";
 import CommandePane from "./CommandePane.jsx";
 import { fetchCommandes } from "../../../../services/financesDashboard.js";
+import { readCache } from "../../../../services/financesCache.js";
 
 const PER_PAGE = 20;
 
@@ -128,8 +129,15 @@ function CommandesEnAttente() {
     useEffect(() => {
         setLoading(true);
         setError(null);
+        const cacheKey = `commandes_${page}`
+        const donneesCache = readCache(cacheKey);
+        if (donneesCache) {
+            setCommandes(donneesCache ?? []);
+            setLoading(false);
+        }
+        console.log(donneesCache);
         fetchCommandes()
-            .then(data => setCommandes(data.commandes ?? []))
+            .then(data => setCommandes(data.data ?? []))
             .catch(setError)
             .finally(() => setLoading(false));
     }, []);
@@ -248,7 +256,8 @@ function CommandesEnAttente() {
                             </tr>
                         ) : (
                             paginated.map(cmd => {
-                                const pct = getPct(cmd.paye, cmd.total);
+                                console.log("commande :", cmd)
+                                const pct = getPct(cmd.total_paye, cmd.montant_commande);
                                 return (
                                     <tr
                                         key={cmd.id}
@@ -256,21 +265,21 @@ function CommandesEnAttente() {
                                         onClick={() => setSelectedCommande(cmd)}
                                         tabIndex={0}
                                         onKeyDown={e => e.key === "Enter" && setSelectedCommande(cmd)}
-                                        aria-label={`Voir détail de ${cmd.nom}`}
+                                        aria-label={`Voir détail de ${cmd.client}`}
                                     >
                                         <td className="finCommandes-table__id">{cmd.id}</td>
-                                        <td className="finCommandes-table__name">{cmd.nom}</td>
-                                        <td className="finCommandes-table__amount">{formatMontant(cmd.total)}</td>
+                                        <td className="finCommandes-table__name">{cmd.client}</td>
+                                        <td className="finCommandes-table__amount">{formatMontant(cmd.montant_commande)}</td>
                                         <td>
                                             <button
                                                 className="finCommandes-table__seuil-btn"
                                                 onClick={e => ouvrirSeuilModal(e, cmd)}
                                                 title="Modifier le seuil de validation"
                                                 type="button"
-                                                aria-label={`Modifier le seuil de ${cmd.nom}`}
+                                                aria-label={`Modifier le seuil de ${cmd.client}`}
                                             >
                                                 <Edit2 size={11} aria-hidden="true" />
-                                                {formatMontant(cmd.minimumValidation)}
+                                                {formatMontant(cmd.montant_minimum_validation)}
                                             </button>
                                         </td>
                                         <td>
@@ -286,13 +295,13 @@ function CommandesEnAttente() {
                                                     />
                                                 </div>
                                                 <span className="finCommandes-progress__text">
-                                                    {formatMontant(cmd.paye)} / {formatMontant(cmd.total)}
+                                                    {formatMontant(cmd.total_paye)} / {formatMontant(cmd.montant_commande)}
                                                 </span>
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={`fin-badge ${cmd.statut === "partiellement payé" ? "fin-badge--warning" : "fin-badge--neutral"}`}>
-                                                {cmd.statut}
+                                            <span className={`fin-badge ${cmd.etat_payement === "partiellement payé" ? "fin-badge--warning" : "fin-badge--neutral"}`}>
+                                                {cmd.etat_payement}
                                             </span>
                                         </td>
                                     </tr>
@@ -316,7 +325,7 @@ function CommandesEnAttente() {
                     </div>
                 ) : (
                     paginated.map(cmd => {
-                        const pct = getPct(cmd.paye, cmd.total);
+                        const pct = getPct(cmd.total_paye, cmd.montant_commande);
                         return (
                             <article
                                 key={cmd.id}
@@ -327,11 +336,11 @@ function CommandesEnAttente() {
                             >
                                 <div className="finCommandes-card__top">
                                     <span className="finCommandes-card__id">{cmd.id}</span>
-                                    <span className={`fin-badge ${cmd.statut === "partiellement payé" ? "fin-badge--warning" : "fin-badge--neutral"}`}>
-                                        {cmd.statut}
+                                    <span className={`fin-badge ${cmd.etat_payement === "partiellement payé" ? "fin-badge--warning" : "fin-badge--neutral"}`}>
+                                        {cmd.etat_payement}
                                     </span>
                                 </div>
-                                <p className="finCommandes-card__name">{cmd.nom}</p>
+                                <p className="finCommandes-card__name">{cmd.client}</p>
                                 <div className="finCommandes-progress" style={{ marginBottom: "var(--space-3)" }}>
                                     <div className="finCommandes-progress__bar">
                                         <div
@@ -340,19 +349,19 @@ function CommandesEnAttente() {
                                         />
                                     </div>
                                     <span className="finCommandes-progress__text">
-                                        {formatMontant(cmd.paye)} / {formatMontant(cmd.total)}
+                                        {formatMontant(cmd.total_paye)} / {formatMontant(cmd.montant_commande)}
                                     </span>
                                 </div>
                                 <div className="finCommandes-card__footer">
-                                    <span className="finCommandes-card__amount">{formatMontant(cmd.total)}</span>
+                                    <span className="finCommandes-card__amount">{formatMontant(cmd.montant_commande)}</span>
                                     <button
                                         className="finCommandes-table__seuil-btn"
                                         onClick={e => ouvrirSeuilModal(e, cmd)}
                                         type="button"
-                                        aria-label={`Modifier le seuil de ${cmd.nom}`}
+                                        aria-label={`Modifier le seuil de ${cmd.client}`}
                                     >
                                         <Edit2 size={11} aria-hidden="true" />
-                                        Seuil : {formatMontant(cmd.minimumValidation)}
+                                        Seuil : {formatMontant(cmd.montant_minimum_validation)}
                                     </button>
                                 </div>
                             </article>

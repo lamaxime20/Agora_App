@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Search, ChevronDown, Download, Receipt, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import PaiementPane from "./PaiementPane.jsx";
 import { fetchPaiements } from "../../../../services/financesDashboard.js";
+import { readCache } from "../../../../services/financesCache.js";
 
 const PER_PAGE = 20;
 const MODES    = ["carte bancaire", "virement bancaire", "espèces", "chèque"];
@@ -33,6 +34,13 @@ function HistoriquePaiements() {
     useEffect(() => {
         setLoading(true);
         setError(null);
+        const cacheKey = `paiements_${page}`
+        const donneesCache = readCache(cacheKey);
+        if (donneesCache) {
+            setPaiements(donneesCache ?? []);
+            setLoading(false);
+        }
+        console.log(donneesCache);
         fetchPaiements()
             .then(data => setPaiements(data.data?.paiements ?? []))
             .catch(setError)

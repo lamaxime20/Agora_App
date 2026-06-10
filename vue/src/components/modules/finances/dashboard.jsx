@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { RefreshCw, AlertCircle } from "lucide-react";
 
 import { fetchDashboard } from "../../../services/financesDashboard.js";
+import { readCache } from "../../../services/financesCache.js";
 import ArgentVirtuelCard  from "./dashboard/argentVirtuelCard.jsx";
 import BilanCard          from "./dashboard/bilanCard.jsx";
 import KpiCards           from "./dashboard/kpiCards.jsx";
@@ -33,6 +34,11 @@ function Dashboard() {
     const charger = () => {
         setLoading(true);
         setError(null);
+        const donneesCache = readCache("fin-dashboard");
+        if (donneesCache) {
+            setPayload(donneesCache);
+            setLoading(false);
+        }
         fetchDashboard()
             .then(setPayload)
             .catch(setError)
