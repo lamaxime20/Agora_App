@@ -62,6 +62,7 @@ export async function fetchPaiements(page = 1) {
     let result;
     try {
         result = await apiFetch(`finances/paiements?page=${page}&per_page=20`);
+        console.log("finances dashboard", result);
         writeCache(cacheKey, result.data ?? []);
     } catch {
         if (stale) return stale;

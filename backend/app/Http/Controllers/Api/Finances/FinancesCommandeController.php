@@ -729,6 +729,7 @@ class FinancesCommandeController extends FinancesBaseController
                     'p.mode_payement',
                     'p.reference_transaction',
                     'c.montant_commande',
+                    'c.id as commande_id',
                     DB::raw("CONCAT(cl.nom, ' ', cl.prenom) as client"),
                     DB::raw("CONCAT(u.name, ' ', u.prename) as enregistre_par"),
                     $this->numeroCommandeRaw(),
@@ -744,6 +745,7 @@ class FinancesCommandeController extends FinancesBaseController
                     'date_payement'         => substr($row->date_payement, 0, 10),
                     'enregistre_par'        => $row->enregistre_par,
                     'montant_commande'      => (float) $row->montant_commande,
+                    'commande_id'           => $row->commande_id,
                 ]);
 
             return response()->json([

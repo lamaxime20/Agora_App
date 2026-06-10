@@ -300,9 +300,10 @@ function HistoriquePaiements() {
                         reference: selectedPaiement.reference_transaction,
                         utilisateur: selectedPaiement.enregistre_par,
                         commandeAssociee: {
-                            id: selectedPaiement.commande_numero,
+                            id: selectedPaiement.commande_id,
                             nom: selectedPaiement.client,
                             total: selectedPaiement.montant_commande,
+                            numero_commande: selectedPaiement.commande_numero,
                         }
                     }}
                     onClose={() => setSelectedPaiement(null)}

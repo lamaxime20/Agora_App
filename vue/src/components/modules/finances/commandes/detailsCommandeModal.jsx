@@ -91,7 +91,7 @@ function DetailsCommandeModal({ commande, onClose }) {
                         <>
                             <div className="finCommandes-detail__row">
                                 <span className="finCommandes-detail__key">Référence</span>
-                                <span className="finCommandes-detail__val">{commande.id}</span>
+                                <span className="finCommandes-detail__val">{commande.numero_commande}</span>
                             </div>
                             <div className="finCommandes-detail__row">
                                 <span className="finCommandes-detail__key">Libellé</span>
