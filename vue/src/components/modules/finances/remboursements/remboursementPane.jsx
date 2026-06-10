@@ -5,8 +5,11 @@ import DetailsCommandeRemboursementModal from "./detailsCommandeRemboursementMod
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-const fmtDate = (d) =>
-    new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d));
+const fmtDate = (d) => {
+    // Si la date est invalide (null, undefined, ou chaîne invalide), ne rien afficher pour éviter une erreur.
+    if (!d || isNaN(new Date(d))) return "";
+    return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d));
+};
 
 function RemboursementPane({ remboursement, onClose }) {
     const [showCommandeModal, setShowCommandeModal] = useState(false);

@@ -2,12 +2,16 @@ import { useState, useEffect } from "react";
 import { Search, Download, ChevronDown, ChevronLeft, ChevronRight, RotateCcw, AlertTriangle } from "lucide-react";
 import RemboursementPane from "./remboursementPane.jsx";
 import { fetchRemboursements } from "../../../../services/financesP3.js";
+import { readCache } from "../../../../services/financesCache.js";
 
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-const fmtDate = (d) =>
-    new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+const fmtDate = (d) => {
+    // Si la date est invalide (null, undefined, ou chaîne invalide), ne rien afficher pour éviter une erreur.
+    if (!d || isNaN(new Date(d))) return "";
+    return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+};
 
 const SKELETON_ROWS = Array.from({ length: 5 });
 
@@ -23,7 +27,17 @@ function HistoriqueRemboursements() {
     const [exportOpen, setExportOpen] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
+        const cacheKey = `remboursements_${page}`;
+        const cached = readCache(cacheKey);
+
+        if (cached) {
+            setData(cached.data);
+            setMeta(cached.meta);
+            setLoading(false); // On a des données (même si elles sont "périmées"), on peut donc cacher le skeleton
+        } else {
+            setLoading(true); // Pas de cache, on affiche le skeleton
+        }
+
         setErreur(null);
         fetchRemboursements(page)
             .then(res => { setData(res.data); setMeta(res.meta); setLoading(false); })
@@ -31,14 +45,14 @@ function HistoriqueRemboursements() {
     }, [page]);
 
     const filtres = data.filter(r => {
-        const matchDate   = filtreDate ? r.date === filtreDate : true;
+        const matchDate   = filtreDate ? r.date_remboursement === filtreDate : true;
         const q           = recherche.toLowerCase();
         const matchSearch = recherche
             ? r.id.toLowerCase().includes(q) ||
-              r.utilisateur?.toLowerCase().includes(q) ||
+              r.enregistre_par?.toLowerCase().includes(q) ||
               r.cause.toLowerCase().includes(q) ||
-              r.commandeAssociee?.client?.toLowerCase().includes(q) ||
-              r.commandeAssociee?.id?.toLowerCase().includes(q)
+              r.client?.toLowerCase().includes(q) ||
+              r.commande_numero?.toLowerCase().includes(q)
             : true;
         return matchDate && matchSearch;
     });
@@ -177,10 +191,10 @@ function HistoriqueRemboursements() {
                                             <td className="finRemb-table__id">{r.id}</td>
                                             <td>
                                                 <p style={{ margin: "0 0 2px", fontWeight: "var(--weight-medium)", fontSize: "var(--text-sm)" }}>
-                                                    {r.commandeAssociee?.client ?? "—"}
+                                                    {r.client ?? "—"}
                                                 </p>
                                                 <p style={{ margin: 0, fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
-                                                    {r.commandeAssociee?.id ?? ""}
+                                                    {r.commande_numero ?? ""}
                                                 </p>
                                             </td>
                                             <td
@@ -199,8 +213,8 @@ function HistoriqueRemboursements() {
                                             }}>
                                                 {r.cause}
                                             </td>
-                                            <td className="finRemb-table__date">{fmtDate(r.date)}</td>
-                                            <td style={{ fontSize: "var(--text-sm)" }}>{r.utilisateur}</td>
+                                            <td className="finRemb-table__date">{fmtDate(r.date_remboursement)}</td>
+                                            <td style={{ fontSize: "var(--text-sm)" }}>{r.enregistre_par}</td>
                                         </tr>
                                     ))
                             }
@@ -240,7 +254,7 @@ function HistoriqueRemboursements() {
                                         <span className="fin-badge fin-badge--warning">Remboursé</span>
                                     </div>
                                     <p className="finRemb-card__name">
-                                        {r.commandeAssociee?.client ?? "—"} — {r.commandeAssociee?.id ?? ""}
+                                        {r.client ?? "—"} — {r.commande_numero ?? ""}
                                     </p>
                                     <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", margin: 0 }}>
                                         {r.cause}
@@ -252,7 +266,7 @@ function HistoriqueRemboursements() {
                                         >
                                             {fmt(r.montant)}
                                         </span>
-                                        <span className="finRemb-card__date">{fmtDate(r.date)}</span>
+                                        <span className="finRemb-card__date">{fmtDate(r.date_remboursement)}</span>
                                     </div>
                                 </article>
                             ))
