@@ -39,7 +39,8 @@ class VentesReservationController extends VentesBaseController
                 ->join('commandes as c', 'c.id', '=', 'cp.commande_id')
                 ->join('produits as p', 'p.id', '=', 'cp.produit_id')
                 ->join('clients as cl', 'cl.id', '=', 'c.client')
-                ->where('c.entreprise', $entrepriseId);
+                ->where('c.entreprise', $entrepriseId)
+                ->where('p.type_produit', 'physique');
 
             if ($statut !== 'tous') {
                 match ($statut) {
@@ -123,6 +124,8 @@ class VentesReservationController extends VentesBaseController
                     $stockDisponible = $row->type_produit === 'physique'
                         ? max(0, (float) $row->stock_actuel - (float) $row->stock_reserve)
                         : null;
+                    $stockReserve    = (float) $row->stock_reserve;
+                    $stockDisponible = max(0, (float) $row->stock_actuel - $stockReserve);
 
                     return [
                         'id'              => $row->commande_id . '_' . $row->produit_id,
@@ -133,6 +136,7 @@ class VentesReservationController extends VentesBaseController
                         'statut'          => $statutReservation,
                         'date'            => substr($row->date_commande, 0, 10),
                         'stock_actuel'    => $row->type_produit === 'physique' ? (float) $row->stock_actuel : null,
+                        'stock_actuel'    => (float) $row->stock_actuel,
                         'stock_reserve'   => $stockReserve,
                         'stock_disponible'=> $stockDisponible,
                     ];
