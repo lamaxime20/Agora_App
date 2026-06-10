@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Search, X, Check, AlertTriangle } from "lucide-react";
 import { fetchCommandesRemboursables } from "../../../../services/financesP3.js";
+import { readCache } from "../../../../services/financesCache.js";
 
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -20,10 +21,18 @@ function ChoixCommandePane({ onSelectCommande, onClose }) {
     const [erreur, setErreur]       = useState(null);
 
     useEffect(() => {
+        const cacheKey = "commandes-remboursables";
+        // 1. Essayer de lire le cache immédiatement pour un affichage rapide
+        const cached = readCache(cacheKey);
+        if (cached) {
+            setCommandes(cached);
+            setLoading(false);
+        }
+        // 2. Lancer l'appel API pour obtenir les données fraîches (mettra à jour le cache)
         fetchCommandesRemboursables()
             .then(data => { setCommandes(data); setLoading(false); })
             .catch(() => { setErreur("Impossible de charger les commandes."); setLoading(false); });
-    }, []);
+    }, []); // Le tableau de dépendances vide assure que l'effet ne s'exécute qu'une fois
 
     const filtrees = commandes.filter(c =>
         c.client.toLowerCase().includes(recherche.toLowerCase()) ||

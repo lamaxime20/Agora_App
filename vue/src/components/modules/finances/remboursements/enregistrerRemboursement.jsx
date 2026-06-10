@@ -64,7 +64,7 @@ function EnregistrerRemboursement() {
         setShowModal(false);
         setSubmitting(true);
         try {
-            await creerRemboursement({ commandeId: selectedCommande.id, montant: montantNum, cause });
+            await creerRemboursement({ commande_id: selectedCommande.id, montant: montantNum, cause });
             showToastMsg("success", "Remboursement enregistré avec succès");
             setSelectedCommande(null);
             setMontant("");
