@@ -505,7 +505,7 @@ class FinancesCommandeController extends FinancesBaseController
                 ], 404);
             }
 
-            if ($commande->statut !== 'validee') {
+            if ($commande->statut == 'validee') {
                 return response()->json([
                     'ok'      => false,
                     'code'    => 'INVALID_STATUS',
@@ -544,7 +544,14 @@ class FinancesCommandeController extends FinancesBaseController
                 $nouvelEtat = 'paye';
             }
 
+            $newState = $commande->statut;
+
+            if($totalPaye >= $commande->montant_minimum_validation) {
+                $newState = 'validee';
+            }
+
             DB::table('commandes')->where('id', $id)->update(['etat_payement' => $nouvelEtat]);
+            DB::table('commandes')->where('id', $id)->update(['statut' => $newState]);
 
             // Augmenter l'argent virtuel de l'entreprise
             DB::table('entreprises')

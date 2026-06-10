@@ -70,8 +70,31 @@ export async function fetchPaiements(page = 1) {
     return result;
 }
 
-export async function creerPaiement(payload) {
-    return apiFetch("finances/paiements", { method: "POST", body: payload });
+export async function creerPaiement(payload, id) {
+    const MODES = ["virement bancaire", "carte bancaire", "chèque", "espèces"];
+    let mode_payement;
+    if(payload.mode === "virement bancaire") {
+        mode_payement = "virement";
+    } else if(payload.mode === "carte bancaire") {
+        mode_payement = "carte_bancaire";
+    } else if(payload.mode === "chèque") {
+        mode_payement = "cheque";
+    } else if(payload.mode === "espèces") {
+        mode_payement = "cash";
+    } else {
+        mode_payement = "cash";
+    }
+
+    const body = {
+        montant: payload.montant,
+        mode_payement: mode_payement,
+        reference_transaction: payload.reference,
+    }
+    console.log(body);
+    return apiFetch(`finances/commandes/${id}/paiements`, { 
+        method: "POST", 
+        body: body
+    });
 }
 
 export async function modifierMontantMinimum(id, montant_minimum_validation) {

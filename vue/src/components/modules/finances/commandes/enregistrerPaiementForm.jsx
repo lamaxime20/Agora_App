@@ -81,7 +81,7 @@ function EtapeFormulaire({ commande, onSubmit, onClose }) {
                         onChange={e => setMontant(e.target.value)}
                         min="1"
                         max={resteAPayer}
-                        step="100"
+                        step="1"
                         placeholder={`Jusqu'à ${fmt(resteAPayer)}`}
                         required
                         autoFocus
@@ -256,7 +256,7 @@ function EnregistrerPaiementForm({ commande, onClose }) {
             await creerPaiement({
                 commande_id: commande.id,
                 ...paiement,
-            });
+            }, commande.id);
             setEtape("success");
         } catch {
             setEtape("form");
