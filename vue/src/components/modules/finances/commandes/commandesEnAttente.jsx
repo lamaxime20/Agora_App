@@ -69,7 +69,7 @@ function SeuilModal({ commande, onClose, onConfirm }) {
                 <div className="finCommandes-seuil-modal__body">
                     <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)", lineHeight: "var(--line-height-relaxed)" }}>
                         Commande <strong style={{ color: "var(--color-text)" }}>{commande.id}</strong>.
-                        Total facturé : <strong style={{ color: "var(--color-text)" }}>{fmt(commande.total)}</strong>.
+                        Total facturé : <strong style={{ color: "var(--color-text)" }}>{fmt(commande.montant_commande)}</strong>.
                     </p>
                     <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", background: "rgba(243,156,18,0.07)", border: "1px solid rgba(243,156,18,0.2)", borderRadius: "var(--radius-lg)", padding: "var(--space-3) var(--space-4)" }}>
                         Le seuil est le montant minimum à encaisser pour valider la commande financièrement et déclencher la livraison.
@@ -85,12 +85,12 @@ function SeuilModal({ commande, onClose, onConfirm }) {
                             value={valeur}
                             onChange={e => setValeur(e.target.value)}
                             min="1"
-                            max={commande.total}
+                            max={commande.montant_commande}
                             step="100"
                             autoFocus
                         />
                         <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
-                            Maximum autorisé : {fmt(commande.total)}
+                            Maximum autorisé : {fmt(commande.montant_commande)}
                         </span>
                     </div>
                 </div>
