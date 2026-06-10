@@ -45,12 +45,12 @@ function HistoriqueEntrees() {
     }, [page]); // Le cache est lu à chaque changement de page.
 
     const filtres = data.filter(e => {
-        const matchDate   = filtreDate ? e.date === filtreDate : true;
+        const matchDate   = filtreDate ? e.date_entree === filtreDate : true;
         const q           = recherche.toLowerCase();
         const matchSearch = recherche
             ? e.id.toLowerCase().includes(q) ||
-              e.description.toLowerCase().includes(q) ||
-              e.utilisateur?.toLowerCase().includes(q)
+              e.raison.toLowerCase().includes(q) ||
+              e.enregistre_par?.toLowerCase().includes(q)
             : true;
         return matchDate && matchSearch;
     });
@@ -177,10 +177,10 @@ function HistoriqueEntrees() {
                                             className="finEnt-table__row"
                                             onClick={() => setSelectedEnt(e)}
                                         >
-                                            <td className="finEnt-table__date">{fmtDate(e.date)}</td>
-                                            <td className="finEnt-table__desc">{e.description}</td>
+                                            <td className="finEnt-table__date">{fmtDate(e.date_entree)}</td>
+                                            <td className="finEnt-table__desc">{e.raison}</td>
                                             <td className="finEnt-table__amount">{fmt(e.montant)}</td>
-                                            <td style={{ fontSize: "var(--text-sm)" }}>{e.utilisateur ?? "—"}</td>
+                                            <td style={{ fontSize: "var(--text-sm)" }}>{e.enregistre_par ?? "—"}</td>
                                         </tr>
                                     ))
                             }
@@ -216,10 +216,10 @@ function HistoriqueEntrees() {
                                     onClick={() => setSelectedEnt(e)}
                                 >
                                     <div className="finEnt-card__top">
-                                        <span className="finEnt-card__id">{fmtDate(e.date)}</span>
-                                        <span className="fin-badge fin-badge--success">{e.utilisateur ?? "—"}</span>
+                                        <span className="finEnt-card__id">{fmtDate(e.date_entree)}</span>
+                                        <span className="fin-badge fin-badge--success">{e.enregistre_par ?? "—"}</span>
                                     </div>
-                                    <p className="finEnt-card__desc">{e.description}</p>
+                                    <p className="finEnt-card__desc">{e.raison}</p>
                                     <div className="finEnt-card__meta">
                                         <span className="finEnt-card__amount">{fmt(e.montant)}</span>
                                     </div>

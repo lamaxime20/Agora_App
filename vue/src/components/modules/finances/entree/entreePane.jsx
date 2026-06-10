@@ -47,12 +47,12 @@ function EntreePane({ entree, onClose }) {
                         </div>
                         <div className="finEnt-detail__row">
                             <span className="finEnt-detail__key">Date</span>
-                            <span className="finEnt-detail__val">{formatDate(entree.date)}</span>
+                            <span className="finEnt-detail__val">{formatDate(entree.date_entree)}</span>
                         </div>
                         <div className="finEnt-detail__row">
-                            <span className="finEnt-detail__key">Origine</span>
+                            <span className="finEnt-detail__key">Enregistré par</span>
                             <span className="finEnt-detail__val">
-                                <span className="fin-badge fin-badge--success">{entree.origine}</span>
+                                <span className="fin-badge">{entree.enregistre_par}</span>
                             </span>
                         </div>
                         <div className="finEnt-detail__row">
@@ -64,7 +64,7 @@ function EntreePane({ entree, onClose }) {
                         <div className="finEnt-detail__row" style={{ flexDirection: "column", gap: "var(--space-2)" }}>
                             <span className="finEnt-detail__key">Description</span>
                             <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text)", margin: 0, lineHeight: "1.6" }}>
-                                {entree.description}
+                                {entree.raison}
                             </p>
                         </div>
                     </section>

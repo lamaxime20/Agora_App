@@ -69,6 +69,7 @@ export async function fetchEntrees(page = 1) {
     let result;
     try {
         result = await apiFetch(`finances/entrees?page=${page}&per_page=20`);
+        console.log("entrees :", result);
         writeCache(cacheKey, result);
     } catch {
         if (stale) return stale;
