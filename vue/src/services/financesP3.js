@@ -44,6 +44,7 @@ export async function fetchDepenses(page = 1) {
     let result;
     try {
         result = await apiFetch(`finances/depenses?page=${page}&per_page=20`);
+        console.log("fetchDepenses", result);
         writeCache(cacheKey, result);
     } catch {
         if (stale) return stale;

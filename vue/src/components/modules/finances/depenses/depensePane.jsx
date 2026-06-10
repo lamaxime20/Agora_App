@@ -10,6 +10,8 @@ function DepensePane({ depense, onClose }) {
         return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
     };
 
+    console.log(depense);
+
     return (
         <>
             <div
@@ -47,24 +49,35 @@ function DepensePane({ depense, onClose }) {
                         </div>
                         <div className="finDep-detail__row">
                             <span className="finDep-detail__key">Date</span>
-                            <span className="finDep-detail__val">{formatDate(depense.date)}</span>
+                            <span className="finDep-detail__val">{formatDate(depense.date_depense)}</span>
                         </div>
                         <div className="finDep-detail__row">
-                            <span className="finDep-detail__key">Catégorie</span>
-                            <span className="finDep-detail__val">
-                                <span className="fin-badge fin-badge--neutral">{depense.categorie}</span>
-                            </span>
+                            <span className="finDep-detail__key">Enregistré par</span>
+                            <span className="finDep-detail__val">{depense.enregistre_par ?? "—"}</span>
                         </div>
                         <div className="finDep-detail__row">
                             <span className="finDep-detail__key">Montant</span>
-                            <span className="finDep-detail__val finDep-detail__val--amount" style={{ color: "var(--color-error)" }}>
+                            <span
+                                className="finDep-detail__val finDep-detail__val--amount"
+                                style={{ color: "var(--color-error)" }}
+                            >
                                 {formatMontant(depense.montant)}
                             </span>
                         </div>
-                        <div className="finDep-detail__row" style={{ flexDirection: "column", gap: "var(--space-2)" }}>
-                            <span className="finDep-detail__key">Description</span>
-                            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text)", margin: 0, lineHeight: "1.6" }}>
-                                {depense.description}
+                        <div
+                            className="finDep-detail__row"
+                            style={{ flexDirection: "column", gap: "var(--space-2)", alignItems: "flex-start" }}
+                        >
+                            <span className="finDep-detail__key">Raison</span>
+                            <p
+                                style={{
+                                    fontSize: "var(--text-sm)",
+                                    color: "var(--color-text)",
+                                    margin: 0,
+                                    lineHeight: "1.6",
+                                }}
+                            >
+                                {depense.raison}
                             </p>
                         </div>
                     </section>

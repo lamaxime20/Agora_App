@@ -47,12 +47,12 @@ function HistoriqueDepenses() {
     }, [page]); // Le cache est lu à chaque changement de page.
 
     const filtres = data.filter(d => {
-        const matchDate   = filtreDate ? d.date === filtreDate : true;
+        const matchDate   = filtreDate ? d.date_depense === filtreDate : true;
         const q           = recherche.toLowerCase();
         const matchSearch = recherche
             ? d.id.toLowerCase().includes(q) ||
-              d.description.toLowerCase().includes(q) ||
-              d.utilisateur?.toLowerCase().includes(q)
+              d.raison.toLowerCase().includes(q) ||
+              d.enregistre_par?.toLowerCase().includes(q)
             : true;
         return matchDate && matchSearch;
     });
@@ -179,10 +179,10 @@ function HistoriqueDepenses() {
                                             className="finDep-table__row"
                                             onClick={() => setSelectedDep(d)}
                                         >
-                                            <td className="finDep-table__date">{fmtDate(d.date)}</td>
-                                            <td className="finDep-table__desc">{d.description}</td>
+                                            <td className="finDep-table__date">{fmtDate(d.date_depense)}</td>
+                                            <td className="finDep-table__desc">{d.raison}</td>
                                             <td className="finDep-table__amount">{fmt(d.montant)}</td>
-                                            <td style={{ fontSize: "var(--text-sm)" }}>{d.utilisateur ?? "—"}</td>
+                                            <td style={{ fontSize: "var(--text-sm)" }}>{d.enregistre_par ?? "—"}</td>
                                         </tr>
                                     ))
                             }
@@ -218,10 +218,10 @@ function HistoriqueDepenses() {
                                     onClick={() => setSelectedDep(d)}
                                 >
                                     <div className="finDep-card__top">
-                                        <span className="finDep-card__id">{fmtDate(d.date)}</span>
-                                        <span className="fin-badge fin-badge--neutral">{d.utilisateur ?? "—"}</span>
+                                        <span className="finDep-card__id">{fmtDate(d.date_depense)}</span>
+                                        <span className="fin-badge fin-badge--neutral">{d.enregistre_par ?? "—"}</span>
                                     </div>
-                                    <p className="finDep-card__desc">{d.description}</p>
+                                    <p className="finDep-card__desc">{d.raison}</p>
                                     <div className="finDep-card__meta">
                                         <span className="finDep-card__amount">{fmt(d.montant)}</span>
                                     </div>
