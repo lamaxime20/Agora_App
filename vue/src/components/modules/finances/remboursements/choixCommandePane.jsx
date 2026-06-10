@@ -5,8 +5,11 @@ import { fetchCommandesRemboursables } from "../../../../services/financesP3.js"
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-const fmtDate = (d) =>
-    new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+const fmtDate = (d) => {
+    // Si la date est invalide (null, undefined, ou chaîne invalide), ne rien afficher pour éviter une erreur.
+    if (!d || isNaN(new Date(d))) return "";
+    return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+};
 
 const SKELETON_COUNT = 4;
 
@@ -25,7 +28,7 @@ function ChoixCommandePane({ onSelectCommande, onClose }) {
     const filtrees = commandes.filter(c =>
         c.client.toLowerCase().includes(recherche.toLowerCase()) ||
         c.id.toLowerCase().includes(recherche.toLowerCase()) ||
-        (c.ref ?? "").toLowerCase().includes(recherche.toLowerCase())
+        (c.numero ?? "").toLowerCase().includes(recherche.toLowerCase())
     );
 
     return (
@@ -111,34 +114,38 @@ function ChoixCommandePane({ onSelectCommande, onClose }) {
                                     onKeyDown={e => {
                                         if (e.key === "Enter" || e.key === " ") {
                                             e.preventDefault();
-                                            onSelectCommande(cmd);
+                                            onSelectCommande({ ...cmd, totalPaye: cmd.total_paye, montantRemboursable: cmd.montant_remboursable });
                                         }
                                     }}
                                     aria-label={`Sélectionner la commande ${cmd.id} — ${cmd.client}`}
                                 >
                                     <div className="finRemb-choix__card-top">
                                         <div>
-                                            <p className="finRemb-choix__card-ref">{cmd.id}</p>
+                                            <p className="finRemb-choix__card-ref">{cmd.numero}</p>
                                             <p className="finRemb-choix__card-client">{cmd.client}</p>
                                         </div>
-                                        <span className={`fin-badge fin-badge--${cmd.statut === "Payée" ? "success" : "warning"}`}>
-                                            {cmd.statut}
-                                        </span>
+                                        {(() => {
+                                            const estPayee = cmd.total_paye >= cmd.montant_commande;
+                                            const statut = estPayee ? "Payée" : "Partiellement payée";
+                                            return (
+                                                <span className={`fin-badge fin-badge--${estPayee ? "success" : "warning"}`}>{statut}</span>
+                                            );
+                                        })()}
                                     </div>
                                     <div className="finRemb-choix__card-amounts">
                                         <span>
                                             Total payé :{" "}
-                                            <strong style={{ color: "var(--color-text)" }}>{fmt(cmd.totalPaye)}</strong>
+                                            <strong style={{ color: "var(--color-text)" }}>{fmt(cmd.total_paye)}</strong>
                                         </span>
                                         <span>
                                             Remboursable :{" "}
                                             <strong style={{ color: "var(--color-success)" }}>
-                                                {fmt(cmd.montantRemboursable)}
+                                                {fmt(cmd.montant_remboursable)}
                                             </strong>
                                         </span>
                                     </div>
                                     <div className="finRemb-choix__card-footer">
-                                        <span className="finRemb-choix__card-date">{fmtDate(cmd.date)}</span>
+                                        <span className="finRemb-choix__card-date">{fmtDate(cmd.created_at)}</span>
                                         <span className="finRemb-choix__card-select">
                                             <Check size={14} aria-hidden="true" />
                                             Sélectionner

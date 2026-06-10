@@ -28,7 +28,7 @@ function EnregistrerRemboursement() {
     const [error, setError]                       = useState("");
 
     const montantNum      = parseFloat(montant) || 0;
-    const maxRemboursable = selectedCommande ? (selectedCommande.montantRemboursable ?? selectedCommande.totalPaye) : 0;
+    const maxRemboursable = selectedCommande ? (selectedCommande.montant_remboursable ?? selectedCommande.total_paye) : 0;
     const depasseMax      = montantNum > 0 && montantNum > maxRemboursable;
 
     const showToastMsg = (type, msg) => {
@@ -37,6 +37,7 @@ function EnregistrerRemboursement() {
     };
 
     const handleSelect = (cmd) => {
+        console.log("commande :", cmd);
         setSelectedCommande(cmd);
         setShowChoixPane(false);
         setMontant("");
@@ -100,7 +101,7 @@ function EnregistrerRemboursement() {
                                     className="app-input"
                                     readOnly
                                     placeholder="Cliquer pour sélectionner une commande…"
-                                    value={selectedCommande ? `${selectedCommande.id} — ${selectedCommande.client}` : ""}
+                                    value={selectedCommande ? `${selectedCommande.numero} — ${selectedCommande.client}` : ""}
                                     onClick={() => setShowChoixPane(true)}
                                     aria-label="Commande sélectionnée"
                                     style={{ cursor: "pointer", flex: 1 }}
@@ -122,9 +123,11 @@ function EnregistrerRemboursement() {
                                         {fmt(maxRemboursable)}
                                     </strong>
                                     {" · "}
-                                    <span style={{ color: "var(--color-text-muted)" }}>
-                                        {selectedCommande.statut ?? selectedCommande.statutLivraison}
-                                    </span>
+                                    {(() => {
+                                        const estPayee = selectedCommande.total_paye >= selectedCommande.montant_commande;
+                                        const statut = estPayee ? "Payée" : "Partiellement payée";
+                                        return (<span style={{ color: "var(--color-text-muted)" }}>{statut}</span>);
+                                    })()}
                                 </p>
                             )}
                         </div>
@@ -232,7 +235,7 @@ function EnregistrerRemboursement() {
                                 <div className="finRemb-detail__row">
                                     <span className="finRemb-detail__key">Commande</span>
                                     <span className="finRemb-detail__val">
-                                        {selectedCommande.id} — {selectedCommande.client}
+                                        {selectedCommande.numero} — {selectedCommande.client}
                                     </span>
                                 </div>
                                 <div className="finRemb-detail__row">

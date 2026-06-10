@@ -104,7 +104,6 @@ class FinancesRemboursementController extends FinancesBaseController
             $commandes = DB::table('commandes as c')
                 ->join('clients as cl', 'cl.id', '=', 'c.client')
                 ->where('c.entreprise', $entrepriseId)
-                ->where('c.statut', 'validee')
                 ->whereIn('c.etat_payement', ['paye', 'partiellement_paye'])
                 ->where('c.actif', true)
                 ->select([
