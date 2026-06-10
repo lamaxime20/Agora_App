@@ -17,6 +17,8 @@ function RemboursementPane({ remboursement, onClose }) {
     const cmd = remboursement.commandeAssociee ?? {};
     const cmdLabel = cmd.nom ?? `${cmd.client ?? ""} — ${cmd.id ?? ""}`.trim();
 
+    console.log("remboursement :", remboursement);
+
     return (
         <>
             <div className="finRemb-drawer__overlay" onClick={onClose} aria-hidden="true" />
@@ -48,6 +50,7 @@ function RemboursementPane({ remboursement, onClose }) {
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Date</span>
                             <span className="finRemb-detail__val">{fmtDate(remboursement.date)}</span>
+                            <span className="finRemb-detail__val">{fmtDate(remboursement.date_remboursement)}</span>
                         </div>
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Montant remboursé</span>
@@ -67,6 +70,7 @@ function RemboursementPane({ remboursement, onClose }) {
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Enregistré par</span>
                             <span className="finRemb-detail__val">{remboursement.utilisateur}</span>
+                            <span className="finRemb-detail__val">{remboursement.enregistre_par}</span>
                         </div>
                     </section>
 
@@ -75,11 +79,13 @@ function RemboursementPane({ remboursement, onClose }) {
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Référence</span>
                             <span className="finRemb-detail__val">{cmd.id}</span>
+                            <span className="finRemb-detail__val">{remboursement.commande_numero}</span>
                         </div>
                         <div className="finRemb-detail__row">
                             <span className="finRemb-detail__key">Client</span>
                             <span className="finRemb-detail__val" style={{ textAlign: "right", maxWidth: "260px" }}>
                                 {cmdLabel}
+                                {remboursement.client}
                             </span>
                         </div>
                         {cmd.totalFacture != null && (
@@ -120,6 +126,12 @@ function RemboursementPane({ remboursement, onClose }) {
             {showCommandeModal && (
                 <DetailsCommandeRemboursementModal
                     commande={{ ...cmd, nom: cmdLabel }}
+                    commande={{
+                        id: remboursement.commande_numero,
+                        nom: remboursement.client,
+                        client: remboursement.client,
+                        // Les autres détails de la commande (totalFacture, totalPaye) devront être récupérés si nécessaire
+                    }}
                     onClose={() => setShowCommandeModal(false)}
                 />
             )}
