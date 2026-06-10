@@ -165,12 +165,24 @@ function Reservations() {
         setSelectedItem(item);
         setDetailData(null);
         setDetailError(null);
-        setLoadingDetail(true);
+
+        const cacheKey = `reservation_${item.id}`;
+        const cachedData = readCache(cacheKey);
+
+        if (cachedData) {
+            setDetailData(cachedData);
+            setLoadingDetail(false);
+        } else {
+            setLoadingDetail(true);
+        }
+
         fetchVentesReservationDetail(item.id)
             .then(data => setDetailData(data))
-            .catch(err => setDetailError(err.message))
+            .catch(err => {
+                if (!cachedData) setDetailError(err.message);
+            })
             .finally(() => setLoadingDetail(false));
-    }, []);
+    }, [readCache]);
 
     const closeDetail = useCallback(() => {
         setSelectedItem(null);
