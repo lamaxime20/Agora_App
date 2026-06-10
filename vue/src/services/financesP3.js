@@ -53,7 +53,12 @@ export async function fetchDepenses(page = 1) {
 }
 
 export async function creerDepense(payload) {
-    return apiFetch("finances/depenses", { method: "POST", body: payload });
+    const body = {
+        montant: payload.montant,
+        date_depense: payload.date,
+        raison: payload.description,
+    }
+    return apiFetch("finances/depenses", { method: "POST", body: body });
 }
 
 // ─── ENTRÉES ────────────────────────────────────────────────────────────────────
