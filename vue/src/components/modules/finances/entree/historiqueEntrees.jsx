@@ -7,8 +7,11 @@ import { readCache } from "../../../../services/financesCache.js";
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-const fmtDate = (d) =>
-    new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+const fmtDate = (d) => {
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return ""; // Retourne une chaîne vide si la date est invalide
+    return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(date);
+};
 
 const SKELETON_ROWS = Array.from({ length: 5 });
 

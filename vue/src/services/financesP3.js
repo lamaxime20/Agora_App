@@ -44,7 +44,6 @@ export async function fetchDepenses(page = 1) {
     let result;
     try {
         result = await apiFetch(`finances/depenses?page=${page}&per_page=20`);
-        console.log("fetchDepenses", result);
         writeCache(cacheKey, result);
     } catch {
         if (stale) return stale;
@@ -79,5 +78,11 @@ export async function fetchEntrees(page = 1) {
 }
 
 export async function creerEntree(payload) {
-    return apiFetch("finances/entrees", { method: "POST", body: payload });
+    console.log("entree :", payload);
+    const body = {
+        montant: payload.montant,
+        date_entree: payload.date,
+        raison: payload.description,
+    }
+    return apiFetch("finances/entrees", { method: "POST", body: body });
 }

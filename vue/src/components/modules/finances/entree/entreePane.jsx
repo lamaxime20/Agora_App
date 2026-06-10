@@ -4,8 +4,11 @@ function EntreePane({ entree, onClose }) {
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-    const formatDate = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d));
+    const formatDate = (d) => {
+        const date = new Date(d);
+        if (isNaN(date.getTime())) return ""; // Retourne une chaîne vide si la date est invalide
+        return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
+    };
 
     return (
         <>
