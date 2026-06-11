@@ -6,9 +6,6 @@ import ReapprovisionnementPane from "./reapprovisionnementPane.jsx";
 import ValiderReapprovisionnementModal from "./validerReapprovisionnementModal.jsx";
 import RefuserReapprovisionnementModal from "./refuserReapprovisionnementModal.jsx";
 
-const PRIORITY_LABEL = { faible: "Faible", normale: "Normale", haute: "Haute", critique: "Critique" };
-const PRIORITY_ORDER = { critique: 0, haute: 1, normale: 2, faible: 3 };
-
 function KpiSkeleton() {
     return (
         <div className="finReapp-kpis">
@@ -44,7 +41,6 @@ function EnAttenteReapprovisionnements() {
     const [loading, setLoading]           = useState(true);
     const [erreur, setErreur]             = useState("");
     const [recherche, setRecherche]       = useState("");
-    const [filtrePrio, setFiltrePrio]     = useState("tous");
     const [exportOpen, setExportOpen]     = useState(false);
     const [selectedR, setSelectedR]       = useState(null);
     const [toValider, setToValider]       = useState(null);
@@ -66,9 +62,8 @@ function EnAttenteReapprovisionnements() {
             setData(stale.data);
             setMeta(stale.meta);
             const all = stale.all ?? stale.data;
-            const montantTotal = all.reduce((s, r) => s + r.montantTotal, 0);
-            const urgentes = all.filter(r => r.priorite === "critique" || r.priorite === "haute").length;
-            setKpis({ count: stale.meta.total, montantTotal, urgentes, montantPotentiel: montantTotal });
+            const montantTotal = all.reduce((s, r) => s + r.montant_a_depenser, 0);
+            setKpis({ count: stale.meta.total, montantTotal, montantPotentiel: montantTotal });
             setLoading(false); // On affiche le cache, donc on arrête le chargement principal
         }
 
@@ -77,12 +72,10 @@ function EnAttenteReapprovisionnements() {
             setData(res.data);
             setMeta(res.meta);
             const all = res.all ?? res.data;
-            const montantTotal = all.reduce((s, r) => s + r.montantTotal, 0);
-            const urgentes = all.filter(r => r.priorite === "critique" || r.priorite === "haute").length;
+            const montantTotal = all.reduce((s, r) => s + r.montant_a_depenser, 0);
             setKpis({
                 count: res.meta.total,
                 montantTotal,
-                urgentes,
                 montantPotentiel: montantTotal,
             });
         } catch {
@@ -96,10 +89,8 @@ function EnAttenteReapprovisionnements() {
 
     const filtered = data.filter(r => {
         const q = recherche.toLowerCase();
-        const matchQ = !q || r.produit.nom.toLowerCase().includes(q) || r.id.toLowerCase().includes(q);
-        const matchP = filtrePrio === "tous" || r.priorite === filtrePrio;
-        return matchQ && matchP;
-    }).sort((a, b) => (PRIORITY_ORDER[a.priorite] ?? 9) - (PRIORITY_ORDER[b.priorite] ?? 9));
+        return !q || r.produit.toLowerCase().includes(q) || r.id.toLowerCase().includes(q);
+    });
 
     const totalPages = meta ? Math.ceil(meta.total / meta.per_page) : 1;
 
@@ -123,10 +114,6 @@ function EnAttenteReapprovisionnements() {
                         <p className="finReapp-kpi__value finReapp-kpi__value--amount">{formatMontant(kpis.montantTotal)}</p>
                     </div>
                     <div className="finReapp-kpi">
-                        <p className="finReapp-kpi__label">Urgentes</p>
-                        <p className="finReapp-kpi__value finReapp-kpi__value--error">{kpis.urgentes}</p>
-                    </div>
-                    <div className="finReapp-kpi">
                         <p className="finReapp-kpi__label">Engagements potentiels</p>
                         <p className="finReapp-kpi__value finReapp-kpi__value--warning">{formatMontant(kpis.montantPotentiel)}</p>
                     </div>
@@ -147,19 +134,6 @@ function EnAttenteReapprovisionnements() {
                             aria-label="Rechercher"
                         />
                     </div>
-
-                    <select
-                        className="finReapp-filter-select"
-                        value={filtrePrio}
-                        onChange={e => setFiltrePrio(e.target.value)}
-                        aria-label="Filtrer par priorité"
-                    >
-                        <option value="tous">Toutes priorités</option>
-                        <option value="critique">Critique</option>
-                        <option value="haute">Haute</option>
-                        <option value="normale">Normale</option>
-                        <option value="faible">Faible</option>
-                    </select>
 
                     <div style={{ position: "relative", marginLeft: "auto" }}>
                         <button
@@ -207,7 +181,6 @@ function EnAttenteReapprovisionnements() {
                             <th scope="col">Qté</th>
                             <th scope="col">Montant</th>
                             <th scope="col">Date</th>
-                            <th scope="col">Priorité</th>
                             <th scope="col">Actions</th>
                         </tr>
                     </thead>
@@ -227,17 +200,11 @@ function EnAttenteReapprovisionnements() {
                                 <tr key={r.id} className="finReapp-table__row">
                                     <td className="finReapp-table__id" onClick={() => setSelectedR(r)} style={{ cursor: "pointer" }}>{r.id}</td>
                                     <td onClick={() => setSelectedR(r)} style={{ cursor: "pointer" }}>
-                                        <p style={{ fontWeight: "var(--weight-medium)", margin: 0, fontSize: "var(--text-sm)" }}>{r.produit.nom}</p>
-                                        <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", margin: 0 }}>{r.produit.sku}</p>
+                                        <p style={{ fontWeight: "var(--weight-medium)", margin: 0, fontSize: "var(--text-sm)" }}>{r.produit}</p>
                                     </td>
-                                    <td style={{ fontSize: "var(--text-sm)" }}>{r.quantiteDemandee}</td>
-                                    <td className="finReapp-table__amount">{formatMontant(r.montantTotal)}</td>
-                                    <td className="finReapp-table__date">{formatDate(r.dateDemande)}</td>
-                                    <td>
-                                        <span className={`finReapp-priority finReapp-priority--${r.priorite}`}>
-                                            {PRIORITY_LABEL[r.priorite] ?? r.priorite}
-                                        </span>
-                                    </td>
+                                    <td style={{ fontSize: "var(--text-sm)" }}>{r.quantite}</td>
+                                    <td className="finReapp-table__amount">{formatMontant(r.montant_a_depenser)}</td>
+                                    <td className="finReapp-table__date">{formatDate(r.date_creation)}</td>
                                     <td>
                                         <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
                                             <button
@@ -286,14 +253,11 @@ function EnAttenteReapprovisionnements() {
                     <article key={r.id} className="finReapp-card" onClick={() => setSelectedR(r)}>
                         <div className="finReapp-card__top">
                             <span className="finReapp-card__id">{r.id}</span>
-                            <span className={`finReapp-priority finReapp-priority--${r.priorite}`}>
-                                {PRIORITY_LABEL[r.priorite] ?? r.priorite}
-                            </span>
                         </div>
-                        <p className="finReapp-card__name">{r.produit.nom}</p>
+                        <p className="finReapp-card__name">{r.produit}</p>
                         <div className="finReapp-card__meta">
-                            <span className="finReapp-card__amount">{formatMontant(r.montantTotal)}</span>
-                            <span className="finReapp-card__date">{formatDate(r.dateDemande)}</span>
+                            <span className="finReapp-card__amount">{formatMontant(r.montant_a_depenser)}</span>
+                            <span className="finReapp-card__date">{formatDate(r.date_creation)}</span>
                         </div>
                         <div style={{ display: "flex", gap: "var(--space-2)", marginTop: "var(--space-2)" }} onClick={e => e.stopPropagation()}>
                             <button

@@ -52,55 +52,55 @@ function ReapprovisionnementPane({ reappro, mode = "historique", onClose, onVali
                         <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Produit</span>
                             <span className="finReapp-detail__val">
-                                {reappro.produit.nom}
-                                <span className="finReapp-sku-badge">{reappro.produit.sku}</span>
+                                {reappro.produit?.nom ?? reappro.produit}
+                                {reappro.produit?.sku && <span className="finReapp-sku-badge">{reappro.produit.sku}</span>}
                             </span>
                         </div>
-                        <div className="finReapp-detail__row">
+                        {reappro.stockActuel !== undefined && <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Stock actuel</span>
                             <span className="finReapp-detail__val" style={{ color: reappro.stockActuel < reappro.stockMinimum ? "var(--color-error)" : "var(--color-text)" }}>
                                 {reappro.stockActuel} unités
                                 {reappro.stockActuel < reappro.stockMinimum && " ⚠ sous le seuil"}
                             </span>
-                        </div>
-                        <div className="finReapp-detail__row">
+                        </div>}
+                        {reappro.stockMinimum !== undefined && <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Seuil minimum</span>
                             <span className="finReapp-detail__val">{reappro.stockMinimum} unités</span>
-                        </div>
+                        </div>}
                         <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Qté demandée</span>
-                            <span className="finReapp-detail__val">{reappro.quantiteDemandee} unités</span>
+                            <span className="finReapp-detail__val">{reappro.quantite ?? reappro.quantiteDemandee} unités</span>
                         </div>
-                        <div className="finReapp-detail__row">
+                        {reappro.prixUnitaire && <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Prix unitaire</span>
                             <span className="finReapp-detail__val">{formatMontant(reappro.prixUnitaire)}</span>
-                        </div>
+                        </div>}
                         <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Montant total</span>
                             <span className="finReapp-detail__val finReapp-detail__val--amount">
-                                {formatMontant(reappro.montantTotal)}
+                                {formatMontant(reappro.montant_a_depenser ?? reappro.montantTotal)}
                             </span>
                         </div>
                         <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Demandeur</span>
                             <span className="finReapp-detail__val">{reappro.demandeur}</span>
                         </div>
-                        <div className="finReapp-detail__row">
+                        {reappro.service && <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Service</span>
                             <span className="finReapp-detail__val">{reappro.service}</span>
-                        </div>
+                        </div>}
                         <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Date demande</span>
-                            <span className="finReapp-detail__val">{formatDate(reappro.dateDemande)}</span>
+                            <span className="finReapp-detail__val">{formatDate(reappro.date_creation ?? reappro.dateDemande)}</span>
                         </div>
-                        <div className="finReapp-detail__row">
+                        {reappro.priorite && <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Priorité</span>
                             <span className="finReapp-detail__val">
                                 <span className={`finReapp-priority finReapp-priority--${reappro.priorite}`}>
                                     {PRIORITY_LABEL[reappro.priorite] ?? reappro.priorite}
                                 </span>
                             </span>
-                        </div>
+                        </div>}
                         <div className="finReapp-detail__row">
                             <span className="finReapp-detail__key">Statut</span>
                             <span className="finReapp-detail__val">{statutBadge}</span>
@@ -128,10 +128,10 @@ function ReapprovisionnementPane({ reappro, mode = "historique", onClose, onVali
                     </section>
 
                     {/* Justification */}
-                    <section>
+                    {reappro.justification && <section>
                         <p className="finReapp-detail__section-label">Justification</p>
                         <div className="finReapp-justify-block">{reappro.justification}</div>
-                    </section>
+                    </section>}
 
                     {/* Motif de refus */}
                     {isRefuse && reappro.motifRefus && (
