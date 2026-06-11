@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, ArrowUpRight, ArrowDownLeft, ExternalLink } from "lucide-react";
 import { fetchMouvementDetail } from "../../../../services/financesP5.js";
+import { readCache } from "../../../../services/financesCache.js";
 
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -38,12 +39,23 @@ function MouvementPane({ mouvementId, onClose }) {
 
     useEffect(() => {
         let cancelled = false;
-        setLoading(true);
+        setLoading(true); // Always set loading to true initially
+        setMouvement(null); // Clear previous movement when ID changes
+
+        const cacheKey = `mouvement_${mouvementId}`; // As per financesP5.js
+        const staleData = readCache(cacheKey);
+
+        if (staleData) {
+            setMouvement(staleData);
+            setLoading(false); // Display stale data immediately
+        }
+
         fetchMouvementDetail(mouvementId)
             .then(d => { if (!cancelled) { setMouvement(d); setLoading(false); } })
-            .catch(() => { if (!cancelled) setLoading(false); });
+            .catch(() => { if (!cancelled && !staleData) setLoading(false); }); // Only set loading to false if no stale data was shown
         return () => { cancelled = true; };
     }, [mouvementId]);
+
 
     const isEntree = mouvement?.sens === "entree";
     const moduleLink = mouvement ? TYPE_MODULE[mouvement.type] : null;

@@ -4,6 +4,7 @@ import {
     ArrowUpRight, ArrowDownLeft, BookOpen,
 } from "lucide-react";
 import { fetchJournalFinancier } from "../../../services/financesP5.js";
+import { readCache } from "../../../services/financesCache.js";
 import MouvementPane from "./journalFinancier/mouvementPane.jsx";
 import "../../../assets/styles/components/modules/finances/journalFinancier.css";
 
@@ -75,18 +76,30 @@ function JournalFinancier() {
     const filters = { recherche, type, sens, dateDebut, dateFin };
 
     const load = useCallback(async () => {
-        setLoading(true);
-        setError(null);
+        setLoading(true); // Always set loading to true initially
+
+        const cacheKey = `journal_financier_${page}_${JSON.stringify(filters)}`; // As per financesP5.js
+        const staleData = readCache(cacheKey);
+
+        if (staleData) {
+            setData(staleData.data ?? []);
+            setMeta(staleData.meta ?? null);
+            if (staleData.kpis) setKpis(staleData.kpis);
+            setLoading(false); // Display stale data immediately
+        }
+
         try {
             const res = await fetchJournalFinancier(page, filters);
             setData(res.data ?? []);
             setMeta(res.meta ?? null);
             if (res.kpis) setKpis(res.kpis);
+            setError(null); // Clear any previous error if fetch is successful
         } catch (e) {
-            setError(e.message);
-        } finally {
-            setLoading(false);
+            if (!staleData) { // Only set error if no stale data was available to display
+                setError(e.message);
+            }
         }
+        setLoading(false); // Ensure loading is false after fetch attempt
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, recherche, type, sens, dateDebut, dateFin]);
 
