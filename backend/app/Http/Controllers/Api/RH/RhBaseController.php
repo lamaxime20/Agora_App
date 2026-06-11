@@ -26,6 +26,8 @@ abstract class RhBaseController extends Controller
             'employe_vente'         => ['label' => 'Employé Vente',       'couleur' => '#FAD7A0'],
             'manager_gestion_stock' => ['label' => 'Manager Stock',       'couleur' => '#2C3E50'],
             'employe_gestion_stock' => ['label' => 'Employé Stock',       'couleur' => '#85929E'],
+            'manager_livraison'     => ['label' => 'Manager Livraison',   'couleur' => '#3498DB'],
+            'employe_livreur'       => ['label' => 'Livreur',             'couleur' => '#AED6F1'],
         ];
     }
 

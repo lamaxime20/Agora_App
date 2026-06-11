@@ -27,6 +27,7 @@ const ROLES_SELECT = [
     "manager_finances", "employe_finances",
     "manager_vente", "employe_vente",
     "manager_gestion_stock", "employe_gestion_stock",
+    "manager_livraison", "employe_livraison",
 ];
 
 const FILTERS = [
