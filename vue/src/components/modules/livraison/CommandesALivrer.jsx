@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { PackageCheck, Clock, Search, Download } from "lucide-react";
 import {
     fetchCommandesALivrer, fetchHistoriqueLivraisons, fetchLivraisonDetail,
@@ -8,8 +8,7 @@ import AssignDriverModal from "./AssignDriverModal.jsx";
 import DeliveryDrawer    from "./DeliveryDrawer.jsx";
 import "../../../assets/styles/components/modules/livraison/CommandesALivrer.css";
 
-const TABS = ["Commandes à livrer", "Historique des livraisons"];
-
+const TABS    = ["Commandes à livrer", "Historique des livraisons"];
 const PER_PAGE = 20;
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -46,8 +45,8 @@ function TableSkeleton() {
 
 function ListeCommandes() {
     const [filters, setFilters]     = useState({ page: 1, recherche: "" });
-    const [data, setData]           = useState(() => CACHE.readCommandesALivrer({ page: 1, per_page: PER_PAGE }));
-    const [loading, setLoading]     = useState(!CACHE.readCommandesALivrer({ page: 1, per_page: PER_PAGE }));
+    const [data, setData]           = useState(null);
+    const [loading, setLoading]     = useState(true);
     const [total, setTotal]         = useState(0);
     const [error, setError]         = useState("");
     const [assigning, setAssigning] = useState(null);
@@ -61,17 +60,29 @@ function ListeCommandes() {
         ...(filters.recherche ? { recherche: filters.recherche } : {}),
     }), [filters]);
 
-    const reload = () => {
+    const reload = useCallback(async () => {
+        setLoading(true);
+        setError("");
+
         const stale = CACHE.readCommandesALivrer(params);
-        if (stale) { setData(stale); setTotal(stale.meta?.total ?? 0); setLoading(false); }
-        else setLoading(true);
+        if (stale) {
+            setData(stale);
+            setTotal(stale.meta?.total ?? 0);
+            setLoading(false);
+        }
 
-        fetchCommandesALivrer(params)
-            .then(res => { setData(res); setTotal(res.meta?.total ?? 0); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger les commandes."); setLoading(false); });
-    };
+        try {
+            const res = await fetchCommandesALivrer(params);
+            setData(res);
+            setTotal(res.meta?.total ?? 0);
+        } catch (err) {
+            if (!stale) setError(err?.message ?? "Impossible de charger les commandes.");
+        } finally {
+            if (!stale) setLoading(false);
+        }
+    }, [params]);
 
-    useEffect(reload, [params]);
+    useEffect(() => { reload(); }, [reload]);
 
     const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
@@ -218,16 +229,15 @@ function ListeCommandes() {
 // ─── Historique des livraisons ────────────────────────────────────────────────
 
 function HistoriqueLivraisons() {
-    const initParams = { page: 1, per_page: PER_PAGE };
-    const [filters, setFilters]           = useState({ page: 1, recherche: "", statut: "tous", dateDebut: "", dateFin: "" });
-    const [data, setData]                 = useState(() => CACHE.readHistoriqueLivraisons(initParams));
-    const [loading, setLoading]           = useState(!CACHE.readHistoriqueLivraisons(initParams));
-    const [total, setTotal]               = useState(0);
-    const [error, setError]               = useState("");
-    const [selected, setSelected]         = useState(null);
-    const [loadingDetailId, setLDId]      = useState(null);
-    const [exporting, setExporting]       = useState(false);
-    const [exportMsg, setExportMsg]       = useState("");
+    const [filters, setFilters]      = useState({ page: 1, recherche: "", statut: "tous", dateDebut: "", dateFin: "" });
+    const [data, setData]            = useState(null);
+    const [loading, setLoading]      = useState(true);
+    const [total, setTotal]          = useState(0);
+    const [error, setError]          = useState("");
+    const [selected, setSelected]    = useState(null);
+    const [loadingDetailId, setLDId] = useState(null);
+    const [exporting, setExporting]  = useState(false);
+    const [exportMsg, setExportMsg]  = useState("");
 
     const updateFilter = (key, value) =>
         setFilters(prev => ({ ...prev, [key]: value, page: key !== "page" ? 1 : value }));
@@ -235,20 +245,34 @@ function HistoriqueLivraisons() {
     const params = useMemo(() => ({
         page:     filters.page,
         per_page: PER_PAGE,
-        ...(filters.recherche              ? { recherche:   filters.recherche   } : {}),
-        ...(filters.statut !== "tous"      ? { statut:      filters.statut      } : {}),
-        ...(filters.dateDebut              ? { date_debut:  filters.dateDebut   } : {}),
-        ...(filters.dateFin                ? { date_fin:    filters.dateFin     } : {}),
+        ...(filters.recherche         ? { recherche:  filters.recherche  } : {}),
+        ...(filters.statut !== "tous" ? { statut:     filters.statut     } : {}),
+        ...(filters.dateDebut         ? { date_debut: filters.dateDebut  } : {}),
+        ...(filters.dateFin           ? { date_fin:   filters.dateFin    } : {}),
     }), [filters]);
 
     useEffect(() => {
-        const stale = CACHE.readHistoriqueLivraisons(params);
-        if (stale) { setData(stale); setTotal(stale.meta?.total ?? 0); setLoading(false); }
-        else setLoading(true);
+        (async () => {
+            setLoading(true);
+            setError("");
 
-        fetchHistoriqueLivraisons(params)
-            .then(res => { setData(res); setTotal(res.meta?.total ?? 0); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger l'historique."); setLoading(false); });
+            const stale = CACHE.readHistoriqueLivraisons(params);
+            if (stale) {
+                setData(stale);
+                setTotal(stale.meta?.total ?? 0);
+                setLoading(false);
+            }
+
+            try {
+                const res = await fetchHistoriqueLivraisons(params);
+                setData(res);
+                setTotal(res.meta?.total ?? 0);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger l'historique.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
     }, [params]);
 
     const handleRowClick = async (liv) => {

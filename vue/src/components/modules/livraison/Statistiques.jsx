@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
     BarChart3, Users, Activity, XCircle, RotateCcw, MapPin, UserCheck,
     TrendingUp, Clock, Award, CheckCircle, Download, CalendarDays,
@@ -244,23 +244,36 @@ function StatsSkeleton() {
 function VueGenerale() {
     const [dateDebut, setDateDebut] = useState("");
     const [dateFin,   setDateFin]   = useState("");
-    const [data,      setData]      = useState(() => CACHE.readStatisticsOverview({}));
-    const [loading,   setLoading]   = useState(!CACHE.readStatisticsOverview({}));
+    const [data,      setData]      = useState(null);
+    const [loading,   setLoading]   = useState(true);
     const [error,     setError]     = useState("");
 
-    useEffect(() => {
-        const params = {
-            ...(dateDebut ? { date_debut: dateDebut } : {}),
-            ...(dateFin   ? { date_fin:   dateFin   } : {}),
-        };
-        const stale = CACHE.readStatisticsOverview(params);
-        if (stale) { setData(stale); setLoading(false); }
-        else setLoading(true);
+    const params = useMemo(() => ({
+        ...(dateDebut ? { date_debut: dateDebut } : {}),
+        ...(dateFin   ? { date_fin:   dateFin   } : {}),
+    }), [dateDebut, dateFin]);
 
-        fetchStatisticsOverview(params)
-            .then(res => { setData(res); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger la vue générale."); setLoading(false); });
-    }, [dateDebut, dateFin]);
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+
+            const stale = CACHE.readStatisticsOverview(params);
+            if (stale) {
+                setData(stale);
+                setLoading(false);
+            }
+
+            try {
+                const res = await fetchStatisticsOverview(params);
+                setData(res);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger la vue générale.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
+    }, [params]);
 
     if (loading && !data) return <StatsSkeleton />;
     if (error && !data)   return <p className="stats-error">{error}</p>;
@@ -323,23 +336,36 @@ function VueGenerale() {
 function PerformanceLivreurs() {
     const [dateDebut, setDateDebut] = useState("");
     const [dateFin,   setDateFin]   = useState("");
-    const [data,      setData]      = useState(() => CACHE.readStatisticsDrivers({}));
-    const [loading,   setLoading]   = useState(!CACHE.readStatisticsDrivers({}));
+    const [data,      setData]      = useState(null);
+    const [loading,   setLoading]   = useState(true);
     const [error,     setError]     = useState("");
 
-    useEffect(() => {
-        const params = {
-            ...(dateDebut ? { date_debut: dateDebut } : {}),
-            ...(dateFin   ? { date_fin:   dateFin   } : {}),
-        };
-        const stale = CACHE.readStatisticsDrivers(params);
-        if (stale) { setData(stale); setLoading(false); }
-        else setLoading(true);
+    const params = useMemo(() => ({
+        ...(dateDebut ? { date_debut: dateDebut } : {}),
+        ...(dateFin   ? { date_fin:   dateFin   } : {}),
+    }), [dateDebut, dateFin]);
 
-        fetchStatisticsDrivers(params)
-            .then(res => { setData(res); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger les performances."); setLoading(false); });
-    }, [dateDebut, dateFin]);
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+
+            const stale = CACHE.readStatisticsDrivers(params);
+            if (stale) {
+                setData(stale);
+                setLoading(false);
+            }
+
+            try {
+                const res = await fetchStatisticsDrivers(params);
+                setData(res);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger les performances.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
+    }, [params]);
 
     if (loading && !data) return <StatsSkeleton />;
     if (error && !data)   return <p className="stats-error">{error}</p>;
@@ -413,24 +439,37 @@ function PerformanceLivreurs() {
 function AnalyseActivite() {
     const [dateDebut, setDateDebut] = useState("");
     const [dateFin,   setDateFin]   = useState("");
-    const [data,      setData]      = useState(() => CACHE.readStatisticsActivity({}));
-    const [loading,   setLoading]   = useState(!CACHE.readStatisticsActivity({}));
+    const [data,      setData]      = useState(null);
+    const [loading,   setLoading]   = useState(true);
     const [error,     setError]     = useState("");
     const [period,    setPeriod]    = useState("jour");
 
-    useEffect(() => {
-        const params = {
-            ...(dateDebut ? { date_debut: dateDebut } : {}),
-            ...(dateFin   ? { date_fin:   dateFin   } : {}),
-        };
-        const stale = CACHE.readStatisticsActivity(params);
-        if (stale) { setData(stale); setLoading(false); }
-        else setLoading(true);
+    const params = useMemo(() => ({
+        ...(dateDebut ? { date_debut: dateDebut } : {}),
+        ...(dateFin   ? { date_fin:   dateFin   } : {}),
+    }), [dateDebut, dateFin]);
 
-        fetchStatisticsActivity(params)
-            .then(res => { setData(res); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger les données d'activité."); setLoading(false); });
-    }, [dateDebut, dateFin]);
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+
+            const stale = CACHE.readStatisticsActivity(params);
+            if (stale) {
+                setData(stale);
+                setLoading(false);
+            }
+
+            try {
+                const res = await fetchStatisticsActivity(params);
+                setData(res);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger les données d'activité.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
+    }, [params]);
 
     if (loading && !data) return <StatsSkeleton />;
     if (error && !data)   return <p className="stats-error">{error}</p>;
@@ -506,23 +545,36 @@ function AnalyseActivite() {
 function AnalyseEchecs() {
     const [dateDebut, setDateDebut] = useState("");
     const [dateFin,   setDateFin]   = useState("");
-    const [data,      setData]      = useState(() => CACHE.readStatisticsFailures({}));
-    const [loading,   setLoading]   = useState(!CACHE.readStatisticsFailures({}));
+    const [data,      setData]      = useState(null);
+    const [loading,   setLoading]   = useState(true);
     const [error,     setError]     = useState("");
 
-    useEffect(() => {
-        const params = {
-            ...(dateDebut ? { date_debut: dateDebut } : {}),
-            ...(dateFin   ? { date_fin:   dateFin   } : {}),
-        };
-        const stale = CACHE.readStatisticsFailures(params);
-        if (stale) { setData(stale); setLoading(false); }
-        else setLoading(true);
+    const params = useMemo(() => ({
+        ...(dateDebut ? { date_debut: dateDebut } : {}),
+        ...(dateFin   ? { date_fin:   dateFin   } : {}),
+    }), [dateDebut, dateFin]);
 
-        fetchStatisticsFailures(params)
-            .then(res => { setData(res); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger l'analyse des échecs."); setLoading(false); });
-    }, [dateDebut, dateFin]);
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+
+            const stale = CACHE.readStatisticsFailures(params);
+            if (stale) {
+                setData(stale);
+                setLoading(false);
+            }
+
+            try {
+                const res = await fetchStatisticsFailures(params);
+                setData(res);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger l'analyse des échecs.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
+    }, [params]);
 
     if (loading && !data) return <StatsSkeleton />;
     if (error && !data)   return <p className="stats-error">{error}</p>;
@@ -576,23 +628,36 @@ function AnalyseEchecs() {
 function AnalyseRetours() {
     const [dateDebut, setDateDebut] = useState("");
     const [dateFin,   setDateFin]   = useState("");
-    const [data,      setData]      = useState(() => CACHE.readStatisticsReturns({}));
-    const [loading,   setLoading]   = useState(!CACHE.readStatisticsReturns({}));
+    const [data,      setData]      = useState(null);
+    const [loading,   setLoading]   = useState(true);
     const [error,     setError]     = useState("");
 
-    useEffect(() => {
-        const params = {
-            ...(dateDebut ? { date_debut: dateDebut } : {}),
-            ...(dateFin   ? { date_fin:   dateFin   } : {}),
-        };
-        const stale = CACHE.readStatisticsReturns(params);
-        if (stale) { setData(stale); setLoading(false); }
-        else setLoading(true);
+    const params = useMemo(() => ({
+        ...(dateDebut ? { date_debut: dateDebut } : {}),
+        ...(dateFin   ? { date_fin:   dateFin   } : {}),
+    }), [dateDebut, dateFin]);
 
-        fetchStatisticsReturns(params)
-            .then(res => { setData(res); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger l'analyse des retours."); setLoading(false); });
-    }, [dateDebut, dateFin]);
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+
+            const stale = CACHE.readStatisticsReturns(params);
+            if (stale) {
+                setData(stale);
+                setLoading(false);
+            }
+
+            try {
+                const res = await fetchStatisticsReturns(params);
+                setData(res);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger l'analyse des retours.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
+    }, [params]);
 
     if (loading && !data) return <StatsSkeleton />;
     if (error && !data)   return <p className="stats-error">{error}</p>;
@@ -645,23 +710,36 @@ function AnalyseRetours() {
 function AnalyseGeographie() {
     const [dateDebut, setDateDebut] = useState("");
     const [dateFin,   setDateFin]   = useState("");
-    const [data,      setData]      = useState(() => CACHE.readStatisticsGeography({}));
-    const [loading,   setLoading]   = useState(!CACHE.readStatisticsGeography({}));
+    const [data,      setData]      = useState(null);
+    const [loading,   setLoading]   = useState(true);
     const [error,     setError]     = useState("");
 
-    useEffect(() => {
-        const params = {
-            ...(dateDebut ? { date_debut: dateDebut } : {}),
-            ...(dateFin   ? { date_fin:   dateFin   } : {}),
-        };
-        const stale = CACHE.readStatisticsGeography(params);
-        if (stale) { setData(stale); setLoading(false); }
-        else setLoading(true);
+    const params = useMemo(() => ({
+        ...(dateDebut ? { date_debut: dateDebut } : {}),
+        ...(dateFin   ? { date_fin:   dateFin   } : {}),
+    }), [dateDebut, dateFin]);
 
-        fetchStatisticsGeography(params)
-            .then(res => { setData(res); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger l'analyse géographique."); setLoading(false); });
-    }, [dateDebut, dateFin]);
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+
+            const stale = CACHE.readStatisticsGeography(params);
+            if (stale) {
+                setData(stale);
+                setLoading(false);
+            }
+
+            try {
+                const res = await fetchStatisticsGeography(params);
+                setData(res);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger l'analyse géographique.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
+    }, [params]);
 
     if (loading && !data) return <StatsSkeleton />;
     if (error && !data)   return <p className="stats-error">{error}</p>;
@@ -739,23 +817,36 @@ function AnalyseGeographie() {
 function AnalyseClients() {
     const [dateDebut, setDateDebut] = useState("");
     const [dateFin,   setDateFin]   = useState("");
-    const [data,      setData]      = useState(() => CACHE.readStatisticsClients({}));
-    const [loading,   setLoading]   = useState(!CACHE.readStatisticsClients({}));
+    const [data,      setData]      = useState(null);
+    const [loading,   setLoading]   = useState(true);
     const [error,     setError]     = useState("");
 
-    useEffect(() => {
-        const params = {
-            ...(dateDebut ? { date_debut: dateDebut } : {}),
-            ...(dateFin   ? { date_fin:   dateFin   } : {}),
-        };
-        const stale = CACHE.readStatisticsClients(params);
-        if (stale) { setData(stale); setLoading(false); }
-        else setLoading(true);
+    const params = useMemo(() => ({
+        ...(dateDebut ? { date_debut: dateDebut } : {}),
+        ...(dateFin   ? { date_fin:   dateFin   } : {}),
+    }), [dateDebut, dateFin]);
 
-        fetchStatisticsClients(params)
-            .then(res => { setData(res); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger l'analyse clients."); setLoading(false); });
-    }, [dateDebut, dateFin]);
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+
+            const stale = CACHE.readStatisticsClients(params);
+            if (stale) {
+                setData(stale);
+                setLoading(false);
+            }
+
+            try {
+                const res = await fetchStatisticsClients(params);
+                setData(res);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger l'analyse clients.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
+    }, [params]);
 
     if (loading && !data) return <StatsSkeleton />;
     if (error && !data)   return <p className="stats-error">{error}</p>;

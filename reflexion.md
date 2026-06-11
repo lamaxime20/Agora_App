@@ -907,3 +907,222 @@ Lorsqu'une livraison est marquée retour :
 - aucun mouvement de stock n'est effectué.
 
 Cette logique garantit que les réservations restent toujours cohérentes sans avoir besoin de stocker une valeur de stock réservé.
+
+# Module Ressources Humaines — AGORA
+
+Le module **Ressources Humaines** permet au dirigeant (ou à tout utilisateur autorisé) de **structurer, suivre et piloter les employés** de l’entreprise de manière simple, claire et contrôlée.
+
+L’objectif est que l’utilisateur ressente immédiatement :
+- qu’il sait **qui travaille dans son entreprise**,
+- **quel rôle** chacun occupe,
+- **combien chacun coûte**,
+- et **comment l’entreprise évolue humainement**.
+
+---
+
+## Accès au module Ressources Humaines
+
+Depuis la **sidebar principale**, l’utilisateur clique sur l’onglet :
+
+> **Ressources Humaines**
+
+Le clic déclenche :
+- une transition fluide,
+- le chargement du **dashboard RH**,
+- l’affichage d’un contexte clair : *l’entreprise et les employés associés*.
+
+---
+
+## 1. Dashboard Ressources Humaines
+
+### Contenu affiché dès l’arrivée
+
+Le dashboard RH donne une **vue globale immédiate**.
+
+Cartes visibles en haut :
+- Nombre total d’employés (hors directeur)
+- Masse salariale totale
+- Nombre de rôles actifs
+- Employés sans salaire défini (salaire = 0)
+
+Graphiques :
+- Répartition des employés par rôle
+- Évolution de la masse salariale (mois par mois)
+- Part des employés actifs dans l’entreprise
+
+Actions rapides visibles :
+- ➕ Ajouter un employé
+- 📤 Exporter les données
+- 🔍 Accéder à la liste complète
+
+---
+
+## 2. Onglet : Liste des employés
+
+L’utilisateur clique sur **“Employés”** dans les sous-onglets du module RH.
+
+### Contenu de la page
+
+Un tableau structuré s’affiche avec les colonnes suivantes :
+- Nom / Email
+- Rôle dans l’entreprise
+- Salaire
+- Date d’association à l’entreprise
+- Statut (actif)
+- Actions
+
+⚠️ Le **directeur n’apparaît jamais** dans cette liste.
+
+---
+
+### Actions disponibles sur la liste
+
+#### 🔍 Filtrer / Rechercher
+- Recherche par nom
+- Recherche par email
+- Filtre par rôle
+- Filtre par salaire (0 / > 0)
+
+Chaque filtre s’applique instantanément.
+
+---
+
+#### ➕ Ajouter une personne à l’entreprise
+
+L’utilisateur clique sur le bouton **“Ajouter un employé”**.
+
+Une modale s’ouvre.
+
+##### Champs de la modale :
+- Email de la personne
+- Sélection du rôle (liste déroulante)
+  - Le rôle **directeur est exclu**
+- Bouton **Confirmer**
+
+##### Logique backend déclenchée :
+- Si l’email n’existe pas :
+  - Création automatique d’un utilisateur
+  - Mot de passe par défaut : `12345678`
+- Si l’email existe :
+  - Récupération de l’ID utilisateur
+- Association de l’utilisateur à l’entreprise avec le rôle choisi
+
+Après validation :
+- Message de succès
+- Rafraîchissement automatique de la liste
+- L’employé apparaît immédiatement
+
+---
+
+#### 👁️ Voir les détails d’un employé
+
+Sur chaque ligne, l’utilisateur clique sur **“Voir”**.
+
+Une page de détail s’ouvre.
+
+##### Contenu de la page détail :
+- Informations personnelles :
+  - Nom
+  - Email
+- Informations professionnelles :
+  - Rôle dans l’entreprise
+  - Date d’ajout
+  - Salaire actuel
+- Historique :
+  - Modifications de salaire
+  - Changements de rôle (si existants)
+
+Actions disponibles :
+- Modifier le salaire
+- Revenir à la liste
+
+---
+
+#### 💰 Régler / Modifier le salaire
+
+Depuis :
+- la liste (action rapide)
+- ou la page détail employé
+
+L’utilisateur clique sur **“Définir le salaire”**.
+
+##### Règles :
+- Le salaire peut être :
+  - un montant positif
+  - ou **0**
+- Le directeur n’est jamais concerné
+
+Après validation :
+- Mise à jour immédiate
+- Impact automatique sur :
+  - la masse salariale
+  - les statistiques RH
+  - le dashboard finance (si connecté)
+
+---
+
+## 3. Onglet : Statistiques RH
+
+L’utilisateur clique sur **“Statistiques”**.
+
+### Contenu de la page
+
+Graphiques détaillés :
+- Masse salariale par rôle
+- Nombre d’employés par rôle
+- Évolution du nombre d’employés
+- Comparaison employés avec salaire / sans salaire
+
+Indicateurs clés :
+- Coût humain total
+- Rôle le plus représenté
+- Salaire moyen
+
+Chaque graphique est :
+- lisible,
+- filtrable par période,
+- interactif.
+
+---
+
+## 4. Export des données
+
+Depuis :
+- la liste des employés
+- ou les statistiques
+
+L’utilisateur clique sur **“Exporter”**.
+
+### Formats disponibles :
+- CSV
+- PDF
+- DOCX
+
+### Logique :
+- L’export prend en compte :
+  - les filtres actifs
+  - les données visibles
+- Un fichier est généré et téléchargé automatiquement
+
+---
+
+## 5. Parcours utilisateur global (logique mentale)
+
+1. L’utilisateur ouvre le module RH  
+2. Il comprend immédiatement l’état humain de son entreprise  
+3. Il ajoute des employés sans complexité  
+4. Il attribue des rôles clairs  
+5. Il définit ou ajuste les salaires  
+6. Il analyse l’impact humain via les statistiques  
+7. Il exporte les données pour la gestion externe  
+
+---
+
+## Résultat ressenti par l’utilisateur
+
+> “Je sais exactement qui travaille avec moi, combien cela me coûte, et comment mon équipe évolue.”
+
+Le module Ressources Humaines devient :
+- un outil de **contrôle**,
+- de **clarté organisationnelle**,
+- et de **pilotage stratégique** de l’entreprise.

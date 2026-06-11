@@ -140,30 +140,42 @@ const FILTER_OPTIONS = [
 const INITIAL_PARAMS = { periode: "aujourd_hui" };
 
 function Dashboard() {
-    const [filter,     setFilter]     = useState(FILTER_OPTIONS[0].label);
-    const [dateDebut,  setDateDebut]  = useState("");
-    const [dateFin,    setDateFin]    = useState("");
-    const [data,       setData]       = useState(() => CACHE.readDashboard(INITIAL_PARAMS));
-    const [loading,    setLoading]    = useState(!CACHE.readDashboard(INITIAL_PARAMS));
-    const [error,      setError]      = useState("");
+    const [filter,    setFilter]    = useState(FILTER_OPTIONS[0].label);
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin,   setDateFin]   = useState("");
+    const [data,      setData]      = useState(null);
+    const [loading,   setLoading]   = useState(true);
+    const [error,     setError]     = useState("");
 
     useEffect(() => {
         const opt    = FILTER_OPTIONS.find(f => f.label === filter);
         const custom = filter === "Personnalisé";
 
-        // Pour le filtre Personnalisé, attendre que les deux dates soient renseignées
         if (custom && (!dateDebut || !dateFin)) return;
 
-        const params = custom ? { date_debut: dateDebut, date_fin: dateFin } : (opt?.params ?? INITIAL_PARAMS);
+        const params = custom
+            ? { date_debut: dateDebut, date_fin: dateFin }
+            : (opt?.params ?? INITIAL_PARAMS);
 
-        // Afficher le stale immédiatement
-        const stale = CACHE.readDashboard(params);
-        if (stale) { setData(stale); setLoading(false); }
-        else       { setLoading(true); }
+        (async () => {
+            setLoading(true);
+            setError("");
 
-        fetchDashboard(params)
-            .then(fresh => { setData(fresh); setLoading(false); setError(""); })
-            .catch(err  => { setError(err?.message ?? "Impossible de charger le tableau de bord."); setLoading(false); });
+            const stale = CACHE.readDashboard(params);
+            if (stale) {
+                setData(stale);
+                setLoading(false);
+            }
+
+            try {
+                const fresh = await fetchDashboard(params);
+                setData(fresh);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger le tableau de bord.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
     }, [filter, dateDebut, dateFin]);
 
     if (loading && !data) return <DashboardSkeleton />;

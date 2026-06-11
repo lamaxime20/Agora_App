@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
     Truck, Clock, CheckCircle, XCircle, RotateCcw, Play, Download, MapPin, Phone, Search,
 } from "lucide-react";
@@ -81,23 +81,33 @@ function DeliveryCard({ livraison, onAction, onDetail }) {
 // ─── Mes livraisons en cours ──────────────────────────────────────────────────
 
 function MesLivraisonsEnCours() {
-    const [data, setData]         = useState(() => CACHE.readMesLivraisons());
-    const [loading, setLoading]   = useState(!CACHE.readMesLivraisons());
-    const [error, setError]       = useState("");
-    const [dialog, setDialog]     = useState(null);
-    const [drawerLiv, setDrawer]  = useState(null);
+    const [data, setData]        = useState(null);
+    const [loading, setLoading]  = useState(true);
+    const [error, setError]      = useState("");
+    const [dialog, setDialog]    = useState(null);
+    const [drawerLiv, setDrawer] = useState(null);
 
-    const load = () => {
+    const load = useCallback(async () => {
+        setLoading(true);
+        setError("");
+
         const stale = CACHE.readMesLivraisons();
-        if (stale) { setData(stale); setLoading(false); }
-        else setLoading(true);
+        if (stale) {
+            setData(stale);
+            setLoading(false);
+        }
 
-        fetchMesLivraisons()
-            .then(res => { setData(res); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger vos livraisons."); setLoading(false); });
-    };
+        try {
+            const res = await fetchMesLivraisons();
+            setData(res);
+        } catch (err) {
+            if (!stale) setError(err?.message ?? "Impossible de charger vos livraisons.");
+        } finally {
+            if (!stale) setLoading(false);
+        }
+    }, []);
 
-    useEffect(load, []);
+    useEffect(() => { load(); }, [load]);
 
     const handleAction  = (type, livraison) => setDialog({ type, livraison });
     const handleSuccess = () => { setDialog(null); load(); };
@@ -210,10 +220,9 @@ function MesLivraisonsEnCours() {
 // ─── Historique personnel ─────────────────────────────────────────────────────
 
 function HistoriquePersonnel() {
-    const initParams = { page: 1, per_page: PER_PAGE };
     const [filters, setFilters]     = useState({ page: 1, recherche: "", statut: "tous", dateDebut: "", dateFin: "" });
-    const [data, setData]           = useState(() => CACHE.readHistoriquePersonnel(initParams));
-    const [loading, setLoading]     = useState(!CACHE.readHistoriquePersonnel(initParams));
+    const [data, setData]           = useState(null);
+    const [loading, setLoading]     = useState(true);
     const [total, setTotal]         = useState(0);
     const [error, setError]         = useState("");
     const [selected, setSelected]   = useState(null);
@@ -233,13 +242,27 @@ function HistoriquePersonnel() {
     }), [filters]);
 
     useEffect(() => {
-        const stale = CACHE.readHistoriquePersonnel(params);
-        if (stale) { setData(stale); setTotal(stale.meta?.total ?? 0); setLoading(false); }
-        else setLoading(true);
+        (async () => {
+            setLoading(true);
+            setError("");
 
-        fetchHistoriquePersonnel(params)
-            .then(res => { setData(res); setTotal(res.meta?.total ?? 0); setLoading(false); setError(""); })
-            .catch(err => { setError(err?.message ?? "Impossible de charger l'historique."); setLoading(false); });
+            const stale = CACHE.readHistoriquePersonnel(params);
+            if (stale) {
+                setData(stale);
+                setTotal(stale.meta?.total ?? 0);
+                setLoading(false);
+            }
+
+            try {
+                const res = await fetchHistoriquePersonnel(params);
+                setData(res);
+                setTotal(res.meta?.total ?? 0);
+            } catch (err) {
+                if (!stale) setError(err?.message ?? "Impossible de charger l'historique.");
+            } finally {
+                if (!stale) setLoading(false);
+            }
+        })();
     }, [params]);
 
     const handleExport = async (format) => {
