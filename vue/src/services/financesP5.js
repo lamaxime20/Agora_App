@@ -12,7 +12,7 @@ export async function fetchSalaires(page = 1, filtreStatut = "tous") {
         result = await apiFetch(`finances/salaires?page=${page}&per_page=20${statut}`);
         writeCache(cacheKey, result);
     } catch {
-        if (stale) return stale;
+        // The component will handle displaying stale data if available.
         throw new Error("Impossible de charger les salaires.");
     }
     return result;
@@ -26,7 +26,7 @@ export async function fetchSalarieDetail(id) {
         result = await apiFetch(`finances/salaires/${id}`);
         writeCache(cacheKey, result);
     } catch {
-        if (stale) return stale;
+        // The component will handle displaying stale data if available.
         throw new Error("Impossible de charger le détail du salarié.");
     }
     return result;
@@ -40,7 +40,7 @@ export async function fetchSalairePaiements(employeeId, page = 1) {
         result = await apiFetch(`finances/salaires/${employeeId}/paiements?page=${page}&per_page=20`);
         writeCache(cacheKey, result);
     } catch {
-        if (stale) return stale;
+        // The component will handle displaying stale data if available.
         throw new Error("Impossible de charger les paiements de salaire.");
     }
     return result;

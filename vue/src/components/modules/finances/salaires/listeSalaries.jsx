@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Search, Users, Download, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchSalaires } from "../../../../services/financesP5.js";
+import { readCache } from "../../../../services/financesCache.js";
 import SalariePane from "./salariePane.jsx";
 
 const fmt = (n) =>
@@ -70,17 +71,28 @@ function ListeSalaries() {
     const [selectedSalarie, setSelectedSalarie] = useState(null);
 
     const load = useCallback(async () => {
-        setLoading(true);
-        setError(null);
+        setLoading(true); // Always set loading to true initially
+
+        const cacheKey = `salaires_${page}_tous`; // As per financesP5.js, default filtreStatut is 'tous'
+        const staleData = readCache(cacheKey);
+
+        if (staleData) {
+            setData(staleData.data ?? []);
+            setMeta(staleData.meta ?? null);
+            setLoading(false); // Display stale data immediately
+        }
+
         try {
             const res = await fetchSalaires(page);
             setData(res.data ?? []);
             setMeta(res.meta ?? null);
+            setError(null); // Clear any previous error if fetch is successful
         } catch (e) {
-            setError(e.message);
-        } finally {
-            setLoading(false);
+            if (!staleData) { // Only set error if no stale data was available to display
+                setError(e.message);
+            }
         }
+        setLoading(false); // Ensure loading is false after fetch attempt
     }, [page]);
 
     useEffect(() => { load(); }, [load]);

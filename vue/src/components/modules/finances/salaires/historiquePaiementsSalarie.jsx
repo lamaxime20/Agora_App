@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { X, Download, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchSalairePaiements } from "../../../../services/financesP5.js";
+import { readCache } from "../../../../services/financesCache.js";
 
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -123,16 +124,25 @@ function HistoriquePaiementsSalarie({ salarie, onClose }) {
     const [selectedPay, setSelectedPay] = useState(null);
 
     const load = useCallback(async () => {
-        setLoading(true);
+        setLoading(true); // Always set loading to true initially
+
+        const cacheKey = `salaire_paiements_${salarie.id}_${page}`; // As per financesP5.js
+        const staleData = readCache(cacheKey);
+
+        if (staleData) {
+            setPaiements(staleData.data ?? []);
+            setMeta(staleData.meta ?? null);
+            setLoading(false); // Display stale data immediately
+        }
+
         try {
             const res = await fetchSalairePaiements(salarie.id, page);
             setPaiements(res.data ?? []);
             setMeta(res.meta ?? null);
         } catch {
             // silent — keep empty state
-        } finally {
-            setLoading(false);
         }
+        setLoading(false); // Ensure loading is false after fetch attempt
     }, [salarie.id, page]);
 
     useEffect(() => { load(); }, [load]);
