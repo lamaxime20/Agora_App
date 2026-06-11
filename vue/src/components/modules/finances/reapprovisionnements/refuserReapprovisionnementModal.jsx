@@ -10,8 +10,6 @@ function RefuserReapprovisionnementModal({ reappro, onClose, onSuccess }) {
     const [error, setError]           = useState("");
     const [done, setDone]             = useState(false);
 
-    console.log("refuser :", reappro);
-
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 

@@ -230,7 +230,6 @@ class FinancesReapprovisionnementController extends FinancesBaseController
                     'dateDemande'      => $row->dateDemande,
                     'demandeur'        => $row->demandeur,
                     'decideur'         => $row->decideur,
-                    'dateDecision'     => $row->dateDecision,
                     'motifRefus'       => $row->motifRefus,
                 ]);
 

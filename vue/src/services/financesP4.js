@@ -87,9 +87,15 @@ export async function fetchReapprosHistorique(page = 1) {
 }
 
 export async function validerReappro(id, payload) {
-    return apiFetch(`finances/reapprovisionnements/${id}/valider`, { method: "POST", body: payload });
+    const body = {
+        mot_de_passe: payload.motDePasse,
+    }
+    return apiFetch(`finances/reapprovisionnements/${id}/valider`, { method: "POST", body: body });
 }
 
 export async function refuserReappro(id, payload) {
-    return apiFetch(`finances/reapprovisionnements/${id}/refuser`, { method: "POST", body: payload });
+    const body = {
+        raison_annulation: payload.motif
+    }
+    return apiFetch(`finances/reapprovisionnements/${id}/refuser`, { method: "POST", body: body });
 }

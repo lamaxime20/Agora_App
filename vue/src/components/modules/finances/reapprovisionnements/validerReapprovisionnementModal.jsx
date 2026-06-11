@@ -11,8 +11,6 @@ function ValiderReapprovisionnementModal({ reappro, onClose, onSuccess }) {
     const [error, setError]           = useState("");
     const [done, setDone]             = useState(false);
 
-    console.log("valider :", reappro);
-
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
