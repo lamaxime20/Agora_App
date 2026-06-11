@@ -24,6 +24,7 @@ export async function fetchAbonnementDetail(id) {
     let result;
     try {
         result = await apiFetch(`finances/abonnements/${id}`);
+        console.log("abonnement :", result);
         writeCache(cacheKey, result);
     } catch {
         if (stale) return stale;
@@ -33,7 +34,13 @@ export async function fetchAbonnementDetail(id) {
 }
 
 export async function creerAbonnement(payload) {
-    return apiFetch("finances/abonnements", { method: "POST", body: payload });
+    const body = {
+        service_paye: payload.nomService,
+        fournisseur: payload.fournisseur,
+        montant_mensuel: payload.montantMensuel,
+        date_abonnement: payload.dateDebut
+    }
+    return apiFetch("finances/abonnements", { method: "POST", body: body });
 }
 
 export async function suspendreAbonnement(id, payload) {

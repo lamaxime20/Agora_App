@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { PlusCircle, Search, Download, ChevronDown, ChevronLeft, ChevronRight, Repeat, ScissorsLineDashed } from "lucide-react";
 import { fetchAbonnements } from "../../../../services/financesP4.js";
 import AbonnementPane from "./abonnementPane.jsx";
+import { readCache } from "../../../../services/financesCache.js";
 import FormNouvelAbonnement from "./formNouvelAbonnement.jsx";
 import CouperAbonnementPane from "./couperAbonnementPane.jsx";
 
@@ -55,37 +56,77 @@ function AbonnementsEnCours() {
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-    const formatDate = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+    const formatDate = (d) => {
+        if (!d) return "";
+        const date = new Date(d);
+        return !isNaN(date) ? new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(date) : "";
+    };
+
+    const mapAbonnement = (abo) => {
+        let prochaineEcheance = null;
+        if (abo.depense_active && abo.date_abonnement) {
+            const today = new Date();
+            const dateAbonnement = new Date(abo.date_abonnement);
+            const subscriptionDay = dateAbonnement.getDate();
+
+            let nextDueDate = new Date(today.getFullYear(), today.getMonth(), subscriptionDay);
+
+            if (nextDueDate < today) {
+                nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+            }
+            prochaineEcheance = nextDueDate.toISOString().split('T')[0];
+        }
+        return {
+            id: abo.id,
+            nomService: abo.service_paye,
+            fournisseur: abo.fournisseur,
+            montantMensuel: abo.montant_mensuel,
+            dateDebut: abo.date_abonnement,
+            statut: abo.depense_active ? "actif" : "resilié",
+            prochaineEcheance: prochaineEcheance,
+            dateFin: abo.dateFin, // Ce champ n'est pas dans la nouvelle réponse, il sera undefined
+        };
+    };
+
+    const processResponse = (res) => {
+        const mappedData = res.data.map(mapAbonnement);
+        setData(mappedData);
+        setMeta(res.meta);
+        const all = (res.all?.map(mapAbonnement) ?? mappedData).filter(a => a.statut === "actif");
+        const charge = all.reduce((s, a) => s + a.montantMensuel, 0);
+        const fournisseurs = new Set(all.map(a => a.fournisseur)).size;
+        const prochaines = all
+            .filter(a => a.prochaineEcheance)
+            .map(a => ({ id: a.id, date: a.prochaineEcheance }))
+            .sort((x, y) => new Date(x.date) - new Date(y.date));
+        setKpis({
+            count: res.meta.total,
+            charge,
+            prochaineEcheance: prochaines[0]?.date ?? null,
+            fournisseurs,
+        });
+    };
 
     const load = useCallback(async (p) => {
-        setLoading(true);
         setErreur("");
-        try {
-            const res = await fetchAbonnements(p, "actif");
-            setData(res.data);
-            setMeta(res.meta);
-            const all = res.all?.filter(a => a.statut === "actif") ?? res.data;
-            const charge = all.reduce((s, a) => s + a.montantMensuel, 0);
-            const fournisseurs = new Set(all.map(a => a.fournisseur)).size;
-            const prochaines = all
-                .filter(a => a.prochaineEcheance)
-                .map(a => ({ id: a.id, date: a.prochaineEcheance }))
-                .sort((x, y) => new Date(x.date) - new Date(y.date));
-            setKpis({
-                count: res.meta.total,
-                charge,
-                prochaineEcheance: prochaines[0]?.date ?? null,
-                fournisseurs,
-            });
-        } catch {
-            setErreur("Impossible de charger les abonnements actifs.");
-        } finally {
-            setLoading(false);
-        }
+        fetchAbonnements(p, "actif")
+            .then(res => { processResponse(res); setLoading(false); })
+            .catch(() => { setErreur("Impossible de charger les abonnements actifs."); setLoading(false); });
     }, []);
 
-    useEffect(() => { load(page); }, [page, load]);
+    useEffect(() => {
+        const cacheKey = `abonnements_${page}_actif`;
+        const cached = readCache(cacheKey);
+
+        if (cached) {
+            processResponse(cached);
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
+
+        load(page);
+    }, [page, load]);
 
     const filtered = data.filter(a => {
         const q = recherche.toLowerCase();

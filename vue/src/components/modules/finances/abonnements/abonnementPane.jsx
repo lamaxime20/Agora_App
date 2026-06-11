@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Calendar, CreditCard, Bell } from "lucide-react";
 import { fetchAbonnementDetail } from "../../../../services/financesP4.js";
+import { readCache } from "../../../../services/financesCache.js";
 
 const DAYS_URGENT = 14;
 
@@ -28,22 +29,47 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-    const formatDate = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d));
+    const formatDate = (d) => {
+        if (!d) return "";
+        return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d));
+    };
 
-    const formatDateShort = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+    const formatDateShort = (d) => {
+        if (!d) return "";
+        return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+    };
 
     useEffect(() => {
-        setDetailLoading(true);
+        const cacheKey = `abonnement_${abonnement.id}`;
+        const cachedData = readCache(cacheKey);
+
+        if (cachedData) {
+            setDetail(cachedData);
+            setDetailLoading(false);
+        } else {
+            setDetailLoading(true);
+        }
+
         fetchAbonnementDetail(abonnement.id)
             .then(d => setDetail(d))
             .catch(() => setDetail(abonnement))
             .finally(() => setDetailLoading(false));
-    }, [abonnement.id]);
+    }, [abonnement.id, abonnement]);
 
     const abo = detail ?? abonnement;
-    const actif = abo.statut === "actif";
+
+    // Mapper les données détaillées si elles existent, sinon utiliser les données de base
+    const mappedAbo = detail ? {
+        id: detail.abonnement.id,
+        nomService: detail.abonnement.service_paye,
+        fournisseur: detail.abonnement.fournisseur,
+        montantMensuel: detail.abonnement.montant_mensuel,
+        dateDebut: detail.abonnement.date_abonnement,
+        statut: detail.abonnement.depense_active ? "actif" : "resilié",
+        paiementsHistorique: detail.paiements,
+    } : abonnement;
+
+    const actif = mappedAbo.statut === "actif";
     const days = daysUntil(abo.prochaineEcheance);
     const urgent = days !== null && days <= DAYS_URGENT;
 
@@ -53,14 +79,14 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
             <aside
                 className="finAbo-drawer"
                 role="complementary"
-                aria-label={`Détails de l'abonnement ${abo.nomService}`}
+                aria-label={`Détails de l'abonnement ${mappedAbo.nomService}`}
             >
                 <div className="finAbo-drawer__handle">
                     <div className="finAbo-drawer__handle-bar" />
                 </div>
 
                 <div className="finAbo-drawer__header">
-                    <h2 className="finAbo-drawer__title">{abo.nomService}</h2>
+                    <h2 className="finAbo-drawer__title">{mappedAbo.nomService}</h2>
                     <button className="finAbo-drawer__close" onClick={onClose} aria-label="Fermer" type="button">
                         <X size={18} aria-hidden="true" />
                     </button>
@@ -72,26 +98,26 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
                         <p className="finAbo-detail__section-label">Informations</p>
                         <div className="finAbo-detail__row">
                             <span className="finAbo-detail__key">Référence</span>
-                            <span className="finAbo-detail__val" style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)" }}>{abo.id}</span>
+                            <span className="finAbo-detail__val" style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)" }}>{mappedAbo.id}</span>
                         </div>
                         <div className="finAbo-detail__row">
                             <span className="finAbo-detail__key">Fournisseur</span>
-                            <span className="finAbo-detail__val">{abo.fournisseur}</span>
+                            <span className="finAbo-detail__val">{mappedAbo.fournisseur}</span>
                         </div>
                         <div className="finAbo-detail__row">
                             <span className="finAbo-detail__key">Montant mensuel</span>
                             <span className="finAbo-detail__val finAbo-detail__val--amount" style={{ color: "var(--color-error)" }}>
-                                {formatMontant(abo.montantMensuel)}
+                                {formatMontant(mappedAbo.montantMensuel)}
                             </span>
                         </div>
                         <div className="finAbo-detail__row">
                             <span className="finAbo-detail__key">Date de début</span>
-                            <span className="finAbo-detail__val">{formatDate(abo.dateDebut)}</span>
+                            <span className="finAbo-detail__val">{formatDate(mappedAbo.dateDebut)}</span>
                         </div>
-                        {abo.dateFin && (
+                        {mappedAbo.dateFin && (
                             <div className="finAbo-detail__row">
                                 <span className="finAbo-detail__key">Date de résiliation</span>
-                                <span className="finAbo-detail__val">{formatDate(abo.dateFin)}</span>
+                                <span className="finAbo-detail__val">{formatDate(mappedAbo.dateFin)}</span>
                             </div>
                         )}
                         <div className="finAbo-detail__row">
@@ -102,7 +128,7 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
                                 </span>
                             </span>
                         </div>
-                        {actif && abo.prochaineEcheance && (
+                        {actif && mappedAbo.prochaineEcheance && (
                             <div className="finAbo-detail__row">
                                 <span className="finAbo-detail__key">
                                     <Calendar size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px" }} aria-hidden="true" />
@@ -110,7 +136,7 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
                                 </span>
                                 <span className="finAbo-detail__val">
                                     <span className={`finAbo-echeance-badge${urgent ? " finAbo-echeance-badge--urgent" : ""}`}>
-                                        {formatDate(abo.prochaineEcheance)}
+                                        {formatDate(mappedAbo.prochaineEcheance)}
                                         {urgent && ` · dans ${days} jour${days > 1 ? "s" : ""}`}
                                     </span>
                                 </span>
@@ -126,10 +152,10 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
                         </p>
                         {detailLoading ? (
                             <ol className="finAbo-timeline"><PaiementSkeleton /></ol>
-                        ) : abo.paiementsHistorique?.length > 0 ? (
+                        ) : mappedAbo.paiementsHistorique?.length > 0 ? (
                             <ol className="finAbo-timeline" aria-label="Historique des paiements">
-                                {abo.paiementsHistorique.map((p, i) => (
-                                    <li key={i} className="finAbo-timeline__item">
+                                {mappedAbo.paiementsHistorique.map((p) => (
+                                    <li key={p.id} className="finAbo-timeline__item">
                                         <span className="finAbo-timeline__dot" aria-hidden="true">💳</span>
                                         <div className="finAbo-timeline__content">
                                             <p className="finAbo-timeline__msg">
@@ -148,14 +174,14 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
                     </section>
 
                     {/* Notifications */}
-                    {!detailLoading && abo.notifications?.length > 0 && (
+                    {!detailLoading && mappedAbo.notifications?.length > 0 && (
                         <section>
                             <p className="finAbo-detail__section-label">
                                 <Bell size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px" }} aria-hidden="true" />
                                 Notifications
                             </p>
                             <ul className="finAbo-notif-list" aria-label="Notifications abonnement">
-                                {abo.notifications.map((n, i) => (
+                                {mappedAbo.notifications.map((n, i) => (
                                     <li key={i} className="finAbo-notif-item">
                                         <span className="finAbo-notif-item__date">{formatDateShort(n.date)}</span>
                                         <span className="finAbo-notif-item__msg">{n.message}</span>
@@ -180,7 +206,7 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
                             <button
                                 className="app-button"
                                 style={{ flex: 1, background: "var(--color-error)", color: "#fff", border: "none" }}
-                                onClick={() => onSuspendre(abo)}
+                                onClick={() => onSuspendre(mappedAbo)}
                                 type="button"
                             >
                                 Résilier l'abonnement
