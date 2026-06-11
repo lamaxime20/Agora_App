@@ -8,7 +8,7 @@ export async function fetchAbonnements(page = 1, filtreStatut = "tous") {
     const stale = readCache(cacheKey);
     let result;
     try {
-        const statut = filtreStatut !== "tous" ? `&statut=${filtreStatut}` : "";
+        const statut = `&statut=${filtreStatut}`;
         result = await apiFetch(`finances/abonnements?page=${page}&per_page=20${statut}`);
         writeCache(cacheKey, result);
     } catch {
@@ -50,7 +50,10 @@ export async function suspendreAbonnement(id, payload) {
 }
 
 export async function reactiverAbonnement(id, payload) {
-    return apiFetch(`finances/abonnements/${id}/reactiver`, { method: "POST", body: payload });
+    const body = {
+        payer_mois_courant: payload.payerMoisCourant
+    }
+    return apiFetch(`finances/abonnements/${id}/reactiver`, { method: "POST", body: body });
 }
 
 // ─── RÉAPPROVISIONNEMENTS ───────────────────────────────────────────────────────

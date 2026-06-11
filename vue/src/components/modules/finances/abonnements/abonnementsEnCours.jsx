@@ -81,7 +81,7 @@ function AbonnementsEnCours() {
             nomService: abo.service_paye,
             fournisseur: abo.fournisseur,
             montantMensuel: abo.montant_mensuel,
-            dateDebut: abo.date_abonnement,
+            dateDebut: abo.date_abonnement, // Correction du nom de champ
             statut: abo.depense_active ? "actif" : "resilié",
             prochaineEcheance: prochaineEcheance,
             dateFin: abo.dateFin, // Ce champ n'est pas dans la nouvelle réponse, il sera undefined

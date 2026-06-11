@@ -56,21 +56,28 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
             .finally(() => setDetailLoading(false));
     }, [abonnement.id, abonnement]);
 
-    const abo = detail ?? abonnement;
+    // Fonction de mapping unifiée
+    const mapAboPourAffichage = (source) => {
+        // La source peut être l'objet `abonnement` de la liste ou `detail.abonnement` de l'API
+        const aboData = source.service_paye ? source : (source.abonnement || abonnement);
+        return {
+            id: aboData.id,
+            nomService: aboData.service_paye || aboData.nomService,
+            fournisseur: aboData.fournisseur,
+            montantMensuel: aboData.montant_mensuel || aboData.montantMensuel,
+            dateDebut: aboData.date_abonnement || aboData.dateDebut,
+            statut: typeof aboData.depense_active !== 'undefined' ? (aboData.depense_active ? "actif" : "resilié") : aboData.statut,
+            prochaineEcheance: aboData.prochaineEcheance, // Vient de la liste
+            dateFin: aboData.dateFin, // Vient de la liste (potentiellement)
+            paiementsHistorique: detail?.paiements, // Vient de l'appel de détail
+            notifications: detail?.notifications, // Vient de l'appel de détail
+        };
+    };
 
-    // Mapper les données détaillées si elles existent, sinon utiliser les données de base
-    const mappedAbo = detail ? {
-        id: detail.abonnement.id,
-        nomService: detail.abonnement.service_paye,
-        fournisseur: detail.abonnement.fournisseur,
-        montantMensuel: detail.abonnement.montant_mensuel,
-        dateDebut: detail.abonnement.date_abonnement,
-        statut: detail.abonnement.depense_active ? "actif" : "resilié",
-        paiementsHistorique: detail.paiements,
-    } : abonnement;
+    const mappedAbo = mapAboPourAffichage(detail || abonnement);
 
     const actif = mappedAbo.statut === "actif";
-    const days = daysUntil(abo.prochaineEcheance);
+    const days = daysUntil(mappedAbo.prochaineEcheance);
     const urgent = days !== null && days <= DAYS_URGENT;
 
     return (
@@ -159,10 +166,11 @@ function AbonnementPane({ abonnement, onClose, onSuspendre }) {
                                         <span className="finAbo-timeline__dot" aria-hidden="true">💳</span>
                                         <div className="finAbo-timeline__content">
                                             <p className="finAbo-timeline__msg">
-                                                {formatMontant(p.montant)} — {p.mode}
+                                                {formatMontant(p.montant)}
                                             </p>
                                             <p className="finAbo-timeline__meta">
-                                                {formatDateShort(p.date)} · {p.ref}
+                                                {formatDateShort(p.date_paiement)} · {p.reference_transaction
+}
                                             </p>
                                         </div>
                                     </li>

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Download, ChevronDown, ChevronLeft, ChevronRight, Repeat } from "lucide-react";
 import { fetchAbonnements } from "../../../../services/financesP4.js";
 import AbonnementPane from "./abonnementPane.jsx";
+import { readCache } from "../../../../services/financesCache.js";
 import ReactiverAbonnementPane from "./reactiverAbonnementPane.jsx";
 
 function TableSkeleton() {
@@ -33,24 +34,49 @@ function HistoriqueAbonnements() {
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-    const formatDate = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+    const formatDate = (d) => {
+        if (!d) return "";
+        const date = new Date(d);
+        return !isNaN(date) ? new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(date) : "";
+    };
 
-    const load = useCallback(async (p) => {
-        setLoading(true);
+    const mapAbonnement = (abo) => ({
+        id: abo.id,
+        nomService: abo.service_paye,
+        fournisseur: abo.fournisseur,
+        montantMensuel: abo.montant_mensuel,
+        dateDebut: abo.date_abonnement,
+        statut: abo.depense_active ? "actif" : "resilié",
+        // Le champ dateFin n'est pas fourni par la nouvelle API pour l'historique,
+        // il sera donc undefined, ce qui est géré dans le rendu.
+    });
+
+    const load = useCallback(async (p, statutFiltre) => {
         setErreur("");
+        const cacheKey = `abonnements_${p}_${statutFiltre}`;
+        const cached = readCache(cacheKey);
+
+        if (cached) {
+            // Appliquer le mapping aussi sur les données du cache
+            setData(cached.data.map(mapAbonnement));
+            setMeta(cached.meta);
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
+
         try {
-            const res = await fetchAbonnements(p, "tous");
-            setData(res.data);
+            // Utiliser le filtre de statut pour l'appel API
+            const res = await fetchAbonnements(p, statutFiltre);
+            setData(res.data.map(mapAbonnement));
             setMeta(res.meta);
         } catch {
             setErreur("Impossible de charger l'historique des abonnements.");
-        } finally {
-            setLoading(false);
         }
-    }, []);
+        setLoading(false);
+    }, []); // Les dépendances sont gérées par useEffect
 
-    useEffect(() => { load(page); }, [page, load]);
+    useEffect(() => { load(page, filtreStatut); }, [page, filtreStatut, load]);
 
     const filtered = data.filter(a => {
         if (filtreStatut === "actif")   return a.statut === "actif";
