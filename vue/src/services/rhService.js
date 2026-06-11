@@ -1,10 +1,5 @@
+import { apiFetch } from "./api.js";
 import { readCache, writeCache, clearCache } from "./rhCache.js";
-
-async function fetchMock(path) {
-    const res = await fetch(path);
-    if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
-    return res.json();
-}
 
 // ─── DASHBOARD ──────────────────────────────────────────────────────────────────
 
@@ -13,11 +8,7 @@ export async function fetchRhDashboard() {
     const stale = readCache(cacheKey);
     let result;
     try {
-        const [dashboard, preview] = await Promise.all([
-            fetchMock("/mock/rh/dashboard.json"),
-            fetchMock("/mock/rh/employees-preview.json"),
-        ]);
-        result = { ...dashboard, preview: preview.employees };
+        result = await apiFetch("rh/dashboard");
         writeCache(cacheKey, result);
     } catch {
         if (stale) return stale;
@@ -33,7 +24,7 @@ export async function fetchRhEmployees() {
     const stale = readCache(cacheKey);
     let result;
     try {
-        result = await fetchMock("/mock/rh/employees.json");
+        result = await apiFetch("rh/employes");
         writeCache(cacheKey, result);
     } catch {
         if (stale) return stale;
@@ -47,9 +38,7 @@ export async function fetchRhEmployeeDetail(id) {
     const stale = readCache(cacheKey);
     let result;
     try {
-        result = await fetchMock("/mock/rh/employee-details.json");
-        // En production: fetchMock(`/api/rh/employees/${id}`)
-        result = { ...result, employee: { ...result.employee, id } };
+        result = await apiFetch(`rh/employes/${id}`);
         writeCache(cacheKey, result);
     } catch {
         if (stale) return stale;
@@ -59,16 +48,20 @@ export async function fetchRhEmployeeDetail(id) {
 }
 
 export async function addRhEmployee(payload) {
-    await new Promise(r => setTimeout(r, 800));
-    const result = await fetchMock("/mock/rh/add-employee.json");
+    const result = await apiFetch("rh/employes", {
+        method: "POST",
+        body: { email: payload.email, role: payload.role },
+    });
     clearCache("rh_employees");
     clearCache("rh_dashboard");
     return result;
 }
 
 export async function updateRhSalary(employeeId, salary) {
-    await new Promise(r => setTimeout(r, 600));
-    const result = await fetchMock("/mock/rh/update-salary.json");
+    const result = await apiFetch(`rh/employes/${employeeId}/salaire`, {
+        method: "PATCH",
+        body: { montant: salary },
+    });
     clearCache(`rh_employee_${employeeId}`);
     clearCache("rh_employees");
     clearCache("rh_dashboard");
@@ -77,12 +70,12 @@ export async function updateRhSalary(employeeId, salary) {
 
 // ─── STATISTIQUES ───────────────────────────────────────────────────────────────
 
-export async function fetchRhStatistics() {
-    const cacheKey = "rh_statistics";
+export async function fetchRhStatistics(periode = "12m") {
+    const cacheKey = `rh_statistics_${periode}`;
     const stale = readCache(cacheKey);
     let result;
     try {
-        result = await fetchMock("/mock/rh/statistics.json");
+        result = await apiFetch(`rh/statistiques?periode=${periode}`);
         writeCache(cacheKey, result);
     } catch {
         if (stale) return stale;
@@ -93,8 +86,7 @@ export async function fetchRhStatistics() {
 
 // ─── EXPORT ─────────────────────────────────────────────────────────────────────
 
-export async function exportRh(format, filters = {}) {
-    await new Promise(r => setTimeout(r, 1200));
-    const result = await fetchMock("/mock/rh/export.json");
-    return { ...result, downloadUrl: `/exports/rh-report.${format}` };
+export async function exportRh(format, context = "rh_employees") {
+    const result = await apiFetch(`rh/export?format=${format}&context=${context}`);
+    return result;
 }

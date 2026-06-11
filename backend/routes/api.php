@@ -33,6 +33,11 @@ use App\Http\Controllers\Api\Livraisons\LivraisonsActionController;
 use App\Http\Controllers\Api\Livraisons\LivraisonsStatistiqueController;
 use App\Http\Controllers\Api\Livraisons\LivraisonsNotificationController;
 use App\Http\Controllers\Api\SignupController;
+use App\Http\Controllers\Api\RH\RhDashboardController;
+use App\Http\Controllers\Api\RH\RhEmployeController;
+use App\Http\Controllers\Api\RH\RhSalaireController;
+use App\Http\Controllers\Api\RH\RhStatistiqueController;
+use App\Http\Controllers\Api\RH\RhExportController;
 use App\Http\Middleware\MiddlewareTokenEntrepriseCreation;
 use App\Http\Middleware\MiddlewareTokenAuth;
 use App\Http\Middleware\MiddlewareTokenAuthorization;
@@ -316,6 +321,34 @@ Route::prefix('ventes')
         // ── Notifications ────────────────────────────────────────────────────
         // Route 17 — notifications de l'utilisateur connecté
         Route::get('notifications', [VentesNotificationController::class, 'index']);
+    });
+
+// ─── Routes protégées module ressources humaines ────────────────────────────
+
+Route::prefix('rh')
+    ->middleware(MiddlewareTokenAuthorization::class)
+    ->group(function () {
+
+        // Route 1 — tableau de bord RH (KPIs, évolution, répartition)
+        Route::get('dashboard', [RhDashboardController::class, 'index']);
+
+        // Route 7 — export (avant les routes avec {id} pour éviter les conflits)
+        Route::get('export', [RhExportController::class, 'export']);
+
+        // Route 6 — statistiques RH
+        Route::get('statistiques', [RhStatistiqueController::class, 'index']);
+
+        // Route 2 — liste des employés
+        Route::get('employes', [RhEmployeController::class, 'index']);
+
+        // Route 3 — ajouter un employé
+        Route::post('employes', [RhEmployeController::class, 'store']);
+
+        // Route 5 — modifier le salaire d'un employé (avant show pour éviter le conflit)
+        Route::patch('employes/{id}/salaire', [RhSalaireController::class, 'update']);
+
+        // Route 4 — détail d'un employé
+        Route::get('employes/{id}', [RhEmployeController::class, 'show']);
     });
 
 // ─── Routes protégées module livraisons ─────────────────────────────────────

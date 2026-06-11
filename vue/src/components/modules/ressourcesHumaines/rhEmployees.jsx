@@ -18,6 +18,8 @@ const ROLE_LABELS = {
     employe_vente:         "Employé Vente",
     manager_gestion_stock: "Manager Stock",
     employe_gestion_stock: "Employé Stock",
+    manager_livraison:     "Manager Livraison",
+    employe_livraison:     "Employé Livraison",
 };
 
 const ROLES_SELECT = [
