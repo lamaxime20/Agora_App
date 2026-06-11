@@ -6,6 +6,14 @@ import { readCache } from "../../../../services/financesCache.js";
 
 const PRIORITY_LABEL = { faible: "Faible", normale: "Normale", haute: "Haute", critique: "Critique" };
 
+const STATUT_CONFIG = {
+    valide:     { label: "Validé",     badge: "success" },
+    refuse:     { label: "Refusé",     badge: "error"   },
+    en_attente: { label: "En attente", badge: "warning" },
+    en_cours:   { label: "En cours",   badge: "info"    },
+    annule:     { label: "Annulé",     badge: "error"   },
+};
+
 function TableSkeleton() {
     return Array.from({ length: 5 }).map((_, i) => (
         <tr key={i} className="finReapp-table__row--skeleton">
@@ -82,8 +90,10 @@ function HistoriqueReapprovisionnements() {
                         aria-label="Filtrer par statut"
                     >
                         <option value="tous">Tous les statuts</option>
-                        <option value="valide">Validés</option>
-                        <option value="refuse">Refusés</option>
+                        <option value="valide">Validé</option>
+                        <option value="refuse">Refusé</option>
+                        <option value="en_attente">En attente</option>
+                        <option value="en_cours">En cours</option>
                     </select>
 
                     <div style={{ position: "relative", marginLeft: "auto" }}>
@@ -131,9 +141,7 @@ function HistoriqueReapprovisionnements() {
                             <th scope="col">Produit</th>
                             <th scope="col">Qté</th>
                             <th scope="col">Montant</th>
-                            <th scope="col">Priorité</th>
                             <th scope="col">Statut</th>
-                            <th scope="col">Date décision</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -157,17 +165,9 @@ function HistoriqueReapprovisionnements() {
                                     <td style={{ fontSize: "var(--text-sm)" }}>{r.quantiteDemandee}</td>
                                     <td className="finReapp-table__amount">{formatMontant(r.montantTotal)}</td>
                                     <td>
-                                        <span className={`finReapp-priority finReapp-priority--${r.priorite}`}>
-                                            {PRIORITY_LABEL[r.priorite] ?? r.priorite}
+                                        <span className={`fin-badge fin-badge--${STATUT_CONFIG[r.statut]?.badge ?? 'default'}`}>
+                                            {STATUT_CONFIG[r.statut]?.label ?? r.statut}
                                         </span>
-                                    </td>
-                                    <td>
-                                        <span className={`fin-badge ${r.statut === "valide" ? "fin-badge--success" : "fin-badge--error"}`}>
-                                            {r.statut === "valide" ? "Validé" : "Refusé"}
-                                        </span>
-                                    </td>
-                                    <td className="finReapp-table__date">
-                                        {r.dateDecision ? formatDate(r.dateDecision) : "—"}
                                     </td>
                                 </tr>
                             ))
@@ -190,8 +190,8 @@ function HistoriqueReapprovisionnements() {
                     <article key={r.id} className="finReapp-card" onClick={() => setSelectedR(r)}>
                         <div className="finReapp-card__top">
                             <span className="finReapp-card__id">{r.id}</span>
-                            <span className={`fin-badge ${r.statut === "valide" ? "fin-badge--success" : "fin-badge--error"}`}>
-                                {r.statut === "valide" ? "Validé" : "Refusé"}
+                            <span className={`fin-badge fin-badge--${STATUT_CONFIG[r.statut]?.badge ?? 'default'}`}>
+                                {STATUT_CONFIG[r.statut]?.label ?? r.statut}
                             </span>
                         </div>
                         <p className="finReapp-card__name">{r.produit.nom}</p>

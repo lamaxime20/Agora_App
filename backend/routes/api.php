@@ -208,6 +208,9 @@ Route::prefix('finances')
         // Route 27 — historique des réapprovisionnements
         Route::get('reapprovisionnements', [FinancesReapprovisionnementController::class, 'index']);
 
+        // Route historique des réapprovisionnements (validés ou refusés)
+        Route::get('reapprovisionnements/historique', [FinancesReapprovisionnementController::class, 'historique']);
+
         // Route 28 — valider un réapprovisionnement
         Route::post('reapprovisionnements/{id}/valider', [FinancesReapprovisionnementController::class, 'valider']);
 

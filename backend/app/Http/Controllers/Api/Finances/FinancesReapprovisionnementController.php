@@ -149,6 +149,101 @@ class FinancesReapprovisionnementController extends FinancesBaseController
     }
 
     // ──────────────────────────────────────────────────────────────────────────
+    // ROUTE — GET /api/finances/reapprovisionnements/historique
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Historique paginé des réapprovisionnements (validés ou refusés).
+     *
+     * Query params : page, per_page, statut, date_debut, date_fin
+     */
+    public function historique(Request $request): JsonResponse
+    {
+        try {
+            $entreprise   = $this->currentEntreprise($request);
+            $entrepriseId = $entreprise->id;
+
+            $page      = max(1, (int) $request->query('page', 1));
+            $perPage   = min(100, max(1, (int) $request->query('per_page', 20)));
+            $statut    = $request->query('statut', 'tous');
+            $dateDebut = $request->query('date_debut');
+            $dateFin   = $request->query('date_fin');
+
+            [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+            $query = DB::table('ravitaillements as r')
+                ->join('produits as p', 'p.id', '=', 'r.produit')
+                ->leftJoin('utilisateurs as ud', 'ud.id', '=', 'r.utilisateur_demande')
+                ->leftJoin('utilisateurs as uc', 'uc.id', '=', 'r.user_confirmation') // Pour le décideur
+                ->leftJoin('utilisateurs as ua', 'ua.id', '=', 'r.utilisateur_annulation') // Pour le décideur en cas de refus
+                ->where('r.entreprise', $entrepriseId)
+                ->where('r.actif', true);
+
+            if ($statut !== 'tous') {
+                // Mapping du statut frontend vers le ou les statuts backend
+                $statutMapping = [
+                    'valide'     => ['termine'],
+                    'refuse'     => ['refuse', 'annule'],
+                    'en_attente' => ['en_attente'],
+                    'en_cours'   => ['en_cours'],
+                ];
+
+                if (array_key_exists($statut, $statutMapping)) {
+                    $query->whereIn('r.statut', $statutMapping[$statut]);
+                }
+            }
+
+            $this->applyDaterange($query, 'r.date_creation', $from, $to);
+
+            $total = $query->count();
+
+            $data = $query
+                ->orderBy('r.date_creation', 'desc')
+                ->forPage($page, $perPage)
+                ->select([
+                    'r.id',
+                    'p.nom as produit_nom',
+                    'p.unite_mesure as produit_sku', // Utilisation de l'unité de mesure comme SKU
+                    'r.quantite as quantiteDemandee',
+                    'r.montant_a_depenser as montantTotal',
+                    'r.statut',
+                    'r.date_creation as dateDemande', // Gardé pour la cohérence avec le frontend
+                    DB::raw("CASE WHEN r.statut = 'termine' THEN r.date_validation ELSE r.date_annulation END as dateDecision"),
+                    DB::raw("CONCAT(ud.name, ' ', ud.prename) as demandeur"),
+                    DB::raw("CASE WHEN r.statut = 'termine' THEN CONCAT(uc.name, ' ', uc.prename) ELSE CONCAT(ua.name, ' ', ua.prename) END as decideur"),
+                    'r.raison_annulation as motifRefus'
+                ])
+                ->get()
+                ->map(fn($row) => [
+                    'id'               => $row->id,
+                    'produit'          => ['nom' => $row->produit_nom, 'sku' => $row->produit_sku],
+                    'quantiteDemandee' => (float) $row->quantiteDemandee,
+                    'montantTotal'     => (float) $row->montantTotal,
+                    'statut'           => match ($row->statut) {
+                        'termine' => 'valide',
+                        'refuse' => 'refuse',
+                        'annule' => 'refuse', // 'annule' est assimilé à 'refuse' côté frontend
+                        'en_cours' => 'en_cours',
+                        'en_attente' => 'en_attente',
+                        default => $row->statut,
+                    },
+                    'dateDemande'      => $row->dateDemande,
+                    'demandeur'        => $row->demandeur,
+                    'decideur'         => $row->decideur,
+                    'dateDecision'     => $row->dateDecision,
+                    'motifRefus'       => $row->motifRefus,
+                ]);
+
+            return response()->json([
+                'data' => $data,
+                'meta' => ['page' => $page, 'per_page' => $perPage, 'total' => $total],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->financesErrorResponse($e, $request, __METHOD__);
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
     // ROUTE 28 — POST /api/finances/reapprovisionnements/{id}/valider
     // ──────────────────────────────────────────────────────────────────────────
 
