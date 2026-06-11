@@ -14,8 +14,20 @@ const fmt = (n) =>
 const fmtDate = (d) =>
     d ? new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d)) : "—";
 
-const TYPES = ["tous", "Paiement commande", "Dépense", "Abonnement", "Réapprovisionnement", "Entrée", "Salaire", "Remboursement"];
+const TYPE_MAP = {
+    "paiement_commande": "Paiement commande",
+    "depense_generale": "Dépense",
+    "paiement_abonnement": "Abonnement",
+    "paiement_ravitaillement": "Réapprovisionnement",
+    "entree_generale": "Entrée",
+    "salaire": "Salaire",
+    "remboursement_commande": "Remboursement",
+};
+
+const TYPES = ["tous", ...Object.keys(TYPE_MAP)];
 const SENS  = ["tous", "entree", "sortie"];
+
+const getReadableType = (type) => TYPE_MAP[type] || type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
 function KpiSkeleton() {
     return (
@@ -91,8 +103,15 @@ function JournalFinancier() {
         try {
             const res = await fetchJournalFinancier(page, filters);
             setData(res.data ?? []);
-            setMeta(res.meta ?? null);
-            if (res.kpis) setKpis(res.kpis);
+            setMeta(res.meta ?? null); // { page, per_page, total }
+            if (res.kpis) { // { total_entrees, total_sorties }
+                setKpis({
+                    totalMouvements: res.meta?.total ?? 0,
+                    totalEntrees: res.kpis.total_entrees,
+                    totalSorties: res.kpis.total_sorties,
+                    soldeNet: res.kpis.total_entrees - res.kpis.total_sorties,
+                });
+            }
             setError(null); // Clear any previous error if fetch is successful
         } catch (e) {
             if (!staleData) { // Only set error if no stale data was available to display
@@ -162,7 +181,7 @@ function JournalFinancier() {
                     >
                         {TYPES.map(t => (
                             <option key={t} value={t}>
-                                {t === "tous" ? "Tous les types" : t}
+                                {t === "tous" ? "Tous les types" : getReadableType(t)}
                             </option>
                         ))}
                     </select>
@@ -270,9 +289,9 @@ function JournalFinancier() {
                                             style={{ cursor: "pointer" }}
                                             onClick={() => setSelectedId(m.id)}
                                         >
-                                            <td className="finJrn-table__date">{fmtDate(m.date)}</td>
+                                            <td className="finJrn-table__date">{fmtDate(m.date_operation)}</td>
                                             <td>
-                                                <span className="finJrn-type-badge">{m.type}</span>
+                                                <span className="finJrn-type-badge">{getReadableType(m.type_operation)}</span>
                                             </td>
                                             <td className={isEntree ? "finJrn-table__amount--entree" : "finJrn-table__amount--sortie"}>
                                                 {isEntree ? "+" : "−"}{fmt(m.montant)}
@@ -286,7 +305,7 @@ function JournalFinancier() {
                                                 </span>
                                             </td>
                                             <td className="finJrn-table__desc">{m.description}</td>
-                                            <td className="finJrn-table__ref">{m.reference}</td>
+                                            <td className="finJrn-table__ref">{m.reference_id}</td>
                                         </tr>
                                     );
                                 })}
@@ -312,7 +331,7 @@ function JournalFinancier() {
                                     onClick={() => setSelectedId(m.id)}
                                 >
                                     <div className="finJrn-card__top">
-                                        <span className="finJrn-type-badge">{m.type}</span>
+                                        <span className="finJrn-type-badge">{getReadableType(m.type_operation)}</span>
                                         <span className={`finJrn-sens-badge ${isEntree ? "finJrn-sens-badge--entree" : "finJrn-sens-badge--sortie"}`}>
                                             {isEntree
                                                 ? <><ArrowUpRight size={12} aria-hidden="true" /> Entrée</>
@@ -325,7 +344,7 @@ function JournalFinancier() {
                                         <span className={isEntree ? "finJrn-table__amount--entree" : "finJrn-table__amount--sortie"} style={{ fontWeight: "var(--weight-bold)" }}>
                                             {isEntree ? "+" : "−"}{fmt(m.montant)}
                                         </span>
-                                        <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>{fmtDate(m.date)}</span>
+                                        <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>{fmtDate(m.date_operation)}</span>
                                     </div>
                                 </article>
                             );

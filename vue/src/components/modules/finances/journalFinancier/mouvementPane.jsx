@@ -9,14 +9,26 @@ const fmt = (n) =>
 const fmtDate = (d) =>
     d ? new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d)) : "—";
 
+const TYPE_MAP = {
+    "paiement_commande": "Paiement commande",
+    "depense_generale": "Dépense",
+    "paiement_abonnement": "Abonnement",
+    "paiement_ravitaillement": "Réapprovisionnement",
+    "entree_generale": "Entrée",
+    "salaire": "Salaire",
+    "remboursement_commande": "Remboursement",
+};
+
+const getReadableType = (type) => TYPE_MAP[type] || type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
 const TYPE_MODULE = {
-    "Paiement commande":   "/application/finances/commandes",
-    "Dépense":             "/application/finances/depenses",
-    "Abonnement":          "/application/finances/abonnements",
-    "Réapprovisionnement": "/application/finances/reapprovisionnements",
-    "Entrée":              "/application/finances/entrees",
-    "Salaire":             "/application/finances/salaires",
-    "Remboursement":       "/application/finances/remboursements",
+    "paiement_commande": "/application/finances/commandes",
+    "depense_generale": "/application/finances/depenses",
+    "paiement_abonnement": "/application/finances/abonnements",
+    "paiement_ravitaillement": "/application/finances/reapprovisionnements",
+    "entree_generale": "/application/finances/entrees",
+    "salaire": "/application/finances/salaires",
+    "remboursement_commande": "/application/finances/remboursements",
 };
 
 function DetailSkeleton() {
@@ -46,19 +58,19 @@ function MouvementPane({ mouvementId, onClose }) {
         const staleData = readCache(cacheKey);
 
         if (staleData) {
-            setMouvement(staleData);
+            setMouvement(staleData.mouvement);
             setLoading(false); // Display stale data immediately
         }
 
         fetchMouvementDetail(mouvementId)
-            .then(d => { if (!cancelled) { setMouvement(d); setLoading(false); } })
+            .then(d => { if (!cancelled) { setMouvement(d.mouvement); setLoading(false); } })
             .catch(() => { if (!cancelled && !staleData) setLoading(false); }); // Only set loading to false if no stale data was shown
         return () => { cancelled = true; };
     }, [mouvementId]);
 
 
     const isEntree = mouvement?.sens === "entree";
-    const moduleLink = mouvement ? TYPE_MODULE[mouvement.type] : null;
+    const moduleLink = mouvement ? TYPE_MODULE[mouvement.type_operation] : null;
 
     return (
         <>
@@ -102,7 +114,7 @@ function MouvementPane({ mouvementId, onClose }) {
                                     <p className={`finJrn-pane-hero__amount ${isEntree ? "finJrn-pane-hero__amount--entree" : "finJrn-pane-hero__amount--sortie"}`}>
                                         {isEntree ? "+" : "−"}{fmt(mouvement.montant)}
                                     </p>
-                                    <p className="finJrn-pane-hero__type">{mouvement.type}</p>
+                                    <p className="finJrn-pane-hero__type">{getReadableType(mouvement.type_operation)}</p>
                                 </div>
                             </div>
 
@@ -115,11 +127,11 @@ function MouvementPane({ mouvementId, onClose }) {
                                 </div>
                                 <div className="finJrn-detail__row">
                                     <span className="finJrn-detail__key">Date</span>
-                                    <span className="finJrn-detail__val">{fmtDate(mouvement.date)}</span>
+                                    <span className="finJrn-detail__val">{fmtDate(mouvement.date_operation)}</span>
                                 </div>
                                 <div className="finJrn-detail__row">
                                     <span className="finJrn-detail__key">Type</span>
-                                    <span className="finJrn-detail__val">{mouvement.type}</span>
+                                    <span className="finJrn-detail__val">{getReadableType(mouvement.type_operation)}</span>
                                 </div>
                                 <div className="finJrn-detail__row">
                                     <span className="finJrn-detail__key">Sens</span>
@@ -131,11 +143,7 @@ function MouvementPane({ mouvementId, onClose }) {
                                 </div>
                                 <div className="finJrn-detail__row">
                                     <span className="finJrn-detail__key">Référence</span>
-                                    <span className="finJrn-detail__val" style={{ fontFamily: "var(--font-mono)" }}>{mouvement.reference}</span>
-                                </div>
-                                <div className="finJrn-detail__row">
-                                    <span className="finJrn-detail__key">Entité</span>
-                                    <span className="finJrn-detail__val">{mouvement.entite}</span>
+                                    <span className="finJrn-detail__val" style={{ fontFamily: "var(--font-mono)" }}>{mouvement.reference?.id}</span>
                                 </div>
                                 <div className="finJrn-detail__row">
                                     <span className="finJrn-detail__key">Utilisateur</span>
@@ -159,7 +167,7 @@ function MouvementPane({ mouvementId, onClose }) {
                                         href={moduleLink}
                                         className="finJrn-associated-link"
                                     >
-                                        <span>{mouvement.reference}</span>
+                                        <span>Voir l'élément lié</span>
                                         <ExternalLink size={14} aria-hidden="true" />
                                     </a>
                                 </section>
