@@ -26,6 +26,12 @@ use App\Http\Controllers\Api\Ventes\VentesProduitController;
 use App\Http\Controllers\Api\Ventes\VentesReservationController;
 use App\Http\Controllers\Api\Ventes\VentesStatistiqueController;
 use App\Http\Controllers\Api\Ventes\VentesNotificationController;
+use App\Http\Controllers\Api\Livraisons\LivraisonsDashboardController;
+use App\Http\Controllers\Api\Livraisons\LivraisonsCommandeController;
+use App\Http\Controllers\Api\Livraisons\LivraisonsPersonnelController;
+use App\Http\Controllers\Api\Livraisons\LivraisonsActionController;
+use App\Http\Controllers\Api\Livraisons\LivraisonsStatistiqueController;
+use App\Http\Controllers\Api\Livraisons\LivraisonsNotificationController;
 use App\Http\Controllers\Api\SignupController;
 use App\Http\Middleware\MiddlewareTokenEntrepriseCreation;
 use App\Http\Middleware\MiddlewareTokenAuth;
@@ -310,4 +316,92 @@ Route::prefix('ventes')
         // ── Notifications ────────────────────────────────────────────────────
         // Route 17 — notifications de l'utilisateur connecté
         Route::get('notifications', [VentesNotificationController::class, 'index']);
+    });
+
+// ─── Routes protégées module livraisons ─────────────────────────────────────
+
+Route::prefix('livraisons')
+    ->middleware(MiddlewareTokenAuthorization::class)
+    ->group(function () {
+
+        // ── Dashboard ─────────────────────────────────────────────────────────
+        // Route 1 — KPIs, activité récente, graphiques
+        Route::get('dashboard', [LivraisonsDashboardController::class, 'dashboard']);
+
+        // ── Commandes à livrer ────────────────────────────────────────────────
+        // Route 2 — commandes validées éligibles
+        Route::get('commandes-a-livrer', [LivraisonsCommandeController::class, 'commandesALivrer']);
+
+        // ── Historique export (avant historique pour éviter le conflit) ───────
+        // Route 5 — export historique global
+        Route::get('historique/export', [LivraisonsCommandeController::class, 'exportHistorique']);
+
+        // Route 3 — toutes les livraisons de l'entreprise
+        Route::get('historique', [LivraisonsCommandeController::class, 'historique']);
+
+        // ── Livreurs ──────────────────────────────────────────────────────────
+        // Route 6 — utilisateurs avec rôle employe_livreur
+        Route::get('livreurs', [LivraisonsCommandeController::class, 'livreurs']);
+
+        // ── Mes livraisons personnelles ───────────────────────────────────────
+        // Route 9 — export historique personnel (avant les routes génériques)
+        Route::get('mes-livraisons/historique/export', [LivraisonsPersonnelController::class, 'mesLivraisonsExport']);
+
+        // Route 8 — historique personnel du livreur connecté
+        Route::get('mes-livraisons/historique', [LivraisonsPersonnelController::class, 'mesLivraisonsHistorique']);
+
+        // Route 7 — livraisons en cours du livreur connecté
+        Route::get('mes-livraisons', [LivraisonsPersonnelController::class, 'mesLivraisons']);
+
+        // ── Statistiques ──────────────────────────────────────────────────────
+        // Route 23 — export rapport statistiques (avant routes avec segment variable)
+        Route::get('statistiques/export', [LivraisonsStatistiqueController::class, 'export']);
+
+        // Route 16 — vue générale
+        Route::get('statistiques/general', [LivraisonsStatistiqueController::class, 'general']);
+
+        // Route 17 — performance par livreur
+        Route::get('statistiques/livreurs', [LivraisonsStatistiqueController::class, 'livreurs']);
+
+        // Route 18 — activité par jour / semaine / mois
+        Route::get('statistiques/activite', [LivraisonsStatistiqueController::class, 'activite']);
+
+        // Route 19 — analyse des motifs d'échec
+        Route::get('statistiques/echecs', [LivraisonsStatistiqueController::class, 'echecs']);
+
+        // Route 20 — analyse des motifs de retour
+        Route::get('statistiques/retours', [LivraisonsStatistiqueController::class, 'retours']);
+
+        // Route 21 — volume par zone géographique
+        Route::get('statistiques/geographie', [LivraisonsStatistiqueController::class, 'geographie']);
+
+        // Route 22 — top clients par volume livré
+        Route::get('statistiques/clients', [LivraisonsStatistiqueController::class, 'clients']);
+
+        // ── Notifications ─────────────────────────────────────────────────────
+        // Route 24 — notifications du rôle connecté
+        Route::get('notifications', [LivraisonsNotificationController::class, 'index']);
+
+        // ── Détail livraison (après toutes les routes statiques) ─────────────
+        // Route 4 — détail complet d'une livraison
+        Route::get('{id}', [LivraisonsCommandeController::class, 'show']);
+
+        // ── Mutations ─────────────────────────────────────────────────────────
+        // Route 10 — créer une livraison
+        Route::post('', [LivraisonsActionController::class, 'store']);
+
+        // Route 11 — lancer une livraison
+        Route::post('{id}/lancer', [LivraisonsActionController::class, 'lancer']);
+
+        // Route 12 — valider (confirmer) une livraison
+        Route::post('{id}/valider', [LivraisonsActionController::class, 'valider']);
+
+        // Route 13 — déclarer un échec
+        Route::post('{id}/echec', [LivraisonsActionController::class, 'echec']);
+
+        // Route 14 — déclarer un retour
+        Route::post('{id}/retour', [LivraisonsActionController::class, 'retour']);
+
+        // Route 15 — annuler une livraison non lancée
+        Route::post('{id}/annuler', [LivraisonsActionController::class, 'annuler']);
     });
