@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Download, ChevronDown, ChevronLeft, ChevronRight, History } from "lucide-react";
 import { fetchReapprosHistorique } from "../../../../services/financesP4.js";
 import ReapprovisionnementPane from "./reapprovisionnementPane.jsx";
+import { readCache } from "../../../../services/financesCache.js";
 
 const PRIORITY_LABEL = { faible: "Faible", normale: "Normale", haute: "Haute", critique: "Critique" };
 
@@ -38,14 +39,26 @@ function HistoriqueReapprovisionnements() {
     const load = useCallback(async (p) => {
         setLoading(true);
         setErreur("");
+
+        const cacheKey = `reappros_historique_${p}`;
+        const stale = readCache(cacheKey);
+        if (stale) {
+            setData(stale.data);
+            setMeta(stale.meta);
+            setLoading(false); // On a du cache, on peut arrêter le spinner principal
+        }
+
         try {
             const res = await fetchReapprosHistorique(p);
             setData(res.data);
             setMeta(res.meta);
         } catch {
-            setErreur("Impossible de charger l'historique des réapprovisionnements.");
+            // Si le fetch échoue mais qu'on a du cache, on n'affiche pas d'erreur pour ne pas perturber l'utilisateur
+            if (!stale) {
+                setErreur("Impossible de charger l'historique des réapprovisionnements.");
+            }
         } finally {
-            setLoading(false);
+            if (!stale) setLoading(false); // On arrête le loading seulement s'il n'y avait pas de cache au départ
         }
     }, []);
 

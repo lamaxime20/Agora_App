@@ -95,7 +95,7 @@ class FinancesReapprovisionnementController extends FinancesBaseController
                 ->join('produits as p', 'p.id', '=', 'r.produit')
                 ->leftJoin('utilisateurs as ud', 'ud.id', '=', 'r.utilisateur_demande')
                 ->leftJoin('utilisateurs as uc', 'uc.id', '=', 'r.user_confirmation')
-                ->where('r.statut', '!=', 'en_attente')
+                ->where('r.statut', '=', 'en_attente')
                 ->where('r.entreprise', $entrepriseId)
                 ->where('r.actif', true);
 

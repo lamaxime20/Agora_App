@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Search, Download, ChevronDown, ChevronLeft, ChevronRight, Truck } from "lucide-react";
 import { fetchReapprosEnAttente } from "../../../../services/financesP4.js";
+import { readCache } from "../../../../services/financesCache.js";
 import ReapprovisionnementPane from "./reapprovisionnementPane.jsx";
 import ValiderReapprovisionnementModal from "./validerReapprovisionnementModal.jsx";
 import RefuserReapprovisionnementModal from "./refuserReapprovisionnementModal.jsx";
@@ -53,11 +54,24 @@ function EnAttenteReapprovisionnements() {
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
     const formatDate = (d) =>
-        new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+        d ? new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d)) : "—";
 
     const load = useCallback(async (p) => {
         setLoading(true);
         setErreur("");
+
+        const cacheKey = `reappros_en_attente_${p}`;
+        const stale = readCache(cacheKey);
+        if (stale) {
+            setData(stale.data);
+            setMeta(stale.meta);
+            const all = stale.all ?? stale.data;
+            const montantTotal = all.reduce((s, r) => s + r.montantTotal, 0);
+            const urgentes = all.filter(r => r.priorite === "critique" || r.priorite === "haute").length;
+            setKpis({ count: stale.meta.total, montantTotal, urgentes, montantPotentiel: montantTotal });
+            setLoading(false); // On affiche le cache, donc on arrête le chargement principal
+        }
+
         try {
             const res = await fetchReapprosEnAttente(p);
             setData(res.data);
@@ -74,7 +88,7 @@ function EnAttenteReapprovisionnements() {
         } catch {
             setErreur("Impossible de charger les réapprovisionnements en attente.");
         } finally {
-            setLoading(false);
+            if (!stale) setLoading(false);
         }
     }, []);
 
