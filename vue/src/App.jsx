@@ -56,6 +56,12 @@ import {
     LIVRAISON_STATISTIQUES,
 } from "./services/livraison.js";
 
+import {
+    RH_DASHBOARD,
+    RH_EMPLOYEES,
+    RH_STATISTICS,
+} from "./services/rh.js";
+
 import './App.css';
 
 function App() {
@@ -107,7 +113,12 @@ function App() {
                                 <Route path="journal" element={<Finances onglet={FINANCES_JOURNAL_FINANCIER} />} />
                                 <Route path="statistiques" element={<Finances onglet={FINANCES_STATISTIQUES} />} />
                             </Route>
-                            <Route path="/application/ressources-humaines" element={<RessourcesHumaines />} />
+                            <Route path="/application/ressources-humaines">
+                                <Route index element={<RessourcesHumaines onglet={RH_DASHBOARD} />} />
+                                <Route path="employees" element={<RessourcesHumaines onglet={RH_EMPLOYEES} />} />
+                                <Route path="employees/add" element={<RessourcesHumaines onglet={RH_EMPLOYEES} showAdd={true} />} />
+                                <Route path="statistics" element={<RessourcesHumaines onglet={RH_STATISTICS} />} />
+                            </Route>
                             <Route path="/application/livraison">
                                 <Route index element={<Livraison onglet={LIVRAISON_DASHBOARD} />} />
                                 <Route path="commandes" element={<Livraison onglet={LIVRAISON_COMMANDES} />} />

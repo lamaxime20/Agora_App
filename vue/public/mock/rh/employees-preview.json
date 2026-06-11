@@ -1,0 +1,9 @@
+{
+  "employees": [
+    { "id": "EMP-001", "prenom": "Jean-Baptiste", "nom": "Fouda",   "email": "jb.fouda@agora.cm",   "role": "manager_rh",           "salaire": 420000,  "statut": "actif" },
+    { "id": "EMP-009", "prenom": "Grace",          "nom": "Etoga",   "email": "g.etoga@agora.cm",    "role": "manager_finances",     "salaire": 490000,  "statut": "actif" },
+    { "id": "EMP-021", "prenom": "Samuel",         "nom": "Koundi",  "email": "s.koundi@agora.cm",   "role": "manager_vente",        "salaire": 450000,  "statut": "actif" },
+    { "id": "EMP-036", "prenom": "Michel",         "nom": "Ndi",     "email": "m.ndi@agora.cm",      "role": "manager_gestion_stock","salaire": 400000,  "statut": "actif" },
+    { "id": "EMP-003", "prenom": "Marie-Claire",   "nom": "Ngo",     "email": "mc.ngo@agora.cm",     "role": "employe_rh",           "salaire": 185000,  "statut": "actif" }
+  ]
+}

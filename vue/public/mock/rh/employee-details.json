@@ -1,0 +1,23 @@
+{
+  "employee": {
+    "id": "EMP-001",
+    "prenom": "Jean-Baptiste",
+    "nom": "Fouda",
+    "email": "jb.fouda@agora.cm",
+    "role": "manager_rh",
+    "salaire": 420000,
+    "dateAjout": "2023-01-15",
+    "statut": "actif",
+    "entreprise": "AGORA SARL",
+    "telephone": "+237 6 55 12 34 56",
+    "adresse": "Yaoundé, Cameroun"
+  },
+  "salaryHistory": [
+    { "id": "SH-003", "ancienMontant": 400000, "nouveauMontant": 420000, "date": "2025-01-10", "motif": "Revalorisation annuelle 2025" },
+    { "id": "SH-002", "ancienMontant": 370000, "nouveauMontant": 400000, "date": "2024-01-08", "motif": "Revalorisation annuelle 2024" },
+    { "id": "SH-001", "ancienMontant": null,    "nouveauMontant": 370000, "date": "2023-01-15", "motif": "Salaire initial à l'embauche" }
+  ],
+  "roleHistory": [
+    { "id": "RH-001", "ancienRole": null, "nouveauRole": "manager_rh", "date": "2023-01-15", "motif": "Recrutement — Responsable RH" }
+  ]
+}

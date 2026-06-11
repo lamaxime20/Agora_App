@@ -1,0 +1,30 @@
+{
+  "totalEmployees": 47,
+  "salaryMass": 8420000,
+  "activeRoles": 8,
+  "employeesWithoutSalary": 3,
+  "salaryEvolution": [
+    { "mois": "Jul 25", "montant": 7850000 },
+    { "mois": "Aoû 25", "montant": 7920000 },
+    { "mois": "Sep 25", "montant": 7980000 },
+    { "mois": "Oct 25", "montant": 8050000 },
+    { "mois": "Nov 25", "montant": 8100000 },
+    { "mois": "Déc 25", "montant": 8180000 },
+    { "mois": "Jan 26", "montant": 8200000 },
+    { "mois": "Fév 26", "montant": 8250000 },
+    { "mois": "Mar 26", "montant": 8300000 },
+    { "mois": "Avr 26", "montant": 8350000 },
+    { "mois": "Mai 26", "montant": 8390000 },
+    { "mois": "Jun 26", "montant": 8420000 }
+  ],
+  "rolesDistribution": [
+    { "role": "employe_vente",          "label": "Employé Vente",    "count": 13, "couleur": "#F39C12" },
+    { "role": "employe_finances",       "label": "Employé Finances", "count": 11, "couleur": "#3498DB" },
+    { "role": "employe_gestion_stock",  "label": "Employé Stock",    "count": 8,  "couleur": "#27AE60" },
+    { "role": "employe_rh",             "label": "Employé RH",       "count": 7,  "couleur": "#9B59B6" },
+    { "role": "manager_vente",          "label": "Manager Vente",    "count": 2,  "couleur": "#E67E22" },
+    { "role": "manager_finances",       "label": "Manager Finances", "count": 2,  "couleur": "#1ABC9C" },
+    { "role": "manager_gestion_stock",  "label": "Manager Stock",    "count": 2,  "couleur": "#E74C3C" },
+    { "role": "manager_rh",             "label": "Manager RH",       "count": 2,  "couleur": "#2C3E50" }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "salaryByRole": [
+    { "role": "manager_finances",      "label": "Manager Finances", "total": 960000,  "count": 2,  "couleur": "#1ABC9C" },
+    { "role": "manager_rh",            "label": "Manager RH",       "total": 830000,  "count": 2,  "couleur": "#2C3E50" },
+    { "role": "manager_vente",         "label": "Manager Vente",    "total": 890000,  "count": 2,  "couleur": "#E67E22" },
+    { "role": "manager_gestion_stock", "label": "Manager Stock",    "total": 790000,  "count": 2,  "couleur": "#E74C3C" },
+    { "role": "employe_finances",      "label": "Employé Finances", "total": 2325000, "count": 10, "couleur": "#3498DB" },
+    { "role": "employe_vente",         "label": "Employé Vente",    "total": 2000000, "count": 12, "couleur": "#F39C12" },
+    { "role": "employe_gestion_stock", "label": "Employé Stock",    "total": 1210000, "count": 7,  "couleur": "#27AE60" },
+    { "role": "employe_rh",            "label": "Employé RH",       "total": 1313000, "count": 7,  "couleur": "#9B59B6" }
+  ],
+  "employeesEvolution": [
+    { "mois": "Jul 25", "count": 39 },
+    { "mois": "Aoû 25", "count": 40 },
+    { "mois": "Sep 25", "count": 41 },
+    { "mois": "Oct 25", "count": 42 },
+    { "mois": "Nov 25", "count": 43 },
+    { "mois": "Déc 25", "count": 43 },
+    { "mois": "Jan 26", "count": 44 },
+    { "mois": "Fév 26", "count": 44 },
+    { "mois": "Mar 26", "count": 45 },
+    { "mois": "Avr 26", "count": 46 },
+    { "mois": "Mai 26", "count": 46 },
+    { "mois": "Jun 26", "count": 47 }
+  ],
+  "employeesDistribution": [
+    { "role": "employe_vente",          "label": "Employé Vente",    "count": 13, "pourcentage": 27.7, "couleur": "#F39C12" },
+    { "role": "employe_finances",       "label": "Employé Finances", "count": 11, "pourcentage": 23.4, "couleur": "#3498DB" },
+    { "role": "employe_gestion_stock",  "label": "Employé Stock",    "count": 8,  "pourcentage": 17.0, "couleur": "#27AE60" },
+    { "role": "employe_rh",             "label": "Employé RH",       "count": 7,  "pourcentage": 14.9, "couleur": "#9B59B6" },
+    { "role": "manager_vente",          "label": "Manager Vente",    "count": 2,  "pourcentage": 4.3,  "couleur": "#E67E22" },
+    { "role": "manager_finances",       "label": "Manager Finances", "count": 2,  "pourcentage": 4.3,  "couleur": "#1ABC9C" },
+    { "role": "manager_gestion_stock",  "label": "Manager Stock",    "count": 2,  "pourcentage": 4.3,  "couleur": "#E74C3C" },
+    { "role": "manager_rh",             "label": "Manager RH",       "count": 2,  "pourcentage": 4.3,  "couleur": "#2C3E50" }
+  ],
+  "averageSalary": 192222,
+  "mostRepresentedRole": "employe_vente",
+  "totalCost": 10318000
+}
