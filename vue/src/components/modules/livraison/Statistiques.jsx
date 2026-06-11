@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     BarChart3, Users, Activity, XCircle, RotateCcw, MapPin, UserCheck,
-    TrendingUp, Clock, Award, CheckCircle, Download,
+    TrendingUp, Clock, Award, CheckCircle, Download, CalendarDays,
 } from "lucide-react";
 import {
     fetchStatisticsOverview,
@@ -12,7 +12,7 @@ import {
     fetchStatisticsGeography,
     fetchStatisticsClients,
     exportLivraisons,
-    formatMontant,
+    CACHE,
 } from "../../../services/livraison.js";
 import "../../../assets/styles/components/modules/livraison/Statistiques.css";
 
@@ -36,11 +36,11 @@ function CountUp({ to, decimals = 0, suffix = "" }) {
 
     useEffect(() => {
         if (!to && to !== 0) return;
-        const start = performance.now();
+        const start    = performance.now();
         const duration = 900;
 
         const tick = (now) => {
-            const t = Math.min((now - start) / duration, 1);
+            const t    = Math.min((now - start) / duration, 1);
             const ease = 1 - Math.pow(1 - t, 3);
             setVal(+(to * ease).toFixed(decimals));
             if (t < 1) raf.current = requestAnimationFrame(tick);
@@ -53,11 +53,52 @@ function CountUp({ to, decimals = 0, suffix = "" }) {
     return <>{val.toLocaleString("fr-FR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}</>;
 }
 
+// ─── DateFilter ───────────────────────────────────────────────────────────────
+
+function DateFilter({ dateDebut, dateFin, onChangeDebut, onChangeFin }) {
+    const hasFilter = dateDebut || dateFin;
+    return (
+        <div className="stats-datefilter">
+            <CalendarDays size={15} className="stats-datefilter__icon" aria-hidden="true" />
+            <label className="stats-datefilter__label">
+                <span>Du</span>
+                <input
+                    type="date"
+                    className="stats-datefilter__input"
+                    value={dateDebut}
+                    onChange={e => onChangeDebut(e.target.value)}
+                    max={dateFin || undefined}
+                    aria-label="Date de début"
+                />
+            </label>
+            <label className="stats-datefilter__label">
+                <span>Au</span>
+                <input
+                    type="date"
+                    className="stats-datefilter__input"
+                    value={dateFin}
+                    onChange={e => onChangeFin(e.target.value)}
+                    min={dateDebut || undefined}
+                    aria-label="Date de fin"
+                />
+            </label>
+            {hasFilter && (
+                <button
+                    type="button"
+                    className="stats-datefilter__btn"
+                    onClick={() => { onChangeDebut(""); onChangeFin(""); }}
+                >
+                    Réinitialiser
+                </button>
+            )}
+        </div>
+    );
+}
+
 // ─── Stacked Bar Chart (SVG) ──────────────────────────────────────────────────
 
 function StackedBarChart({ data, labelKey, height = 140 }) {
     const maxTotal = Math.max(...data.map(d => (d.livrees || 0) + (d.echecs || 0) + (d.retours || 0)), 1);
-    const barW = 100 / data.length;
 
     return (
         <svg
@@ -67,27 +108,21 @@ function StackedBarChart({ data, labelKey, height = 140 }) {
             aria-hidden="true"
         >
             {data.map((d, i) => {
-                const total   = (d.livrees || 0) + (d.echecs || 0) + (d.retours || 0);
-                const h       = (total / maxTotal) * (height - 20);
-                const xPos    = i * 40 + 4;
-                const bw      = 32;
-                const hL      = h * ((d.livrees || 0) / total);
-                const hE      = h * ((d.echecs  || 0) / total);
-                const hR      = h * ((d.retours || 0) / total);
-                const base    = height - 18;
+                const total = (d.livrees || 0) + (d.echecs || 0) + (d.retours || 0);
+                const h     = (total / maxTotal) * (height - 20);
+                const xPos  = i * 40 + 4;
+                const bw    = 32;
+                const hL    = h * ((d.livrees || 0) / (total || 1));
+                const hE    = h * ((d.echecs  || 0) / (total || 1));
+                const hR    = h * ((d.retours || 0) / (total || 1));
+                const base  = height - 18;
 
                 return (
                     <g key={i}>
-                        <rect x={xPos} y={base - hL}       width={bw} height={hL} fill="#27AE60" rx={2} />
-                        <rect x={xPos} y={base - hL - hR}  width={bw} height={hR} fill="#F1C40F" rx={2} />
+                        <rect x={xPos} y={base - hL}           width={bw} height={hL} fill="#27AE60" rx={2} />
+                        <rect x={xPos} y={base - hL - hR}      width={bw} height={hR} fill="#F1C40F" rx={2} />
                         <rect x={xPos} y={base - hL - hR - hE} width={bw} height={hE} fill="#E74C3C" rx={2} />
-                        <text
-                            x={xPos + bw / 2}
-                            y={height - 2}
-                            textAnchor="middle"
-                            fontSize="9"
-                            fill="var(--color-text-muted)"
-                        >
+                        <text x={xPos + bw / 2} y={height - 2} textAnchor="middle" fontSize="9" fill="var(--color-text-muted)">
                             {d[labelKey]}
                         </text>
                     </g>
@@ -104,10 +139,7 @@ function HorizontalBar({ value, max, color }) {
     return (
         <div className="stats-hbar">
             <div className="stats-hbar__track">
-                <div
-                    className="stats-hbar__fill"
-                    style={{ width: `${pct}%`, background: color }}
-                />
+                <div className="stats-hbar__fill" style={{ width: `${pct}%`, background: color }} />
             </div>
         </div>
     );
@@ -210,19 +242,29 @@ function StatsSkeleton() {
 // ─── Section Vue Générale ─────────────────────────────────────────────────────
 
 function VueGenerale() {
-    const [data, setData]     = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError]   = useState("");
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin,   setDateFin]   = useState("");
+    const [data,      setData]      = useState(() => CACHE.readStatisticsOverview({}));
+    const [loading,   setLoading]   = useState(!CACHE.readStatisticsOverview({}));
+    const [error,     setError]     = useState("");
 
     useEffect(() => {
-        fetchStatisticsOverview()
-            .then(setData)
-            .catch(() => setError("Impossible de charger la vue générale."))
-            .finally(() => setLoading(false));
-    }, []);
+        const params = {
+            ...(dateDebut ? { date_debut: dateDebut } : {}),
+            ...(dateFin   ? { date_fin:   dateFin   } : {}),
+        };
+        const stale = CACHE.readStatisticsOverview(params);
+        if (stale) { setData(stale); setLoading(false); }
+        else setLoading(true);
 
-    if (loading) return <StatsSkeleton />;
-    if (error)   return <p className="stats-error">{error}</p>;
+        fetchStatisticsOverview(params)
+            .then(res => { setData(res); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger la vue générale."); setLoading(false); });
+    }, [dateDebut, dateFin]);
+
+    if (loading && !data) return <StatsSkeleton />;
+    if (error && !data)   return <p className="stats-error">{error}</p>;
+    if (!data)            return <StatsSkeleton />;
 
     const kpis = data?.kpis ?? {};
     const donutItems = [
@@ -233,15 +275,17 @@ function VueGenerale() {
 
     return (
         <div className="stats-section">
-            {/* KPIs */}
+            <DateFilter dateDebut={dateDebut} dateFin={dateFin} onChangeDebut={setDateDebut} onChangeFin={setDateFin} />
+            {error && <p className="stats-error">{error}</p>}
+
             <div className="stats-kpi-grid">
                 {[
-                    { icon: <CheckCircle size={18} />, value: kpis.total,            label: "Total livraisons",     color: "#E8F8F1", iconColor: "#27AE60" },
-                    { icon: <TrendingUp  size={18} />, value: kpis.successRate,      label: "Taux de réussite (%)", color: "#FFF8E1", iconColor: "#F39C12", dec: 1 },
-                    { icon: <XCircle     size={18} />, value: kpis.failures,         label: "Échecs",               color: "#FEF0F0", iconColor: "#E74C3C" },
-                    { icon: <RotateCcw   size={18} />, value: kpis.returns,          label: "Retours",              color: "#FFF8E1", iconColor: "#F1C40F" },
-                    { icon: <Users       size={18} />, value: kpis.livreursActifs,   label: "Livreurs actifs",      color: "#EEF2FF", iconColor: "#5B6FBB" },
-                    { icon: <Clock       size={18} />, value: kpis.tempsMoyenMinutes, label: "Temps moyen (min)",   color: "#F0F9FF", iconColor: "#0EA5E9" },
+                    { icon: <CheckCircle size={18} />, value: kpis.total,             label: "Total livraisons",     color: "#E8F8F1", iconColor: "#27AE60" },
+                    { icon: <TrendingUp  size={18} />, value: kpis.successRate,       label: "Taux de réussite (%)", color: "#FFF8E1", iconColor: "#F39C12", dec: 1 },
+                    { icon: <XCircle     size={18} />, value: kpis.failures,          label: "Échecs",               color: "#FEF0F0", iconColor: "#E74C3C" },
+                    { icon: <RotateCcw   size={18} />, value: kpis.returns,           label: "Retours",              color: "#FFF8E1", iconColor: "#F1C40F" },
+                    { icon: <Users       size={18} />, value: kpis.livreursActifs,    label: "Livreurs actifs",      color: "#EEF2FF", iconColor: "#5B6FBB" },
+                    { icon: <Clock       size={18} />, value: kpis.tempsMoyenMinutes, label: "Temps moyen (min)",    color: "#F0F9FF", iconColor: "#0EA5E9" },
                 ].map((k, i) => (
                     <div key={i} className="stats-kpi-card">
                         <div className="stats-kpi-card__icon" style={{ background: k.color }}>
@@ -255,7 +299,6 @@ function VueGenerale() {
                 ))}
             </div>
 
-            {/* Évolution + Répartition */}
             <div className="stats-row">
                 <div className="stats-chart-card stats-chart-card--flex">
                     <h3 className="stats-section-title">Évolution mensuelle</h3>
@@ -278,31 +321,43 @@ function VueGenerale() {
 // ─── Section Livreurs ─────────────────────────────────────────────────────────
 
 function PerformanceLivreurs() {
-    const [data, setData]     = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError]   = useState("");
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin,   setDateFin]   = useState("");
+    const [data,      setData]      = useState(() => CACHE.readStatisticsDrivers({}));
+    const [loading,   setLoading]   = useState(!CACHE.readStatisticsDrivers({}));
+    const [error,     setError]     = useState("");
 
     useEffect(() => {
-        fetchStatisticsDrivers()
-            .then(setData)
-            .catch(() => setError("Impossible de charger les performances."))
-            .finally(() => setLoading(false));
-    }, []);
+        const params = {
+            ...(dateDebut ? { date_debut: dateDebut } : {}),
+            ...(dateFin   ? { date_fin:   dateFin   } : {}),
+        };
+        const stale = CACHE.readStatisticsDrivers(params);
+        if (stale) { setData(stale); setLoading(false); }
+        else setLoading(true);
 
-    if (loading) return <StatsSkeleton />;
-    if (error)   return <p className="stats-error">{error}</p>;
+        fetchStatisticsDrivers(params)
+            .then(res => { setData(res); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger les performances."); setLoading(false); });
+    }, [dateDebut, dateFin]);
+
+    if (loading && !data) return <StatsSkeleton />;
+    if (error && !data)   return <p className="stats-error">{error}</p>;
+    if (!data)            return <StatsSkeleton />;
 
     const drivers = data?.data ?? [];
     const maxLiv  = Math.max(...drivers.map(d => d.livraisons), 1);
 
     return (
         <div className="stats-section">
-            {/* Highlights */}
+            <DateFilter dateDebut={dateDebut} dateFin={dateFin} onChangeDebut={setDateDebut} onChangeFin={setDateFin} />
+            {error && <p className="stats-error">{error}</p>}
+
             <div className="stats-highlights">
                 {[
-                    { label: "Meilleur taux", value: data?.meilleurLivreur, color: "#27AE60", Icon: Award        },
-                    { label: "Plus rapide",   value: data?.plusRapide,      color: "#0EA5E9", Icon: TrendingUp   },
-                    { label: "Plus actif",    value: data?.plusActif,       color: "#F39C12", Icon: Activity     },
+                    { label: "Meilleur taux", value: data?.meilleurLivreur, color: "#27AE60", Icon: Award      },
+                    { label: "Plus rapide",   value: data?.plusRapide,      color: "#0EA5E9", Icon: TrendingUp  },
+                    { label: "Plus actif",    value: data?.plusActif,       color: "#F39C12", Icon: Activity    },
                 ].map((h, i) => (
                     <div key={i} className="stats-highlight-card">
                         <div className="stats-highlight-card__icon" style={{ background: h.color + "22" }}>
@@ -316,7 +371,6 @@ function PerformanceLivreurs() {
                 ))}
             </div>
 
-            {/* Tableau */}
             <div className="stats-table-wrap">
                 <h3 className="stats-section-title">Détail des performances</h3>
                 <div className="stats-table-scroll">
@@ -357,24 +411,34 @@ function PerformanceLivreurs() {
 // ─── Section Activité ─────────────────────────────────────────────────────────
 
 function AnalyseActivite() {
-    const [data, setData]       = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState("");
-    const [period, setPeriod]   = useState("jour");
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin,   setDateFin]   = useState("");
+    const [data,      setData]      = useState(() => CACHE.readStatisticsActivity({}));
+    const [loading,   setLoading]   = useState(!CACHE.readStatisticsActivity({}));
+    const [error,     setError]     = useState("");
+    const [period,    setPeriod]    = useState("jour");
 
     useEffect(() => {
-        fetchStatisticsActivity()
-            .then(setData)
-            .catch(() => setError("Impossible de charger les données d'activité."))
-            .finally(() => setLoading(false));
-    }, []);
+        const params = {
+            ...(dateDebut ? { date_debut: dateDebut } : {}),
+            ...(dateFin   ? { date_fin:   dateFin   } : {}),
+        };
+        const stale = CACHE.readStatisticsActivity(params);
+        if (stale) { setData(stale); setLoading(false); }
+        else setLoading(true);
 
-    if (loading) return <StatsSkeleton />;
-    if (error)   return <p className="stats-error">{error}</p>;
+        fetchStatisticsActivity(params)
+            .then(res => { setData(res); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger les données d'activité."); setLoading(false); });
+    }, [dateDebut, dateFin]);
+
+    if (loading && !data) return <StatsSkeleton />;
+    if (error && !data)   return <p className="stats-error">{error}</p>;
+    if (!data)            return <StatsSkeleton />;
 
     const chartData = {
-        jour:    { data: data?.parJour ?? [],    labelKey: "jour",    multi: true },
-        semaine: { data: data?.parSemaine ?? [], labelKey: "semaine", multi: true },
+        jour:    { data: data?.parJour ?? [],    labelKey: "jour",    multi: true  },
+        semaine: { data: data?.parSemaine ?? [], labelKey: "semaine", multi: true  },
         mois:    { data: data?.parMois ?? [],    labelKey: "mois",    multi: false },
     }[period];
 
@@ -382,6 +446,9 @@ function AnalyseActivite() {
 
     return (
         <div className="stats-section">
+            <DateFilter dateDebut={dateDebut} dateFin={dateFin} onChangeDebut={setDateDebut} onChangeFin={setDateFin} />
+            {error && <p className="stats-error">{error}</p>}
+
             <div className="stats-pills">
                 {[["jour", "Par jour"], ["semaine", "Par semaine"], ["mois", "Par mois"]].map(([id, label]) => (
                     <button
@@ -413,20 +480,16 @@ function AnalyseActivite() {
                 )}
             </div>
 
-            {/* Mini heatmap — activité 8 derniers jours */}
             <div className="stats-chart-card">
                 <h3 className="stats-section-title">Activité récente (8 derniers jours)</h3>
                 <div className="stats-heatmap">
                     {(data?.joursActifs ?? []).map((d, i) => {
                         const intensity = d.count / heatmax;
-                        const date = new Date(d.date);
-                        const dayLabel = date.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric" });
+                        const date      = new Date(d.date);
+                        const dayLabel  = date.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric" });
                         return (
                             <div key={i} className="stats-heatmap__cell" title={`${dayLabel} : ${d.count} livraisons`}>
-                                <div
-                                    className="stats-heatmap__block"
-                                    style={{ opacity: 0.15 + intensity * 0.85 }}
-                                />
+                                <div className="stats-heatmap__block" style={{ opacity: 0.15 + intensity * 0.85 }} />
                                 <span className="stats-heatmap__label">{dayLabel}</span>
                                 <span className="stats-heatmap__count">{d.count}</span>
                             </div>
@@ -441,37 +504,50 @@ function AnalyseActivite() {
 // ─── Section Échecs ───────────────────────────────────────────────────────────
 
 function AnalyseEchecs() {
-    const [data, setData]       = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState("");
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin,   setDateFin]   = useState("");
+    const [data,      setData]      = useState(() => CACHE.readStatisticsFailures({}));
+    const [loading,   setLoading]   = useState(!CACHE.readStatisticsFailures({}));
+    const [error,     setError]     = useState("");
 
     useEffect(() => {
-        fetchStatisticsFailures()
-            .then(setData)
-            .catch(() => setError("Impossible de charger l'analyse des échecs."))
-            .finally(() => setLoading(false));
-    }, []);
+        const params = {
+            ...(dateDebut ? { date_debut: dateDebut } : {}),
+            ...(dateFin   ? { date_fin:   dateFin   } : {}),
+        };
+        const stale = CACHE.readStatisticsFailures(params);
+        if (stale) { setData(stale); setLoading(false); }
+        else setLoading(true);
 
-    if (loading) return <StatsSkeleton />;
-    if (error)   return <p className="stats-error">{error}</p>;
+        fetchStatisticsFailures(params)
+            .then(res => { setData(res); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger l'analyse des échecs."); setLoading(false); });
+    }, [dateDebut, dateFin]);
 
-    const kpis = data?.kpis ?? {};
+    if (loading && !data) return <StatsSkeleton />;
+    if (error && !data)   return <p className="stats-error">{error}</p>;
+    if (!data)            return <StatsSkeleton />;
+
+    const kpis   = data?.kpis ?? {};
     const motifs = data?.data ?? [];
 
     return (
         <div className="stats-section">
+            <DateFilter dateDebut={dateDebut} dateFin={dateFin} onChangeDebut={setDateDebut} onChangeFin={setDateFin} />
+            {error && <p className="stats-error">{error}</p>}
+
             <div className="stats-kpi-grid stats-kpi-grid--4">
                 {[
-                    { label: "Total échecs",            value: kpis.total,                color: "#FEF0F0", iconColor: "#E74C3C", Icon: XCircle   },
-                    { label: "Taux d'échec (%)",         value: kpis.taux,                color: "#FEF0F0", iconColor: "#E74C3C", Icon: TrendingUp, dec: 2 },
-                    { label: "Clients absents",          value: kpis.clientsAbsents,      color: "#FFF8F0", iconColor: "#F39C12", Icon: Users      },
-                    { label: "Adresse incorrecte",       value: kpis.adresseIncorrecte,   color: "#FFF8F0", iconColor: "#F39C12", Icon: MapPin     },
+                    { label: "Total échecs",       value: kpis.total,              color: "#FEF0F0", iconColor: "#E74C3C", Icon: XCircle,   dec: 0 },
+                    { label: "Taux d'échec (%)",    value: kpis.taux,               color: "#FEF0F0", iconColor: "#E74C3C", Icon: TrendingUp, dec: 2 },
+                    { label: "Clients absents",     value: kpis.clientsAbsents,     color: "#FFF8F0", iconColor: "#F39C12", Icon: Users,      dec: 0 },
+                    { label: "Adresse incorrecte",  value: kpis.adresseIncorrecte,  color: "#FFF8F0", iconColor: "#F39C12", Icon: MapPin,     dec: 0 },
                 ].map((k, i) => (
                     <div key={i} className="stats-kpi-card">
                         <div className="stats-kpi-card__icon" style={{ background: k.color }}>
                             <k.Icon size={18} style={{ color: k.iconColor }} aria-hidden="true" />
                         </div>
-                        <p className="stats-kpi-card__value"><CountUp to={k.value ?? 0} decimals={k.dec ?? 0} /></p>
+                        <p className="stats-kpi-card__value"><CountUp to={k.value ?? 0} decimals={k.dec} /></p>
                         <p className="stats-kpi-card__label">{k.label}</p>
                     </div>
                 ))}
@@ -498,30 +574,43 @@ function AnalyseEchecs() {
 // ─── Section Retours ──────────────────────────────────────────────────────────
 
 function AnalyseRetours() {
-    const [data, setData]       = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState("");
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin,   setDateFin]   = useState("");
+    const [data,      setData]      = useState(() => CACHE.readStatisticsReturns({}));
+    const [loading,   setLoading]   = useState(!CACHE.readStatisticsReturns({}));
+    const [error,     setError]     = useState("");
 
     useEffect(() => {
-        fetchStatisticsReturns()
-            .then(setData)
-            .catch(() => setError("Impossible de charger l'analyse des retours."))
-            .finally(() => setLoading(false));
-    }, []);
+        const params = {
+            ...(dateDebut ? { date_debut: dateDebut } : {}),
+            ...(dateFin   ? { date_fin:   dateFin   } : {}),
+        };
+        const stale = CACHE.readStatisticsReturns(params);
+        if (stale) { setData(stale); setLoading(false); }
+        else setLoading(true);
 
-    if (loading) return <StatsSkeleton />;
-    if (error)   return <p className="stats-error">{error}</p>;
+        fetchStatisticsReturns(params)
+            .then(res => { setData(res); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger l'analyse des retours."); setLoading(false); });
+    }, [dateDebut, dateFin]);
 
-    const kpis  = data?.kpis  ?? {};
-    const motifs = data?.data ?? [];
+    if (loading && !data) return <StatsSkeleton />;
+    if (error && !data)   return <p className="stats-error">{error}</p>;
+    if (!data)            return <StatsSkeleton />;
+
+    const kpis   = data?.kpis  ?? {};
+    const motifs = data?.data  ?? [];
 
     return (
         <div className="stats-section">
+            <DateFilter dateDebut={dateDebut} dateFin={dateFin} onChangeDebut={setDateDebut} onChangeFin={setDateFin} />
+            {error && <p className="stats-error">{error}</p>}
+
             <div className="stats-kpi-grid stats-kpi-grid--3">
                 {[
-                    { label: "Total retours",          value: kpis.total,               color: "#FFF8E1", iconColor: "#F1C40F", Icon: RotateCcw },
-                    { label: "Refus client",            value: kpis.refusClient,         color: "#FFF8F0", iconColor: "#F39C12", Icon: XCircle   },
-                    { label: "Produit non conforme",   value: kpis.produitNonConforme,  color: "#FEF0F0", iconColor: "#E74C3C", Icon: XCircle   },
+                    { label: "Total retours",        value: kpis.total,              color: "#FFF8E1", iconColor: "#F1C40F", Icon: RotateCcw },
+                    { label: "Refus client",          value: kpis.refusClient,        color: "#FFF8F0", iconColor: "#F39C12", Icon: XCircle   },
+                    { label: "Produit non conforme",  value: kpis.produitNonConforme, color: "#FEF0F0", iconColor: "#E74C3C", Icon: XCircle   },
                 ].map((k, i) => (
                     <div key={i} className="stats-kpi-card">
                         <div className="stats-kpi-card__icon" style={{ background: k.color }}>
@@ -554,19 +643,29 @@ function AnalyseRetours() {
 // ─── Section Géographie ───────────────────────────────────────────────────────
 
 function AnalyseGeographie() {
-    const [data, setData]       = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState("");
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin,   setDateFin]   = useState("");
+    const [data,      setData]      = useState(() => CACHE.readStatisticsGeography({}));
+    const [loading,   setLoading]   = useState(!CACHE.readStatisticsGeography({}));
+    const [error,     setError]     = useState("");
 
     useEffect(() => {
-        fetchStatisticsGeography()
-            .then(setData)
-            .catch(() => setError("Impossible de charger l'analyse géographique."))
-            .finally(() => setLoading(false));
-    }, []);
+        const params = {
+            ...(dateDebut ? { date_debut: dateDebut } : {}),
+            ...(dateFin   ? { date_fin:   dateFin   } : {}),
+        };
+        const stale = CACHE.readStatisticsGeography(params);
+        if (stale) { setData(stale); setLoading(false); }
+        else setLoading(true);
 
-    if (loading) return <StatsSkeleton />;
-    if (error)   return <p className="stats-error">{error}</p>;
+        fetchStatisticsGeography(params)
+            .then(res => { setData(res); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger l'analyse géographique."); setLoading(false); });
+    }, [dateDebut, dateFin]);
+
+    if (loading && !data) return <StatsSkeleton />;
+    if (error && !data)   return <p className="stats-error">{error}</p>;
+    if (!data)            return <StatsSkeleton />;
 
     const kpis   = data?.kpis ?? {};
     const villes = data?.data ?? [];
@@ -574,11 +673,14 @@ function AnalyseGeographie() {
 
     return (
         <div className="stats-section">
+            <DateFilter dateDebut={dateDebut} dateFin={dateFin} onChangeDebut={setDateDebut} onChangeFin={setDateFin} />
+            {error && <p className="stats-error">{error}</p>}
+
             <div className="stats-highlights">
                 {[
-                    { label: "Ville la plus active",    value: kpis.villeActive,    color: "#27AE60", Icon: Activity  },
-                    { label: "Zone difficile",           value: kpis.villeDifficile, color: "#E74C3C", Icon: XCircle   },
-                    { label: "Zone la plus rentable",   value: kpis.villeRentable,  color: "#F39C12", Icon: Award     },
+                    { label: "Ville la plus active",  value: kpis.villeActive,    color: "#27AE60", Icon: Activity  },
+                    { label: "Zone difficile",          value: kpis.villeDifficile, color: "#E74C3C", Icon: XCircle   },
+                    { label: "Zone la plus rentable",  value: kpis.villeRentable,  color: "#F39C12", Icon: Award     },
                 ].map((h, i) => (
                     <div key={i} className="stats-highlight-card">
                         <div className="stats-highlight-card__icon" style={{ background: h.color + "22" }}>
@@ -635,30 +737,43 @@ function AnalyseGeographie() {
 // ─── Section Clients ──────────────────────────────────────────────────────────
 
 function AnalyseClients() {
-    const [data, setData]       = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState("");
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin,   setDateFin]   = useState("");
+    const [data,      setData]      = useState(() => CACHE.readStatisticsClients({}));
+    const [loading,   setLoading]   = useState(!CACHE.readStatisticsClients({}));
+    const [error,     setError]     = useState("");
 
     useEffect(() => {
-        fetchStatisticsClients()
-            .then(setData)
-            .catch(() => setError("Impossible de charger l'analyse clients."))
-            .finally(() => setLoading(false));
-    }, []);
+        const params = {
+            ...(dateDebut ? { date_debut: dateDebut } : {}),
+            ...(dateFin   ? { date_fin:   dateFin   } : {}),
+        };
+        const stale = CACHE.readStatisticsClients(params);
+        if (stale) { setData(stale); setLoading(false); }
+        else setLoading(true);
 
-    if (loading) return <StatsSkeleton />;
-    if (error)   return <p className="stats-error">{error}</p>;
+        fetchStatisticsClients(params)
+            .then(res => { setData(res); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger l'analyse clients."); setLoading(false); });
+    }, [dateDebut, dateFin]);
+
+    if (loading && !data) return <StatsSkeleton />;
+    if (error && !data)   return <p className="stats-error">{error}</p>;
+    if (!data)            return <StatsSkeleton />;
 
     const kpis    = data?.kpis ?? {};
     const clients = data?.data ?? [];
 
     return (
         <div className="stats-section">
+            <DateFilter dateDebut={dateDebut} dateFin={dateFin} onChangeDebut={setDateDebut} onChangeFin={setDateFin} />
+            {error && <p className="stats-error">{error}</p>}
+
             <div className="stats-highlights">
                 {[
-                    { label: "Client le plus livré",   value: kpis.clientPlusLivre,    color: "#27AE60", Icon: Award     },
-                    { label: "Plus de retours",         value: kpis.clientPlusRetours,  color: "#E74C3C", Icon: RotateCcw },
-                    { label: "Client fidèle",           value: kpis.clientPlusFidele,   color: "#0EA5E9", Icon: UserCheck },
+                    { label: "Client le plus livré",  value: kpis.clientPlusLivre,   color: "#27AE60", Icon: Award     },
+                    { label: "Plus de retours",         value: kpis.clientPlusRetours, color: "#E74C3C", Icon: RotateCcw },
+                    { label: "Client fidèle",           value: kpis.clientPlusFidele,  color: "#0EA5E9", Icon: UserCheck },
                 ].map((h, i) => (
                     <div key={i} className="stats-highlight-card">
                         <div className="stats-highlight-card__icon" style={{ background: h.color + "22" }}>
@@ -726,9 +841,9 @@ function Statistiques() {
         setExporting(true);
         try {
             const res = await exportLivraisons(format);
-            setExportMsg(res.message ?? "Export réalisé.");
+            setExportMsg(res?.message ?? "Export réalisé.");
         } catch {
-            setExportMsg("Erreur lors de l'export.");
+            setExportMsg("Export non encore disponible.");
         } finally {
             setExporting(false);
             setTimeout(() => setExportMsg(""), 3000);

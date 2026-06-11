@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
-    Truck, Clock, CheckCircle, XCircle, RotateCcw, Play, Download, MapPin, Phone,
+    Truck, Clock, CheckCircle, XCircle, RotateCcw, Play, Download, MapPin, Phone, Search,
 } from "lucide-react";
 import {
     fetchMesLivraisons, fetchHistoriquePersonnel,
     formatMontant, formatDate, getStatutBadge, exportLivraisons,
-    STATUT_EN_COURS,
+    CACHE,
 } from "../../../services/livraison.js";
 import DeliveryDrawer from "./DeliveryDrawer.jsx";
 import {
@@ -17,7 +17,8 @@ import {
 } from "./DeliveryActionDialogs.jsx";
 import "../../../assets/styles/components/modules/livraison/ListeLivraisons.css";
 
-const TABS = ["En cours", "Historique"];
+const TABS    = ["En cours", "Historique"];
+const PER_PAGE = 20;
 
 // ─── Card livraison en cours ──────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ function DeliveryCard({ livraison, onAction, onDetail }) {
                 <div className="mesLiv-card__info" onClick={() => onDetail(livraison)} role="button" tabIndex={0} onKeyDown={e => e.key === "Enter" && onDetail(livraison)}>
                     <div className="mesLiv-card__header">
                         <span className="mesLiv-card__numero">{livraison.commande}</span>
-                        <span className={`liv-badge liv-badge--info`}>En cours</span>
+                        <span className="liv-badge liv-badge--info">En cours</span>
                     </div>
                     <p className="mesLiv-card__client">{livraison.client}</p>
                     {livraison.telephone && (
@@ -52,48 +53,23 @@ function DeliveryCard({ livraison, onAction, onDetail }) {
             <div className="mesLiv-card__actions">
                 {!lancee ? (
                     <>
-                        <button
-                            type="button"
-                            className="mesLiv-card__btn mesLiv-card__btn--cancel"
-                            onClick={() => onAction("annuler", livraison)}
-                        >
-                            <XCircle size={16} aria-hidden="true" />
-                            Annuler
+                        <button type="button" className="mesLiv-card__btn mesLiv-card__btn--cancel" onClick={() => onAction("annuler", livraison)}>
+                            <XCircle size={16} aria-hidden="true" />Annuler
                         </button>
-                        <button
-                            type="button"
-                            className="mesLiv-card__btn mesLiv-card__btn--launch"
-                            onClick={() => onAction("lancer", livraison)}
-                        >
-                            <Play size={16} aria-hidden="true" />
-                            Lancer
+                        <button type="button" className="mesLiv-card__btn mesLiv-card__btn--launch" onClick={() => onAction("lancer", livraison)}>
+                            <Play size={16} aria-hidden="true" />Lancer
                         </button>
                     </>
                 ) : (
                     <>
-                        <button
-                            type="button"
-                            className="mesLiv-card__btn mesLiv-card__btn--retour"
-                            onClick={() => onAction("retour", livraison)}
-                        >
-                            <RotateCcw size={16} aria-hidden="true" />
-                            Retour
+                        <button type="button" className="mesLiv-card__btn mesLiv-card__btn--retour" onClick={() => onAction("retour", livraison)}>
+                            <RotateCcw size={16} aria-hidden="true" />Retour
                         </button>
-                        <button
-                            type="button"
-                            className="mesLiv-card__btn mesLiv-card__btn--echec"
-                            onClick={() => onAction("echec", livraison)}
-                        >
-                            <XCircle size={16} aria-hidden="true" />
-                            Échec
+                        <button type="button" className="mesLiv-card__btn mesLiv-card__btn--echec" onClick={() => onAction("echec", livraison)}>
+                            <XCircle size={16} aria-hidden="true" />Échec
                         </button>
-                        <button
-                            type="button"
-                            className="mesLiv-card__btn mesLiv-card__btn--valider"
-                            onClick={() => onAction("valider", livraison)}
-                        >
-                            <CheckCircle size={16} aria-hidden="true" />
-                            Valider
+                        <button type="button" className="mesLiv-card__btn mesLiv-card__btn--valider" onClick={() => onAction("valider", livraison)}>
+                            <CheckCircle size={16} aria-hidden="true" />Valider
                         </button>
                     </>
                 )}
@@ -105,26 +81,28 @@ function DeliveryCard({ livraison, onAction, onDetail }) {
 // ─── Mes livraisons en cours ──────────────────────────────────────────────────
 
 function MesLivraisonsEnCours() {
-    const [data, setData]         = useState(null);
-    const [loading, setLoading]   = useState(true);
+    const [data, setData]         = useState(() => CACHE.readMesLivraisons());
+    const [loading, setLoading]   = useState(!CACHE.readMesLivraisons());
     const [error, setError]       = useState("");
     const [dialog, setDialog]     = useState(null);
     const [drawerLiv, setDrawer]  = useState(null);
 
     const load = () => {
-        setLoading(true);
+        const stale = CACHE.readMesLivraisons();
+        if (stale) { setData(stale); setLoading(false); }
+        else setLoading(true);
+
         fetchMesLivraisons()
-            .then(setData)
-            .catch(() => setError("Impossible de charger vos livraisons."))
-            .finally(() => setLoading(false));
+            .then(res => { setData(res); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger vos livraisons."); setLoading(false); });
     };
 
     useEffect(load, []);
 
-    const handleAction = (type, livraison) => setDialog({ type, livraison });
+    const handleAction  = (type, livraison) => setDialog({ type, livraison });
     const handleSuccess = () => { setDialog(null); load(); };
 
-    if (loading) return (
+    if (loading && !data) return (
         <div className="mesLiv-list">
             {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="mesLiv-card mesLiv-card--skeleton">
@@ -140,10 +118,12 @@ function MesLivraisonsEnCours() {
         </div>
     );
 
-    if (error) return <p className="mesLiv-error">{error}</p>;
+    if (error && !data) return <p className="mesLiv-error">{error}</p>;
 
     return (
         <>
+            {error && <p className="mesLiv-error">{error}</p>}
+
             {/* Mobile : cartes */}
             <div className="mesLiv-list mesLiv-list--mobile">
                 {data?.data?.map(liv => (
@@ -154,7 +134,7 @@ function MesLivraisonsEnCours() {
                         onDetail={setDrawer}
                     />
                 ))}
-                {!data?.data?.length && (
+                {!data?.data?.length && !loading && (
                     <div className="mesLiv-empty">
                         <Truck size={40} className="mesLiv-empty__icon" aria-hidden="true" />
                         <p>Aucune livraison en cours.</p>
@@ -180,13 +160,7 @@ function MesLivraisonsEnCours() {
                         {data?.data?.map(liv => {
                             const lancee = !!liv.dateLancement;
                             return (
-                                <tr
-                                    key={liv.id}
-                                    className="mesLiv-table__row"
-                                    onClick={() => setDrawer(liv)}
-                                    tabIndex={0}
-                                    onKeyDown={e => e.key === "Enter" && setDrawer(liv)}
-                                >
+                                <tr key={liv.id} className="mesLiv-table__row" onClick={() => setDrawer(liv)} tabIndex={0} onKeyDown={e => e.key === "Enter" && setDrawer(liv)}>
                                     <td className="mesLiv-table__numero">{liv.commande}</td>
                                     <td>{liv.client}</td>
                                     <td>{liv.telephone ?? "—"}</td>
@@ -197,13 +171,13 @@ function MesLivraisonsEnCours() {
                                         <div className="mesLiv-table__actions">
                                             {!lancee ? (
                                                 <>
-                                                    <button type="button" className="mesLiv-table__btn mesLiv-table__btn--cancel" onClick={() => handleAction("annuler", liv)}>Annuler</button>
-                                                    <button type="button" className="mesLiv-table__btn mesLiv-table__btn--launch" onClick={() => handleAction("lancer", liv)}>Lancer</button>
+                                                    <button type="button" className="mesLiv-table__btn mesLiv-table__btn--cancel"  onClick={() => handleAction("annuler", liv)}>Annuler</button>
+                                                    <button type="button" className="mesLiv-table__btn mesLiv-table__btn--launch"  onClick={() => handleAction("lancer",  liv)}>Lancer</button>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <button type="button" className="mesLiv-table__btn mesLiv-table__btn--retour" onClick={() => handleAction("retour", liv)}>Retour</button>
-                                                    <button type="button" className="mesLiv-table__btn mesLiv-table__btn--echec" onClick={() => handleAction("echec", liv)}>Échec</button>
+                                                    <button type="button" className="mesLiv-table__btn mesLiv-table__btn--retour" onClick={() => handleAction("retour",  liv)}>Retour</button>
+                                                    <button type="button" className="mesLiv-table__btn mesLiv-table__btn--echec"  onClick={() => handleAction("echec",   liv)}>Échec</button>
                                                     <button type="button" className="mesLiv-table__btn mesLiv-table__btn--valider" onClick={() => handleAction("valider", liv)}>Valider</button>
                                                 </>
                                             )}
@@ -214,7 +188,7 @@ function MesLivraisonsEnCours() {
                         })}
                     </tbody>
                 </table>
-                {!data?.data?.length && (
+                {!data?.data?.length && !loading && (
                     <div className="mesLiv-empty mesLiv-empty--table">
                         <Truck size={40} className="mesLiv-empty__icon" aria-hidden="true" />
                         <p>Aucune livraison en cours.</p>
@@ -222,10 +196,8 @@ function MesLivraisonsEnCours() {
                 )}
             </div>
 
-            {/* Drawer détails */}
             {drawerLiv && <DeliveryDrawer livraison={drawerLiv} onClose={() => setDrawer(null)} />}
 
-            {/* Dialogs d'action */}
             {dialog?.type === "lancer"  && <LaunchDeliveryDialog   livraison={dialog.livraison} onClose={() => setDialog(null)} onSuccess={handleSuccess} />}
             {dialog?.type === "valider" && <ValidateDeliveryDialog  livraison={dialog.livraison} onClose={() => setDialog(null)} onSuccess={handleSuccess} />}
             {dialog?.type === "annuler" && <CancelDeliveryDialog    livraison={dialog.livraison} onClose={() => setDialog(null)} onSuccess={handleSuccess} />}
@@ -238,34 +210,54 @@ function MesLivraisonsEnCours() {
 // ─── Historique personnel ─────────────────────────────────────────────────────
 
 function HistoriquePersonnel() {
-    const [data, setData]           = useState(null);
-    const [loading, setLoading]     = useState(true);
+    const initParams = { page: 1, per_page: PER_PAGE };
+    const [filters, setFilters]     = useState({ page: 1, recherche: "", statut: "tous", dateDebut: "", dateFin: "" });
+    const [data, setData]           = useState(() => CACHE.readHistoriquePersonnel(initParams));
+    const [loading, setLoading]     = useState(!CACHE.readHistoriquePersonnel(initParams));
+    const [total, setTotal]         = useState(0);
     const [error, setError]         = useState("");
     const [selected, setSelected]   = useState(null);
     const [exporting, setExporting] = useState(false);
     const [exportMsg, setExportMsg] = useState("");
 
+    const updateFilter = (key, value) =>
+        setFilters(prev => ({ ...prev, [key]: value, page: key !== "page" ? 1 : value }));
+
+    const params = useMemo(() => ({
+        page:     filters.page,
+        per_page: PER_PAGE,
+        ...(filters.recherche         ? { recherche:  filters.recherche  } : {}),
+        ...(filters.statut !== "tous" ? { statut:     filters.statut     } : {}),
+        ...(filters.dateDebut         ? { date_debut: filters.dateDebut  } : {}),
+        ...(filters.dateFin           ? { date_fin:   filters.dateFin    } : {}),
+    }), [filters]);
+
     useEffect(() => {
-        fetchHistoriquePersonnel()
-            .then(setData)
-            .catch(() => setError("Impossible de charger l'historique."))
-            .finally(() => setLoading(false));
-    }, []);
+        const stale = CACHE.readHistoriquePersonnel(params);
+        if (stale) { setData(stale); setTotal(stale.meta?.total ?? 0); setLoading(false); }
+        else setLoading(true);
+
+        fetchHistoriquePersonnel(params)
+            .then(res => { setData(res); setTotal(res.meta?.total ?? 0); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger l'historique."); setLoading(false); });
+    }, [params]);
 
     const handleExport = async (format) => {
         setExporting(true);
         try {
             const res = await exportLivraisons(format);
-            setExportMsg(res.message ?? "Export réalisé.");
+            setExportMsg(res?.message ?? "Export réalisé.");
         } catch {
-            setExportMsg("Erreur lors de l'export.");
+            setExportMsg("Export non encore disponible.");
         } finally {
             setExporting(false);
             setTimeout(() => setExportMsg(""), 3000);
         }
     };
 
-    if (loading) return (
+    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+
+    if (loading && !data) return (
         <div className="mesLiv-list">
             {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="mesLiv-card" style={{ minHeight: 120 }}>
@@ -277,10 +269,53 @@ function HistoriquePersonnel() {
         </div>
     );
 
-    if (error) return <p className="mesLiv-error">{error}</p>;
-
     return (
         <>
+            {/* ── Barre de filtres ── */}
+            <div className="mesLiv-filterbar">
+                <label className="mesLiv-filter-search">
+                    <Search size={15} className="mesLiv-filter-search__icon" aria-hidden="true" />
+                    <input
+                        type="search"
+                        className="mesLiv-filter-search__input"
+                        placeholder="Rechercher par commande ou client…"
+                        value={filters.recherche}
+                        onChange={e => updateFilter("recherche", e.target.value)}
+                    />
+                </label>
+
+                <select
+                    className="mesLiv-filter-select"
+                    value={filters.statut}
+                    onChange={e => updateFilter("statut", e.target.value)}
+                    aria-label="Filtrer par statut"
+                >
+                    <option value="tous">Tous les statuts</option>
+                    <option value="en_cours">En cours</option>
+                    <option value="livree">Livrée</option>
+                    <option value="echec">Échec</option>
+                    <option value="retour">Retour</option>
+                </select>
+
+                <input
+                    type="date"
+                    className="mesLiv-filter-date"
+                    value={filters.dateDebut}
+                    onChange={e => updateFilter("dateDebut", e.target.value)}
+                    max={filters.dateFin || undefined}
+                    aria-label="Date de début"
+                />
+                <input
+                    type="date"
+                    className="mesLiv-filter-date"
+                    value={filters.dateFin}
+                    onChange={e => updateFilter("dateFin", e.target.value)}
+                    min={filters.dateDebut || undefined}
+                    aria-label="Date de fin"
+                />
+            </div>
+
+            {/* ── Toolbar export ── */}
             <div className="mesLiv-toolbar">
                 <div className="mesLiv-export">
                     <Download size={16} aria-hidden="true" />
@@ -293,6 +328,8 @@ function HistoriquePersonnel() {
                 </div>
                 {exportMsg && <span className="mesLiv-export__msg">{exportMsg}</span>}
             </div>
+
+            {error && <p className="mesLiv-error">{error}</p>}
 
             {/* Mobile */}
             <div className="mesLiv-list mesLiv-list--mobile">
@@ -312,7 +349,7 @@ function HistoriquePersonnel() {
                         </button>
                     );
                 })}
-                {!data?.data?.length && (
+                {!data?.data?.length && !loading && (
                     <div className="mesLiv-empty">
                         <Clock size={40} className="mesLiv-empty__icon" aria-hidden="true" />
                         <p>Aucun historique trouvé.</p>
@@ -349,7 +386,39 @@ function HistoriquePersonnel() {
                         })}
                     </tbody>
                 </table>
+                {!data?.data?.length && !loading && (
+                    <div className="mesLiv-empty mesLiv-empty--table">
+                        <Clock size={40} className="mesLiv-empty__icon" aria-hidden="true" />
+                        <p>Aucun historique trouvé.</p>
+                    </div>
+                )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="mesLiv-pagination">
+                    <button
+                        type="button"
+                        className="mesLiv-pagination__btn"
+                        disabled={filters.page <= 1}
+                        onClick={() => updateFilter("page", filters.page - 1)}
+                    >
+                        Précédent
+                    </button>
+                    <span className="mesLiv-pagination__info">
+                        Page {filters.page} / {totalPages}
+                        {total > 0 && <> · {total} résultat{total > 1 ? "s" : ""}</>}
+                    </span>
+                    <button
+                        type="button"
+                        className="mesLiv-pagination__btn"
+                        disabled={filters.page >= totalPages}
+                        onClick={() => updateFilter("page", filters.page + 1)}
+                    >
+                        Suivant
+                    </button>
+                </div>
+            )}
 
             {selected && <DeliveryDrawer livraison={selected} onClose={() => setSelected(null)} />}
         </>

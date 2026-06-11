@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import {
     Truck, CheckCircle, XCircle, RotateCcw, TrendingUp, Users,
 } from "lucide-react";
-import { fetchDashboard, getStatutBadge } from "../../../services/livraison.js";
+import { fetchDashboard, getStatutBadge, CACHE } from "../../../services/livraison.js";
 import "../../../assets/styles/components/modules/livraison/Dashboard.css";
 
 // ─── Compteur animé ───────────────────────────────────────────────────────────
@@ -34,16 +34,12 @@ function BarChart({ data }) {
         <svg viewBox={`0 0 ${W} ${H + 28}`} className="livDash-chart__svg" aria-label="Livraisons par jour" role="img">
             {data.map((d, i) => {
                 const x   = gap + i * (barW + gap);
-                const tot = d.livrees + d.echecs + d.retours;
-                const hLiv = Math.round((d.livrees / maxVal) * H);
-                const hEch = Math.round((d.echecs  / maxVal) * H);
-                const hRet = Math.round((d.retours / maxVal) * H);
                 let y = H;
                 return (
                     <g key={d.jour}>
-                        {d.livrees > 0 && (() => { y -= hLiv; return <rect x={x} y={y} width={barW} height={hLiv} fill="#27AE60" rx="3" opacity="0.85" />; })()}
-                        {d.echecs  > 0 && (() => { y -= hEch; return <rect x={x} y={y} width={barW} height={hEch} fill="#E74C3C" rx="3" opacity="0.85" />; })()}
-                        {d.retours > 0 && (() => { y -= hRet; return <rect x={x} y={y} width={barW} height={hRet} fill="#F1C40F" rx="3" opacity="0.85" />; })()}
+                        {d.livrees > 0 && (() => { const h = Math.round((d.livrees / maxVal) * H); y -= h; return <rect x={x} y={y} width={barW} height={h} fill="#27AE60" rx="3" opacity="0.85" />; })()}
+                        {d.echecs  > 0 && (() => { const h = Math.round((d.echecs  / maxVal) * H); y -= h; return <rect x={x} y={y} width={barW} height={h} fill="#E74C3C" rx="3" opacity="0.85" />; })()}
+                        {d.retours > 0 && (() => { const h = Math.round((d.retours / maxVal) * H); y -= h; return <rect x={x} y={y} width={barW} height={h} fill="#F1C40F" rx="3" opacity="0.85" />; })()}
                         <text x={x + barW / 2} y={H + 18} textAnchor="middle" fontSize="10" fill="#6B7280">{d.jour}</text>
                     </g>
                 );
@@ -126,50 +122,96 @@ function DashboardSkeleton() {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 const KPIS = [
-    { key: "enCours",        label: "En cours",          Icon: Truck,       color: "#3498DB" },
+    { key: "enCours",        label: "En cours",          Icon: Truck,        color: "#3498DB" },
     { key: "livrees",        label: "Livrées",           Icon: CheckCircle,  color: "#27AE60" },
-    { key: "echecs",         label: "Échecs",            Icon: XCircle,     color: "#E74C3C" },
-    { key: "retours",        label: "Retours",           Icon: RotateCcw,   color: "#F1C40F" },
-    { key: "tauxReussite",   label: "Taux de réussite",  Icon: TrendingUp,  color: "#F39C12", unit: "%" },
-    { key: "livreursActifs", label: "Livreurs actifs",   Icon: Users,       color: "#2C3E50" },
+    { key: "echecs",         label: "Échecs",            Icon: XCircle,      color: "#E74C3C" },
+    { key: "retours",        label: "Retours",           Icon: RotateCcw,    color: "#F1C40F" },
+    { key: "tauxReussite",   label: "Taux de réussite",  Icon: TrendingUp,   color: "#F39C12", unit: "%" },
+    { key: "livreursActifs", label: "Livreurs actifs",   Icon: Users,        color: "#2C3E50" },
 ];
 
-const FILTERS = ["Aujourd'hui", "Cette semaine", "Ce mois", "Personnalisé"];
+const FILTER_OPTIONS = [
+    { label: "Aujourd'hui",   params: { periode: "aujourd_hui"  } },
+    { label: "Cette semaine", params: { periode: "cette_semaine" } },
+    { label: "Ce mois",       params: { periode: "ce_mois"      } },
+    { label: "Personnalisé",  params: null },
+];
+
+const INITIAL_PARAMS = { periode: "aujourd_hui" };
 
 function Dashboard() {
-    const [data, setData]       = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [filter, setFilter]   = useState(FILTERS[0]);
-    const [error, setError]     = useState("");
+    const [filter,     setFilter]     = useState(FILTER_OPTIONS[0].label);
+    const [dateDebut,  setDateDebut]  = useState("");
+    const [dateFin,    setDateFin]    = useState("");
+    const [data,       setData]       = useState(() => CACHE.readDashboard(INITIAL_PARAMS));
+    const [loading,    setLoading]    = useState(!CACHE.readDashboard(INITIAL_PARAMS));
+    const [error,      setError]      = useState("");
 
     useEffect(() => {
-        setLoading(true);
-        fetchDashboard()
-            .then(setData)
-            .catch(() => setError("Impossible de charger le tableau de bord."))
-            .finally(() => setLoading(false));
-    }, [filter]);
+        const opt    = FILTER_OPTIONS.find(f => f.label === filter);
+        const custom = filter === "Personnalisé";
 
-    if (loading) return <DashboardSkeleton />;
-    if (error)   return <p className="livDash-error">{error}</p>;
-    if (!data)   return null;
+        // Pour le filtre Personnalisé, attendre que les deux dates soient renseignées
+        if (custom && (!dateDebut || !dateFin)) return;
+
+        const params = custom ? { date_debut: dateDebut, date_fin: dateFin } : (opt?.params ?? INITIAL_PARAMS);
+
+        // Afficher le stale immédiatement
+        const stale = CACHE.readDashboard(params);
+        if (stale) { setData(stale); setLoading(false); }
+        else       { setLoading(true); }
+
+        fetchDashboard(params)
+            .then(fresh => { setData(fresh); setLoading(false); setError(""); })
+            .catch(err  => { setError(err?.message ?? "Impossible de charger le tableau de bord."); setLoading(false); });
+    }, [filter, dateDebut, dateFin]);
+
+    if (loading && !data) return <DashboardSkeleton />;
+    if (!data && error)   return <p className="livDash-error">{error}</p>;
+    if (!data)            return <DashboardSkeleton />;
 
     return (
         <div className="livDash-root">
             {/* ── Filtres temporels ── */}
             <div className="livDash-filters" role="group" aria-label="Filtres temporels">
-                {FILTERS.map(f => (
+                {FILTER_OPTIONS.map(({ label }) => (
                     <button
-                        key={f}
+                        key={label}
                         type="button"
-                        className={`livDash-filter-pill${filter === f ? " livDash-filter-pill--active" : ""}`}
-                        onClick={() => setFilter(f)}
-                        aria-pressed={filter === f}
+                        className={`livDash-filter-pill${filter === label ? " livDash-filter-pill--active" : ""}`}
+                        onClick={() => setFilter(label)}
+                        aria-pressed={filter === label}
                     >
-                        {f}
+                        {label}
                     </button>
                 ))}
             </div>
+
+            {/* ── Dates personnalisées ── */}
+            {filter === "Personnalisé" && (
+                <div className="livDash-custom-dates">
+                    <label className="livDash-custom-date">
+                        <span>Du</span>
+                        <input
+                            type="date"
+                            value={dateDebut}
+                            onChange={e => setDateDebut(e.target.value)}
+                            max={dateFin || undefined}
+                        />
+                    </label>
+                    <label className="livDash-custom-date">
+                        <span>Au</span>
+                        <input
+                            type="date"
+                            value={dateFin}
+                            onChange={e => setDateFin(e.target.value)}
+                            min={dateDebut || undefined}
+                        />
+                    </label>
+                </div>
+            )}
+
+            {error && <p className="livDash-error">{error}</p>}
 
             {/* ── KPIs ── */}
             <div className="livDash-kpi-grid">

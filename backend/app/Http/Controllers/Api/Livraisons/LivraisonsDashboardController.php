@@ -162,6 +162,14 @@ class LivraisonsDashboardController extends LivraisonsBaseController
         $dateDebut = $request->query('date_debut');
         $dateFin   = $request->query('date_fin');
 
+        // Plage personnalisée — priorité sur les périodes prédéfinies
+        if ($dateDebut && $dateFin) {
+            return [
+                Carbon::parse($dateDebut)->startOfDay(),
+                Carbon::parse($dateFin)->endOfDay(),
+            ];
+        }
+
         if ($periode === 'cette_semaine') {
             return [
                 Carbon::now()->startOfWeek(Carbon::MONDAY),
@@ -173,13 +181,6 @@ class LivraisonsDashboardController extends LivraisonsBaseController
             return [
                 Carbon::now()->startOfMonth(),
                 Carbon::now()->endOfMonth(),
-            ];
-        }
-
-        if ($periode === null && $dateDebut && $dateFin) {
-            return [
-                Carbon::parse($dateDebut)->startOfDay(),
-                Carbon::parse($dateFin)->endOfDay(),
             ];
         }
 

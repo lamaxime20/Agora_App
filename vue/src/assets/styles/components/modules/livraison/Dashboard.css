@@ -55,6 +55,43 @@
     color: var(--color-primary);
 }
 
+/* ─── Dates personnalisées ────────────────────────────────────────────────────── */
+
+.livDash-custom-dates {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.livDash-custom-date {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-medium);
+}
+
+.livDash-custom-date input[type="date"] {
+    height: 40px;
+    padding: 0 var(--space-3);
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    color-scheme: light;
+    outline: none;
+    cursor: pointer;
+    transition: border-color var(--duration-fast);
+}
+
+.livDash-custom-date input[type="date"]:focus {
+    border-color: var(--color-primary);
+}
+
 /* ─── KPIs ───────────────────────────────────────────────────────────────────── */
 
 .livDash-kpi-grid {

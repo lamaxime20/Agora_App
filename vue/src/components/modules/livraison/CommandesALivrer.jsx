@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
-import { PackageCheck, Clock, FileText, Download } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { PackageCheck, Clock, Search, Download } from "lucide-react";
 import {
-    fetchCommandesALivrer, fetchHistoriqueLivraisons,
-    formatMontant, formatDate, getStatutBadge, exportLivraisons,
+    fetchCommandesALivrer, fetchHistoriqueLivraisons, fetchLivraisonDetail,
+    exportLivraisons, formatMontant, formatDate, getStatutBadge, CACHE,
 } from "../../../services/livraison.js";
 import AssignDriverModal from "./AssignDriverModal.jsx";
 import DeliveryDrawer    from "./DeliveryDrawer.jsx";
 import "../../../assets/styles/components/modules/livraison/CommandesALivrer.css";
 
 const TABS = ["Commandes à livrer", "Historique des livraisons"];
+
+const PER_PAGE = 20;
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -43,30 +45,61 @@ function TableSkeleton() {
 // ─── Commandes à livrer ───────────────────────────────────────────────────────
 
 function ListeCommandes() {
-    const [data, setData]         = useState(null);
-    const [loading, setLoading]   = useState(true);
-    const [error, setError]       = useState("");
+    const [filters, setFilters]     = useState({ page: 1, recherche: "" });
+    const [data, setData]           = useState(() => CACHE.readCommandesALivrer({ page: 1, per_page: PER_PAGE }));
+    const [loading, setLoading]     = useState(!CACHE.readCommandesALivrer({ page: 1, per_page: PER_PAGE }));
+    const [total, setTotal]         = useState(0);
+    const [error, setError]         = useState("");
     const [assigning, setAssigning] = useState(null);
 
-    const load = () => {
-        setLoading(true);
-        fetchCommandesALivrer()
-            .then(setData)
-            .catch(() => setError("Impossible de charger les commandes."))
-            .finally(() => setLoading(false));
+    const updateFilter = (key, value) =>
+        setFilters(prev => ({ ...prev, [key]: value, page: key !== "page" ? 1 : value }));
+
+    const params = useMemo(() => ({
+        page:     filters.page,
+        per_page: PER_PAGE,
+        ...(filters.recherche ? { recherche: filters.recherche } : {}),
+    }), [filters]);
+
+    const reload = () => {
+        const stale = CACHE.readCommandesALivrer(params);
+        if (stale) { setData(stale); setTotal(stale.meta?.total ?? 0); setLoading(false); }
+        else setLoading(true);
+
+        fetchCommandesALivrer(params)
+            .then(res => { setData(res); setTotal(res.meta?.total ?? 0); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger les commandes."); setLoading(false); });
     };
 
-    useEffect(load, []);
+    useEffect(reload, [params]);
 
-    if (loading) return (
+    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+
+    if (loading && !data) return (
         <div className="cmdLiv-list">
             {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
         </div>
     );
-    if (error) return <p className="cmdLiv-error">{error}</p>;
+    if (error && !data) return <p className="cmdLiv-error">{error}</p>;
 
     return (
         <>
+            {/* ── Barre de recherche ── */}
+            <div className="cmdLiv-filterbar">
+                <label className="cmdLiv-filter-search">
+                    <Search size={15} className="cmdLiv-filter-search__icon" aria-hidden="true" />
+                    <input
+                        type="search"
+                        className="cmdLiv-filter-search__input"
+                        placeholder="Rechercher par commande ou client…"
+                        value={filters.recherche}
+                        onChange={e => updateFilter("recherche", e.target.value)}
+                    />
+                </label>
+            </div>
+
+            {error && <p className="cmdLiv-error">{error}</p>}
+
             {/* Mobile : cartes */}
             <div className="cmdLiv-list cmdLiv-list--mobile">
                 {data?.data?.map(cmd => (
@@ -91,7 +124,7 @@ function ListeCommandes() {
                         </button>
                     </div>
                 ))}
-                {!data?.data?.length && (
+                {!data?.data?.length && !loading && (
                     <div className="cmdLiv-empty">
                         <PackageCheck size={40} className="cmdLiv-empty__icon" aria-hidden="true" />
                         <p>Aucune commande à livrer.</p>
@@ -137,7 +170,7 @@ function ListeCommandes() {
                         ))}
                     </tbody>
                 </table>
-                {!data?.data?.length && (
+                {!data?.data?.length && !loading && (
                     <div className="cmdLiv-empty cmdLiv-empty--table">
                         <PackageCheck size={40} className="cmdLiv-empty__icon" aria-hidden="true" />
                         <p>Aucune commande à livrer.</p>
@@ -145,11 +178,37 @@ function ListeCommandes() {
                 )}
             </div>
 
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="cmdLiv-pagination">
+                    <button
+                        type="button"
+                        className="cmdLiv-pagination__btn"
+                        disabled={filters.page <= 1}
+                        onClick={() => updateFilter("page", filters.page - 1)}
+                    >
+                        Précédent
+                    </button>
+                    <span className="cmdLiv-pagination__info">
+                        Page {filters.page} / {totalPages}
+                        {total > 0 && <> · {total} résultat{total > 1 ? "s" : ""}</>}
+                    </span>
+                    <button
+                        type="button"
+                        className="cmdLiv-pagination__btn"
+                        disabled={filters.page >= totalPages}
+                        onClick={() => updateFilter("page", filters.page + 1)}
+                    >
+                        Suivant
+                    </button>
+                </div>
+            )}
+
             {assigning && (
                 <AssignDriverModal
                     commande={assigning}
                     onClose={() => setAssigning(null)}
-                    onSuccess={() => { setAssigning(null); load(); }}
+                    onSuccess={() => { setAssigning(null); reload(); }}
                 />
             )}
         </>
@@ -159,39 +218,113 @@ function ListeCommandes() {
 // ─── Historique des livraisons ────────────────────────────────────────────────
 
 function HistoriqueLivraisons() {
-    const [data, setData]           = useState(null);
-    const [loading, setLoading]     = useState(true);
-    const [error, setError]         = useState("");
-    const [selected, setSelected]   = useState(null);
-    const [exporting, setExporting] = useState(false);
-    const [exportMsg, setExportMsg] = useState("");
+    const initParams = { page: 1, per_page: PER_PAGE };
+    const [filters, setFilters]           = useState({ page: 1, recherche: "", statut: "tous", dateDebut: "", dateFin: "" });
+    const [data, setData]                 = useState(() => CACHE.readHistoriqueLivraisons(initParams));
+    const [loading, setLoading]           = useState(!CACHE.readHistoriqueLivraisons(initParams));
+    const [total, setTotal]               = useState(0);
+    const [error, setError]               = useState("");
+    const [selected, setSelected]         = useState(null);
+    const [loadingDetailId, setLDId]      = useState(null);
+    const [exporting, setExporting]       = useState(false);
+    const [exportMsg, setExportMsg]       = useState("");
+
+    const updateFilter = (key, value) =>
+        setFilters(prev => ({ ...prev, [key]: value, page: key !== "page" ? 1 : value }));
+
+    const params = useMemo(() => ({
+        page:     filters.page,
+        per_page: PER_PAGE,
+        ...(filters.recherche              ? { recherche:   filters.recherche   } : {}),
+        ...(filters.statut !== "tous"      ? { statut:      filters.statut      } : {}),
+        ...(filters.dateDebut              ? { date_debut:  filters.dateDebut   } : {}),
+        ...(filters.dateFin                ? { date_fin:    filters.dateFin     } : {}),
+    }), [filters]);
 
     useEffect(() => {
-        fetchHistoriqueLivraisons()
-            .then(setData)
-            .catch(() => setError("Impossible de charger l'historique."))
-            .finally(() => setLoading(false));
-    }, []);
+        const stale = CACHE.readHistoriqueLivraisons(params);
+        if (stale) { setData(stale); setTotal(stale.meta?.total ?? 0); setLoading(false); }
+        else setLoading(true);
+
+        fetchHistoriqueLivraisons(params)
+            .then(res => { setData(res); setTotal(res.meta?.total ?? 0); setLoading(false); setError(""); })
+            .catch(err => { setError(err?.message ?? "Impossible de charger l'historique."); setLoading(false); });
+    }, [params]);
+
+    const handleRowClick = async (liv) => {
+        setLDId(liv.id);
+        try {
+            const detail = await fetchLivraisonDetail(liv.id);
+            setSelected(detail);
+        } catch {
+            setSelected(liv);
+        } finally {
+            setLDId(null);
+        }
+    };
 
     const handleExport = async (format) => {
         setExporting(true);
         try {
             const res = await exportLivraisons(format);
-            setExportMsg(res.message ?? "Export réalisé.");
+            setExportMsg(res?.message ?? "Export réalisé.");
         } catch {
-            setExportMsg("Erreur lors de l'export.");
+            setExportMsg("Export non encore disponible.");
         } finally {
             setExporting(false);
             setTimeout(() => setExportMsg(""), 3000);
         }
     };
 
-    if (loading) return <TableSkeleton />;
-    if (error)   return <p className="cmdLiv-error">{error}</p>;
+    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
     return (
         <>
-            {/* Export */}
+            {/* ── Barre de filtres ── */}
+            <div className="cmdLiv-filterbar">
+                <label className="cmdLiv-filter-search">
+                    <Search size={15} className="cmdLiv-filter-search__icon" aria-hidden="true" />
+                    <input
+                        type="search"
+                        className="cmdLiv-filter-search__input"
+                        placeholder="Rechercher…"
+                        value={filters.recherche}
+                        onChange={e => updateFilter("recherche", e.target.value)}
+                    />
+                </label>
+
+                <select
+                    className="cmdLiv-filter-select"
+                    value={filters.statut}
+                    onChange={e => updateFilter("statut", e.target.value)}
+                    aria-label="Filtrer par statut"
+                >
+                    <option value="tous">Tous les statuts</option>
+                    <option value="en_cours">En cours</option>
+                    <option value="livree">Livrée</option>
+                    <option value="echec">Échec</option>
+                    <option value="retour">Retour</option>
+                </select>
+
+                <input
+                    type="date"
+                    className="cmdLiv-filter-date"
+                    value={filters.dateDebut}
+                    onChange={e => updateFilter("dateDebut", e.target.value)}
+                    max={filters.dateFin || undefined}
+                    aria-label="Date de début"
+                />
+                <input
+                    type="date"
+                    className="cmdLiv-filter-date"
+                    value={filters.dateFin}
+                    onChange={e => updateFilter("dateFin", e.target.value)}
+                    min={filters.dateDebut || undefined}
+                    aria-label="Date de fin"
+                />
+            </div>
+
+            {/* ── Toolbar export ── */}
             <div className="cmdLiv-toolbar">
                 <div className="cmdLiv-export">
                     <Download size={16} aria-hidden="true" />
@@ -211,70 +344,118 @@ function HistoriqueLivraisons() {
                 {exportMsg && <span className="cmdLiv-export__msg">{exportMsg}</span>}
             </div>
 
+            {error && <p className="cmdLiv-error">{error}</p>}
+
+            {loading && !data && <TableSkeleton />}
+
             {/* Mobile : cartes */}
-            <div className="cmdLiv-list cmdLiv-list--mobile">
-                {data?.data?.map(liv => {
-                    const badge = getStatutBadge(liv.statut);
-                    return (
-                        <button
-                            key={liv.id}
-                            type="button"
-                            className="cmdLiv-card cmdLiv-card--history"
-                            onClick={() => setSelected(liv)}
-                        >
-                            <div className="cmdLiv-card__header">
-                                <span className="cmdLiv-card__numero">{liv.numero}</span>
-                                <span className={`liv-badge liv-badge--${badge.variant}`}>{badge.label}</span>
-                            </div>
-                            <p className="cmdLiv-card__client">{liv.client} · {liv.livreur}</p>
-                            <div className="cmdLiv-card__meta">
-                                <span className="cmdLiv-card__montant">{formatMontant(liv.montant)}</span>
-                                <span className="cmdLiv-card__date">{formatDate(liv.dateCreation)}</span>
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
+            {(!loading || data) && (
+                <div className="cmdLiv-list cmdLiv-list--mobile">
+                    {data?.data?.map(liv => {
+                        const badge = getStatutBadge(liv.statut);
+                        return (
+                            <button
+                                key={liv.id}
+                                type="button"
+                                className={`cmdLiv-card cmdLiv-card--history${loadingDetailId === liv.id ? " cmdLiv-card--loading" : ""}`}
+                                onClick={() => handleRowClick(liv)}
+                                disabled={loadingDetailId !== null}
+                            >
+                                <div className="cmdLiv-card__header">
+                                    <span className="cmdLiv-card__numero">{liv.numero}</span>
+                                    <span className={`liv-badge liv-badge--${badge.variant}`}>{badge.label}</span>
+                                </div>
+                                <p className="cmdLiv-card__client">{liv.client} · {liv.livreur}</p>
+                                <div className="cmdLiv-card__meta">
+                                    <span className="cmdLiv-card__montant">{formatMontant(liv.montant)}</span>
+                                    <span className="cmdLiv-card__date">{formatDate(liv.dateCreation)}</span>
+                                </div>
+                            </button>
+                        );
+                    })}
+                    {!data?.data?.length && !loading && (
+                        <div className="cmdLiv-empty">
+                            <PackageCheck size={40} className="cmdLiv-empty__icon" aria-hidden="true" />
+                            <p>Aucun résultat.</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Desktop : tableau */}
-            <div className="cmdLiv-list--desktop">
-                <table className="cmdLiv-table">
-                    <thead>
-                        <tr>
-                            <th>Numéro</th>
-                            <th>Commande</th>
-                            <th>Livreur</th>
-                            <th>Statut</th>
-                            <th>Création</th>
-                            <th>Lancement</th>
-                            <th>Livraison</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data?.data?.map(liv => {
-                            const badge = getStatutBadge(liv.statut);
-                            return (
-                                <tr
-                                    key={liv.id}
-                                    className="cmdLiv-table__row cmdLiv-table__row--clickable"
-                                    onClick={() => setSelected(liv)}
-                                    tabIndex={0}
-                                    onKeyDown={e => e.key === "Enter" && setSelected(liv)}
-                                    aria-label={`Détails de ${liv.numero}`}
-                                >
-                                    <td className="cmdLiv-table__numero">{liv.numero}</td>
-                                    <td>{liv.commande}</td>
-                                    <td>{liv.livreur}</td>
-                                    <td><span className={`liv-badge liv-badge--${badge.variant}`}>{badge.label}</span></td>
-                                    <td>{formatDate(liv.dateCreation)}</td>
-                                    <td>{formatDate(liv.dateLancement)}</td>
-                                    <td>{formatDate(liv.dateLivraison)}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            </div>
+            {(!loading || data) && (
+                <div className="cmdLiv-list--desktop">
+                    <table className="cmdLiv-table">
+                        <thead>
+                            <tr>
+                                <th>Numéro</th>
+                                <th>Commande</th>
+                                <th>Livreur</th>
+                                <th>Statut</th>
+                                <th>Création</th>
+                                <th>Lancement</th>
+                                <th>Livraison</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data?.data?.map(liv => {
+                                const badge = getStatutBadge(liv.statut);
+                                return (
+                                    <tr
+                                        key={liv.id}
+                                        className={`cmdLiv-table__row cmdLiv-table__row--clickable${loadingDetailId === liv.id ? " cmdLiv-table__row--loading" : ""}`}
+                                        onClick={() => handleRowClick(liv)}
+                                        tabIndex={0}
+                                        onKeyDown={e => e.key === "Enter" && handleRowClick(liv)}
+                                        aria-label={`Détails de ${liv.numero}`}
+                                        aria-disabled={loadingDetailId !== null}
+                                    >
+                                        <td className="cmdLiv-table__numero">{liv.numero}</td>
+                                        <td>{liv.commande}</td>
+                                        <td>{liv.livreur}</td>
+                                        <td><span className={`liv-badge liv-badge--${badge.variant}`}>{badge.label}</span></td>
+                                        <td>{formatDate(liv.dateCreation)}</td>
+                                        <td>{formatDate(liv.dateLancement)}</td>
+                                        <td>{formatDate(liv.dateLivraison)}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                    {!data?.data?.length && !loading && (
+                        <div className="cmdLiv-empty cmdLiv-empty--table">
+                            <PackageCheck size={40} className="cmdLiv-empty__icon" aria-hidden="true" />
+                            <p>Aucun résultat.</p>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="cmdLiv-pagination">
+                    <button
+                        type="button"
+                        className="cmdLiv-pagination__btn"
+                        disabled={filters.page <= 1}
+                        onClick={() => updateFilter("page", filters.page - 1)}
+                    >
+                        Précédent
+                    </button>
+                    <span className="cmdLiv-pagination__info">
+                        Page {filters.page} / {totalPages}
+                        {total > 0 && <> · {total} résultat{total > 1 ? "s" : ""}</>}
+                    </span>
+                    <button
+                        type="button"
+                        className="cmdLiv-pagination__btn"
+                        disabled={filters.page >= totalPages}
+                        onClick={() => updateFilter("page", filters.page + 1)}
+                    >
+                        Suivant
+                    </button>
+                </div>
+            )}
 
             {selected && <DeliveryDrawer livraison={selected} onClose={() => setSelected(null)} />}
         </>

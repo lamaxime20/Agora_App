@@ -18,7 +18,7 @@ function DeliveryDrawer({ livraison, onClose }) {
             >
                 <div className="deliveryDrawer-header">
                     <div className="deliveryDrawer-header__info">
-                        <span className="deliveryDrawer-header__numero">{livraison.numero}</span>
+                        <span className="deliveryDrawer-header__numero">{livraison.numero ?? livraison.commande ?? "—"}</span>
                         <span className={`liv-badge liv-badge--${badge.variant}`}>{badge.label}</span>
                     </div>
                     <button
