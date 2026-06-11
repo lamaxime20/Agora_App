@@ -10,6 +10,8 @@ function RefuserReapprovisionnementModal({ reappro, onClose, onSuccess }) {
     const [error, setError]           = useState("");
     const [done, setDone]             = useState(false);
 
+    console.log("refuser :", reappro);
+
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
@@ -58,11 +60,11 @@ function RefuserReapprovisionnementModal({ reappro, onClose, onSuccess }) {
                             <div className="finReapp-modal__info-block">
                                 <div className="finReapp-detail__row">
                                     <span className="finReapp-detail__key">Produit</span>
-                                    <span className="finReapp-detail__val">{reappro.produit.nom}</span>
+                                    <span className="finReapp-detail__val">{reappro.produit}</span>
                                 </div>
                                 <div className="finReapp-detail__row">
                                     <span className="finReapp-detail__key">Montant</span>
-                                    <span className="finReapp-detail__val">{formatMontant(reappro.montantTotal)}</span>
+                                    <span className="finReapp-detail__val">{formatMontant(reappro.montant_a_depenser)}</span>
                                 </div>
                                 <div className="finReapp-detail__row" style={{ borderBottom: "none" }}>
                                     <span className="finReapp-detail__key">Demandeur</span>

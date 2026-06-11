@@ -11,6 +11,8 @@ function ValiderReapprovisionnementModal({ reappro, onClose, onSuccess }) {
     const [error, setError]           = useState("");
     const [done, setDone]             = useState(false);
 
+    console.log("valider :", reappro);
+
     const formatMontant = (n) =>
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
@@ -60,7 +62,7 @@ function ValiderReapprovisionnementModal({ reappro, onClose, onSuccess }) {
                                     <p className="finReapp-danger-banner__title">Action irréversible</p>
                                     <p className="finReapp-danger-banner__desc">
                                         Cette action engage définitivement un paiement de{" "}
-                                        <strong>{formatMontant(reappro.montantTotal)}</strong> sur la trésorerie.
+                                        <strong>{formatMontant(reappro.montant_a_depenser)}</strong> sur la trésorerie.
                                     </p>
                                 </div>
                             </div>
@@ -70,28 +72,28 @@ function ValiderReapprovisionnementModal({ reappro, onClose, onSuccess }) {
                                 <div className="finReapp-detail__row">
                                     <span className="finReapp-detail__key">Produit</span>
                                     <span className="finReapp-detail__val">
-                                        {reappro.produit.nom}
-                                        <span className="finReapp-sku-badge">{reappro.produit.sku}</span>
+                                        {reappro.produit}
+                                        {reappro.produit?.sku && <span className="finReapp-sku-badge">{reappro.produit.sku}</span>}
                                     </span>
                                 </div>
                                 <div className="finReapp-detail__row">
                                     <span className="finReapp-detail__key">Quantité</span>
-                                    <span className="finReapp-detail__val">{reappro.quantiteDemandee} unités</span>
+                                    <span className="finReapp-detail__val">{reappro.quantite} unités</span>
                                 </div>
                                 <div className="finReapp-detail__row">
                                     <span className="finReapp-detail__key">Montant total</span>
                                     <span className="finReapp-detail__val finReapp-detail__val--amount">
-                                        {formatMontant(reappro.montantTotal)}
+                                        {formatMontant(reappro.montant_a_depenser)}
                                     </span>
                                 </div>
-                                <div className="finReapp-detail__row">
+                                {reappro.priorite && <div className="finReapp-detail__row">
                                     <span className="finReapp-detail__key">Priorité</span>
                                     <span className="finReapp-detail__val">
                                         <span className={`finReapp-priority finReapp-priority--${reappro.priorite}`}>
                                             {PRIORITY_LABEL[reappro.priorite] ?? reappro.priorite}
                                         </span>
                                     </span>
-                                </div>
+                                </div>}
                                 <div className="finReapp-detail__row" style={{ borderBottom: "none" }}>
                                     <span className="finReapp-detail__key">Demandeur</span>
                                     <span className="finReapp-detail__val">{reappro.demandeur}</span>
