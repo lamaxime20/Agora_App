@@ -505,7 +505,7 @@ class FinancesCommandeController extends FinancesBaseController
                 ], 404);
             }
 
-            if ($commande->statut == 'validee') {
+            if ($commande->etat_payement == 'paye') {
                 return response()->json([
                     'ok'      => false,
                     'code'    => 'INVALID_STATUS',
