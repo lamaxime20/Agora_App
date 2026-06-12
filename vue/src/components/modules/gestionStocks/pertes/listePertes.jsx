@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
     AlertTriangle, Plus, AlertCircle, RefreshCw,
     Clock, ChevronRight, Trash2,
@@ -201,10 +201,12 @@ function ListePertes() {
                 <ul className="listePertes-cards" aria-label="Pertes récentes">
                     {items.map(item => (
                         <li key={item.id}>
-                            <button
+                            <div
                                 className="listePertes-card"
                                 onClick={() => setPaneItem(item)}
-                                type="button"
+                                role="button"
+                                tabIndex="0"
+                                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setPaneItem(item)}
                             >
                                 {/* Countdown badge */}
                                 {item.date_limite_annulation && (
@@ -256,7 +258,7 @@ function ListePertes() {
                                 )}
 
                                 <ChevronRight size={14} className="listePertes-card__arrow" aria-hidden="true" />
-                            </button>
+                            </div>
                         </li>
                     ))}
                 </ul>
