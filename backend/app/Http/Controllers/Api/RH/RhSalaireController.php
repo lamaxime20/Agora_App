@@ -37,9 +37,9 @@ class RhSalaireController extends RhBaseController
 
             if ($montantRaw === null || $montantRaw === '') {
                 return response()->json([
-                    'ok'      => false,
-                    'code'    => 'VALIDATION_ERROR',
-                    'errors'  => ['montant' => 'Le montant est obligatoire.'],
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => ['montant' => 'Le montant est obligatoire.'],
                 ], 422);
             }
 
@@ -47,14 +47,14 @@ class RhSalaireController extends RhBaseController
 
             if ($montant < 0) {
                 return response()->json([
-                    'ok'      => false,
-                    'code'    => 'VALIDATION_ERROR',
-                    'errors'  => ['montant' => 'Le montant doit être supérieur ou égal à 0.'],
+                    'ok'     => false,
+                    'code'   => 'VALIDATION_ERROR',
+                    'errors' => ['montant' => 'Le montant doit être supérieur ou égal à 0.'],
                 ], 422);
             }
 
             // ── Vérification : l'employé appartient bien à l'entreprise ───────
-            $membre = DB::table('appartenir_entreprise as ae')
+            $membreExiste = DB::table('appartenir_entreprise as ae')
                 ->join('roles_utilisateur as r', 'r.id', '=', 'ae.role_utilisateur_id')
                 ->where('ae.utilisateur_id', $id)
                 ->where('ae.entreprise_id', $entrepriseId)
@@ -63,7 +63,7 @@ class RhSalaireController extends RhBaseController
                 ->where('r.role', '!=', 'directeur')
                 ->exists();
 
-            if (!$membre) {
+            if (!$membreExiste) {
                 return response()->json([
                     'ok'      => false,
                     'code'    => 'NOT_FOUND',
@@ -71,10 +71,9 @@ class RhSalaireController extends RhBaseController
                 ], 404);
             }
 
-            DB::beginTransaction();
-
             // ── Archivage du salaire actif existant ───────────────────────────
             $ancienMontant = null;
+
             $ancienSalaire = DB::table('salaires')
                 ->where('utilisateur', $id)
                 ->where('entreprise', $entrepriseId)
@@ -85,6 +84,7 @@ class RhSalaireController extends RhBaseController
 
             if ($ancienSalaire) {
                 $ancienMontant = (float) $ancienSalaire->montant;
+
                 DB::table('salaires')
                     ->where('id', $ancienSalaire->id)
                     ->update([
@@ -95,15 +95,16 @@ class RhSalaireController extends RhBaseController
 
             // ── Création du nouveau salaire ───────────────────────────────────
             $nouveauSalaireId = (string) Str::uuid();
+
             DB::table('salaires')->insert([
-                'id'         => $nouveauSalaireId,
-                'montant'    => $montant,
-                'date_debut' => now()->toDateString(),
-                'date_fin'   => null,
-                'actif'      => true,
-                'statut'     => 'actif',
-                'utilisateur'=> $id,
-                'entreprise' => $entrepriseId,
+                'id'          => $nouveauSalaireId,
+                'montant'     => $montant,
+                'date_debut'  => now()->toDateString(),
+                'date_fin'    => null,
+                'actif'       => true,
+                'statut'      => 'actif',
+                'utilisateur' => $id,
+                'entreprise'  => $entrepriseId,
             ]);
 
             // ── Historique ────────────────────────────────────────────────────
@@ -120,18 +121,13 @@ class RhSalaireController extends RhBaseController
                 (string) $montant
             );
 
-            DB::commit();
-
             // TODO NOTIFICATION: Envoyer une notification au directeur de l'entreprise.
             // Titre : "Salaire mis à jour"
-            // Message : "Le salaire de l'employé [nom prénom] a été {modifié/défini} à {montant} FCFA."
-            // Type : 'autre'
-            // Destinataire : $entreprise->directeur
+            // Message : "Le salaire de l'employé [nom prénom] a été modifié à {montant} FCFA."
+            // Type : 'autre' — Destinataire : $entreprise->directeur
 
-            // TODO NOTIFICATION: Envoyer une notification au module Finance
-            // pour l'informer de la mise à jour de la masse salariale.
-            // Message : "La masse salariale a été mise à jour suite à une modification de salaire."
-            // Destinataires : tous les utilisateurs ayant le rôle manager_finances ou employe_finances
+            // TODO NOTIFICATION: Informer le module Finance de la mise à jour de la masse salariale.
+            // Destinataires : utilisateurs avec rôle manager_finances ou employe_finances
 
             return response()->json([
                 'ok'      => true,
@@ -144,7 +140,6 @@ class RhSalaireController extends RhBaseController
                 ],
             ], 200);
         } catch (\Throwable $e) {
-            DB::rollBack();
             return $this->rhErrorResponse($e, $request, __METHOD__, ['employe_id' => $id]);
         }
     }

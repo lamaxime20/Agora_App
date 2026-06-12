@@ -137,18 +137,15 @@ class RhEmployeController extends RhBaseController
                 ], 404);
             }
 
-            DB::beginTransaction();
-
             // ── Recherche ou création de l'utilisateur ────────────────────────
             $existingUser = DB::table('utilisateurs')
                 ->where('email', $email)
-                ->first(['id', 'name', 'prename', 'email', 'statut']);
+                ->first(['id', 'email']);
 
             if ($existingUser) {
-                $userId     = $existingUser->id;
+                $userId      = $existingUser->id;
                 $userCreated = false;
             } else {
-                // Création automatique : nom/prénom déduits de la partie locale de l'email
                 $localPart = explode('@', $email)[0];
                 $parts     = preg_split('/[._-]/', $localPart, 2);
                 $nom       = ucfirst(strtolower($parts[0] ?? $localPart));
@@ -175,7 +172,6 @@ class RhEmployeController extends RhBaseController
                 ->exists();
 
             if ($alreadyExists) {
-                DB::rollBack();
                 return response()->json([
                     'ok'      => false,
                     'code'    => 'ALREADY_MEMBER',
@@ -185,11 +181,11 @@ class RhEmployeController extends RhBaseController
 
             // ── Insertion dans appartenir_entreprise ──────────────────────────
             DB::table('appartenir_entreprise')->insert([
-                'utilisateur_id'     => $userId,
-                'entreprise_id'      => $entrepriseId,
+                'utilisateur_id'      => $userId,
+                'entreprise_id'       => $entrepriseId,
                 'role_utilisateur_id' => $roleRecord->id,
                 'date_enregistrement' => now(),
-                'statut'             => 'actif',
+                'statut'              => 'actif',
             ]);
 
             // ── Historique ────────────────────────────────────────────────────
@@ -204,13 +200,10 @@ class RhEmployeController extends RhBaseController
                 $roleSlug
             );
 
-            DB::commit();
-
             // TODO NOTIFICATION: Envoyer une notification au directeur de l'entreprise.
             // Titre : "Nouvel employé ajouté"
             // Message : "L'utilisateur {email} a été ajouté à l'entreprise avec le rôle {roleLabel}."
-            // Type : 'autre'
-            // Destinataire : $entreprise->directeur
+            // Type : 'autre' — Destinataire : $entreprise->directeur
 
             return response()->json([
                 'ok'      => true,
@@ -223,7 +216,6 @@ class RhEmployeController extends RhBaseController
                 ],
             ], 201);
         } catch (\Throwable $e) {
-            DB::rollBack();
             return $this->rhErrorResponse($e, $request, __METHOD__);
         }
     }
@@ -292,22 +284,21 @@ class RhEmployeController extends RhBaseController
                 ->where('entreprise', $entrepriseId)
                 ->where('actif', true)
                 ->orderBy('date_debut', 'asc')
-                ->get(['id', 'montant', 'date_debut', 'date_fin', 'statut']);
+                ->get(['montant', 'date_debut']);
 
             $salaryHistory = [];
             foreach ($salaires as $i => $sal) {
                 $salaryHistory[] = [
-                    'date'          => $sal->date_debut ?? substr($row->date_enregistrement, 0, 10),
-                    'ancienMontant' => $i > 0 ? (float) $salaires[$i - 1]->montant : null,
-                    'nouveauMontant'=> (float) $sal->montant,
-                    'motif'         => null,
+                    'date'           => $sal->date_debut ?? substr($row->date_enregistrement, 0, 10),
+                    'ancienMontant'  => $i > 0 ? (float) $salaires[$i - 1]->montant : null,
+                    'nouveauMontant' => (float) $sal->montant,
+                    'motif'          => null,
                 ];
             }
 
-            // ── Historique des rôles (via historiques + entrée initiale) ──────
+            // ── Historique des rôles ──────────────────────────────────────────
             $roleHistory = [];
 
-            // Entrée initiale : date de la première association
             $premierRole = DB::table('appartenir_entreprise as ae')
                 ->join('roles_utilisateur as r', 'r.id', '=', 'ae.role_utilisateur_id')
                 ->where('ae.utilisateur_id', $id)
@@ -318,14 +309,13 @@ class RhEmployeController extends RhBaseController
 
             if ($premierRole) {
                 $roleHistory[] = [
-                    'date'       => substr($premierRole->date_enregistrement, 0, 10),
-                    'ancienRole' => null,
-                    'nouveauRole'=> $premierRole->role,
-                    'motif'      => 'Ajout initial',
+                    'date'        => substr($premierRole->date_enregistrement, 0, 10),
+                    'ancienRole'  => null,
+                    'nouveauRole' => $premierRole->role,
+                    'motif'       => 'Ajout initial',
                 ];
             }
 
-            // Changements enregistrés dans la table historiques
             $changementsRole = DB::table('historiques')
                 ->where('module', 'rh')
                 ->where('table_concernee', 'appartenir_entreprise')
@@ -337,10 +327,10 @@ class RhEmployeController extends RhBaseController
 
             foreach ($changementsRole as $h) {
                 $roleHistory[] = [
-                    'date'       => substr($h->date_action, 0, 10),
-                    'ancienRole' => $h->ancienne_valeur,
-                    'nouveauRole'=> $h->nouvelle_valeur,
-                    'motif'      => $h->details_action,
+                    'date'        => substr($h->date_action, 0, 10),
+                    'ancienRole'  => $h->ancienne_valeur,
+                    'nouveauRole' => $h->nouvelle_valeur,
+                    'motif'       => $h->details_action,
                 ];
             }
 
