@@ -138,7 +138,7 @@ function PaneDetailsPerte({ item, onClose, onAnnuler, peutAnnuler }) {
                         <Row label="Référence"      value={item.produit?.reference}               />
                         <Row label="Unité"          value={item.produit?.unite}                   />
                         <Row label="Quantité perdue" value={`${item.quantite} ${item.produit?.unite}${item.quantite > 1 ? "s" : ""}`} />
-                        <Row label="Prix unitaire"  value={formatMontant(item.prix_unitaire)}      icon={Banknote} />
+                        <Row label="Prix unitaire"  value={formatMontant(item.produit.prix_unitaire)}      icon={Banknote} />
                         <Row label="Valeur totale"  value={formatMontant(item.valeur_totale)}      icon={Banknote} />
                     </section>
 
