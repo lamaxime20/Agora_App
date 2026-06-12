@@ -306,65 +306,64 @@ function ModalAjoutProduit({ onClose, produitInitial = null, onSaved }) {
                             En création : stock actuel + seuil d'alerte + unité
                             En modification : seuil d'alerte + unité seulement
                               (le stock ne se modifie que via ravitaillement/pertes) */}
-                        <div
-                            className={`modalProduit-physical-container${estPhysique ? " modalProduit-physical-container--visible" : ""}`}
-                            aria-hidden={!estPhysique}
-                        >
-                            <div className="modalProduit-grid">
-                                {!isModification && (
+                        {estPhysique && (
+                            <div
+                                className="modalProduit-physical-container modalProduit-physical-container--visible"
+                                aria-hidden="false"
+                            >
+                                <div className="modalProduit-grid">
+                                    {!isModification && (
+                                        <div className="modalProduit-field">
+                                            <label className="modalProduit-label" htmlFor="mp-stock">
+                                                Stock actuel <span aria-hidden="true">*</span>
+                                            </label>
+                                            <input
+                                                id="mp-stock"
+                                                name="stock_actuel"
+                                                type="number"
+                                                min="0"
+                                                className="app-input"
+                                                placeholder="Ex : 100"
+                                                value={form.stock_actuel}
+                                                onChange={handleChange}
+                                                required={estPhysique}
+                                            />
+                                        </div>
+                                    )}
                                     <div className="modalProduit-field">
-                                        <label className="modalProduit-label" htmlFor="mp-stock">
-                                            Stock actuel <span aria-hidden="true">*</span>
+                                        <label className="modalProduit-label" htmlFor="mp-seuil">
+                                            Seuil d'alerte de stock <span aria-hidden="true">*</span>
                                         </label>
                                         <input
-                                            id="mp-stock"
-                                            name="stock_actuel"
+                                            id="mp-seuil"
+                                            name="seuil_alerte"
                                             type="number"
                                             min="0"
                                             className="app-input"
-                                            placeholder="Ex : 100"
-                                            value={form.stock_actuel}
+                                            placeholder="Ex : 20"
+                                            value={form.seuil_alerte}
                                             onChange={handleChange}
                                             required={estPhysique}
-                                            tabIndex={estPhysique ? 0 : -1}
                                         />
                                     </div>
-                                )}
-                                <div className="modalProduit-field">
-                                    <label className="modalProduit-label" htmlFor="mp-seuil">
-                                        Seuil d'alerte de stock <span aria-hidden="true">*</span>
-                                    </label>
-                                    <input
-                                        id="mp-seuil"
-                                        name="seuil_alerte"
-                                        type="number"
-                                        min="0"
-                                        className="app-input"
-                                        placeholder="Ex : 20"
-                                        value={form.seuil_alerte}
-                                        onChange={handleChange}
-                                        required={estPhysique}
-                                        tabIndex={estPhysique ? 0 : -1}
-                                    />
-                                </div>
-                                <div className="modalProduit-field">
-                                    <label className="modalProduit-label" htmlFor="mp-unite">
-                                        Unité de mesure <span aria-hidden="true">*</span>
-                                    </label>
-                                    <input
-                                        id="mp-unite"
-                                        name="unite"
-                                        type="text"
-                                        className="app-input"
-                                        placeholder="Ex : pièce, kg, litre…"
-                                        value={form.unite}
-                                        onChange={handleChange}
-                                        required={estPhysique}
-                                        tabIndex={estPhysique ? 0 : -1}
-                                    />
+                                    <div className="modalProduit-field">
+                                        <label className="modalProduit-label" htmlFor="mp-unite">
+                                            Unité de mesure <span aria-hidden="true">*</span>
+                                        </label>
+                                        <input
+                                            id="mp-unite"
+                                            name="unite"
+                                            type="text"
+                                            className="app-input"
+                                            placeholder="Ex : pièce, kg, litre…"
+                                            value={form.unite}
+                                            onChange={handleChange}
+                                            required={estPhysique}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Description */}
                         <div className="modalProduit-field">
