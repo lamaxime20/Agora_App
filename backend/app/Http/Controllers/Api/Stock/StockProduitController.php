@@ -236,7 +236,7 @@ class StockProduitController extends StockBaseController
             $ravitaillementsStats = DB::table('ravitaillements')
                 ->where('produit', $produit->id)
                 ->where('entreprise', $entreprise->id)
-                ->selectRaw('COUNT(*) as nb, COALESCE(SUM(montant_a_depenser), 0) as montant_total')
+                ->selectRaw("COUNT(*) as nb, COALESCE(SUM(montant_a_depenser), 0) as montant_total, COALESCE(SUM(CASE WHEN statut = 'termine' THEN quantite ELSE 0 END), 0) as quantite_total")
                 ->first();
 
             $pertesStats = DB::table('pertes_produits')
@@ -269,21 +269,24 @@ class StockProduitController extends StockBaseController
                 ])
                 ->values();
 
+            $valeurPerdue = (float) ($pertesStats->quantite_totale ?? 0) * (float) $produit->prix_unitaire;
+
             return response()->json([
                 'data' => [
                     'produit' => [
-                        'id'                  => $produit->id,
-                        'nom'                 => $produit->nom,
-                        'image'               => $produit->image,
-                        'prix_unitaire'       => (float) $produit->prix_unitaire,
-                        'seuil_alerte'        => (float) $produit->seuil_alerte,
-                        'type_produit'        => $produit->type_produit,
-                        'stock_actuel'        => (float) $produit->stock_actuel,
-                        'stock_disponible'    => $stockDisponible,
-                        'unite_mesure'        => $produit->unite_mesure,
-                        'description'         => $produit->description,
-                        'statut'              => $produit->statut,
-                        'categorie'           => $produit->categorie_id ? [
+                        'id'                   => $produit->id,
+                        'nom'                  => $produit->nom,
+                        'image'                => $produit->image,
+                        'prix_unitaire'        => (float) $produit->prix_unitaire,
+                        'seuil_alerte'         => (float) $produit->seuil_alerte,
+                        'type_produit'         => $produit->type_produit,
+                        'stock_actuel'         => (float) $produit->stock_actuel,
+                        'stock_disponible'     => $stockDisponible,
+                        'stock_reserve'        => max(0.0, (float) $produit->stock_actuel - $stockDisponible),
+                        'unite_mesure'         => $produit->unite_mesure,
+                        'description'          => $produit->description,
+                        'statut'               => $produit->statut,
+                        'categorie'            => $produit->categorie_id ? [
                             'id'          => $produit->categorie_id,
                             'categorie'   => $produit->categorie_nom,
                             'description' => $produit->categorie_description,
@@ -291,12 +294,14 @@ class StockProduitController extends StockBaseController
                         'statut_disponibilite' => $this->availabilityLabel($produit, $stockDisponible),
                     ],
                     'statistiques' => [
-                        'nb_ravitaillements'     => (int) ($ravitaillementsStats->nb ?? 0),
-                        'montant_total_reappro'  => (float) ($ravitaillementsStats->montant_total ?? 0),
-                        'nb_pertes'              => (int) ($pertesStats->nb ?? 0),
-                        'quantite_perdue_totale' => (float) ($pertesStats->quantite_totale ?? 0),
-                        'nb_ventes'              => (int) ($venteStats->nb_commandes ?? 0),
-                        'ca_total'               => (float) ($venteStats->ca_total ?? 0),
+                        'nb_ravitaillements'       => (int)   ($ravitaillementsStats->nb              ?? 0),
+                        'quantite_reapprovisionnee'=> (float) ($ravitaillementsStats->quantite_total   ?? 0),
+                        'montant_total_reappro'    => (float) ($ravitaillementsStats->montant_total    ?? 0),
+                        'nb_pertes'                => (int)   ($pertesStats->nb                        ?? 0),
+                        'quantite_perdue_totale'   => (float) ($pertesStats->quantite_totale           ?? 0),
+                        'valeur_perdue'            => $valeurPerdue,
+                        'nb_ventes'                => (int)   ($venteStats->nb_commandes               ?? 0),
+                        'ca_total'                 => (float) ($venteStats->ca_total                   ?? 0),
                     ],
                     'evolution_stock_7j' => $evolutionStock,
                 ],

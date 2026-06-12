@@ -554,23 +554,60 @@ export async function fetchStockProductsForLookup() {
     return produits.map(normalizeProduct);
 }
 
-/**
- * Récupère les détails complets d'un produit, y compris ses statistiques.
- * @param {string} produitId - L'ID du produit à récupérer.
- * @returns {Promise<Object>} Les données détaillées du produit.
- */
+const produitDetailCache = new Map();
+
+const STATUT_MAP = {
+    "en stock":        "disponible",
+    "rupture de stock":"rupture",
+    "indisponible":    "faible",
+    service:           "service",
+};
+
 export async function fetchProduitDetail(produitId) {
-    if (!produitId) {
-        throw new Error("L'ID du produit est requis.");
-    }
+    if (!produitId) throw new Error("L'ID du produit est requis.");
+
+    const stale = produitDetailCache.get(produitId) ?? null;
+    let result;
+
     try {
-        const response = await apiFetch(`stock/produits/${produitId}`);
-        const data = response.data;
-        console.log({data});
-        return response.data;
-    } catch (error) {
-        console.error(`Erreur lors de la récupération du produit ${produitId}:`, error);
-        // Propage l'erreur pour que le composant puisse la gérer
-        throw error;
+        const payload = await apiFetch(`stock/produits/${produitId}`);
+        const raw     = payload?.data ?? {};
+        const rp      = raw.produit   ?? {};
+        const rs      = raw.statistiques ?? {};
+
+        const stockActuel    = Number(rp.stock_actuel    ?? 0);
+        const stockDisponible= Number(rp.stock_disponible?? stockActuel);
+
+        const produit = {
+            ...rp,
+            image_url:            rp.image_url ?? rp.image ?? null,
+            prix_unitaire:        Number(rp.prix_unitaire ?? 0),
+            seuil_alerte:         Number(rp.seuil_alerte  ?? 0),
+            stock_actuel:         stockActuel,
+            stock_disponible:     stockDisponible,
+            stock_reserve:        Number(rp.stock_reserve ?? Math.max(0, stockActuel - stockDisponible)),
+            statut_disponibilite: STATUT_MAP[rp.statut_disponibilite] ?? rp.statut_disponibilite ?? "disponible",
+        };
+
+        result = {
+            produit,
+            statistiques: {
+                nb_ventes:                Number(rs.nb_ventes                ?? 0),
+                ca_total:                 Number(rs.ca_total                  ?? 0),
+                nb_reapprovisionnements:  Number(rs.nb_ravitaillements        ?? 0),
+                quantite_reapprovisionnee:Number(rs.quantite_reapprovisionnee ?? 0),
+                montant_total_reappro:    Number(rs.montant_total_reappro     ?? 0),
+                quantite_perdue_totale:   Number(rs.quantite_perdue_totale    ?? 0),
+                valeur_perdue:            Number(rs.valeur_perdue             ?? 0),
+            },
+            evolution_stock_7j: (raw.evolution_stock_7j ?? []).slice().reverse(),
+        };
+
+        produitDetailCache.set(produitId, result);
+    } catch {
+        if (stale) return stale;
+        throw new Error("Impossible de charger les données du produit.");
     }
+
+    return result;
 }

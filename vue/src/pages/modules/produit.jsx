@@ -4,7 +4,12 @@ import {
     ArrowLeft, Package, AlertTriangle, Pencil, Trash2, RefreshCcw,
     TrendingDown, X, Loader
 } from "lucide-react";
-import { fetchProduitDetail } from "../../services/gestionStock.js";
+import {
+    fetchProduitDetail,
+    createStockRavitaillement,
+    createStockPerte,
+    archiveStockProduit,
+} from "../../services/gestionStock.js";
 import ModalAjoutProduit from "../../components/modules/gestionStocks/produits/modalAjoutProduit.jsx";
 import "../../assets/styles/pages/produit.css";
 
@@ -65,14 +70,29 @@ function LineChart({ points, label }) {
 
 /* ─── Modale ravitaillement ─────────────────────────────────────────────────── */
 
-function ModalRavitailler({ onClose }) {
-    const [quantite, setQuantite]   = useState("");
-    const [montant, setMontant]     = useState("");
-    const [password, setPassword]   = useState("");
+function ModalRavitailler({ produitId, onClose, onSuccess }) {
+    const [quantite, setQuantite] = useState("");
+    const [montant, setMontant]   = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [apiError, setApiError]     = useState(null);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onClose();
+        setApiError(null);
+        setSubmitting(true);
+        try {
+            await createStockRavitaillement({
+                produit_id:          produitId,
+                quantite:            Number(quantite),
+                montant_a_depenser:  Number(montant) || 0,
+            });
+            onSuccess?.();
+            onClose();
+        } catch (err) {
+            setApiError(err?.message ?? "Une erreur est survenue.");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -80,12 +100,14 @@ function ModalRavitailler({ onClose }) {
             <div className="modalDanger-panel" role="dialog" aria-modal="true" aria-labelledby="modalRav-title">
                 <h2 id="modalRav-title" className="modalDanger-title">Ravitailler le produit</h2>
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+                    {apiError && <p style={{ color: "var(--color-error)", fontSize: "var(--text-sm)" }}>{apiError}</p>}
                     <div className="modalDanger-field">
                         <label className="modalDanger-label" htmlFor="rav-qty">Quantité à ajouter</label>
                         <input
                             id="rav-qty"
                             type="number"
-                            min="1"
+                            min="0.01"
+                            step="any"
                             className="app-input"
                             placeholder="Ex : 50"
                             value={quantite}
@@ -99,28 +121,17 @@ function ModalRavitailler({ onClose }) {
                             id="rav-montant"
                             type="number"
                             min="0"
+                            step="any"
                             className="app-input"
                             placeholder="Ex : 25 000"
                             value={montant}
                             onChange={e => setMontant(e.target.value)}
                         />
                     </div>
-                    <div className="modalDanger-field">
-                        <label className="modalDanger-label" htmlFor="rav-pwd">Mot de passe de confirmation</label>
-                        <input
-                            id="rav-pwd"
-                            type="password"
-                            className="app-input"
-                            placeholder="Votre mot de passe"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
                     <div className="modalDanger-footer">
-                        <button type="button" className="app-button app-button--ghost" onClick={onClose}>Annuler</button>
-                        <button type="submit" className="app-button app-button--primary" disabled={!quantite || !password}>
-                            Confirmer le ravitaillement
+                        <button type="button" className="app-button app-button--ghost" onClick={onClose} disabled={submitting}>Annuler</button>
+                        <button type="submit" className="app-button app-button--primary" disabled={!quantite || submitting}>
+                            {submitting ? "Envoi…" : "Confirmer le ravitaillement"}
                         </button>
                     </div>
                 </form>
@@ -131,13 +142,29 @@ function ModalRavitailler({ onClose }) {
 
 /* ─── Modale signaler perte ─────────────────────────────────────────────────── */
 
-function ModalPerte({ onClose }) {
-    const [quantite, setQuantite] = useState("");
-    const [raison, setRaison]     = useState("vol");
+function ModalPerte({ produitId, onClose, onSuccess }) {
+    const [quantite, setQuantite]     = useState("");
+    const [raison, setRaison]         = useState("Vol de marchandises");
+    const [submitting, setSubmitting] = useState(false);
+    const [apiError, setApiError]     = useState(null);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onClose();
+        setApiError(null);
+        setSubmitting(true);
+        try {
+            await createStockPerte({
+                produit_id:     produitId,
+                quantite_perdu: Number(quantite),
+                motif_perte:    raison,
+            });
+            onSuccess?.();
+            onClose();
+        } catch (err) {
+            setApiError(err?.message ?? "Une erreur est survenue.");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -148,12 +175,14 @@ function ModalPerte({ onClose }) {
                 </div>
                 <h2 id="modalPerte-title" className="modalDanger-title">Signaler une perte</h2>
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+                    {apiError && <p style={{ color: "var(--color-error)", fontSize: "var(--text-sm)" }}>{apiError}</p>}
                     <div className="modalDanger-field">
                         <label className="modalDanger-label" htmlFor="perte-qty">Quantité perdue</label>
                         <input
                             id="perte-qty"
                             type="number"
-                            min="1"
+                            min="0.01"
+                            step="any"
                             className="app-input"
                             placeholder="Ex : 5"
                             value={quantite}
@@ -170,16 +199,16 @@ function ModalPerte({ onClose }) {
                             onChange={e => setRaison(e.target.value)}
                             style={{ height: 44, cursor: "pointer" }}
                         >
-                            <option value="vol">Vol</option>
-                            <option value="casse">Casse</option>
-                            <option value="peremption">Péremption</option>
-                            <option value="autre">Autre</option>
+                            <option value="Vol de marchandises">Vol</option>
+                            <option value="Casse ou détérioration">Casse</option>
+                            <option value="Péremption du produit">Péremption</option>
+                            <option value="Autre raison">Autre</option>
                         </select>
                     </div>
                     <div className="modalDanger-footer">
-                        <button type="button" className="app-button app-button--ghost" onClick={onClose}>Annuler</button>
-                        <button type="submit" className="app-button app-button--danger" disabled={!quantite}>
-                            Confirmer la perte
+                        <button type="button" className="app-button app-button--ghost" onClick={onClose} disabled={submitting}>Annuler</button>
+                        <button type="submit" className="app-button app-button--danger" disabled={!quantite || submitting}>
+                            {submitting ? "Envoi…" : "Confirmer la perte"}
                         </button>
                     </div>
                 </form>
@@ -190,12 +219,22 @@ function ModalPerte({ onClose }) {
 
 /* ─── Modale suppression ─────────────────────────────────────────────────────── */
 
-function ModalSupprimer({ produit, onClose }) {
-    const [password, setPassword] = useState("");
+function ModalSupprimer({ produit, onClose, onSuccess }) {
+    const [password, setPassword]     = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [apiError, setApiError]     = useState(null);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onClose();
+        setApiError(null);
+        setSubmitting(true);
+        try {
+            await archiveStockProduit(produit.id, password);
+            onSuccess?.();
+        } catch (err) {
+            setApiError(err?.message ?? "Une erreur est survenue.");
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -210,6 +249,7 @@ function ModalSupprimer({ produit, onClose }) {
                     dans la liste mais ses données seront conservées.
                 </p>
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+                    {apiError && <p style={{ color: "var(--color-error)", fontSize: "var(--text-sm)" }}>{apiError}</p>}
                     <div className="modalDanger-field">
                         <label className="modalDanger-label" htmlFor="del-pwd">Mot de passe</label>
                         <input
@@ -223,9 +263,9 @@ function ModalSupprimer({ produit, onClose }) {
                         />
                     </div>
                     <div className="modalDanger-footer">
-                        <button type="button" className="app-button app-button--ghost" onClick={onClose}>Annuler</button>
-                        <button type="submit" className="app-button app-button--danger" disabled={!password}>
-                            Confirmer la suppression
+                        <button type="button" className="app-button app-button--ghost" onClick={onClose} disabled={submitting}>Annuler</button>
+                        <button type="submit" className="app-button app-button--danger" disabled={!password || submitting}>
+                            {submitting ? "Suppression…" : "Confirmer la suppression"}
                         </button>
                     </div>
                 </form>
@@ -250,30 +290,23 @@ function ProduitSkeleton() {
 /* ─── Page Produit ───────────────────────────────────────────────────────────── */
 
 function ProduitPage() {
-    const { id } = useParams();
-    const [detail, setDetail] = useState(null);
+    const { id }     = useParams();
+    const navigate   = useNavigate();
+    const [detail, setDetail]   = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [modal, setModal] = useState(null);
+    const [error, setError]     = useState(null);
+    const [modal, setModal]     = useState(null);
 
-    useEffect(() => {
-        const fetchProduct = () => {
-            setLoading(true);
-            setError(null);
-            fetchProduitDetail(id)
-                .then(data => {
-                    setDetail(data);
-                })
-                .catch(err => {
-                    console.error(err);
-                    setError("Impossible de charger les données du produit.");
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        };
-        fetchProduct();
-    }, [id]);
+    const loadDetail = (showSpinner = true) => {
+        if (showSpinner) setLoading(true);
+        setError(null);
+        fetchProduitDetail(id)
+            .then(data => setDetail(data))
+            .catch(() => setError("Impossible de charger les données du produit."))
+            .finally(() => setLoading(false));
+    };
+
+    useEffect(() => { loadDetail(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) return <ProduitSkeleton />;
     
@@ -295,7 +328,12 @@ function ProduitPage() {
     const { produit } = detail;
     const estPhysique = produit.type_produit === "physique";
     const stats = detail?.statistiques;
-    const stock = detail?.stock;
+    const evolutionPoints = (detail?.evolution_stock_7j ?? []).map(e => ({
+        ventes: Number(e.nouvelle_valeur ?? e.ancienne_valeur ?? 0),
+        label:  e.date_action
+            ? new Date(e.date_action).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })
+            : "—",
+    }));
 
     return (
         <div className="produitPage-root">
@@ -403,22 +441,18 @@ function ProduitPage() {
                     <h2 className="produitPage-stats-title">Statistiques</h2>
                     <div className="produitPage-stats-grid">
                         <div className="produitPage-stat-card">
-                            <span className="produitPage-stat-card__label">Quantité vendue</span>
+                            <span className="produitPage-stat-card__label">Commandes validées</span>
                             <span className="produitPage-stat-card__value">{stats.nb_ventes ?? 0}</span>
                         </div>
                         <div className="produitPage-stat-card">
                             <span className="produitPage-stat-card__label">Chiffre d'affaires</span>
                             <span className="produitPage-stat-card__value">{(stats.ca_total ?? 0).toLocaleString("fr-FR")} FCFA</span>
                         </div>
-                        <div className="produitPage-stat-card">
-                            <span className="produitPage-stat-card__label">Commandes</span>
-                            <span className="produitPage-stat-card__value">{stats.nb_commandes ?? stats.nb_ventes ?? 0}</span>
-                        </div>
                         {estPhysique && (
                             <>
                                 <div className="produitPage-stat-card">
                                     <span className="produitPage-stat-card__label">Réapprovisionnements</span>
-                                    <span className="produitPage-stat-card__value">{stats.nb_reapprovisionnements}</span>
+                                    <span className="produitPage-stat-card__value">{stats.nb_reapprovisionnements ?? 0}</span>
                                 </div>
                                 <div className="produitPage-stat-card">
                                     <span className="produitPage-stat-card__label">Qté réapprovisionnée</span>
@@ -440,11 +474,10 @@ function ProduitPage() {
                         )}
                     </div>
 
-                    {/* Graphiques */}
-                    {detail?.evolution_stock_7j && (
+                    {/* Graphique évolution du stock */}
+                    {evolutionPoints.length >= 2 && (
                         <div className="produitPage-charts">
-                            <LineChart points={detail.evolution_7j}  label="Ventes — 7 derniers jours" />
-                            <LineChart points={detail.evolution_30j} label="Ventes — 30 derniers jours" />
+                            <LineChart points={evolutionPoints} label="Évolution du stock (7 derniers mouvements)" />
                         </div>
                     )}
                 </section>
@@ -452,16 +485,31 @@ function ProduitPage() {
 
             {/* Modales */}
             {modal === "ravitailler" && (
-                <ModalRavitailler onClose={() => setModal(null)} />
+                <ModalRavitailler
+                    produitId={produit.id}
+                    onClose={() => setModal(null)}
+                    onSuccess={() => { setModal(null); loadDetail(false); }}
+                />
             )}
             {modal === "perte" && (
-                <ModalPerte onClose={() => setModal(null)} />
+                <ModalPerte
+                    produitId={produit.id}
+                    onClose={() => setModal(null)}
+                    onSuccess={() => { setModal(null); loadDetail(false); }}
+                />
             )}
             {modal === "modifier" && (
-                <ModalAjoutProduit produitInitial={produit} onClose={() => setModal(null)} />
+                <ModalAjoutProduit
+                    produitInitial={produit}
+                    onClose={() => { setModal(null); loadDetail(false); }}
+                />
             )}
             {modal === "supprimer" && (
-                <ModalSupprimer produit={produit} onClose={() => setModal(null)} />
+                <ModalSupprimer
+                    produit={produit}
+                    onClose={() => setModal(null)}
+                    onSuccess={() => navigate("/application/stock/produits")}
+                />
             )}
         </div>
     );
