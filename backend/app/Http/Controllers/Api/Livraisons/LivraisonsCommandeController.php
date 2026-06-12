@@ -313,7 +313,7 @@ class LivraisonsCommandeController extends LivraisonsBaseController
                 ->join('roles_utilisateur as ru', 'ru.id', '=', 'ae.role_utilisateur_id')
                 ->where('ae.entreprise_id', $entrepriseId)
                 ->where('ae.statut', 'actif')
-                ->where('ru.role', 'employe_livreur');
+                ->whereIn('ru.role', ['employe_livraison', 'manager_livraison']);
 
             if ($recherche !== '') {
                 $query->whereRaw("CONCAT(u.name, ' ', u.prename) ILIKE ?", ['%' . $recherche . '%']);

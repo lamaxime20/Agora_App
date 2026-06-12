@@ -118,7 +118,7 @@ class LivraisonsActionController extends LivraisonsBaseController
                 ->where('ae.utilisateur_id', $livreurId)
                 ->where('ae.entreprise_id', $entrepriseId)
                 ->where('ae.statut', 'actif')
-                ->where('ru.role', 'employe_livreur')
+                ->whereIn('ru.role', ['employe_livraison', 'manager_livraison'])
                 ->exists();
 
             if (!$livreurValide) {
