@@ -202,7 +202,6 @@ class FinancesCommandeController extends FinancesBaseController
 
             $query = DB::table('commandes as c')
                 ->join('clients as cl', 'cl.id', '=', 'c.client')
-                ->where('c.statut', '!=', 'brouillon')
                 ->where('c.statut', '!=', 'annulee')
                 ->where('c.etat_payement', '!=', 'paye')
                 ->where('c.entreprise', $entrepriseId)
