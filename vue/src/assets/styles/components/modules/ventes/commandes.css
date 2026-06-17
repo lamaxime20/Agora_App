@@ -953,7 +953,7 @@
 .commandes-clientPane__overlay {
     position: fixed;
     inset: 0;
-    z-index: calc(var(--z-modal) + 1);
+    z-index: calc(var(--z-overlay) + 3);
     background-color: rgba(0, 0, 0, 0.35);
     display: flex;
     justify-content: flex-end;
@@ -974,6 +974,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    z-index: calc(var(--z-overlay) + 4);
     animation: slideInRight var(--duration-normal) var(--ease-out);
 }
 
@@ -1102,7 +1103,7 @@
 .commandes-productPane__overlay {
     position: fixed;
     inset: 0;
-    z-index: calc(var(--z-modal) + 1);
+    z-index: calc(var(--z-overlay) + 3);
     background-color: rgba(0, 0, 0, 0.35);
     display: flex;
     justify-content: flex-end;
@@ -1123,6 +1124,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    z-index: calc(var(--z-overlay) + 4);
     animation: slideInRight var(--duration-normal) var(--ease-out);
 }
 

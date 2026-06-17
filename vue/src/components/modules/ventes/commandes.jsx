@@ -111,7 +111,7 @@ function NotifPanel({ notifications, onClose }) {
 }
 
 function ClientPane({ clients, clientSearch, setClientSearch, showAddForm, setShowAddForm, newClientForm, setNewClientForm, formError, setFormError, onSelect, onAddClient, onClose, isAddingClient }) {
-    return (
+    return createPortal(
         <div className="commandes-clientPane__overlay" role="dialog" aria-modal="true" aria-label="Sélection client">
             <div className="commandes-clientPane__panel">
                 <div className="commandes-drawer__handle" aria-hidden="true">
@@ -222,12 +222,13 @@ function ClientPane({ clients, clientSearch, setClientSearch, showAddForm, setSh
                     )}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 
 function ProductPane({ products, selected, productSearch, setProductSearch, onAddProduct, onUpdateQty, onClose }) {
-    return (
+    return createPortal(
         <div className="commandes-productPane__overlay" role="dialog" aria-modal="true" aria-label="Catalogue produits">
             <div className="commandes-productPane__panel">
                 <div className="commandes-drawer__handle" aria-hidden="true">
@@ -341,7 +342,8 @@ function ProductPane({ products, selected, productSearch, setProductSearch, onAd
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 
