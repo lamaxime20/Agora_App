@@ -1,13 +1,13 @@
 .adminApp-root {
-    display: flex;
     min-height: 100vh;
-    background: #FFF8F0;
+    background:
+        radial-gradient(circle at top left, rgba(243, 156, 18, 0.08), transparent 35%),
+        linear-gradient(180deg, #FFF9F1 0%, #FFF8F0 100%);
     font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
 }
 
-/* ─── Mobile header ──────────────────────────────────────────────────────── */
-
-.adminApp-mobileHeader {
+.adminApp-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -15,98 +15,133 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 200;
+    z-index: 210;
     height: 60px;
     padding: 0 16px;
-    background: rgba(255, 248, 240, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(229, 221, 213, 0.7);
+    background: rgba(255, 249, 241, 0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(229, 221, 213, 0.85);
 }
 
-.adminApp-mobileHeader__hamburger {
-    display: flex;
+.adminApp-header__hamburger {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 40px;
     height: 40px;
-    border-radius: 10px;
-    background: none;
+    border-radius: 12px;
     border: 1.5px solid #E5DDD5;
+    background: #FFFFFF;
     color: #2C3E50;
     cursor: pointer;
-    transition: background 150ms ease, border-color 150ms ease;
+    transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
 }
 
-.adminApp-mobileHeader__hamburger:hover { background: #F3F0EB; border-color: #C8BFB5; }
+.adminApp-header__hamburger:hover {
+    background: #F3F0EB;
+    border-color: #C8BFB5;
+    transform: translateY(-1px);
+}
 
-.adminApp-mobileHeader__title {
-    font-size: 17px;
+.adminApp-header__hamburgerLine {
+    display: block;
+    width: 16px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 999px;
+}
+
+.adminApp-header__hamburgerLine + .adminApp-header__hamburgerLine {
+    margin-top: 3px;
+}
+
+.adminApp-header__title {
+    margin: 0;
+    font-size: 16px;
     font-weight: 800;
     color: #2C3E50;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.adminApp-mobileHeader__avatar {
-    width: 36px;
-    height: 36px;
+.adminApp-header__avatar {
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: #2C3E50;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    font-weight: 700;
-    color: #F39C12;
+    flex-shrink: 0;
+    background: #2C3E50;
+    box-shadow: 0 4px 14px rgba(44, 62, 80, 0.12);
 }
 
-/* ─── Overlay ────────────────────────────────────────────────────────────── */
+.adminApp-header__avatarLetter {
+    font-size: 14px;
+    font-weight: 800;
+    color: #F39C12;
+}
 
 .adminApp-overlay {
     display: none;
     position: fixed;
     inset: 0;
     z-index: 250;
-    background: rgba(44, 62, 80, 0.5);
+    background: rgba(44, 62, 80, 0.45);
     backdrop-filter: blur(2px);
-    animation: adminOverlayIn 200ms ease forwards;
+    animation: adminOverlayIn 180ms ease forwards;
 }
 
 .adminApp-overlay--visible { display: block; }
 
 @keyframes adminOverlayIn {
     from { opacity: 0; }
-    to   { opacity: 1; }
+    to { opacity: 1; }
 }
 
-/* ─── Main content ───────────────────────────────────────────────────────── */
-
-.adminApp-main {
-    flex: 1;
-    padding-top: 60px;
-    overflow-x: hidden;
+.adminApp-layout {
+    min-height: 100vh;
 }
 
-/* ─── Desktop (≥1024px) ──────────────────────────────────────────────────── */
+.adminApp-content {
+    min-height: 100vh;
+    padding: 60px 0 28px;
+    box-sizing: border-box;
+}
+
+.adminApp-content > * {
+    width: 100%;
+    min-width: 0;
+}
 
 @media (min-width: 1024px) {
-    .adminApp-mobileHeader { display: none; }
-    .adminApp-overlay      { display: none !important; }
+    .adminApp-header { display: none; }
+    .adminApp-overlay { display: none !important; }
 
-    .adminApp-main {
-        padding-top: 0;
+    .adminApp-layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .adminApp-content {
+        flex: 1;
+        min-width: 0;
         margin-left: 260px;
+        padding: 0 0 32px;
     }
 }
 
-/* ─── Tablet (769–1023px) ────────────────────────────────────────────────── */
-
-@media (min-width: 769px) and (max-width: 1023px) {
-    .adminApp-mobileHeader { height: 64px; }
-    .adminApp-main { padding-top: 64px; }
+@media (min-width: 1201px) {
+    .adminApp-content {
+        margin-left: 280px;
+        padding-bottom: 40px;
+    }
 }
 
-/* ─── Large desktop (≥1201px) ───────────────────────────────────────────── */
-
-@media (min-width: 1201px) {
-    .adminApp-main { margin-left: 280px; }
+@media (max-width: 1023px) {
+    .adminApp-layout {
+        display: block;
+    }
 }
