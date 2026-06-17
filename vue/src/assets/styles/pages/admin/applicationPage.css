@@ -1,0 +1,112 @@
+.adminApp-root {
+    display: flex;
+    min-height: 100vh;
+    background: #FFF8F0;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ─── Mobile header ──────────────────────────────────────────────────────── */
+
+.adminApp-mobileHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    height: 60px;
+    padding: 0 16px;
+    background: rgba(255, 248, 240, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(229, 221, 213, 0.7);
+}
+
+.adminApp-mobileHeader__hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: none;
+    border: 1.5px solid #E5DDD5;
+    color: #2C3E50;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+}
+
+.adminApp-mobileHeader__hamburger:hover { background: #F3F0EB; border-color: #C8BFB5; }
+
+.adminApp-mobileHeader__title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #2C3E50;
+    letter-spacing: 0.05em;
+}
+
+.adminApp-mobileHeader__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2C3E50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #F39C12;
+}
+
+/* ─── Overlay ────────────────────────────────────────────────────────────── */
+
+.adminApp-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 250;
+    background: rgba(44, 62, 80, 0.5);
+    backdrop-filter: blur(2px);
+    animation: adminOverlayIn 200ms ease forwards;
+}
+
+.adminApp-overlay--visible { display: block; }
+
+@keyframes adminOverlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ─── Main content ───────────────────────────────────────────────────────── */
+
+.adminApp-main {
+    flex: 1;
+    padding-top: 60px;
+    overflow-x: hidden;
+}
+
+/* ─── Desktop (≥1024px) ──────────────────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+    .adminApp-mobileHeader { display: none; }
+    .adminApp-overlay      { display: none !important; }
+
+    .adminApp-main {
+        padding-top: 0;
+        margin-left: 260px;
+    }
+}
+
+/* ─── Tablet (769–1023px) ────────────────────────────────────────────────── */
+
+@media (min-width: 769px) and (max-width: 1023px) {
+    .adminApp-mobileHeader { height: 64px; }
+    .adminApp-main { padding-top: 64px; }
+}
+
+/* ─── Large desktop (≥1201px) ───────────────────────────────────────────── */
+
+@media (min-width: 1201px) {
+    .adminApp-main { margin-left: 280px; }
+}

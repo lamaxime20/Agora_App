@@ -1,0 +1,80 @@
+.adminProduits-root {
+    min-height: 100%;
+    background: #FFF8F0;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ─── Top bar ────────────────────────────────────────────────────────────── */
+
+.adminProduits-topBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 20px 16px;
+    gap: 12px;
+}
+
+.adminProduits-topBar__title {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    font-weight: 700;
+    color: #2C3E50;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+/* ─── Segmented control ──────────────────────────────────────────────────── */
+
+.adminProduits-segmented {
+    display: flex;
+    background: #F0EAE2;
+    border-radius: 14px;
+    padding: 4px;
+    margin: 0 20px 20px;
+    gap: 4px;
+}
+
+.adminProduits-segmented__btn {
+    flex: 1;
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease, box-shadow 200ms ease;
+    background: transparent;
+    color: #6B7280;
+}
+
+.adminProduits-segmented__btn:hover { color: #2C3E50; background: rgba(44,62,80,0.04); }
+
+.adminProduits-segmented__btn--active {
+    background: #FFFFFF;
+    color: #2C3E50;
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.1);
+}
+
+/* ─── Content ────────────────────────────────────────────────────────────── */
+
+.adminProduits-content { padding: 0 20px 24px; }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .adminProduits-topBar { padding: 20px 16px 12px; }
+    .adminProduits-segmented { margin: 0 16px 16px; }
+    .adminProduits-content { padding: 0 16px 24px; }
+}
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+    .adminProduits-topBar { padding: 32px 32px 20px; }
+    .adminProduits-segmented { margin: 0 32px 24px; }
+    .adminProduits-content { padding: 0 32px 32px; }
+}
+
+@media (min-width: 1201px) {
+    .adminProduits-topBar { padding: 40px 40px 24px; }
+    .adminProduits-segmented { margin: 0 40px 28px; }
+    .adminProduits-content { padding: 0 40px 40px; }
+}

@@ -1,0 +1,140 @@
+.ajouterAdmin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ─── Description ────────────────────────────────────────────────────────── */
+
+.ajouterAdmin-form__description {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.6;
+    padding: 12px 14px;
+    background: rgba(44, 62, 80, 0.04);
+    border-radius: 10px;
+}
+
+/* ─── Field ──────────────────────────────────────────────────────────────── */
+
+.ajouterAdmin-field { display: flex; flex-direction: column; gap: 8px; }
+
+.ajouterAdmin-field__label { font-size: 13px; font-weight: 600; color: #2C3E50; }
+
+.ajouterAdmin-field__inputWrap { position: relative; }
+
+.ajouterAdmin-field__input {
+    width: 100%;
+    height: 50px;
+    background: #F9F6F2;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2C3E50;
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+    box-sizing: border-box;
+}
+
+.ajouterAdmin-field__input--withToggle { padding-right: 48px; }
+
+.ajouterAdmin-field__input::placeholder { color: #B0A898; }
+
+.ajouterAdmin-field__input:focus {
+    border-color: #F39C12;
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    background: #FFFFFF;
+}
+
+.ajouterAdmin-field__input:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.ajouterAdmin-field__eyeBtn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    color: #6B7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color 150ms ease;
+}
+
+.ajouterAdmin-field__eyeBtn:hover { color: #2C3E50; }
+
+.ajouterAdmin-field__hint {
+    font-size: 12px;
+    font-weight: 500;
+    color: #B0A898;
+    margin: 0;
+}
+
+/* ─── Validation indicator ───────────────────────────────────────────────── */
+
+.ajouterAdmin-field__validation {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ajouterAdmin-field__validation--ok { color: #27AE60; }
+.ajouterAdmin-field__validation--fail { color: #E74C3C; }
+
+/* ─── Error ──────────────────────────────────────────────────────────────── */
+
+.ajouterAdmin-form__error {
+    padding: 10px 14px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.15);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #E74C3C;
+    margin: 0;
+}
+
+/* ─── Submit ─────────────────────────────────────────────────────────────── */
+
+.ajouterAdmin-form__submit {
+    width: 100%;
+    height: 52px;
+    background: #F39C12;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    box-shadow: 0 3px 14px rgba(243, 156, 18, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: box-shadow 200ms ease, transform 150ms ease, opacity 200ms ease;
+}
+
+.ajouterAdmin-form__submit:hover:not(:disabled) { box-shadow: 0 5px 20px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
+.ajouterAdmin-form__submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.ajouterAdmin-form__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: ajouterAdminSpin 0.7s linear infinite;
+}
+
+@keyframes ajouterAdminSpin { to { transform: rotate(360deg); } }

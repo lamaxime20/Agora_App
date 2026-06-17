@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Agora SARL",
+    "secteur": "Technologie",
+    "logo": null,
+    "colors": ["#F39C12", "#2C3E50", "#27AE60"],
+    "email": "contact@agora.com",
+    "phone": "+237 6 00 00 00 00",
+    "website": "https://agora.com",
+    "country": "Cameroun",
+    "city": "Yaoundé",
+    "address": "123 Rue de la Paix",
+    "description": "Agora est une plateforme de gestion d'entreprise moderne et complète.",
+    "policy": "Nous nous engageons à fournir un service de qualité à tous nos clients dans le respect de la confidentialité des données."
+  }
+}

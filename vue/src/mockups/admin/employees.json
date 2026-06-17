@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "nom": "Dupont",
+      "prenom": "Jean",
+      "email": "jean.dupont@agora.com",
+      "role": "employe_stock",
+      "date_ajout": "2025-01-15T00:00:00"
+    },
+    {
+      "id": 2,
+      "nom": "Martin",
+      "prenom": "Marie",
+      "email": "marie.martin@agora.com",
+      "role": "employe_ventes",
+      "date_ajout": "2025-02-20T00:00:00"
+    },
+    {
+      "id": 3,
+      "nom": "Kamga",
+      "prenom": "Pierre",
+      "email": "pierre.kamga@agora.com",
+      "role": "employe_finances",
+      "date_ajout": "2025-03-10T00:00:00"
+    }
+  ]
+}

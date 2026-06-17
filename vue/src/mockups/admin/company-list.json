@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Agora SARL",
+      "secteur": "Technologie",
+      "logo": null
+    }
+  ]
+}

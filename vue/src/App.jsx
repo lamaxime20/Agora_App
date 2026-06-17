@@ -1,12 +1,14 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 
 import { AuthProvider } from './context/AuthContext';
 import { AuthorizationProvider } from './context/AuthorizationContext';
+import { AdminProvider } from './context/AdminContext';
 
 import RouteGuardAuth from './components/guards/RouteGuardAuth';
 import RouteGuardAuthorization from './components/guards/RouteGuardAuthorization';
 import RouteGuardGuest from './components/guards/RouteGuardGuest';
 import RouteGuardShared from './components/guards/RouteGuardShared';
+import RouteGuardAdmin from './components/guards/RouteGuardAdmin';
 
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -22,6 +24,7 @@ import RessourcesHumaines from './pages/modules/ressourcesHumaines';
 import Livraison from './pages/modules/livraison';
 
 import LoginPageAdmin from './pages/admin/loginPage.jsx';
+import ForgotPasswordPageAdmin from './pages/admin/forgotPasswordPage.jsx';
 import ChoixEntrepriseAdmin from './pages/admin/choixEntreprise.jsx';
 import ApplicationPageAdmin from './pages/admin/applicationPage.jsx';
 
@@ -71,10 +74,19 @@ import {
     ADMIN_PRODUITS,
     ADMIN_ENTREPRISE,
     ADMIN_EMPLOYE,
-    ADMIN_ADMIN
+    ADMIN_ADMIN,
+    ADMIN_PARAMETRES
 } from "./components/admin/navBar.jsx";
 
 import './App.css';
+
+function AdminLayout() {
+    return (
+        <AdminProvider>
+            <Outlet />
+        </AdminProvider>
+    );
+}
 
 function App() {
     return (
@@ -82,16 +94,20 @@ function App() {
             <AuthProvider>
                 <AuthorizationProvider>
                     <Routes>
-                        <Route path="/admin" >
+                        <Route path="/admin" element={<AdminLayout />}>
                             <Route index element={<LoginPageAdmin />} />
                             <Route path="login" element={<LoginPageAdmin />} />
-                            <Route path="choix-entreprise" element={<ChoixEntrepriseAdmin />} />
-                            <Route path="application" >
-                                <Route index element={<ApplicationPageAdmin onglet={ADMIN_PRODUITS} />} />
-                                <Route path="produit" element={<ApplicationPageAdmin onglet={ADMIN_PRODUITS} />} />
-                                <Route path="entreprise" element={<ApplicationPageAdmin onglet={ADMIN_ENTREPRISE} />} />
-                                <Route path="employe" element={<ApplicationPageAdmin onglet={ADMIN_EMPLOYE} />} />
-                                <Route path="gestionAdmin" element={<ApplicationPageAdmin onglet={ADMIN_ADMIN} />} />
+                            <Route path="forgot-password" element={<ForgotPasswordPageAdmin />} />
+                            <Route element={<RouteGuardAdmin />}>
+                                <Route path="choix-entreprise" element={<ChoixEntrepriseAdmin />} />
+                                <Route path="application">
+                                    <Route index element={<ApplicationPageAdmin onglet={ADMIN_PRODUITS} />} />
+                                    <Route path="produit" element={<ApplicationPageAdmin onglet={ADMIN_PRODUITS} />} />
+                                    <Route path="entreprise" element={<ApplicationPageAdmin onglet={ADMIN_ENTREPRISE} />} />
+                                    <Route path="employe" element={<ApplicationPageAdmin onglet={ADMIN_EMPLOYE} />} />
+                                    <Route path="gestionAdmin" element={<ApplicationPageAdmin onglet={ADMIN_ADMIN} />} />
+                                    <Route path="parametres" element={<ApplicationPageAdmin onglet={ADMIN_PARAMETRES} />} />
+                                </Route>
                             </Route>
                         </Route>
                         <Route element={<RouteGuardGuest />}>

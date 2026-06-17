@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "exists": true,
+  "user": {
+    "id": 10,
+    "nom": "Durand",
+    "prenom": "Paul",
+    "email": "paul.durand@example.com"
+  }
+}

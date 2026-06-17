@@ -1,0 +1,254 @@
+/* ─── Variables admin ────────────────────────────────────────────────────── */
+
+:root {
+    --admin-bg:        #FFF8F0;
+    --admin-action:    #F39C12;
+    --admin-security:  #2C3E50;
+    --admin-success:   #27AE60;
+    --admin-error:     #E74C3C;
+    --admin-warning:   #F1C40F;
+    --admin-text:      #2C3E50;
+    --admin-text-muted:#6B7280;
+    --admin-border:    #E5DDD5;
+    --admin-radius:    14px;
+    --admin-font:      'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ─── Root ───────────────────────────────────────────────────────────────── */
+
+.adminLogin-root {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: linear-gradient(160deg, #FFF8F0 0%, #FFFFFF 100%);
+    font-family: var(--admin-font);
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+
+.adminLogin-card {
+    width: 100%;
+    max-width: 420px;
+    background: #FFFFFF;
+    border: 1px solid var(--admin-border);
+    border-radius: 24px;
+    padding: 40px 32px;
+    box-shadow: 0 8px 40px rgba(44, 62, 80, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* ─── Brand ──────────────────────────────────────────────────────────────── */
+
+.adminLogin-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+}
+
+.adminLogin-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: var(--admin-security);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.25);
+}
+
+.adminLogin-logo__letter {
+    font-family: var(--admin-font);
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--admin-action);
+    letter-spacing: -0.02em;
+}
+
+.adminLogin-title {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+    font-weight: 700;
+    color: var(--admin-text);
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.adminLogin-subtitle {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--admin-text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ─── Form ───────────────────────────────────────────────────────────────── */
+
+.adminLogin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ─── Field ──────────────────────────────────────────────────────────────── */
+
+.adminLogin-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.adminLogin-field__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--admin-text);
+    letter-spacing: 0.01em;
+}
+
+.adminLogin-field__inputWrap {
+    position: relative;
+}
+
+.adminLogin-field__input {
+    width: 100%;
+    height: 52px;
+    background: #F9F6F2;
+    border: 1.5px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    padding: 0 16px;
+    font-family: var(--admin-font);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--admin-text);
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
+    box-sizing: border-box;
+}
+
+.adminLogin-field__input::placeholder { color: #B0A898; }
+
+.adminLogin-field__input:focus {
+    border-color: var(--admin-action);
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.12);
+    background: #FFFFFF;
+}
+
+.adminLogin-field__input:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.adminLogin-field__input--withToggle { padding-right: 48px; }
+
+.adminLogin-field__eyeBtn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    color: var(--admin-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color 150ms ease;
+}
+
+.adminLogin-field__eyeBtn:hover { color: var(--admin-text); }
+
+/* ─── Error ──────────────────────────────────────────────────────────────── */
+
+.adminLogin-form__error {
+    padding: 10px 14px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--admin-error);
+    margin: 0;
+}
+
+/* ─── Submit ─────────────────────────────────────────────────────────────── */
+
+.adminLogin-form__submit {
+    width: 100%;
+    height: 56px;
+    background: var(--admin-action);
+    border: none;
+    border-radius: 18px;
+    font-family: var(--admin-font);
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(243, 156, 18, 0.35);
+    transition: box-shadow 250ms ease, transform 150ms ease, opacity 200ms ease;
+}
+
+.adminLogin-form__submit:hover:not(:disabled) {
+    box-shadow: 0 6px 24px rgba(243, 156, 18, 0.45);
+    transform: translateY(-2px);
+}
+
+.adminLogin-form__submit:active:not(:disabled) { transform: translateY(0); }
+
+.adminLogin-form__submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.adminLogin-form__submitSpinner {
+    width: 20px;
+    height: 20px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: adminSpin 0.7s linear infinite;
+}
+
+@keyframes adminSpin { to { transform: rotate(360deg); } }
+
+/* ─── Links ──────────────────────────────────────────────────────────────── */
+
+.adminLogin-form__links {
+    display: flex;
+    justify-content: center;
+}
+
+.adminLogin-form__forgotLink {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--admin-action);
+    text-decoration: none;
+    transition: opacity 150ms ease;
+}
+
+.adminLogin-form__forgotLink:hover { opacity: 0.75; }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .adminLogin-card { padding: 32px 20px; border-radius: 20px; }
+    .adminLogin-title { font-size: 1.2rem; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .adminLogin-card { max-width: 400px; }
+}
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+    .adminLogin-card { max-width: 420px; }
+}
+
+@media (min-width: 1201px) {
+    .adminLogin-card { max-width: 440px; }
+}

@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Informatique",
+      "description": "Matériels et équipements informatiques.",
+      "nb_produits": 2
+    },
+    {
+      "id": 2,
+      "name": "Services IT",
+      "description": "Prestations de services informatiques et réseau.",
+      "nb_produits": 1
+    }
+  ]
+}

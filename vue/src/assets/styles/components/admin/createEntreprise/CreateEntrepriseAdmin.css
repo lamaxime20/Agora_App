@@ -1,0 +1,398 @@
+.createEntrepriseAdmin-root {
+    min-height: 100vh;
+    background: #FFF8F0;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ─── Progress bar ───────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-progress {
+    height: 6px;
+    background: #E5DDD5;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.createEntrepriseAdmin-progress__bar {
+    height: 100%;
+    background: #F39C12;
+    border-radius: 0 3px 3px 0;
+    transition: width 400ms ease;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-card {
+    width: 100%;
+    max-width: 520px;
+    margin: 40px auto;
+    padding: 36px 28px;
+    background: #FFFFFF;
+    border: 1px solid #E5DDD5;
+    border-radius: 24px;
+    box-shadow: 0 8px 40px rgba(44, 62, 80, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.createEntrepriseAdmin-header__steps { font-size: 12px; font-weight: 700; color: #B0A898; letter-spacing: 0.04em; }
+
+.createEntrepriseAdmin-header__dots { display: flex; gap: 6px; }
+
+.createEntrepriseAdmin-header__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #E5DDD5;
+    transition: background 300ms ease, transform 300ms ease;
+}
+
+.createEntrepriseAdmin-header__dot--active { background: #F39C12; transform: scale(1.3); }
+.createEntrepriseAdmin-header__dot--done   { background: #27AE60; }
+
+/* ─── Form ───────────────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-form { display: flex; flex-direction: column; gap: 20px; }
+
+.createEntrepriseAdmin-form__headline { display: flex; flex-direction: column; gap: 8px; }
+
+.createEntrepriseAdmin-form__title {
+    font-size: clamp(1.15rem, 3.5vw, 1.4rem);
+    font-weight: 700;
+    color: #2C3E50;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.createEntrepriseAdmin-form__subtitle {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ─── Field ──────────────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-field { display: flex; flex-direction: column; gap: 8px; }
+
+.createEntrepriseAdmin-field__label { font-size: 13px; font-weight: 600; color: #2C3E50; }
+
+.createEntrepriseAdmin-field__input,
+.createEntrepriseAdmin-field__select,
+.createEntrepriseAdmin-field__textarea {
+    width: 100%;
+    background: #F9F6F2;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2C3E50;
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+    box-sizing: border-box;
+}
+
+.createEntrepriseAdmin-field__input   { height: 50px; }
+.createEntrepriseAdmin-field__select  { height: 50px; cursor: pointer; appearance: none; }
+.createEntrepriseAdmin-field__textarea { padding: 12px 14px; resize: vertical; min-height: 90px; line-height: 1.5; }
+
+.createEntrepriseAdmin-field__input::placeholder,
+.createEntrepriseAdmin-field__textarea::placeholder { color: #B0A898; }
+
+.createEntrepriseAdmin-field__input:focus,
+.createEntrepriseAdmin-field__select:focus,
+.createEntrepriseAdmin-field__textarea:focus {
+    border-color: #F39C12;
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    background: #FFFFFF;
+}
+
+.createEntrepriseAdmin-field__input:disabled,
+.createEntrepriseAdmin-field__select:disabled,
+.createEntrepriseAdmin-field__textarea:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─── Row ────────────────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ─── Logo upload ────────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-logoZone {
+    border: 2px dashed #E5DDD5;
+    border-radius: 16px;
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 200ms ease, background 200ms ease;
+    background: #F9F6F2;
+    text-align: center;
+}
+
+.createEntrepriseAdmin-logoZone:hover,
+.createEntrepriseAdmin-logoZone--dragover { border-color: #F39C12; background: rgba(243, 156, 18, 0.04); }
+
+.createEntrepriseAdmin-logoZone__icon { color: #B0A898; }
+.createEntrepriseAdmin-logoZone__text { font-size: 14px; font-weight: 600; color: #6B7280; }
+.createEntrepriseAdmin-logoZone__hint { font-size: 12px; font-weight: 500; color: #B0A898; }
+
+.createEntrepriseAdmin-logoPreview { position: relative; text-align: center; }
+
+.createEntrepriseAdmin-logoPreview img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 20px;
+    border: 2px solid #E5DDD5;
+}
+
+.createEntrepriseAdmin-logoPreview__removeBtn {
+    position: absolute;
+    top: -6px;
+    right: calc(50% - 56px);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #E74C3C;
+    border: none;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    line-height: 1;
+}
+
+/* ─── Color picker ───────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-colorRow { display: flex; align-items: center; gap: 14px; }
+
+.createEntrepriseAdmin-colorSwatch {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 2px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.createEntrepriseAdmin-colorSwatch input[type="color"] {
+    width: 200%;
+    height: 200%;
+    margin: -50%;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.createEntrepriseAdmin-colorHex {
+    height: 48px;
+    background: #F9F6F2;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-family: 'Inter', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2C3E50;
+    outline: none;
+    width: 140px;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+    box-sizing: border-box;
+}
+
+.createEntrepriseAdmin-colorHex:focus { border-color: #F39C12; box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1); }
+
+/* ─── Director search ────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-searchResult {
+    padding: 14px;
+    background: rgba(39, 174, 96, 0.06);
+    border: 1px solid rgba(39, 174, 96, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.createEntrepriseAdmin-searchResult__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #2C3E50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #F39C12;
+    flex-shrink: 0;
+}
+
+.createEntrepriseAdmin-searchResult__info { flex: 1; min-width: 0; }
+
+.createEntrepriseAdmin-searchResult__name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2C3E50;
+}
+
+.createEntrepriseAdmin-searchResult__email {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6B7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.createEntrepriseAdmin-notFound {
+    padding: 10px 14px;
+    background: rgba(241, 196, 15, 0.08);
+    border: 1px solid rgba(241, 196, 15, 0.25);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #856404;
+    margin: 0;
+}
+
+/* ─── New director form ──────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-newDirecteur {
+    padding: 16px;
+    background: #F9F6F2;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.createEntrepriseAdmin-newDirecteur__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2C3E50;
+    margin: 0;
+}
+
+/* ─── Error ──────────────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-form__error {
+    padding: 10px 14px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.15);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #E74C3C;
+    margin: 0;
+}
+
+/* ─── Actions ────────────────────────────────────────────────────────────── */
+
+.createEntrepriseAdmin-form__actions { display: flex; gap: 12px; }
+
+.createEntrepriseAdmin-form__skip {
+    height: 52px;
+    padding: 0 20px;
+    background: #F3F0EB;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6B7280;
+    cursor: pointer;
+    transition: background 150ms ease;
+}
+
+.createEntrepriseAdmin-form__skip:hover { background: #E8E3DC; }
+
+.createEntrepriseAdmin-form__back {
+    height: 52px;
+    padding: 0 20px;
+    background: #F3F0EB;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2C3E50;
+    cursor: pointer;
+    transition: background 150ms ease;
+}
+
+.createEntrepriseAdmin-form__back:hover { background: #E8E3DC; }
+
+.createEntrepriseAdmin-form__next,
+.createEntrepriseAdmin-form__submit {
+    flex: 1;
+    height: 52px;
+    background: #F39C12;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    box-shadow: 0 3px 14px rgba(243, 156, 18, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: box-shadow 200ms ease, transform 150ms ease, opacity 200ms ease;
+}
+
+.createEntrepriseAdmin-form__next:hover:not(:disabled),
+.createEntrepriseAdmin-form__submit:hover:not(:disabled) { box-shadow: 0 5px 20px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
+
+.createEntrepriseAdmin-form__next:disabled,
+.createEntrepriseAdmin-form__submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.createEntrepriseAdmin-form__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: createEntrepriseSpin 0.7s linear infinite;
+}
+
+@keyframes createEntrepriseSpin { to { transform: rotate(360deg); } }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .createEntrepriseAdmin-card { margin: 20px 16px; padding: 24px 18px; border-radius: 20px; }
+    .createEntrepriseAdmin-form__row { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .createEntrepriseAdmin-card { max-width: 500px; }
+}
+
+@media (min-width: 1025px) {
+    .createEntrepriseAdmin-card { max-width: 540px; margin: 60px auto; }
+}

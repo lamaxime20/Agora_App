@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "admin": {
+    "id": 1,
+    "email": "admin@agora.com",
+    "originel": true
+  },
+  "tokenExpiration": "2026-08-01T10:00:00"
+}

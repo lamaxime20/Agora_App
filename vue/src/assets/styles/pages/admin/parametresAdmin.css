@@ -1,0 +1,178 @@
+.parametresAdmin-root {
+    min-height: 100%;
+    background: #FFF8F0;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ─── Top bar ────────────────────────────────────────────────────────────── */
+
+.parametresAdmin-topBar {
+    padding: 24px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.parametresAdmin-topBar__title {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    font-weight: 700;
+    color: #2C3E50;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.parametresAdmin-topBar__subtitle {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6B7280;
+    margin: 0;
+}
+
+/* ─── Cards container ────────────────────────────────────────────────────── */
+
+.parametresAdmin-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 20px 24px;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+
+.parametresAdmin-card {
+    background: #FFFFFF;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.parametresAdmin-card__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #2C3E50;
+    margin: 0;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #F0EAE2;
+}
+
+.parametresAdmin-card__title svg { color: #F39C12; flex-shrink: 0; }
+
+.parametresAdmin-card__current {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6B7280;
+    margin: 0;
+}
+
+/* ─── Form ───────────────────────────────────────────────────────────────── */
+
+.parametresAdmin-form { display: flex; flex-direction: column; gap: 16px; }
+
+/* ─── Field ──────────────────────────────────────────────────────────────── */
+
+.parametresAdmin-field { display: flex; flex-direction: column; gap: 8px; }
+
+.parametresAdmin-field__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2C3E50;
+}
+
+.parametresAdmin-field__input {
+    width: 100%;
+    height: 50px;
+    background: #F9F6F2;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2C3E50;
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
+    box-sizing: border-box;
+}
+
+.parametresAdmin-field__input::placeholder { color: #B0A898; }
+
+.parametresAdmin-field__input:focus {
+    border-color: #F39C12;
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    background: #FFFFFF;
+}
+
+.parametresAdmin-field__input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─── Feedback ───────────────────────────────────────────────────────────── */
+
+.parametresAdmin-form__error,
+.parametresAdmin-form__success {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.parametresAdmin-form__error {
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    color: #E74C3C;
+}
+
+.parametresAdmin-form__success {
+    background: rgba(39, 174, 96, 0.08);
+    border: 1px solid rgba(39, 174, 96, 0.2);
+    color: #27AE60;
+}
+
+/* ─── Submit ─────────────────────────────────────────────────────────────── */
+
+.parametresAdmin-form__submit {
+    align-self: flex-end;
+    height: 48px;
+    padding: 0 24px;
+    background: #F39C12;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    box-shadow: 0 3px 12px rgba(243, 156, 18, 0.3);
+    transition: box-shadow 200ms ease, transform 150ms ease, opacity 200ms ease;
+}
+
+.parametresAdmin-form__submit:hover:not(:disabled) { box-shadow: 0 5px 18px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
+.parametresAdmin-form__submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .parametresAdmin-topBar { padding: 20px 16px 16px; }
+    .parametresAdmin-cards { padding: 0 16px 24px; }
+    .parametresAdmin-form__submit { align-self: stretch; }
+}
+
+@media (min-width: 1025px) {
+    .parametresAdmin-cards { flex-direction: row; align-items: flex-start; }
+    .parametresAdmin-card { flex: 1; }
+}
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+    .parametresAdmin-topBar { padding: 32px 32px 20px; }
+    .parametresAdmin-cards { padding: 0 32px 32px; }
+}
+
+@media (min-width: 1201px) {
+    .parametresAdmin-topBar { padding: 40px 40px 24px; }
+    .parametresAdmin-cards { padding: 0 40px 40px; }
+}

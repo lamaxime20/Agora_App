@@ -1,0 +1,259 @@
+.adminNavBar-root {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    background: #FFFFFF;
+    border-right: 1px solid #E5DDD5;
+    overflow: hidden;
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile: hidden off-screen by default, slides in when open */
+@media (max-width: 1023px) {
+    .adminNavBar-root {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+    .adminNavBar-root--open {
+        transform: translateX(0);
+        box-shadow: 6px 0 30px rgba(44, 62, 80, 0.15);
+    }
+}
+
+/* Desktop: always visible */
+@media (min-width: 1024px) {
+    .adminNavBar-root { transform: translateX(0) !important; }
+}
+
+/* ─── Brand header ───────────────────────────────────────────────────────── */
+
+.adminNavBar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid #F0EAE2;
+    flex-shrink: 0;
+}
+
+.adminNavBar-brand__logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #2C3E50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: #F39C12;
+    flex-shrink: 0;
+}
+
+.adminNavBar-brand__texts { display: flex; flex-direction: column; gap: 2px; }
+
+.adminNavBar-brand__name {
+    font-size: 15px;
+    font-weight: 800;
+    color: #2C3E50;
+    letter-spacing: 0.04em;
+}
+
+.adminNavBar-brand__admin {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6B7280;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ─── Nav list ───────────────────────────────────────────────────────────── */
+
+.adminNavBar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 10px;
+    list-style: none;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.adminNavBar-nav::-webkit-scrollbar { width: 4px; }
+.adminNavBar-nav::-webkit-scrollbar-track { background: transparent; }
+.adminNavBar-nav::-webkit-scrollbar-thumb { background: #E5DDD5; border-radius: 2px; }
+
+/* ─── Nav item ───────────────────────────────────────────────────────────── */
+
+.adminNavBar-navItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    transition: background 150ms ease, color 150ms ease;
+    position: relative;
+}
+
+.adminNavBar-navItem:hover { background: #F3F0EB; color: #2C3E50; }
+
+.adminNavBar-navItem--active {
+    background: rgba(243, 156, 18, 0.1);
+    color: #F39C12;
+    font-weight: 700;
+}
+
+.adminNavBar-navItem--active:hover { background: rgba(243, 156, 18, 0.12); }
+
+.adminNavBar-navItem__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+}
+
+.adminNavBar-navItem__label { flex: 1; }
+
+/* Active indicator */
+.adminNavBar-navItem--active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: #F39C12;
+    border-radius: 0 2px 2px 0;
+}
+
+/* ─── Divider ────────────────────────────────────────────────────────────── */
+
+.adminNavBar-divider {
+    height: 1px;
+    background: #F0EAE2;
+    margin: 6px 10px;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+
+.adminNavBar-footer {
+    flex-shrink: 0;
+    border-top: 1px solid #F0EAE2;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.adminNavBar-footer__profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #F9F6F2;
+}
+
+.adminNavBar-footer__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2C3E50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #F39C12;
+    flex-shrink: 0;
+}
+
+.adminNavBar-footer__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+.adminNavBar-footer__email {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2C3E50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.adminNavBar-footer__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    background: rgba(243, 156, 18, 0.12);
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #F39C12;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.adminNavBar-footer__params {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.adminNavBar-footer__params:hover { background: #F3F0EB; color: #2C3E50; }
+
+.adminNavBar-footer__params--active { color: #F39C12; font-weight: 700; background: rgba(243, 156, 18, 0.1); }
+
+.adminNavBar-footer__logout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #E74C3C;
+    transition: background 150ms ease;
+}
+
+.adminNavBar-footer__logout:hover { background: rgba(231, 76, 60, 0.06); }
+
+/* ─── Large desktop ──────────────────────────────────────────────────────── */
+
+@media (min-width: 1201px) {
+    .adminNavBar-root { width: 280px; }
+}

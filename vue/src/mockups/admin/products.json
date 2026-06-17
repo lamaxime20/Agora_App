@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Ordinateur Portable Pro",
+      "description": "Ordinateur portable haute performance pour professionnels.",
+      "type": "physique",
+      "prix_unitaire": 850000,
+      "stock_actuel": 12,
+      "seuil_alerte": 3,
+      "unite_mesure": "pièce",
+      "image": null,
+      "categorie": { "id": 1, "name": "Informatique" }
+    },
+    {
+      "id": 2,
+      "name": "Maintenance Réseau",
+      "description": "Service de maintenance et supervision des infrastructures réseau.",
+      "type": "service",
+      "prix_unitaire": 150000,
+      "image": null,
+      "categorie": { "id": 2, "name": "Services IT" }
+    },
+    {
+      "id": 3,
+      "name": "Clavier Mécanique",
+      "description": "Clavier mécanique ergonomique avec rétroéclairage RGB.",
+      "type": "physique",
+      "prix_unitaire": 45000,
+      "stock_actuel": 25,
+      "seuil_alerte": 5,
+      "unite_mesure": "pièce",
+      "image": null,
+      "categorie": { "id": 1, "name": "Informatique" }
+    }
+  ]
+}

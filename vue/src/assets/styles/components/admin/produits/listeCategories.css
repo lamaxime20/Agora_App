@@ -1,0 +1,181 @@
+.listeCategories-root { font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; }
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+
+.listeCategories-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 12px;
+}
+
+.listeCategories-header__count {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6B7280;
+}
+
+.listeCategories-header__addBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 16px;
+    background: #F39C12;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(243, 156, 18, 0.28);
+    transition: box-shadow 200ms ease, transform 150ms ease;
+}
+
+.listeCategories-header__addBtn:hover { box-shadow: 0 5px 16px rgba(243, 156, 18, 0.38); transform: translateY(-1px); }
+
+/* ─── List ───────────────────────────────────────────────────────────────── */
+
+.listeCategories-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+/* ─── Category card ──────────────────────────────────────────────────────── */
+
+.listeCategories-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 14px;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.listeCategories-card:hover { border-color: #C8BFB5; box-shadow: 0 2px 8px rgba(44, 62, 80, 0.05); }
+
+.listeCategories-card__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(243, 156, 18, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #F39C12;
+}
+
+.listeCategories-card__info { flex: 1; min-width: 0; }
+
+.listeCategories-card__name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2C3E50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.listeCategories-card__count {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6B7280;
+    margin-top: 2px;
+}
+
+.listeCategories-card__deleteBtn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid #E5DDD5;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6B7280;
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+    flex-shrink: 0;
+}
+
+.listeCategories-card__deleteBtn:hover { background: rgba(231, 76, 60, 0.06); border-color: #E74C3C; color: #E74C3C; }
+
+/* ─── Empty ──────────────────────────────────────────────────────────────── */
+
+.listeCategories-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.listeCategories-empty__icon { color: #B0A898; }
+.listeCategories-empty__text { font-size: 14px; font-weight: 500; color: #6B7280; max-width: 260px; margin: 0; line-height: 1.6; }
+
+/* ─── Add form ───────────────────────────────────────────────────────────── */
+
+.listeCategories-addForm { display: flex; flex-direction: column; gap: 20px; }
+
+.listeCategories-addForm__field { display: flex; flex-direction: column; gap: 8px; }
+
+.listeCategories-addForm__label { font-size: 13px; font-weight: 600; color: #2C3E50; }
+
+.listeCategories-addForm__input {
+    width: 100%;
+    height: 52px;
+    background: #F9F6F2;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 14px;
+    padding: 0 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2C3E50;
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+    box-sizing: border-box;
+}
+
+.listeCategories-addForm__input::placeholder { color: #B0A898; }
+
+.listeCategories-addForm__input:focus {
+    border-color: #F39C12;
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    background: #FFFFFF;
+}
+
+.listeCategories-addForm__error {
+    padding: 10px 14px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.15);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #E74C3C;
+    margin: 0;
+}
+
+.listeCategories-addForm__submit {
+    width: 100%;
+    height: 52px;
+    background: #F39C12;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    box-shadow: 0 3px 14px rgba(243, 156, 18, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 200ms ease, transform 150ms ease, opacity 200ms ease;
+}
+
+.listeCategories-addForm__submit:hover:not(:disabled) { box-shadow: 0 5px 20px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
+.listeCategories-addForm__submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
