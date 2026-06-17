@@ -1,0 +1,13 @@
+const ADMIN_EMPLOYE_FORM_LOCALSTORAGE = "ADMIN_EMPLOYE_FORM_LOCALSTORAGE";
+
+export function getADMIN_EMPLOYE_FORM_LOCALSTORAGE() {
+    return localStorage.getItem(ADMIN_EMPLOYE_FORM_LOCALSTORAGE) || false;
+}
+
+export function setADMIN_EMPLOYE_FORM_LOCALSTORAGE(value) {
+    localStorage.setItem(ADMIN_EMPLOYE_FORM_LOCALSTORAGE, value);
+}
+
+export function removeADMIN_EMPLOYE_FORM_LOCALSTORAGE() {
+    localStorage.removeItem(ADMIN_EMPLOYE_FORM_LOCALSTORAGE);
+}

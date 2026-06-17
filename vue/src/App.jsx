@@ -21,6 +21,11 @@ import Finances from './pages/modules/finances';
 import RessourcesHumaines from './pages/modules/ressourcesHumaines';
 import Livraison from './pages/modules/livraison';
 
+import LoginPageAdmin from './pages/admin/loginPage.jsx';
+import ChoixEntrepriseAdmin from './pages/admin/choixEntreprise.jsx';
+import ApplicationPageAdmin from './pages/admin/applicationPage.jsx';
+
+
 import {
     GESTION_STOCK_DASHBOARD, GESTION_STOCK_PERTES,
     GESTION_STOCK_PRODUITS, GESTION_STOCK_REAPPROVISIONNEMENT,
@@ -62,6 +67,13 @@ import {
     RH_STATISTICS,
 } from "./services/rh.js";
 
+import {
+    ADMIN_PRODUITS,
+    ADMIN_ENTREPRISE,
+    ADMIN_EMPLOYE,
+    ADMIN_ADMIN
+} from "./components/admin/navBar.jsx";
+
 import './App.css';
 
 function App() {
@@ -70,6 +82,18 @@ function App() {
             <AuthProvider>
                 <AuthorizationProvider>
                     <Routes>
+                        <Route path="/admin" >
+                            <Route index element={<LoginPageAdmin />} />
+                            <Route path="login" element={<LoginPageAdmin />} />
+                            <Route path="choix-entreprise" element={<ChoixEntrepriseAdmin />} />
+                            <Route path="application" >
+                                <Route index element={<ApplicationPageAdmin onglet={ADMIN_PRODUITS} />} />
+                                <Route path="produit" element={<ApplicationPageAdmin onglet={ADMIN_PRODUITS} />} />
+                                <Route path="entreprise" element={<ApplicationPageAdmin onglet={ADMIN_ENTREPRISE} />} />
+                                <Route path="employe" element={<ApplicationPageAdmin onglet={ADMIN_EMPLOYE} />} />
+                                <Route path="gestionAdmin" element={<ApplicationPageAdmin onglet={ADMIN_ADMIN} />} />
+                            </Route>
+                        </Route>
                         <Route element={<RouteGuardGuest />}>
                             <Route path="/"                element={<LoginPage />} />
                             <Route path="/login"           element={<LoginPage />} />

@@ -146,6 +146,25 @@ CREATE TYPE sens_mouvement_financier AS ENUM (
 );
 
 -- =========================================================
+-- TABLE admins
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS admins (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  email Email NOT NULL,
+  password_hash TEXT NOT NULL,
+
+  originel BOOLEAN NOT NULL, DEFAULT FALSE,
+
+  modified_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW()
+
+  CONSTRAINT admins_cc0 PRIMARY KEY(id),
+  CONSTRAINT admins_cc1 UNIQUE(email)
+);
+
+-- =========================================================
 -- TABLE utilisateurs
 -- =========================================================
 
@@ -1278,6 +1297,34 @@ CREATE TABLE IF NOT EXISTS token_choix_role (
 );
 
 -- =========================================================
+-- TABLE token_admin
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS token_admin (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  token VARCHAR NOT NULL UNIQUE,
+
+  date_creation TIMESTAMP NOT NULL,
+
+  date_expiration TIMESTAMP NOT NULL,
+
+  validite BOOLEAN DEFAULT FALSE,
+
+  admin UUID NOT NULL,
+
+  CONSTRAINT token_admin_cc0  PRIMARY KEY(id),
+
+  CONSTRAINT token_admin_cc1 UNIQUE(token),
+
+  CONSTRAINT token_admin_cr0
+    FOREIGN KEY (admin)
+    REFERENCES admins(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+-- =========================================================
 -- TABLE codes_otp
 -- Codes de vérification envoyés par e-mail lors de l'inscription
 -- =========================================================
@@ -1325,6 +1372,36 @@ CREATE TABLE IF NOT EXISTS codes_reinitialisation (
   CONSTRAINT codes_reinitialisation_cr0
     FOREIGN KEY (utilisateur)
     REFERENCES utilisateurs(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+
+-- =========================================================
+-- TABLE codes_reinitialisation
+-- Codes de réinitialisation de mot de passe (valables 1 heure)
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS codes_reinitialisation_admin (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  code VARCHAR(10) NOT NULL,
+
+  date_creation TIMESTAMP DEFAULT NOW(),
+
+  date_expiration TIMESTAMP NOT NULL,
+
+  utilise BOOLEAN DEFAULT FALSE,
+
+  actif BOOLEAN DEFAULT TRUE,
+
+  admin UUID NOT NULL,
+
+  CONSTRAINT codes_reinitialisation_cc0 PRIMARY KEY(id),
+
+  CONSTRAINT codes_reinitialisation_cr0
+    FOREIGN KEY (admin)
+    REFERENCES admins(id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );

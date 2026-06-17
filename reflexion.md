@@ -1126,3 +1126,91 @@ Le module Ressources Humaines devient :
 - un outil de **contrôle**,
 - de **clarté organisationnelle**,
 - et de **pilotage stratégique** de l’entreprise.
+
+
+# Logique de l'espace Admin
+## Login
+Ce sera le même parcours de login que pour l'utilisateur normal mais en utilisant les tables Admin dédiées dans la base de données.
+Tu vas créer un context dédié au login et l'enregistrement des credentials de l'admin au même titre que AuthContext ou Authorizationcontexte
+Il faut aussi créer un middleware spécialement pour les vérifications et la création des tokens Admin
+Après la connexion, l'utilisateur aura accès uniquement aux lien "<Route path="choix-entreprise" element={<ChoixEntrepriseAdmin />} />
+                            <Route path="application" >
+                                <Route index element={<ApplicationPageAdmin onglet={ADMIN_PRODUITS} />} />
+                                <Route path="produit" element={<ApplicationPageAdmin onglet={ADMIN_PRODUITS} />} />
+                                <Route path="entreprise" element={<ApplicationPageAdmin onglet={ADMIN_ENTREPRISE} />} />
+                                <Route path="employe" element={<ApplicationPageAdmin onglet={ADMIN_EMPLOYE} />} />
+                                <Route path="gestionAdmin" element={<ApplicationPageAdmin onglet={ADMIN_ADMIN} />} />
+                            </Route>"
+
+
+## Page Choix entreprise Admin
+Ici, quand l'utilisateur va arriver, il y aura deux scénario
+- Si il y a une entreprise qui existe déjà dans la base de donnée
+On va juste montrer le bouton avec le nom de l'entreprise et quand on va cliquer dessus, on enregistre l'ID de l'entreprise dans le LocalStorage.
+Si ne serait ce qu'une fois, on consulte le localStorage pour avoir l'id de l'entreprise et que celui ci n'est pas là, ou bien un lien API accessible uniquement par l'admin échoue parce que l'id de l'entreprise est incorrect, on rentre sur cette page automatiquement.
+- Si il n'y a pas d'entreprise dans la base de donnée,
+On va mettre un bouton créer une entreprise qui va suivre le parcours normal de création d'une entreprise que j'ai décris plus haut mais sauf que, après avoir remplit toute les informations de l'entreprise, il devra choisir l'email du directeur et si l'email n'existe pas, il devra créer un nouvel utilisateur (nom, prenom, email) avec le mot de passe par défaut "directeur237" et le rôle "directeur"
+quand ceci est fait, on va vers la page application
+
+## Page Application Admin
+Cette page aura une sidebar à gauche qui s'ouvre et se ferme, avec les onglets: produits, paramètres de l'entreprise, employés, admins et un bouton paramètres où l'admin pourra changer son mot de passe et son adresse email.
+A droit il y aura
+### Produits
+Cette page aura deux boutons: Produits et Categorie
+#### Produits
+Ici, il y aura le bouton Ajouter un produit qui va ouvrir un pane avec les champs :
+- nom
+- drag an drop pour l'image
+- prix unitaire
+- deux radio à unique selection pour le type de produit (physique ou service)
+Si le type sélectionné est "service", les champs stock actuel, seuil d'alerte et unité de mesure sont masqués car ils ne sont pas applicables aux services.
+- stock actuel
+- seuil d'alerte de stock
+- unité de mesure
+- la description
+- la categorie (qui sera un champ texte avec une liste de toutes les catégories en bas, à chaque entrée utilisateur, la liste se filtre et quand on clique sur un élément de la liste, ça remplace ce qui était dans le champ texte, on va charger les catégories en fonction des catégories de l'entreprise enregistrées dans la BD, donc si l'entreprise n'a enregistré aucune catégorie, on met dans la liste pas de catégorie enregistrée)
+Pour les produits physiques, l'utilisateur doit définir un seuil d'alerte.
+Lorsque le stock disponible devient inférieur ou égal à ce seuil, une notification de stock faible est automatiquement envoyée aux utilisateurs concernés.
+Chaque entrée utilisateur est stockée dans le localStorage afin que si on ferme sans savoir l'interface, qu'on n'ait pas à réremplir tous les champs
+En dessous du bouton ajouter un produit, il y aura la liste des produits de l'entreprise (nom + description + type) et un bouton pour supprimer un produit.
+Quand on clique sur le bouton pour supprimer un produit, un pane s'ouvre pour demander le mot de passe de l'admin afin de confirmer la suppression du produit.
+
+#### Catégorie
+Ici, il y aura un bouton pour ajouter une catégorie
+Quand on clique sur le bouton ajouter une catégorie, un formulaire va s'afficher avec les champs :
+- nom de la catégorie
+- description
+- un bouton pour confirmer l'enregistrement
+En dessous de ce bouton, il y aura la liste des catégories de l'entreprise et un bouton pour supprimer une catégorie.
+Quand on clique sur le bouton pour supprimer une catégorie, un pane s'ouvre pour demander le mot de passe de l'admin
+
+### Paramètres de l'entreprise
+Ici on va définir les paramètres de l'entreprise
+
+### Employés
+Ici, il y aura un bouton pour ajouter un employé
+Quand on clique sur le bouton ajouter un employé, un formulaire va s'afficher avec les champs :
+- email de l'employé
+- sélection du rôle (liste déroulante excluant le rôle directeur)
+- un bouton pour confirmer l'enregistrement
+
+Si l'email n'existe pas dans la base de données, un nouveau pane apparait pour demander le nom et le prénom de l'employe et un nouvel utilisateur est créé avec le mot de passe par défaut "12345678". Si l'email existe, l'utilisateur est simplement associé à l'entreprise avec le rôle sélectionné.
+
+En dessous du bouton ajouter un employé, il y aura la liste des employés de l'entreprise (nom, email, rôle) avec un bouton pour modifier le rôle et un bouton pour retirer l'employé de l'entreprise.
+Chaque action de suppression ou de modification nécessitera la saisie du mot de passe de l'admin pour confirmation.
+
+### Admins
+Ici, l'admin principal peut gérer les autres comptes administrateurs.
+Cet onglet est visible et accessible uniquement lorsque l'attribut originel de l'admin dans la base de données est true
+Il y aura un bouton pour ajouter un nouvel administrateur avec les champs :
+- email
+- mot de passe
+- confirmation du mot de passe
+
+En dessous, la liste des administrateurs système s'affiche avec la possibilité de réinitialiser un mot de passe ou de désactiver un compte admin.
+
+### Paramètres
+Ici, il y aura un formulaire pour changer le mot de passe de l'admin actuel, et un formulaire pour changer son email (en s'assurant qu'il reste unique)
+
+## Page mot de passe oublié
+ici, il y aura le même parcours que l'utilisateur lambda pour réinitialiser son mot de passe mais sauf qu'on va utiliser les tables dédiées à l'admin
