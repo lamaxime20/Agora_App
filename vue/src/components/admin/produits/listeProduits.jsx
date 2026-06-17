@@ -26,10 +26,18 @@ const emptyForm = {
     image:         null,
 };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function loadDraft() {
     try {
         const raw = localStorage.getItem(DRAFT_KEY);
-        return raw ? { ...emptyForm, ...JSON.parse(raw) } : { ...emptyForm };
+        if (!raw) return { ...emptyForm };
+        const parsed = JSON.parse(raw);
+        // Discard stale drafts that stored the category name instead of its UUID
+        if (parsed.categorie && !UUID_REGEX.test(parsed.categorie)) {
+            parsed.categorie = '';
+        }
+        return { ...emptyForm, ...parsed };
     } catch {
         return { ...emptyForm };
     }
@@ -121,7 +129,7 @@ function ListeProduitsAdmin() {
     };
 
     const handleSelectCategory = (cat) => {
-        const updated = { ...form, categorie: cat.name };
+        const updated = { ...form, categorie: cat.id };
         setForm(updated);
         saveDraft(updated);
         setCatFilter(cat.name);
@@ -186,7 +194,8 @@ function ListeProduitsAdmin() {
                     type="button"
                     className="listeProduitsAdmin-topBar__addBtn"
                     onClick={() => {
-                        setCatFilter(form.categorie || '');
+                        const draftCat = categories.find(c => c.id === form.categorie);
+                        setCatFilter(draftCat?.name || '');
                         setAddError('');
                         setShowAddDrawer(true);
                     }}

@@ -27,21 +27,25 @@ class ProduitController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => $produits->map(fn($p) => [
-                'id'            => $p->id,
-                'name'          => $p->nom,
-                'description'   => $p->description,
-                'type'          => $p->type_produit,
-                'prix_unitaire' => (float) $p->prix_unitaire,
-                'stock_actuel'  => (float) ($p->stock_actuel ?? 0),
-                'seuil_alerte'  => (float) ($p->seuil_alerte ?? 0),
-                'unite_mesure'  => $p->unite_mesure,
-                'image'         => $p->image,
-                'categorie'     => [
-                    'id'   => $p->categorie?->id,
-                    'name' => $p->categorie?->categorie,
-                ],
-            ])->values(),
+            'data'    => $produits->map(function ($p) {
+                $cat = $p->getRelation('categorie');
+
+                return [
+                    'id'            => $p->id,
+                    'name'          => $p->nom,
+                    'description'   => $p->description,
+                    'type'          => $p->type_produit,
+                    'prix_unitaire' => (float) $p->prix_unitaire,
+                    'stock_actuel'  => (float) ($p->stock_actuel ?? 0),
+                    'seuil_alerte'  => (float) ($p->seuil_alerte ?? 0),
+                    'unite_mesure'  => $p->unite_mesure,
+                    'image'         => $p->image,
+                    'categorie'     => [
+                        'id'   => $cat?->id,
+                        'name' => $cat?->categorie,
+                    ],
+                ];
+            })->values(),
         ]);
     }
 
@@ -98,6 +102,7 @@ class ProduitController extends Controller
             ]);
 
             $produit->load('categorie');
+            $cat = $produit->getRelation('categorie');
 
             return response()->json([
                 'success' => true,
@@ -113,8 +118,8 @@ class ProduitController extends Controller
                     'unite_mesure'  => $produit->unite_mesure,
                     'image'         => $produit->image,
                     'categorie'     => [
-                        'id'   => $produit->categorie?->id,
-                        'name' => $produit->categorie?->categorie,
+                        'id'   => $cat?->id,
+                        'name' => $cat?->categorie,
                     ],
                 ],
             ], 201);

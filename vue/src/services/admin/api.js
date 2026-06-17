@@ -132,9 +132,25 @@ export async function addProductMock(data) {
     if (imagePayload instanceof File) {
         imagePayload = await fileToBase64(imagePayload);
     }
+
+    console.log("data", data)
+
+    // Mapper les champs du frontend vers les noms attendus par le backend
+    const payload = {
+        name:          data.nom,
+        type:          data.type,
+        prix_unitaire: data.prix_unitaire,
+        categorie_id:  data.categorie, // Correspond à l'ID sélectionné
+        description:   data.description,
+        stock_actuel:  data.stock_actuel,
+        seuil_alerte:  data.seuil_alerte,
+        unite_mesure:  data.unite_mesure,
+        image:         imagePayload,
+    };
+
     return apiFetch(`/admin/entreprises/${id}/produits`, {
         method: 'POST',
-        body: { ...data, image: imagePayload },
+        body: payload,
     });
 }
 
@@ -157,7 +173,11 @@ export async function addCategorieMock(data) {
     const id = getEntrepriseId();
     return apiFetch(`/admin/entreprises/${id}/categories`, {
         method: 'POST',
-        body: data,
+        // Assure-toi que le backend attend 'name' pour la catégorie aussi
+        body: {
+            name: data.nom,
+            description: data.description
+        },
     });
 }
 
