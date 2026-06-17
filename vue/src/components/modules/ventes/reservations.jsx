@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
     CalendarClock, Search, X, SlidersHorizontal, PackageOpen,
     Package, User, Info, AlertCircle, CheckCircle2, Clock,
@@ -579,14 +580,12 @@ function Reservations() {
                 </>
             )}
 
-            {/* ── Bottom sheet filtres ── */}
-            {showFilters && (
-                <>
-                    <div
-                        className="reservations-sheet__overlay"
-                        onClick={() => setShowFilters(false)}
-                        aria-hidden="true"
-                    />
+            {/* ── Modal filtres ── */}
+            {showFilters && createPortal(
+                <div
+                    className="reservations-sheet__overlay"
+                    onClick={e => { if (e.target === e.currentTarget) setShowFilters(false); }}
+                >
                     <div className="reservations-sheet" role="dialog" aria-modal="true" aria-label="Filtres">
                         <div className="reservations-sheet__header">
                             <span className="reservations-sheet__title">Filtres</span>
@@ -687,7 +686,8 @@ function Reservations() {
                             </button>
                         </div>
                     </div>
-                </>
+                </div>,
+                document.body
             )}
 
         </section>

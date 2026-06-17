@@ -1048,39 +1048,19 @@
     border-color: var(--color-border);
 }
 
-/* ─── Bottom Sheet — Filtres ──────────────────────────────────────────────────── */
+/* ─── Modal Filtres ───────────────────────────────────────────────────────────── */
 
 .reservations-sheet__overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.40);
     z-index: calc(var(--z-modal) + 1);
-    animation: fadeIn var(--duration-fast) var(--ease-out);
-}
-
-.reservations-sheet {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-height: 90dvh;
-    background-color: var(--color-surface);
-    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-    z-index: calc(var(--z-modal) + 2);
+    background-color: rgba(0, 0, 0, 0.40);
+    backdrop-filter: blur(6px);
     display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: var(--shadow-xl);
-    animation: slideInUp var(--duration-normal) var(--ease-out);
-}
-
-@media (min-width: 640px) {
-    .reservations-sheet {
-        max-width: 540px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    animation: fadeIn var(--duration-fast) var(--ease-out);
 }
 
 @keyframes scaleFadeIn {
@@ -1088,25 +1068,17 @@
     to   { transform: scale(1);    opacity: 1; }
 }
 
-@media (min-width: 1025px) {
-    .reservations-sheet__overlay {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .reservations-sheet {
-        position: relative;
-        bottom: auto;
-        left: auto;
-        right: auto;
-        width: 540px;
-        max-width: 540px;
-        max-height: 85dvh;
-        border-radius: var(--radius-2xl);
-        transform: none;
-        animation: scaleFadeIn var(--duration-normal) var(--ease-out);
-    }
+.reservations-sheet {
+    width: 100%;
+    max-width: 540px;
+    max-height: 90dvh;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-2xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    animation: scaleFadeIn var(--duration-normal) var(--ease-out);
 }
 
 .reservations-sheet__header {
