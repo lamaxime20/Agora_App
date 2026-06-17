@@ -32,6 +32,7 @@ use App\Http\Controllers\Api\Livraisons\LivraisonsPersonnelController;
 use App\Http\Controllers\Api\Livraisons\LivraisonsActionController;
 use App\Http\Controllers\Api\Livraisons\LivraisonsStatistiqueController;
 use App\Http\Controllers\Api\Livraisons\LivraisonsNotificationController;
+use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\SignupController;
 use App\Http\Controllers\Api\RH\RhDashboardController;
 use App\Http\Controllers\Api\RH\RhEmployeController;
@@ -41,6 +42,7 @@ use App\Http\Controllers\Api\RH\RhExportController;
 use App\Http\Middleware\MiddlewareTokenEntrepriseCreation;
 use App\Http\Middleware\MiddlewareTokenAuth;
 use App\Http\Middleware\MiddlewareTokenAuthorization;
+use App\Http\Middleware\MiddlewareTokenAdmin;
 use App\Http\Middleware\MiddlewareStockAccess;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +57,18 @@ Route::post('auth/login',                [AuthController::class,    'login']);
 Route::post('auth/password/send-code',   [PasswordController::class, 'sendCode']);
 Route::post('auth/password/verify-code', [PasswordController::class, 'verifyCode']);
 Route::post('auth/password/reset',       [PasswordController::class, 'reset']);
+
+// â”€â”€â”€ Routes admin â”€â”€â”€
+
+Route::post('admin/auth/login', [AdminAuthController::class, 'login']);
+Route::post('admin/auth/password/send-code', [AdminAuthController::class, 'sendCode']);
+Route::post('admin/auth/password/verify-code', [AdminAuthController::class, 'verifyCode']);
+Route::post('admin/auth/password/reset', [AdminAuthController::class, 'reset']);
+
+Route::middleware(MiddlewareTokenAdmin::class)->group(function () {
+    Route::get('admin/auth/me', [AdminAuthController::class, 'me']);
+    Route::post('admin/auth/logout', [AdminAuthController::class, 'logout']);
+});
 
 // ─── Routes protégées par tokenAuth (avant sélection du rôle) ────────────────
 
