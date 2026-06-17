@@ -150,16 +150,16 @@ CREATE TYPE sens_mouvement_financier AS ENUM (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS admins (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   email Email NOT NULL,
   password_hash TEXT NOT NULL,
 
-  originel BOOLEAN NOT NULL, DEFAULT FALSE,
+  originel BOOLEAN DEFAULT FALSE NOT NULL,
   statut statut_general DEFAULT 'actif',
 
   modified_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
 
   CONSTRAINT admins_cc0 PRIMARY KEY(id),
   CONSTRAINT admins_cc1 UNIQUE(email)
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS admins (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS utilisateurs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   email Email NOT NULL,
   password_hash TEXT NOT NULL,
@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
   statut statut_general DEFAULT 'actif',
 
   modified_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
 
   CONSTRAINT utilisateurs_cc0 PRIMARY KEY(id),
   CONSTRAINT utilisateur_cc1 UNIQUE(email)
@@ -192,10 +192,10 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS roles_utilisateur (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   role VARCHAR(100) NOT NULL,
-  description TEXT
+  description TEXT,
 
   CONSTRAINT roles_utilisateur_cc0 PRIMARY KEY(id),
   CONSTRAINT roles_utilisateur_cc1 UNIQUE(role)
@@ -206,7 +206,7 @@ CREATE TABLE IF NOT EXISTS roles_utilisateur (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS entreprises (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   nom VARCHAR(255) NOT NULL,
   logo TEXT,
@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS codes_couleurs (
     REFERENCES entreprises(id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
-)
+);
 
 -- =========================================================
 -- TABLE appartenir_entreprise
@@ -300,7 +300,7 @@ CREATE TABLE IF NOT EXISTS appartenir_entreprise (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS invitations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   email_invite Email NOT NULL,
 
@@ -335,7 +335,7 @@ CREATE TABLE IF NOT EXISTS invitations (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS notifications (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   titre VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
@@ -378,7 +378,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS categories_produit (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   categorie VARCHAR(150) NOT NULL,
   description TEXT,
@@ -409,7 +409,7 @@ CREATE TABLE IF NOT EXISTS categories_produit (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS produits (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   nom VARCHAR(255) NOT NULL,
 
@@ -461,7 +461,7 @@ CREATE TABLE IF NOT EXISTS produits (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS ravitaillements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   date_creation TIMESTAMP DEFAULT NOW(),
 
@@ -523,7 +523,7 @@ CREATE TABLE IF NOT EXISTS ravitaillements (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS pertes_produits (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   quantite_perdu DECIMAL(15,2) NOT NULL,
 
@@ -561,7 +561,7 @@ CREATE TABLE IF NOT EXISTS pertes_produits (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS clients (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   email Email,
 
@@ -586,7 +586,7 @@ CREATE TABLE IF NOT EXISTS clients (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS commandes (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   date_commande TIMESTAMP DEFAULT NOW(),
 
@@ -679,7 +679,7 @@ CREATE TABLE IF NOT EXISTS contenir_produit (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS livraisons (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   date_creation TIMESTAMP DEFAULT NOW(),
 
@@ -727,7 +727,7 @@ CREATE TABLE IF NOT EXISTS livraisons (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS payements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   montant MoneyAmount NOT NULL,
 
@@ -769,7 +769,7 @@ CREATE TABLE IF NOT EXISTS payements (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS depenses (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   montant MoneyAmount NOT NULL,
 
@@ -802,7 +802,7 @@ CREATE TABLE IF NOT EXISTS depenses (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS entrees_argent (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   montant MoneyAmount NOT NULL,
 
@@ -835,7 +835,7 @@ CREATE TABLE IF NOT EXISTS entrees_argent (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS salaires (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   montant MoneyAmount NOT NULL,
 
@@ -871,7 +871,7 @@ CREATE TABLE IF NOT EXISTS salaires (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS paiements_salaires (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
   salaire UUID NOT NULL,
   montant MoneyAmount NOT NULL,
   date_paiement TIMESTAMP DEFAULT NOW(),
@@ -903,7 +903,7 @@ CREATE TABLE IF NOT EXISTS paiements_salaires (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS frais_mensuel (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   service_paye VARCHAR(255) NOT NULL,
 
@@ -933,7 +933,7 @@ CREATE TABLE IF NOT EXISTS frais_mensuel (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS paiements_abonnements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
   abonnement UUID NOT NULL,
   montant MoneyAmount NOT NULL,
   date_paiement TIMESTAMP DEFAULT NOW(),
@@ -964,7 +964,7 @@ CREATE TABLE IF NOT EXISTS paiements_abonnements (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS pertes_argent (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   cause TEXT NOT NULL,
 
@@ -997,7 +997,7 @@ CREATE TABLE IF NOT EXISTS pertes_argent (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS remboursements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   cause TEXT NOT NULL,
 
@@ -1037,7 +1037,7 @@ CREATE TABLE IF NOT EXISTS remboursements (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS mouvements_financiers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
   date_operation TIMESTAMP DEFAULT NOW(),
   type_operation type_mouvement_financier NOT NULL,
   montant MoneyAmount NOT NULL,
@@ -1065,7 +1065,7 @@ CREATE TABLE IF NOT EXISTS mouvements_financiers (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS taches (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   nom VARCHAR(255) NOT NULL,
 
@@ -1123,7 +1123,7 @@ CREATE TABLE IF NOT EXISTS taches (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS evenements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   nom VARCHAR(255) NOT NULL,
 
@@ -1188,7 +1188,7 @@ CREATE TABLE IF NOT EXISTS participer_evenement (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS historiques (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   module VARCHAR(100) NOT NULL,
 
@@ -1232,7 +1232,7 @@ CREATE TABLE IF NOT EXISTS historiques (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS sessions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   token VARCHAR NOT NULL UNIQUE,
 
@@ -1274,7 +1274,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS token_choix_role (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   token VARCHAR NOT NULL UNIQUE,
 
@@ -1302,7 +1302,7 @@ CREATE TABLE IF NOT EXISTS token_choix_role (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS token_admin (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   token VARCHAR NOT NULL UNIQUE,
 
@@ -1331,7 +1331,7 @@ CREATE TABLE IF NOT EXISTS token_admin (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS codes_otp (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   code VARCHAR(10) NOT NULL,
 
@@ -1354,7 +1354,7 @@ CREATE TABLE IF NOT EXISTS codes_otp (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS codes_reinitialisation (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   code VARCHAR(10) NOT NULL,
 
@@ -1384,7 +1384,7 @@ CREATE TABLE IF NOT EXISTS codes_reinitialisation (
 -- =========================================================
 
 CREATE TABLE IF NOT EXISTS codes_reinitialisation_admin (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT gen_random_uuid(),
 
   code VARCHAR(10) NOT NULL,
 
@@ -1398,9 +1398,9 @@ CREATE TABLE IF NOT EXISTS codes_reinitialisation_admin (
 
   admin UUID NOT NULL,
 
-  CONSTRAINT codes_reinitialisation_cc0 PRIMARY KEY(id),
+  CONSTRAINT codes_reinitialisation_admin_cc0 PRIMARY KEY(id),
 
-  CONSTRAINT codes_reinitialisation_cr0
+  CONSTRAINT codes_reinitialisation_admin_cr0
     FOREIGN KEY (admin)
     REFERENCES admins(id)
     ON DELETE CASCADE
