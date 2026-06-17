@@ -156,6 +156,7 @@ CREATE TABLE IF NOT EXISTS admins (
   password_hash TEXT NOT NULL,
 
   originel BOOLEAN NOT NULL, DEFAULT FALSE,
+  statut statut_general DEFAULT 'actif',
 
   modified_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW()

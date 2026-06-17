@@ -113,6 +113,7 @@ Si le type sélectionné est "service", les champs stock actuel, seuil d'alerte 
 - unité de mesure
 - la description
 - la categorie (qui sera un champ texte avec une liste de toutes les catégories en bas, à chaque entrée utilisateur, la liste se filtre et quand on clique sur un élément de la liste, ça remplace ce qui était dans le champ texte, on va charger les catégories en fonction des catégories de l'entreprise enregistrées dans la BD, donc si l'entreprise n'a enregistré aucune catégorie, on met dans la liste pas de catégorie enregistrée)
+Attention, le champ `categorie` du produit est obligatoire en base, donc si l'entreprise n'a enregistré aucune catégorie, on bloque l'ajout du produit tant qu'une catégorie n'a pas été créée.
 Pour les produits physiques, l'utilisateur doit définir un seuil d'alerte.
 Lorsque le stock disponible devient inférieur ou égal à ce seuil, une notification de stock faible est automatiquement envoyée aux utilisateurs concernés.
 Chaque entrée utilisateur est stockée dans le localStorage afin que si on ferme sans savoir l'interface, qu'on n'ait pas à réremplir tous les champs
@@ -1174,6 +1175,8 @@ Lorsque le stock disponible devient inférieur ou égal à ce seuil, une notific
 Chaque entrée utilisateur est stockée dans le localStorage afin que si on ferme sans savoir l'interface, qu'on n'ait pas à réremplir tous les champs
 En dessous du bouton ajouter un produit, il y aura la liste des produits de l'entreprise (nom + description + type) et un bouton pour supprimer un produit.
 Quand on clique sur le bouton pour supprimer un produit, un pane s'ouvre pour demander le mot de passe de l'admin afin de confirmer la suppression du produit.
+
+Attention, le champ `categorie` du produit est obligatoire en base, donc si l'entreprise n'a enregistré aucune catégorie, on bloque l'ajout du produit tant qu'une catégorie n'a pas été créée.
 
 #### Catégorie
 Ici, il y aura un bouton pour ajouter une catégorie
