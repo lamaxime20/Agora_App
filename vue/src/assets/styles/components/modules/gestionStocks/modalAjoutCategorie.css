@@ -1,4 +1,4 @@
-/* ─── Overlay ─────────────────────────────────────────────────────────────────── */
+/* ─── Overlay ───────────────────────────────────────────────────────────────── */
 
 .modalCategorie-overlay {
     position: fixed;
@@ -7,64 +7,41 @@
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(6px);
     display: flex;
-    align-items: flex-end;
-    animation: fadeIn var(--duration-fast) var(--ease-out);
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: modalCategorieFadeIn var(--duration-fast) var(--ease-out);
 }
 
-/* ─── Panel — Mobile : bottom sheet ──────────────────────────────────────────── */
+@keyframes modalCategorieFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ─── Panel ─────────────────────────────────────────────────────────────────── */
 
 .modalCategorie-panel {
-    width: 100%;
-    max-height: 95dvh;
+    width: min(520px, 100%);
+    max-height: 90dvh;
     background-color: var(--color-surface);
-    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    border-radius: var(--radius-2xl);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     box-shadow: var(--shadow-xl);
-    animation: slideUpModal var(--duration-normal) var(--ease-out);
+    animation: modalCategorieScaleIn var(--duration-normal) var(--ease-out);
 }
 
-@keyframes slideUpModal {
-    from { transform: translateY(100%); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
+@keyframes modalCategorieScaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
 }
 
-/* ─── Desktop (≥ 1025px) : modal centrée ─────────────────────────────────────── */
-
-@media (min-width: 1025px) {
-    .modalCategorie-overlay {
-        align-items: center;
-        justify-content: center;
-        padding: var(--space-6);
-    }
-
-    .modalCategorie-panel {
-        max-width: 520px;
-        max-height: 90dvh;
-        border-radius: var(--radius-2xl);
-        animation: scaleFadeIn var(--duration-normal) var(--ease-out);
-    }
-
-    @keyframes scaleFadeIn {
-        from { transform: scale(0.95); opacity: 0; }
-        to   { transform: scale(1);    opacity: 1; }
-    }
-
-    .modalCategorie-footer {
-        justify-content: flex-end;
-    }
-
-    .modalCategorie-footer .app-button {
-        width: auto;
-    }
-}
-
-/* ─── Header ──────────────────────────────────────────────────────────────────── */
+/* ─── Header ────────────────────────────────────────────────────────────────── */
 
 .modalCategorie-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     padding: var(--space-5) var(--space-5) var(--space-4);
     border-bottom: 1px solid var(--color-border);
@@ -101,13 +78,15 @@
     color: var(--color-text);
 }
 
-/* ─── Corps du formulaire ─────────────────────────────────────────────────────── */
+/* ─── Body ──────────────────────────────────────────────────────────────────── */
 
 .modalCategorie-body {
     padding: var(--space-5);
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
+    gap: var(--space-4);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modalCategorie-field {
@@ -133,7 +112,18 @@
     line-height: var(--line-height-relaxed);
 }
 
-/* ─── Footer ──────────────────────────────────────────────────────────────────── */
+.modalCategorie-error {
+    margin: 0 var(--space-5);
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    color: var(--color-error);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+}
+
+/* ─── Footer ───────────────────────────────────────────────────────────────── */
 
 .modalCategorie-footer {
     display: flex;
@@ -143,14 +133,42 @@
     border-top: 1px solid var(--color-border);
 }
 
-/* ─── Mobile ──────────────────────────────────────────────────────────────────── */
+/* ─── Success ──────────────────────────────────────────────────────────────── */
+
+.modalCategorie-success {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: var(--space-8);
+    text-align: center;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+}
+
+/* ─── Mobile ───────────────────────────────────────────────────────────────── */
 
 @media (max-width: 480px) {
+    .modalCategorie-overlay {
+        padding: 12px;
+    }
+
     .modalCategorie-footer {
-        flex-direction: column-reverse;
+        flex-direction: column;
     }
 
     .modalCategorie-footer .app-button {
         width: 100%;
+    }
+
+    .modalCategorie-error {
+        margin: 0 var(--space-4);
+    }
+}
+
+@media (min-width: 1025px) {
+    .modalCategorie-footer .app-button {
+        width: auto;
     }
 }
