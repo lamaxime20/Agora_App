@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
     ShoppingCart, Search, X, Plus, AlertTriangle, ChevronRight,
     Download, User, Package, XCircle, CheckCircle, Bell,
@@ -406,6 +407,18 @@ function Commandes() {
 
     const sentinelRef = useRef(null);
     const notifRef    = useRef(null);
+
+    useEffect(() => {
+        const activePanel = view === "new" || showClientPane || showProductPane || showCancelModal;
+        if (!activePanel) return;
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [view, showClientPane, showProductPane, showCancelModal]);
 
     // ── CHARGEMENT INITIAL ──────────────────────────────────────────────────────
     useEffect(() => {
@@ -1160,9 +1173,12 @@ function Commandes() {
             {/* ══════════════════════════════════════════════════════════════════
                 Panel — Nouvelle commande
             ══════════════════════════════════════════════════════════════════ */}
-            {view === "new" && (
+            {view === "new" && createPortal((
                 <div className="commandes-form__overlay" role="dialog" aria-modal="true" aria-label="Nouvelle commande">
-                    <div className="commandes-form__panel">
+                    <aside className="commandes-form__panel">
+                        <div className="commandes-drawer__handle" aria-hidden="true">
+                            <span className="commandes-drawer__handle-bar" />
+                        </div>
                         <div className="commandes-form__header">
                             <h2 className="commandes-form__title">Nouvelle commande</h2>
                             <button className="commandes-form__close" onClick={resetForm} type="button" aria-label="Fermer">
@@ -1291,9 +1307,9 @@ function Commandes() {
                                 {saving ? "Enregistrement…" : "Confirmer la commande"}
                             </button>
                         </div>
-                    </div>
+                    </aside>
                 </div>
-            )}
+            ), document.body)}
 
             {/* ── Sélection client ── */}
             {showClientPane && (
