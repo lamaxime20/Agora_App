@@ -33,6 +33,12 @@ use App\Http\Controllers\Api\Livraisons\LivraisonsActionController;
 use App\Http\Controllers\Api\Livraisons\LivraisonsStatistiqueController;
 use App\Http\Controllers\Api\Livraisons\LivraisonsNotificationController;
 use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Api\Admin\EntrepriseController as AdminEntrepriseController;
+use App\Http\Controllers\Api\Admin\ProduitController as AdminProduitController;
+use App\Http\Controllers\Api\Admin\CategorieController as AdminCategorieController;
+use App\Http\Controllers\Api\Admin\EmployeController as AdminEmployeController;
+use App\Http\Controllers\Api\Admin\AdminController as AdminAdminController;
+use App\Http\Controllers\Api\Admin\ParametresController as AdminParametresController;
 use App\Http\Controllers\Api\SignupController;
 use App\Http\Controllers\Api\RH\RhDashboardController;
 use App\Http\Controllers\Api\RH\RhEmployeController;
@@ -65,9 +71,47 @@ Route::post('admin/auth/password/send-code', [AdminAuthController::class, 'sendC
 Route::post('admin/auth/password/verify-code', [AdminAuthController::class, 'verifyCode']);
 Route::post('admin/auth/password/reset', [AdminAuthController::class, 'reset']);
 
-Route::middleware(MiddlewareTokenAdmin::class)->group(function () {
-    Route::get('admin/auth/me', [AdminAuthController::class, 'me']);
-    Route::post('admin/auth/logout', [AdminAuthController::class, 'logout']);
+Route::middleware(MiddlewareTokenAdmin::class)->prefix('admin')->group(function () {
+    // Auth
+    Route::get('auth/me',     [AdminAuthController::class, 'me']);
+    Route::post('auth/logout', [AdminAuthController::class, 'logout']);
+
+    // Entreprises
+    Route::get('entreprises',      [AdminEntrepriseController::class, 'index']);
+    Route::post('entreprises',     [AdminEntrepriseController::class, 'store']);
+    Route::get('entreprises/{id}', [AdminEntrepriseController::class, 'show']);
+    Route::put('entreprises/{id}', [AdminEntrepriseController::class, 'update']);
+
+    // Recherche utilisateur & création directeur (pour le flux création d'entreprise)
+    Route::get('utilisateurs/recherche', [AdminEntrepriseController::class, 'searchUser']);
+    Route::post('directeurs',            [AdminEntrepriseController::class, 'createDirecteur']);
+
+    // Produits d'une entreprise
+    Route::get('entreprises/{id}/produits',                          [AdminProduitController::class, 'index']);
+    Route::post('entreprises/{id}/produits',                         [AdminProduitController::class, 'store']);
+    Route::delete('entreprises/{id}/produits/{produitId}',           [AdminProduitController::class, 'destroy']);
+
+    // Catégories d'une entreprise
+    Route::get('entreprises/{id}/categories',                        [AdminCategorieController::class, 'index']);
+    Route::post('entreprises/{id}/categories',                       [AdminCategorieController::class, 'store']);
+    Route::delete('entreprises/{id}/categories/{categorieId}',       [AdminCategorieController::class, 'destroy']);
+
+    // Employés d'une entreprise (check-email AVANT la route générique POST)
+    Route::post('entreprises/{id}/employes/check-email',             [AdminEmployeController::class, 'checkEmail']);
+    Route::get('entreprises/{id}/employes',                          [AdminEmployeController::class, 'index']);
+    Route::post('entreprises/{id}/employes',                         [AdminEmployeController::class, 'store']);
+    Route::patch('entreprises/{id}/employes/{uid}/role',             [AdminEmployeController::class, 'updateRole']);
+    Route::delete('entreprises/{id}/employes/{uid}',                 [AdminEmployeController::class, 'destroy']);
+
+    // Gestion des administrateurs (originel uniquement pour certaines actions)
+    Route::get('admins',                                             [AdminAdminController::class, 'index']);
+    Route::post('admins',                                            [AdminAdminController::class, 'store']);
+    Route::post('admins/{id}/reinitialiser-mot-de-passe',           [AdminAdminController::class, 'resetPassword']);
+    Route::patch('admins/{id}/desactiver',                           [AdminAdminController::class, 'disable']);
+
+    // Paramètres du compte admin connecté
+    Route::patch('parametres/email',       [AdminParametresController::class, 'changeEmail']);
+    Route::patch('parametres/mot-de-passe', [AdminParametresController::class, 'changePassword']);
 });
 
 // ─── Routes protégées par tokenAuth (avant sélection du rôle) ────────────────

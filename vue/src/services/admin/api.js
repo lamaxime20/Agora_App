@@ -1,21 +1,55 @@
-import loginData       from '../../mockups/admin/login.json';
-import companyListData  from '../../mockups/admin/company-list.json';
-import companyData      from '../../mockups/admin/company.json';
-import productsData     from '../../mockups/admin/products.json';
-import categoriesData   from '../../mockups/admin/categories.json';
-import employeesData    from '../../mockups/admin/employees.json';
-import adminsData       from '../../mockups/admin/admins.json';
+const API_BASE = '/api';
 
-const delay = (ms = 300) => new Promise(r => setTimeout(r, ms));
+// ─── Helper fetch ─────────────────────────────────────────────────────────────
 
-// ─── Rôles disponibles (hors directeur) ──────────────────────────────────────
+async function apiFetch(path, options = {}) {
+    const { body, headers: extraHeaders, ...rest } = options;
+
+    const res = await fetch(`${API_BASE}${path}`, {
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            ...extraHeaders,
+        },
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        ...rest,
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+        const err = new Error(json.message || 'Une erreur est survenue.');
+        err.code   = json.code;
+        err.status = res.status;
+        err.errors = json.errors;
+        throw err;
+    }
+
+    return json;
+}
+
+function getEntrepriseId() {
+    return localStorage.getItem('adminEntrepriseId');
+}
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// ─── Rôles disponibles (valeurs exactes de roles_utilisateur.role en DB) ──────
 
 export const ROLES_EMPLOYE = [
-    { value: 'employe_stock',    label: 'Gestionnaire de stock' },
-    { value: 'employe_ventes',   label: 'Responsable des ventes' },
-    { value: 'employe_finances', label: 'Responsable finances' },
-    { value: 'employe_livreur',  label: 'Livreur' },
-    { value: 'employe_rh',       label: 'Responsable RH' },
+    { value: 'employe_gestion_stock', label: 'Gestionnaire de stock' },
+    { value: 'employe_vente',         label: 'Responsable des ventes' },
+    { value: 'employe_finances',      label: 'Responsable finances' },
+    { value: 'employe_livraison',     label: 'Livreur' },
+    { value: 'employe_rh',            label: 'Responsable RH' },
 ];
 
 export function getRoleLabel(value) {
@@ -25,184 +59,214 @@ export function getRoleLabel(value) {
 // ─── Auth admin ───────────────────────────────────────────────────────────────
 
 export async function loginAdminMock({ email, password }) {
-    await delay();
-    if (email === 'admin@agora.com') {
-        return { ...loginData };
-    }
-    return { success: false, message: 'Email ou mot de passe incorrect.' };
+    const data = await apiFetch('/admin/auth/login', {
+        method: 'POST',
+        body: { email, password },
+    });
+    // Transforme la réponse réelle vers le format attendu par adminAuth.js
+    return {
+        success:          true,
+        admin:            data.admin,
+        tokenExpiration:  data.admin?.expires_at,
+    };
 }
 
 export async function logoutAdminMock() {
-    await delay(100);
+    await apiFetch('/admin/auth/logout', { method: 'POST' });
     return { success: true };
 }
 
-// ─── Entreprise ───────────────────────────────────────────────────────────────
+// ─── Entreprises ──────────────────────────────────────────────────────────────
 
 export async function getCompanyListMock() {
-    await delay();
-    return { ...companyListData };
+    return apiFetch('/admin/entreprises');
 }
 
-export async function getCompanyMock() {
-    await delay();
-    return { ...companyData };
+export async function getCompanyMock(id) {
+    return apiFetch(`/admin/entreprises/${id}`);
 }
 
-export async function updateCompanyMock(_id, _data) {
-    await delay(400);
-    return { success: true, message: "Entreprise mise à jour avec succès." };
+export async function updateCompanyMock(id, data) {
+    return apiFetch(`/admin/entreprises/${id}`, {
+        method: 'PUT',
+        body: data,
+    });
 }
 
 export async function createCompanyAdminMock(data) {
-    await delay(500);
-    return {
-        success: true,
-        message: "Entreprise créée avec succès.",
-        data: { id: Date.now(), ...data },
-    };
+    let logoPayload = data.logo;
+    if (logoPayload instanceof File) {
+        logoPayload = await fileToBase64(logoPayload);
+    }
+    return apiFetch('/admin/entreprises', {
+        method: 'POST',
+        body: { ...data, logo: logoPayload },
+    });
 }
 
-// ─── Recherche utilisateur (choix directeur) ──────────────────────────────────
+// ─── Recherche utilisateur & création directeur ───────────────────────────────
 
 export async function searchUserByEmailMock(email) {
-    await delay(300);
-    const knownEmails = ['paul.durand@example.com', 'jean.dupont@agora.com'];
-    const exists = knownEmails.includes(email);
-    return {
-        success: true,
-        exists,
-        user: exists ? { id: 10, nom: 'Durand', prenom: 'Paul', email } : null,
-    };
+    return apiFetch(`/admin/utilisateurs/recherche?email=${encodeURIComponent(email)}`);
 }
 
 export async function createDirecteurMock(data) {
-    await delay(400);
-    return { success: true, message: "Directeur créé avec succès.", defaultPassword: 'directeur237' };
+    return apiFetch('/admin/directeurs', {
+        method: 'POST',
+        body: data,
+    });
 }
 
 // ─── Produits ─────────────────────────────────────────────────────────────────
 
 export async function getProductsMock() {
-    await delay();
-    return { ...productsData };
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/produits`);
 }
 
 export async function addProductMock(data) {
-    await delay(500);
-    return {
-        success: true,
-        message: 'Produit ajouté avec succès.',
-        data: { id: Date.now(), ...data },
-    };
+    const id = getEntrepriseId();
+    let imagePayload = data.image;
+    if (imagePayload instanceof File) {
+        imagePayload = await fileToBase64(imagePayload);
+    }
+    return apiFetch(`/admin/entreprises/${id}/produits`, {
+        method: 'POST',
+        body: { ...data, image: imagePayload },
+    });
 }
 
-export async function deleteProductMock(_id, password) {
-    await delay(350);
-    if (!password) return { success: false, message: 'Mot de passe requis.' };
-    return { success: true, message: 'Produit supprimé avec succès.' };
+export async function deleteProductMock(produitId, password) {
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/produits/${produitId}`, {
+        method: 'DELETE',
+        body: { password },
+    });
 }
 
 // ─── Catégories ───────────────────────────────────────────────────────────────
 
 export async function getCategoriesMock() {
-    await delay();
-    return { ...categoriesData };
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/categories`);
 }
 
 export async function addCategorieMock(data) {
-    await delay(350);
-    return {
-        success: true,
-        message: 'Catégorie ajoutée avec succès.',
-        data: { id: Date.now(), nb_produits: 0, ...data },
-    };
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/categories`, {
+        method: 'POST',
+        body: data,
+    });
 }
 
-export async function deleteCategorieMock(_id, password) {
-    await delay(350);
-    if (!password) return { success: false, message: 'Mot de passe requis.' };
-    return { success: true, message: 'Catégorie supprimée avec succès.' };
+export async function deleteCategorieMock(categorieId, password) {
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/categories/${categorieId}`, {
+        method: 'DELETE',
+        body: { password },
+    });
 }
 
 // ─── Employés ─────────────────────────────────────────────────────────────────
 
 export async function getEmployeesMock() {
-    await delay();
-    return { ...employeesData };
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/employes`);
 }
 
 export async function checkEmailEmployeeMock(email) {
-    await delay(200);
-    const existants = ['jean.dupont@agora.com', 'marie.martin@agora.com', 'pierre.kamga@agora.com'];
-    return { success: true, exists: existants.includes(email.toLowerCase()) };
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/employes/check-email`, {
+        method: 'POST',
+        body: { email },
+    });
 }
 
-export async function addEmployeeMock(_data) {
-    await delay(450);
-    return { success: true, message: 'Employé ajouté avec succès.' };
+export async function addEmployeeMock(data) {
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/employes`, {
+        method: 'POST',
+        body: data,
+    });
 }
 
-export async function updateEmployeeRoleMock(_id, _role, password) {
-    await delay(300);
-    if (!password) return { success: false, message: 'Mot de passe requis.' };
-    return { success: true, message: 'Rôle mis à jour.' };
+export async function updateEmployeeRoleMock(utilisateurId, role, password) {
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/employes/${utilisateurId}/role`, {
+        method: 'PATCH',
+        body: { role, password },
+    });
 }
 
-export async function removeEmployeeMock(_id, password) {
-    await delay(300);
-    if (!password) return { success: false, message: 'Mot de passe requis.' };
-    return { success: true, message: 'Employé retiré avec succès.' };
+export async function removeEmployeeMock(utilisateurId, password) {
+    const id = getEntrepriseId();
+    return apiFetch(`/admin/entreprises/${id}/employes/${utilisateurId}`, {
+        method: 'DELETE',
+        body: { password },
+    });
 }
 
 // ─── Admins ───────────────────────────────────────────────────────────────────
 
 export async function getAdminsMock() {
-    await delay();
-    return { ...adminsData };
+    return apiFetch('/admin/admins');
 }
 
-export async function addAdminMock(_data) {
-    await delay(450);
-    return { success: true, message: 'Administrateur ajouté avec succès.' };
+export async function addAdminMock(data) {
+    return apiFetch('/admin/admins', {
+        method: 'POST',
+        body: data,
+    });
 }
 
-export async function resetAdminPasswordMock(_id) {
-    await delay(300);
-    return { success: true, message: 'Mot de passe réinitialisé.' };
+export async function resetAdminPasswordMock(adminId) {
+    return apiFetch(`/admin/admins/${adminId}/reinitialiser-mot-de-passe`, {
+        method: 'POST',
+    });
 }
 
-export async function disableAdminMock(_id, password) {
-    await delay(300);
-    if (!password) return { success: false, message: 'Mot de passe requis.' };
-    return { success: true, message: 'Administrateur désactivé.' };
+export async function disableAdminMock(adminId, password) {
+    return apiFetch(`/admin/admins/${adminId}/desactiver`, {
+        method: 'PATCH',
+        body: { password },
+    });
 }
 
 // ─── Paramètres admin (self) ──────────────────────────────────────────────────
 
-export async function changeAdminEmailMock(_email) {
-    await delay(300);
-    return { success: true, message: 'Adresse e-mail mise à jour.' };
+export async function changeAdminEmailMock(email) {
+    return apiFetch('/admin/parametres/email', {
+        method: 'PATCH',
+        body: { email },
+    });
 }
 
-export async function changeAdminSelfPasswordMock(_oldPassword, _newPassword) {
-    await delay(300);
-    return { success: true, message: 'Mot de passe mis à jour.' };
+export async function changeAdminSelfPasswordMock(password_actuel, password) {
+    return apiFetch('/admin/parametres/mot-de-passe', {
+        method: 'PATCH',
+        body: { password_actuel, password, password_confirmation: password },
+    });
 }
 
-// ─── Réinitialisation mot de passe admin ──────────────────────────────────────
+// ─── Réinitialisation mot de passe (flux oubli de mot de passe) ──────────────
 
-export async function sendAdminResetCodeMock(_data) {
-    await delay(500);
-    return { success: true, message: 'Code de réinitialisation envoyé.' };
+export async function sendAdminResetCodeMock({ email }) {
+    return apiFetch('/admin/auth/password/send-code', {
+        method: 'POST',
+        body: { email },
+    });
 }
 
-export async function verifyAdminResetCodeMock(_data) {
-    await delay(300);
-    return { success: true, message: 'Code validé.' };
+export async function verifyAdminResetCodeMock({ email, code }) {
+    return apiFetch('/admin/auth/password/verify-code', {
+        method: 'POST',
+        body: { email, code },
+    });
 }
 
-export async function resetAdminPasswordFromCodeMock(_data) {
-    await delay(400);
-    return { success: true, message: 'Mot de passe réinitialisé avec succès.' };
+export async function resetAdminPasswordFromCodeMock({ email, password }) {
+    return apiFetch('/admin/auth/password/reset', {
+        method: 'POST',
+        body: { email, password, password_confirmation: password },
+    });
 }
