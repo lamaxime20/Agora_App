@@ -1,19 +1,72 @@
-.adminEntreprise-root {
+/* ─── Root ───────────────────────────────────────────────────────────────── */
+
+.entrepriseAdmin-root {
     min-height: 100%;
     background: #FFF8F0;
     font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
 }
 
+/* ─── Skeleton ───────────────────────────────────────────────────────────── */
+
+.entrepriseAdmin-skeleton { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+.entrepriseAdmin-skeleton__section {
+    height: 120px;
+    border-radius: 18px;
+    background: linear-gradient(90deg, #F3F0EB 25%, #EAE3DC 50%, #F3F0EB 75%);
+    background-size: 200% 100%;
+    animation: entrepriseSkeletonShimmer 1.5s infinite;
+}
+
+@keyframes entrepriseSkeletonShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ─── Error ──────────────────────────────────────────────────────────────── */
+
+.entrepriseAdmin-error {
+    margin: 20px;
+    padding: 16px 20px;
+    background: rgba(231, 76, 60, 0.06);
+    border: 1px solid rgba(231, 76, 60, 0.15);
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #E74C3C;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.entrepriseAdmin-error p { margin: 0; }
+
+.entrepriseAdmin-error__retry {
+    align-self: flex-start;
+    background: none;
+    border: 1px solid #E74C3C;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #E74C3C;
+    cursor: pointer;
+    transition: background 150ms ease;
+}
+
+.entrepriseAdmin-error__retry:hover { background: rgba(231, 76, 60, 0.06); }
+
 /* ─── Top bar ────────────────────────────────────────────────────────────── */
 
-.adminEntreprise-topBar {
+.entrepriseAdmin-topBar {
     padding: 24px 20px 20px;
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.adminEntreprise-topBar__title {
+.entrepriseAdmin-topBar__title {
     font-size: clamp(1.2rem, 4vw, 1.5rem);
     font-weight: 700;
     color: #2C3E50;
@@ -21,49 +74,62 @@
     letter-spacing: -0.02em;
 }
 
-.adminEntreprise-topBar__subtitle {
+.entrepriseAdmin-topBar__subtitle {
     font-size: 13px;
     font-weight: 500;
     color: #6B7280;
     margin: 0;
 }
 
-/* ─── Loading ────────────────────────────────────────────────────────────── */
+/* ─── Toast ──────────────────────────────────────────────────────────────── */
 
-.adminEntreprise-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 0;
-    gap: 12px;
-    color: #6B7280;
+.entrepriseAdmin-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    padding: 12px 20px;
+    background: #27AE60;
+    color: #FFFFFF;
+    border-radius: 12px;
     font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(39, 174, 96, 0.35);
+    white-space: nowrap;
+    animation: entrepriseToastIn 250ms ease forwards;
+}
+
+@keyframes entrepriseToastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ─── Form error (inline) ────────────────────────────────────────────────── */
+
+.entrepriseAdmin-formError {
+    margin: 0 20px 8px;
+    padding: 10px 16px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 500;
+    color: #E74C3C;
 }
-
-.adminEntreprise-loading__spinner {
-    width: 24px;
-    height: 24px;
-    border: 2.5px solid #E5DDD5;
-    border-top-color: #F39C12;
-    border-radius: 50%;
-    animation: adminEntrepriseSpin 0.7s linear infinite;
-}
-
-@keyframes adminEntrepriseSpin { to { transform: rotate(360deg); } }
 
 /* ─── Form ───────────────────────────────────────────────────────────────── */
 
-.adminEntreprise-form {
+.entrepriseAdmin-form {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    padding: 0 20px 24px;
+    padding: 0 20px 28px;
 }
 
-/* ─── Section card ───────────────────────────────────────────────────────── */
+/* ─── Section ────────────────────────────────────────────────────────────── */
 
-.adminEntreprise-section {
+.entrepriseAdmin-section {
     background: #FFFFFF;
     border: 1.5px solid #E5DDD5;
     border-radius: 18px;
@@ -73,33 +139,49 @@
     gap: 16px;
 }
 
-.adminEntreprise-section__title {
+.entrepriseAdmin-section__title {
     font-size: 14px;
     font-weight: 700;
     color: #2C3E50;
     margin: 0;
-    padding-bottom: 4px;
+    padding-bottom: 8px;
     border-bottom: 1px solid #F0EAE2;
     letter-spacing: 0.01em;
 }
 
+.entrepriseAdmin-section__hint {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6B7280;
+    margin: -8px 0 0;
+}
+
+.entrepriseAdmin-section__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
 /* ─── Field ──────────────────────────────────────────────────────────────── */
 
-.adminEntreprise-field { display: flex; flex-direction: column; gap: 8px; }
+.entrepriseAdmin-field { display: flex; flex-direction: column; gap: 8px; }
 
-.adminEntreprise-field__label {
+.entrepriseAdmin-field--full { grid-column: 1 / -1; }
+
+.entrepriseAdmin-field__label {
     font-size: 13px;
     font-weight: 600;
     color: #2C3E50;
 }
 
-.adminEntreprise-field__input,
-.adminEntreprise-field__textarea {
+.entrepriseAdmin-field__input,
+.entrepriseAdmin-field__select,
+.entrepriseAdmin-field__textarea {
     width: 100%;
     background: #F9F6F2;
     border: 1.5px solid #E5DDD5;
     border-radius: 12px;
-    padding: 12px 14px;
+    padding: 0 14px;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
@@ -109,100 +191,62 @@
     box-sizing: border-box;
 }
 
-.adminEntreprise-field__input { height: 48px; padding: 0 14px; }
-.adminEntreprise-field__textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+.entrepriseAdmin-field__input   { height: 50px; }
+.entrepriseAdmin-field__select  { height: 50px; cursor: pointer; appearance: none; }
+.entrepriseAdmin-field__textarea { padding: 12px 14px; resize: vertical; min-height: 100px; line-height: 1.5; }
 
-.adminEntreprise-field__input::placeholder,
-.adminEntreprise-field__textarea::placeholder { color: #B0A898; }
+.entrepriseAdmin-field__input::placeholder,
+.entrepriseAdmin-field__textarea::placeholder { color: #B0A898; }
 
-.adminEntreprise-field__input:focus,
-.adminEntreprise-field__textarea:focus {
+.entrepriseAdmin-field__input:focus,
+.entrepriseAdmin-field__select:focus,
+.entrepriseAdmin-field__textarea:focus {
     border-color: #F39C12;
     box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
     background: #FFFFFF;
 }
 
-.adminEntreprise-field__input:disabled,
-.adminEntreprise-field__textarea:disabled { opacity: 0.5; cursor: not-allowed; }
+.entrepriseAdmin-field__input:disabled,
+.entrepriseAdmin-field__select:disabled,
+.entrepriseAdmin-field__textarea:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ─── Row ────────────────────────────────────────────────────────────────── */
+/* ─── Colors section ─────────────────────────────────────────────────────── */
 
-.adminEntreprise-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.entrepriseAdmin-colors {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
 
-/* ─── Logo zone ──────────────────────────────────────────────────────────── */
+.entrepriseAdmin-colorField { display: flex; flex-direction: column; gap: 7px; }
 
-.adminEntreprise-logo {
+.entrepriseAdmin-colorField__label { font-size: 13px; font-weight: 600; color: #2C3E50; }
+
+.entrepriseAdmin-colorField__wrap {
     display: flex;
     align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
+    gap: 12px;
 }
 
-.adminEntreprise-logo__preview {
-    width: 80px;
-    height: 80px;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #F0EAE2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.adminEntreprise-logo__img { width: 100%; height: 100%; object-fit: cover; }
-
-.adminEntreprise-logo__placeholder {
-    font-size: 32px;
-    font-weight: 800;
-    color: #B0A898;
-}
-
-.adminEntreprise-logo__actions { display: flex; flex-direction: column; gap: 8px; }
-
-.adminEntreprise-logo__uploadBtn {
-    height: 40px;
-    padding: 0 16px;
-    background: #F3F0EB;
-    border: 1.5px dashed #C8BFB5;
-    border-radius: 10px;
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #2C3E50;
-    cursor: pointer;
-    transition: background 150ms ease, border-color 150ms ease;
-}
-
-.adminEntreprise-logo__uploadBtn:hover { background: #EAE3DC; border-color: #A09086; }
-
-.adminEntreprise-logo__hint { font-size: 11px; font-weight: 500; color: #B0A898; margin: 0; }
-
-/* ─── Color picker ───────────────────────────────────────────────────────── */
-
-.adminEntreprise-colorRow { display: flex; align-items: center; gap: 14px; }
-
-.adminEntreprise-colorSwatch {
-    width: 44px;
-    height: 44px;
+.entrepriseAdmin-colorField__picker {
+    width: 50px;
+    height: 50px;
     border-radius: 12px;
-    border: 2px solid rgba(0,0,0,0.08);
+    border: 1.5px solid #E5DDD5;
     cursor: pointer;
+    padding: 2px;
+    background: #F9F6F2;
     flex-shrink: 0;
-    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
-.adminEntreprise-colorSwatch input[type="color"] {
-    width: 200%;
-    height: 200%;
-    margin: -50%;
-    border: none;
-    cursor: pointer;
-    opacity: 0;
-}
+.entrepriseAdmin-colorField__picker::-webkit-color-swatch-wrapper { padding: 0; border-radius: 8px; overflow: hidden; }
+.entrepriseAdmin-colorField__picker::-webkit-color-swatch { border: none; border-radius: 8px; }
 
-.adminEntreprise-colorHex {
-    height: 44px;
+.entrepriseAdmin-colorField__hex {
+    flex: 1;
+    height: 50px;
     background: #F9F6F2;
     border: 1.5px solid #E5DDD5;
     border-radius: 12px;
@@ -212,19 +256,22 @@
     font-weight: 600;
     color: #2C3E50;
     outline: none;
-    width: 140px;
     transition: border-color 200ms ease, box-shadow 200ms ease;
     box-sizing: border-box;
 }
 
-.adminEntreprise-colorHex:focus { border-color: #F39C12; box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1); }
+.entrepriseAdmin-colorField__hex:focus {
+    border-color: #F39C12;
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    background: #FFFFFF;
+}
 
 /* ─── Form actions ───────────────────────────────────────────────────────── */
 
-.adminEntreprise-form__actions { display: flex; justify-content: flex-end; gap: 12px; }
+.entrepriseAdmin-formActions { display: flex; justify-content: flex-end; }
 
-.adminEntreprise-form__submitBtn {
-    height: 48px;
+.entrepriseAdmin-formActions__saveBtn {
+    height: 50px;
     padding: 0 28px;
     background: #F39C12;
     border: none;
@@ -236,51 +283,31 @@
     cursor: pointer;
     box-shadow: 0 3px 14px rgba(243, 156, 18, 0.3);
     transition: box-shadow 200ms ease, transform 150ms ease, opacity 200ms ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
-.adminEntreprise-form__submitBtn:hover:not(:disabled) { box-shadow: 0 5px 20px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
-.adminEntreprise-form__submitBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-/* ─── Feedback ───────────────────────────────────────────────────────────── */
-
-.adminEntreprise-form__error,
-.adminEntreprise-form__success {
-    padding: 10px 16px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 500;
-    margin: 0;
-}
-
-.adminEntreprise-form__error {
-    background: rgba(231, 76, 60, 0.08);
-    border: 1px solid rgba(231, 76, 60, 0.2);
-    color: #E74C3C;
-}
-
-.adminEntreprise-form__success {
-    background: rgba(39, 174, 96, 0.08);
-    border: 1px solid rgba(39, 174, 96, 0.2);
-    color: #27AE60;
-}
+.entrepriseAdmin-formActions__saveBtn:hover:not(:disabled) { box-shadow: 0 5px 20px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
+.entrepriseAdmin-formActions__saveBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
-@media (max-width: 480px) {
-    .adminEntreprise-topBar { padding: 20px 16px 16px; }
-    .adminEntreprise-form { padding: 0 16px 24px; }
-    .adminEntreprise-row { grid-template-columns: 1fr; }
+@media (max-width: 560px) {
+    .entrepriseAdmin-topBar { padding: 20px 16px 16px; }
+    .entrepriseAdmin-form { padding: 0 16px 24px; }
+    .entrepriseAdmin-section__grid { grid-template-columns: 1fr; }
+    .entrepriseAdmin-formActions__saveBtn { width: 100%; }
+    .entrepriseAdmin-toast { left: 16px; right: 16px; transform: none; }
 }
 
-@media (min-width: 1025px) and (max-width: 1200px) {
-    .adminEntreprise-topBar { padding: 32px 32px 20px; }
-    .adminEntreprise-form { padding: 0 32px 32px; }
+@media (min-width: 1025px) {
+    .entrepriseAdmin-topBar { padding: 32px 32px 20px; }
+    .entrepriseAdmin-form { padding: 0 32px 32px; }
+    .entrepriseAdmin-formError { margin: 0 32px 8px; }
+    .entrepriseAdmin-error { margin: 20px 32px; }
 }
 
 @media (min-width: 1201px) {
-    .adminEntreprise-topBar { padding: 40px 40px 24px; }
-    .adminEntreprise-form { padding: 0 40px 40px; }
+    .entrepriseAdmin-topBar { padding: 40px 40px 24px; }
+    .entrepriseAdmin-form { padding: 0 40px 40px; }
+    .entrepriseAdmin-formError { margin: 0 40px 8px; }
+    .entrepriseAdmin-error { margin: 20px 40px; }
 }

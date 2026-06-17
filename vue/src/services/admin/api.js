@@ -1,9 +1,11 @@
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:8000/api';
 
 // ─── Helper fetch ─────────────────────────────────────────────────────────────
 
 async function apiFetch(path, options = {}) {
     const { body, headers: extraHeaders, ...rest } = options;
+
+    console.log("fetch admin :", body);
 
     const res = await fetch(`${API_BASE}${path}`, {
         credentials: 'include',

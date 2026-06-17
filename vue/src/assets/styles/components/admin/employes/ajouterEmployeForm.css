@@ -1,51 +1,29 @@
-.ajouterEmployeForm-root { font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; }
+/* ─── Root ───────────────────────────────────────────────────────────────── */
 
-/* ─── Steps indicator ────────────────────────────────────────────────────── */
-
-.ajouterEmployeForm-steps {
+.ajouterEmployeForm-root {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 24px;
+    flex-direction: column;
+    gap: 18px;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
 }
 
-.ajouterEmployeForm-steps__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #E5DDD5;
-    transition: background 300ms ease, transform 300ms ease;
-}
+/* ─── Info banner (new user) ─────────────────────────────────────────────── */
 
-.ajouterEmployeForm-steps__dot--active { background: #F39C12; transform: scale(1.3); }
-.ajouterEmployeForm-steps__dot--done   { background: #27AE60; }
-
-.ajouterEmployeForm-steps__line {
-    flex: 1;
-    height: 2px;
-    background: #E5DDD5;
-    border-radius: 1px;
-}
-
-/* ─── Form ───────────────────────────────────────────────────────────────── */
-
-.ajouterEmployeForm-form { display: flex; flex-direction: column; gap: 18px; }
-
-.ajouterEmployeForm-form__headline { display: flex; flex-direction: column; gap: 6px; }
-
-.ajouterEmployeForm-form__title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #2C3E50;
-    margin: 0;
-}
-
-.ajouterEmployeForm-form__subtitle {
+.ajouterEmployeForm-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(241, 196, 15, 0.08);
+    border: 1px solid rgba(241, 196, 15, 0.3);
+    border-radius: 12px;
     font-size: 13px;
     font-weight: 500;
-    color: #6B7280;
-    margin: 0;
+    color: #856404;
+    line-height: 1.5;
 }
+
+.ajouterEmployeForm-info svg { flex-shrink: 0; margin-top: 1px; color: #D4A017; }
 
 /* ─── Field ──────────────────────────────────────────────────────────────── */
 
@@ -84,29 +62,9 @@
 .ajouterEmployeForm-field__input:disabled,
 .ajouterEmployeForm-field__select:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ─── Row ────────────────────────────────────────────────────────────────── */
-
-.ajouterEmployeForm-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-/* ─── Found email info ───────────────────────────────────────────────────── */
-
-.ajouterEmployeForm-found {
-    padding: 12px 14px;
-    background: rgba(39, 174, 96, 0.08);
-    border: 1px solid rgba(39, 174, 96, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.ajouterEmployeForm-found__icon { color: #27AE60; flex-shrink: 0; }
-
-.ajouterEmployeForm-found__text { font-size: 13px; font-weight: 500; color: #27AE60; margin: 0; }
-
 /* ─── Error ──────────────────────────────────────────────────────────────── */
 
-.ajouterEmployeForm-form__error {
+.ajouterEmployeForm-error {
     padding: 10px 14px;
     background: rgba(231, 76, 60, 0.08);
     border: 1px solid rgba(231, 76, 60, 0.15);
@@ -117,13 +75,14 @@
     margin: 0;
 }
 
-/* ─── Submit ─────────────────────────────────────────────────────────────── */
+/* ─── Actions ────────────────────────────────────────────────────────────── */
 
-.ajouterEmployeForm-form__actions { display: flex; gap: 10px; }
+.ajouterEmployeForm-actions { display: flex; gap: 10px; }
 
-.ajouterEmployeForm-form__back {
+.ajouterEmployeForm-actions__cancel,
+.ajouterEmployeForm-actions__back {
+    flex: 1;
     height: 48px;
-    padding: 0 20px;
     background: #F3F0EB;
     border: none;
     border-radius: 14px;
@@ -135,10 +94,14 @@
     transition: background 150ms ease;
 }
 
-.ajouterEmployeForm-form__back:hover { background: #E8E3DC; }
+.ajouterEmployeForm-actions__cancel:hover:not(:disabled),
+.ajouterEmployeForm-actions__back:hover:not(:disabled) { background: #E8E3DC; }
 
-.ajouterEmployeForm-form__submit {
-    flex: 1;
+.ajouterEmployeForm-actions__cancel:disabled,
+.ajouterEmployeForm-actions__back:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ajouterEmployeForm-actions__submit {
+    flex: 2;
     height: 48px;
     background: #F39C12;
     border: none;
@@ -152,24 +115,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
     transition: box-shadow 200ms ease, transform 150ms ease, opacity 200ms ease;
 }
 
-.ajouterEmployeForm-form__submit:hover:not(:disabled) { box-shadow: 0 5px 18px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
-.ajouterEmployeForm-form__submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.ajouterEmployeForm-actions__submit:hover:not(:disabled) { box-shadow: 0 5px 18px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
+.ajouterEmployeForm-actions__submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-.ajouterEmployeForm-form__spinner {
+/* ─── Spinner ────────────────────────────────────────────────────────────── */
+
+.ajouterEmployeForm-spinner {
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-color: #FFFFFF;
     border-radius: 50%;
     animation: ajouterEmployeSpin 0.7s linear infinite;
 }
 
 @keyframes ajouterEmployeSpin { to { transform: rotate(360deg); } }
-
-@media (max-width: 480px) {
-    .ajouterEmployeForm-form__row { grid-template-columns: 1fr; }
-}

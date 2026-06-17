@@ -1,4 +1,6 @@
-.adminEmployes-root {
+/* ─── Root ───────────────────────────────────────────────────────────────── */
+
+.employesAdmin-root {
     min-height: 100%;
     background: #FFF8F0;
     font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
@@ -6,7 +8,7 @@
 
 /* ─── Top bar ────────────────────────────────────────────────────────────── */
 
-.adminEmployes-topBar {
+.employesAdmin-topBar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -14,7 +16,9 @@
     gap: 12px;
 }
 
-.adminEmployes-topBar__title {
+.employesAdmin-topBar__info { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+
+.employesAdmin-topBar__title {
     font-size: clamp(1.2rem, 4vw, 1.5rem);
     font-weight: 700;
     color: #2C3E50;
@@ -22,10 +26,16 @@
     letter-spacing: -0.02em;
 }
 
-.adminEmployes-topBar__addBtn {
+.employesAdmin-topBar__count {
+    font-size: 13px;
+    font-weight: 600;
+    color: #B0A898;
+}
+
+.employesAdmin-topBar__addBtn {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     height: 44px;
     padding: 0 18px;
     background: #F39C12;
@@ -39,159 +49,14 @@
     box-shadow: 0 3px 12px rgba(243, 156, 18, 0.3);
     transition: box-shadow 200ms ease, transform 150ms ease;
     flex-shrink: 0;
-}
-
-.adminEmployes-topBar__addBtn:hover { box-shadow: 0 5px 18px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
-
-/* ─── Content area ───────────────────────────────────────────────────────── */
-
-.adminEmployes-content { padding: 0 20px 24px; }
-
-/* ─── Loading ────────────────────────────────────────────────────────────── */
-
-.adminEmployes-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 0;
-    gap: 12px;
-    color: #6B7280;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.adminEmployes-loading__spinner {
-    width: 24px;
-    height: 24px;
-    border: 2.5px solid #E5DDD5;
-    border-top-color: #F39C12;
-    border-radius: 50%;
-    animation: adminEmployesSpin 0.7s linear infinite;
-}
-
-@keyframes adminEmployesSpin { to { transform: rotate(360deg); } }
-
-/* ─── Error ──────────────────────────────────────────────────────────────── */
-
-.adminEmployes-error {
-    padding: 16px 20px;
-    background: rgba(231, 76, 60, 0.06);
-    border: 1px solid rgba(231, 76, 60, 0.15);
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #E74C3C;
-}
-
-/* ─── Empty state ────────────────────────────────────────────────────────── */
-
-.adminEmployes-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 60px 20px;
-    text-align: center;
-}
-
-.adminEmployes-empty__illustration { color: #B0A898; }
-
-.adminEmployes-empty__text {
-    font-size: 14px;
-    font-weight: 500;
-    color: #6B7280;
-    max-width: 280px;
-    margin: 0;
-    line-height: 1.6;
-}
-
-/* ─── List ───────────────────────────────────────────────────────────────── */
-
-.adminEmployes-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-
-/* ─── Employee card ──────────────────────────────────────────────────────── */
-
-.adminEmployes-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    background: #FFFFFF;
-    border: 1.5px solid #E5DDD5;
-    border-radius: 16px;
-    transition: border-color 200ms ease, box-shadow 150ms ease;
-}
-
-.adminEmployes-card:hover { border-color: #C8BFB5; box-shadow: 0 2px 12px rgba(44, 62, 80, 0.06); }
-
-.adminEmployes-card__avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #2C3E50;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 700;
-    color: #F39C12;
-    flex-shrink: 0;
-}
-
-.adminEmployes-card__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-
-.adminEmployes-card__name {
-    font-size: 14px;
-    font-weight: 700;
-    color: #2C3E50;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.adminEmployes-card__email {
-    font-size: 12px;
-    font-weight: 500;
-    color: #6B7280;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.adminEmployes-card__roleBadge {
-    display: inline-flex;
-    padding: 3px 10px;
-    background: rgba(243, 156, 18, 0.1);
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #F39C12;
-    letter-spacing: 0.02em;
-    align-self: flex-start;
-}
-
-.adminEmployes-card__actions { display: flex; gap: 8px; flex-shrink: 0; }
-
-.adminEmployes-card__actionBtn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: 1.5px solid #E5DDD5;
-    background: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #6B7280;
-    transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
-}
-
-.adminEmployes-card__actionBtn:hover { background: #F3F0EB; border-color: #C8BFB5; color: #2C3E50; }
-.adminEmployes-card__actionBtn--danger:hover { background: rgba(231, 76, 60, 0.06); border-color: #E74C3C; color: #E74C3C; }
+.employesAdmin-topBar__addBtn:hover { box-shadow: 0 5px 18px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
 
 /* ─── Toast ──────────────────────────────────────────────────────────────── */
 
-.adminEmployes-toast {
+.employesAdmin-toast {
     position: fixed;
     bottom: 24px;
     left: 50%;
@@ -205,28 +70,257 @@
     font-weight: 600;
     box-shadow: 0 4px 20px rgba(39, 174, 96, 0.35);
     white-space: nowrap;
-    animation: adminEmployesToastIn 250ms ease forwards;
+    animation: employesToastIn 250ms ease forwards;
 }
 
-@keyframes adminEmployesToastIn {
+@keyframes employesToastIn {
     from { opacity: 0; transform: translateX(-50%) translateY(12px); }
     to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ─── Skeleton ───────────────────────────────────────────────────────────── */
+
+.employesAdmin-skeleton { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+
+.employesAdmin-skeleton__row {
+    height: 72px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, #F3F0EB 25%, #EAE3DC 50%, #F3F0EB 75%);
+    background-size: 200% 100%;
+    animation: employesSkeletonShimmer 1.5s infinite;
+}
+
+@keyframes employesSkeletonShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ─── Error ──────────────────────────────────────────────────────────────── */
+
+.employesAdmin-error {
+    margin: 0 20px;
+    padding: 16px 20px;
+    background: rgba(231, 76, 60, 0.06);
+    border: 1px solid rgba(231, 76, 60, 0.15);
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #E74C3C;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.employesAdmin-error p { margin: 0; }
+
+.employesAdmin-error__retry {
+    align-self: flex-start;
+    background: none;
+    border: 1px solid #E74C3C;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #E74C3C;
+    cursor: pointer;
+    transition: background 150ms ease;
+}
+
+.employesAdmin-error__retry:hover { background: rgba(231, 76, 60, 0.06); }
+
+/* ─── Empty ──────────────────────────────────────────────────────────────── */
+
+.employesAdmin-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.employesAdmin-empty__text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    max-width: 280px;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* ─── List ───────────────────────────────────────────────────────────────── */
+
+.employesAdmin-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+
+.employesAdmin-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 16px;
+    transition: border-color 200ms ease, box-shadow 150ms ease;
+}
+
+.employesAdmin-card:hover { border-color: #C8BFB5; box-shadow: 0 2px 12px rgba(44, 62, 80, 0.06); }
+
+.employesAdmin-card__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #2C3E50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #F39C12;
+    flex-shrink: 0;
+    letter-spacing: -0.02em;
+}
+
+.employesAdmin-card__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+.employesAdmin-card__name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2C3E50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.employesAdmin-card__email {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6B7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.employesAdmin-card__role {
+    font-size: 11px;
+    font-weight: 700;
+    color: #F39C12;
+    background: rgba(243, 156, 18, 0.1);
+    display: inline-flex;
+    padding: 2px 8px;
+    border-radius: 6px;
+    align-self: flex-start;
+    letter-spacing: 0.02em;
+}
+
+.employesAdmin-card__actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.employesAdmin-card__editBtn {
+    height: 34px;
+    padding: 0 14px;
+    background: #F3F0EB;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #2C3E50;
+    cursor: pointer;
+    transition: background 150ms ease;
+    white-space: nowrap;
+}
+
+.employesAdmin-card__editBtn:hover { background: #E8E3DC; }
+
+.employesAdmin-card__removeBtn {
+    height: 34px;
+    padding: 0 14px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #E74C3C;
+    cursor: pointer;
+    transition: background 150ms ease;
+    white-space: nowrap;
+}
+
+.employesAdmin-card__removeBtn:hover { background: rgba(231, 76, 60, 0.14); }
+
+/* ─── Edit role (in drawer) ──────────────────────────────────────────────── */
+
+.employesAdmin-editRole { display: flex; flex-direction: column; gap: 20px; }
+
+.employesAdmin-editRole__field { display: flex; flex-direction: column; gap: 8px; }
+
+.employesAdmin-editRole__label { font-size: 13px; font-weight: 600; color: #2C3E50; }
+
+.employesAdmin-editRole__select {
+    width: 100%;
+    height: 50px;
+    background: #F9F6F2;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2C3E50;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+    box-sizing: border-box;
+}
+
+.employesAdmin-editRole__select:focus {
+    border-color: #F39C12;
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    background: #FFFFFF;
+}
+
+/* ─── Remove confirm text ────────────────────────────────────────────────── */
+
+.employesAdmin-removeText {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    margin: 0 0 20px;
+    line-height: 1.6;
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 480px) {
-    .adminEmployes-topBar { padding: 20px 16px 16px; }
-    .adminEmployes-content { padding: 0 16px 24px; }
-    .adminEmployes-toast { left: 16px; right: 16px; transform: none; white-space: normal; }
+    .employesAdmin-topBar { padding: 20px 16px 16px; }
+    .employesAdmin-list { padding: 0 16px; }
+    .employesAdmin-skeleton { padding: 0 16px; }
+    .employesAdmin-toast { left: 16px; right: 16px; transform: none; white-space: normal; }
+    .employesAdmin-card { flex-wrap: wrap; }
+    .employesAdmin-card__actions { width: 100%; justify-content: flex-end; }
 }
 
-@media (min-width: 1025px) and (max-width: 1200px) {
-    .adminEmployes-topBar { padding: 32px 32px 24px; }
-    .adminEmployes-content { padding: 0 32px 32px; }
+@media (min-width: 1025px) {
+    .employesAdmin-topBar { padding: 32px 32px 24px; }
+    .employesAdmin-list { padding: 0 32px; }
+    .employesAdmin-skeleton { padding: 0 32px; }
+    .employesAdmin-error { margin: 0 32px; }
 }
 
 @media (min-width: 1201px) {
-    .adminEmployes-topBar { padding: 40px 40px 28px; }
-    .adminEmployes-content { padding: 0 40px 40px; }
+    .employesAdmin-topBar { padding: 40px 40px 28px; }
+    .employesAdmin-list { padding: 0 40px; }
+    .employesAdmin-skeleton { padding: 0 40px; }
+    .employesAdmin-error { margin: 0 40px; }
 }

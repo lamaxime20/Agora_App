@@ -1,4 +1,6 @@
-.adminGestion-root {
+/* ─── Root ───────────────────────────────────────────────────────────────── */
+
+.adminsGestion-root {
     min-height: 100%;
     background: #FFF8F0;
     font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
@@ -6,7 +8,7 @@
 
 /* ─── Top bar ────────────────────────────────────────────────────────────── */
 
-.adminGestion-topBar {
+.adminsGestion-topBar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -14,7 +16,9 @@
     gap: 12px;
 }
 
-.adminGestion-topBar__title {
+.adminsGestion-topBar__info { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+
+.adminsGestion-topBar__title {
     font-size: clamp(1.2rem, 4vw, 1.5rem);
     font-weight: 700;
     color: #2C3E50;
@@ -22,10 +26,16 @@
     letter-spacing: -0.02em;
 }
 
-.adminGestion-topBar__addBtn {
+.adminsGestion-topBar__count {
+    font-size: 13px;
+    font-weight: 600;
+    color: #B0A898;
+}
+
+.adminsGestion-topBar__addBtn {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     height: 44px;
     padding: 0 18px;
     background: #F39C12;
@@ -39,170 +49,14 @@
     box-shadow: 0 3px 12px rgba(243, 156, 18, 0.3);
     transition: box-shadow 200ms ease, transform 150ms ease;
     flex-shrink: 0;
-}
-
-.adminGestion-topBar__addBtn:hover { box-shadow: 0 5px 18px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
-
-/* ─── Restricted screen ──────────────────────────────────────────────────── */
-
-.adminGestion-restricted {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    min-height: 60vh;
-    padding: 40px 20px;
-    text-align: center;
-}
-
-.adminGestion-restricted__icon { color: #B0A898; }
-
-.adminGestion-restricted__title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #2C3E50;
-    margin: 0;
-}
-
-.adminGestion-restricted__text {
-    font-size: 14px;
-    font-weight: 500;
-    color: #6B7280;
-    max-width: 280px;
-    margin: 0;
-    line-height: 1.6;
-}
-
-/* ─── Content ────────────────────────────────────────────────────────────── */
-
-.adminGestion-content { padding: 0 20px 24px; }
-
-/* ─── Loading ────────────────────────────────────────────────────────────── */
-
-.adminGestion-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 0;
-    gap: 12px;
-    color: #6B7280;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.adminGestion-loading__spinner {
-    width: 24px;
-    height: 24px;
-    border: 2.5px solid #E5DDD5;
-    border-top-color: #F39C12;
-    border-radius: 50%;
-    animation: adminGestionSpin 0.7s linear infinite;
-}
-
-@keyframes adminGestionSpin { to { transform: rotate(360deg); } }
-
-/* ─── Error ──────────────────────────────────────────────────────────────── */
-
-.adminGestion-error {
-    padding: 16px 20px;
-    background: rgba(231, 76, 60, 0.06);
-    border: 1px solid rgba(231, 76, 60, 0.15);
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #E74C3C;
-}
-
-/* ─── Admin card ─────────────────────────────────────────────────────────── */
-
-.adminGestion-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-
-.adminGestion-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    background: #FFFFFF;
-    border: 1.5px solid #E5DDD5;
-    border-radius: 16px;
-    transition: border-color 200ms ease, box-shadow 150ms ease;
-}
-
-.adminGestion-card:hover { border-color: #C8BFB5; box-shadow: 0 2px 12px rgba(44, 62, 80, 0.06); }
-
-.adminGestion-card--disabled { opacity: 0.55; }
-
-.adminGestion-card__avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #2C3E50;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 700;
-    color: #F39C12;
-    flex-shrink: 0;
-}
-
-.adminGestion-card__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-
-.adminGestion-card__email {
-    font-size: 14px;
-    font-weight: 700;
-    color: #2C3E50;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.adminGestion-card__badges { display: flex; gap: 6px; flex-wrap: wrap; }
-
-.adminGestion-card__badge {
-    display: inline-flex;
-    padding: 3px 10px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-}
-
-.adminGestion-card__badge--originel {
-    background: rgba(243, 156, 18, 0.1);
-    color: #F39C12;
-}
-
-.adminGestion-card__badge--disabled {
-    background: rgba(231, 76, 60, 0.1);
-    color: #E74C3C;
-}
-
-.adminGestion-card__actions { display: flex; gap: 8px; flex-shrink: 0; }
-
-.adminGestion-card__actionBtn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: 1.5px solid #E5DDD5;
-    background: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #6B7280;
-    transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
-}
-
-.adminGestion-card__actionBtn:hover { background: #F3F0EB; border-color: #C8BFB5; color: #2C3E50; }
-.adminGestion-card__actionBtn--danger:hover { background: rgba(231, 76, 60, 0.06); border-color: #E74C3C; color: #E74C3C; }
-
-.adminGestion-card__actionBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.adminsGestion-topBar__addBtn:hover { box-shadow: 0 5px 18px rgba(243, 156, 18, 0.4); transform: translateY(-1px); }
 
 /* ─── Toast ──────────────────────────────────────────────────────────────── */
 
-.adminGestion-toast {
+.adminsGestion-toast {
     position: fixed;
     bottom: 24px;
     left: 50%;
@@ -216,28 +70,235 @@
     font-weight: 600;
     box-shadow: 0 4px 20px rgba(39, 174, 96, 0.35);
     white-space: nowrap;
-    animation: adminGestionToastIn 250ms ease forwards;
+    animation: adminsToastIn 250ms ease forwards;
 }
 
-@keyframes adminGestionToastIn {
+@keyframes adminsToastIn {
     from { opacity: 0; transform: translateX(-50%) translateY(12px); }
     to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ─── Skeleton ───────────────────────────────────────────────────────────── */
+
+.adminsGestion-skeleton { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+
+.adminsGestion-skeleton__row {
+    height: 72px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, #F3F0EB 25%, #EAE3DC 50%, #F3F0EB 75%);
+    background-size: 200% 100%;
+    animation: adminsSkeletonShimmer 1.5s infinite;
+}
+
+@keyframes adminsSkeletonShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ─── Error ──────────────────────────────────────────────────────────────── */
+
+.adminsGestion-error {
+    margin: 0 20px;
+    padding: 16px 20px;
+    background: rgba(231, 76, 60, 0.06);
+    border: 1px solid rgba(231, 76, 60, 0.15);
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #E74C3C;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.adminsGestion-error p { margin: 0; }
+
+.adminsGestion-error__retry {
+    align-self: flex-start;
+    background: none;
+    border: 1px solid #E74C3C;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #E74C3C;
+    cursor: pointer;
+    transition: background 150ms ease;
+}
+
+.adminsGestion-error__retry:hover { background: rgba(231, 76, 60, 0.06); }
+
+/* ─── List ───────────────────────────────────────────────────────────────── */
+
+.adminsGestion-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+
+.adminsGestion-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border: 1.5px solid #E5DDD5;
+    border-radius: 16px;
+    transition: border-color 200ms ease, box-shadow 150ms ease;
+}
+
+.adminsGestion-card:hover { border-color: #C8BFB5; box-shadow: 0 2px 12px rgba(44, 62, 80, 0.06); }
+
+.adminsGestion-card__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #2C3E50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #F39C12;
+    flex-shrink: 0;
+}
+
+.adminsGestion-card__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.adminsGestion-card__email {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2C3E50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.adminsGestion-card__badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.adminsGestion-card__badge {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.adminsGestion-card__badge--originel {
+    background: rgba(243, 156, 18, 0.1);
+    color: #F39C12;
+}
+
+.adminsGestion-card__badge--status { }
+
+.adminsGestion-card__badge--actif {
+    background: rgba(39, 174, 96, 0.1);
+    color: #27AE60;
+}
+
+.adminsGestion-card__badge--inactif {
+    background: rgba(231, 76, 60, 0.1);
+    color: #E74C3C;
+}
+
+.adminsGestion-card__actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.adminsGestion-card__resetBtn {
+    height: 34px;
+    padding: 0 14px;
+    background: #F3F0EB;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #2C3E50;
+    cursor: pointer;
+    transition: background 150ms ease;
+    white-space: nowrap;
+}
+
+.adminsGestion-card__resetBtn:hover:not(:disabled) { background: #E8E3DC; }
+.adminsGestion-card__resetBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.adminsGestion-card__disableBtn {
+    height: 34px;
+    padding: 0 14px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #E74C3C;
+    cursor: pointer;
+    transition: background 150ms ease;
+    white-space: nowrap;
+}
+
+.adminsGestion-card__disableBtn:hover { background: rgba(231, 76, 60, 0.14); }
+
+/* ─── Access denied ──────────────────────────────────────────────────────── */
+
+.adminsGestion-denied {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 60vh;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.adminsGestion-denied__icon { color: #B0A898; }
+
+.adminsGestion-denied__text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    max-width: 280px;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* ─── Disable confirm text ───────────────────────────────────────────────── */
+
+.adminsGestion-disableText {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    margin: 0 0 20px;
+    line-height: 1.6;
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 480px) {
-    .adminGestion-topBar { padding: 20px 16px 16px; }
-    .adminGestion-content { padding: 0 16px 24px; }
-    .adminGestion-toast { left: 16px; right: 16px; transform: none; white-space: normal; }
+    .adminsGestion-topBar { padding: 20px 16px 16px; }
+    .adminsGestion-list { padding: 0 16px; }
+    .adminsGestion-skeleton { padding: 0 16px; }
+    .adminsGestion-toast { left: 16px; right: 16px; transform: none; white-space: normal; }
+    .adminsGestion-card__resetBtn, .adminsGestion-card__disableBtn { font-size: 11px; padding: 0 10px; }
 }
 
-@media (min-width: 1025px) and (max-width: 1200px) {
-    .adminGestion-topBar { padding: 32px 32px 24px; }
-    .adminGestion-content { padding: 0 32px 32px; }
+@media (min-width: 1025px) {
+    .adminsGestion-topBar { padding: 32px 32px 24px; }
+    .adminsGestion-list { padding: 0 32px; }
+    .adminsGestion-skeleton { padding: 0 32px; }
+    .adminsGestion-error { margin: 0 32px; }
 }
 
 @media (min-width: 1201px) {
-    .adminGestion-topBar { padding: 40px 40px 28px; }
-    .adminGestion-content { padding: 0 40px 40px; }
+    .adminsGestion-topBar { padding: 40px 40px 28px; }
+    .adminsGestion-list { padding: 0 40px; }
+    .adminsGestion-skeleton { padding: 0 40px; }
+    .adminsGestion-error { margin: 0 40px; }
 }
