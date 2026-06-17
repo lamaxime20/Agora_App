@@ -28,10 +28,10 @@ function ModalAjoutProduit({ onClose, produitInitial = null, onSaved }) {
             return {
                 nom:          produitInitial.nom ?? "",
                 prix_unitaire:produitInitial.prix_unitaire ?? "",
-                type:         produitInitial.type ?? "physique",
+                type:         produitInitial.type ?? produitInitial.type_produit ?? "physique",
                 stock_actuel: produitInitial.quantite_stock ?? "",
                 seuil_alerte: produitInitial.seuil_alerte ?? "",
-                unite:        produitInitial.unite ?? "",
+                unite:        produitInitial.unite ?? produitInitial.unite_mesure ?? "",
                 description:  produitInitial.description ?? "",
                 categorie_id: produitInitial.categorie?.id ?? "",
             };
@@ -48,7 +48,7 @@ function ModalAjoutProduit({ onClose, produitInitial = null, onSaved }) {
     const [imageFile, setImageFile]             = useState(null);
     const [isDragging, setIsDragging]           = useState(false);
     const [categories, setCategories]           = useState([]);
-    const [catSearch, setCatSearch]             = useState(produitInitial?.categorie?.nom ?? "");
+    const [catSearch, setCatSearch]             = useState(produitInitial?.categorie?.nom ?? produitInitial?.categorie?.categorie ?? "");
     const [showCatDropdown, setShowCatDropdown] = useState(false);
     const [submitting, setSubmitting]           = useState(false);
     const [submitError, setSubmitError]         = useState("");
@@ -308,7 +308,7 @@ function ModalAjoutProduit({ onClose, produitInitial = null, onSaved }) {
                               (le stock ne se modifie que via ravitaillement/pertes) */}
                         {estPhysique && (
                             <div
-                                className="modalProduit-physical-container modalProduit-physical-container--visible"
+                                className="modalProduit-physical modalProduit-physical--visible"
                                 aria-hidden="false"
                             >
                                 <div className="modalProduit-grid">

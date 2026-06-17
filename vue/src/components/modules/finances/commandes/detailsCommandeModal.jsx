@@ -55,13 +55,18 @@ function DetailsCommandeModal({ commande, onClose }) {
     const resteAPayer = (data.montant_commande ?? 0) - (data.total_paye ?? 0);
 
     return (
+        <>
         <div
             className="finCommandes-modal__overlay"
+            onClick={onClose}
+            aria-hidden="true"
+        />
+        <div
+            className="finCommandes-modal__panel finCommandes-modal__panel--large"
             role="dialog"
             aria-modal="true"
             aria-labelledby="detail-commande-title"
         >
-            <div className="finCommandes-modal__panel finCommandes-modal__panel--large">
 
                 <div className="finCommandes-modal__header">
                     <h2 className="finCommandes-modal__title" id="detail-commande-title">
@@ -268,8 +273,8 @@ function DetailsCommandeModal({ commande, onClose }) {
                         Fermer
                     </button>
                 </div>
-            </div>
         </div>
+        </>
     );
 }
 

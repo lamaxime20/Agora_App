@@ -295,9 +295,21 @@
     flex: 1;
 }
 
-/* ─── Desktop ─────────────────────────────────────────────────────────────────── */
+/* ─── Mobile (≤ 480px) ────────────────────────────────────────────────────────── */
 
-@media (min-width: 769px) {
+@media (max-width: 480px) {
+    .modalProduit-footer {
+        flex-direction: column-reverse;
+    }
+
+    .modalProduit-footer .app-button {
+        width: 100%;
+    }
+}
+
+/* ─── Desktop (≥ 1025px) ─────────────────────────────────────────────────────── */
+
+@media (min-width: 1025px) {
     .modalProduit-overlay {
         align-items: center;
         justify-content: center;

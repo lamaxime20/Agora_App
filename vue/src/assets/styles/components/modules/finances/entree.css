@@ -95,7 +95,7 @@
 }
 
 .finEnt-search__input {
-    padding-left: var(--space-9) !important;
+    padding-left: calc(var(--space-3) + 16px + var(--space-3)) !important;
     width: 100%;
 }
 

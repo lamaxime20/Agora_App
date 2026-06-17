@@ -7,24 +7,57 @@
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(6px);
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-4);
+    align-items: flex-end;
     animation: fadeIn var(--duration-fast) var(--ease-out);
 }
 
-/* ─── Panel ───────────────────────────────────────────────────────────────────── */
+/* ─── Panel — Mobile : bottom sheet ──────────────────────────────────────────── */
 
 .modalCategorie-panel {
     width: 100%;
-    max-width: 520px;
+    max-height: 95dvh;
     background-color: var(--color-surface);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     box-shadow: var(--shadow-xl);
-    animation: scaleIn var(--duration-normal) var(--ease-out);
+    animation: slideUpModal var(--duration-normal) var(--ease-out);
+}
+
+@keyframes slideUpModal {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ─── Desktop (≥ 1025px) : modal centrée ─────────────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .modalCategorie-overlay {
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-6);
+    }
+
+    .modalCategorie-panel {
+        max-width: 520px;
+        max-height: 90dvh;
+        border-radius: var(--radius-2xl);
+        animation: scaleFadeIn var(--duration-normal) var(--ease-out);
+    }
+
+    @keyframes scaleFadeIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to   { transform: scale(1);    opacity: 1; }
+    }
+
+    .modalCategorie-footer {
+        justify-content: flex-end;
+    }
+
+    .modalCategorie-footer .app-button {
+        width: auto;
+    }
 }
 
 /* ─── Header ──────────────────────────────────────────────────────────────────── */

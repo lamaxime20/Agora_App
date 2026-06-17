@@ -2039,6 +2039,32 @@
     }
 }
 
+@keyframes scaleFadeIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+
+@media (min-width: 1025px) {
+    .commandes-sheet__overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .commandes-sheet {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        width: 540px;
+        max-width: 540px;
+        max-height: 85dvh;
+        border-radius: var(--radius-2xl);
+        transform: none;
+        animation: scaleFadeIn var(--duration-normal) var(--ease-out);
+    }
+}
+
 .commandes-sheet__header {
     display: flex;
     align-items: center;

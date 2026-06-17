@@ -4,31 +4,33 @@
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.35);
-    z-index: calc(var(--z-modal) - 1);
+    z-index: calc(var(--z-overlay) + 1);
     animation: finPPane-fadeIn var(--duration-fast) var(--ease-out);
 }
 
-/* ─── Drawer (panneau latéral droit) ──────────────────────────────────────────── */
+/* ─── Drawer — Mobile : bottom sheet ─────────────────────────────────────────── */
 
 .finCommandes-drawer {
     position: fixed;
-    top: 0;
+    bottom: 0;
+    left: 0;
     right: 0;
-    height: 100dvh;
-    width: min(560px, 100vw);
+    height: 90dvh;
     background-color: var(--color-surface);
     display: flex;
     flex-direction: column;
-    z-index: var(--z-modal);
+    z-index: calc(var(--z-overlay) + 2);
     box-shadow: var(--shadow-xl);
     overflow: hidden;
-    animation: finPPane-slideInRight var(--duration-normal) var(--ease-out);
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    border-top: 1px solid var(--color-border);
+    animation: finPPane-slideInUp var(--duration-normal) var(--ease-out);
 }
 
-/* ─── Handle (mobile) ─────────────────────────────────────────────────────────── */
+/* ─── Handle ──────────────────────────────────────────────────────────────────── */
 
 .finCommandes-drawer__handle {
-    display: none;
+    display: flex;
     justify-content: center;
     padding: var(--space-3) 0 var(--space-1);
     flex-shrink: 0;
@@ -164,28 +166,31 @@
     to   { transform: translateX(0); }
 }
 
-/* ─── Responsive : bottom sheet sur mobile ────────────────────────────────────── */
-
-@media (max-width: 480px) {
-    .finCommandes-drawer {
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        max-width: 100%;
-        height: auto;
-        max-height: 92dvh;
-        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-        animation: finPPane-slideInUp var(--duration-normal) var(--ease-out);
-    }
-
-    .finCommandes-drawer__handle {
-        display: flex;
-    }
+@keyframes finPPane-slideInUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
 }
 
-@keyframes finPPane-slideInUp {
-    from { transform: translateY(100%); }
-    to   { transform: translateY(0); }
+/* ─── Desktop (≥ 1025px) : drawer latéral droit ──────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .finCommandes-drawer__overlay {
+        display: none;
+    }
+
+    .finCommandes-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: auto;
+        width: 480px;
+        height: 100dvh;
+        border-radius: 0;
+        border-top: none;
+        border-left: 1px solid var(--color-border);
+        animation: finPPane-slideInRight var(--duration-normal) var(--ease-out);
+    }
+
+    .finCommandes-drawer__handle { display: none; }
 }

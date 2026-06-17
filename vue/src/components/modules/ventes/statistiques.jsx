@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import {
     BarChart2, Users, ShoppingBag, Package,
     TrendingUp, TrendingDown, Truck, CheckCircle2,
-    XCircle, AlertTriangle, Award, ChevronUp, ChevronDown
+    XCircle, AlertTriangle, Award, ChevronUp, ChevronDown,
+    Download, Filter, X
 } from "lucide-react";
 import { readCache } from "../../../services/ventesCache.js";
 import { formatMontant, formatDate, fetchVentesStatistiquesGeneral, fetchVentesStatistiquesClients, fetchVentesStatistiquesCommandes } from "../../../services/ventes.js";
@@ -85,56 +86,63 @@ function Statistiques() {
     const [errorClients,   setErrorClients]   = useState(null);
     const [errorCommandes, setErrorCommandes] = useState(null);
 
-    // ── Fetch vue générale au montage ──────────────────────────────────────────
-    useEffect(() => {
-        const cachedData = readCache("stats_general");
-        if (cachedData) {
-            setGeneralData(cachedData);
-            setLoadingGeneral(false);
-        } else {
-            setLoadingGeneral(true);
-        }
+    const [showFilter,   setShowFilter]   = useState(false);
+    const [exportOpen,   setExportOpen]   = useState(false);
+    const [dateDebut,    setDateDebut]    = useState("");
+    const [dateFin,      setDateFin]      = useState("");
+    const [activeFilter, setActiveFilter] = useState({ dateDebut: "", dateFin: "" });
 
-        fetchVentesStatistiquesGeneral()
+    // ── Fetch vue générale au montage ou changement de filtre ─────────────────
+    useEffect(() => {
+        setLoadingGeneral(true);
+        setErrorGeneral(null);
+        setGeneralData(null);
+        setClientsData(null);
+        setCommandesData(null);
+
+        const params = {};
+        if (activeFilter.dateDebut) params.date_debut = activeFilter.dateDebut;
+        if (activeFilter.dateFin)   params.date_fin   = activeFilter.dateFin;
+
+        fetchVentesStatistiquesGeneral(params)
             .then(d => setGeneralData(d))
             .catch(e => setErrorGeneral(e.message))
             .finally(() => setLoadingGeneral(false));
-    }, []);
+    }, [activeFilter]);
 
     // ── Fetch au changement d'onglet ───────────────────────────────────────────
     useEffect(() => {
+        const params = {};
+        if (activeFilter.dateDebut) params.date_debut = activeFilter.dateDebut;
+        if (activeFilter.dateFin)   params.date_fin   = activeFilter.dateFin;
+
         if (activeTab === "clients" && !clientsData && !loadingClients) {
-            const cachedData = readCache("stats_clients");
-            if (cachedData) {
-                setClientsData(cachedData);
-                setLoadingClients(false);
-            } else {
-                setLoadingClients(true);
-            }
-            fetchVentesStatistiquesClients()
+            setLoadingClients(true);
+            fetchVentesStatistiquesClients(params)
                 .then(d => setClientsData(d))
                 .catch(e => setErrorClients(e.message))
                 .finally(() => setLoadingClients(false));
         }
         if (activeTab === "commandes" && !commandesData && !loadingCommandes) {
-            const cachedData = readCache("stats_commandes");
-            if (cachedData) {
-                setCommandesData(cachedData);
-                setLoadingCommandes(false);
-            } else {
-                setLoadingCommandes(true);
-            }
-            fetchVentesStatistiquesCommandes()
+            setLoadingCommandes(true);
+            fetchVentesStatistiquesCommandes(params)
                 .then(d => setCommandesData(d))
                 .catch(e => setErrorCommandes(e.message))
                 .finally(() => setLoadingCommandes(false));
         }
-    }, [activeTab, clientsData, loadingClients, commandesData, loadingCommandes]);
+    }, [activeTab, clientsData, loadingClients, commandesData, loadingCommandes, activeFilter]);
+
+    const getParams = () => {
+        const p = {};
+        if (activeFilter.dateDebut) p.date_debut = activeFilter.dateDebut;
+        if (activeFilter.dateFin)   p.date_fin   = activeFilter.dateFin;
+        return p;
+    };
 
     const retryGeneral = () => {
         setErrorGeneral(null);
         setLoadingGeneral(true);
-        fetchVentesStatistiquesGeneral()
+        fetchVentesStatistiquesGeneral(getParams())
             .then(d => setGeneralData(d))
             .catch(e => setErrorGeneral(e.message))
             .finally(() => setLoadingGeneral(false));
@@ -144,7 +152,7 @@ function Statistiques() {
         setErrorClients(null);
         setClientsData(null);
         setLoadingClients(true);
-        fetchVentesStatistiquesClients()
+        fetchVentesStatistiquesClients(getParams())
             .then(d => setClientsData(d))
             .catch(e => setErrorClients(e.message))
             .finally(() => setLoadingClients(false));
@@ -154,22 +162,158 @@ function Statistiques() {
         setErrorCommandes(null);
         setCommandesData(null);
         setLoadingCommandes(true);
-        fetchVentesStatistiquesCommandes()
+        fetchVentesStatistiquesCommandes(getParams())
             .then(d => setCommandesData(d))
             .catch(e => setErrorCommandes(e.message))
             .finally(() => setLoadingCommandes(false));
     };
+
+    const applyFilter = () => {
+        setActiveFilter({ dateDebut, dateFin });
+        setShowFilter(false);
+    };
+
+    const clearFilter = () => {
+        setDateDebut("");
+        setDateFin("");
+        setActiveFilter({ dateDebut: "", dateFin: "" });
+        setShowFilter(false);
+    };
+
+    const hasActiveFilter = activeFilter.dateDebut || activeFilter.dateFin;
 
     return (
         <section className="statistiques-root" aria-label="Statistiques Vente">
 
             {/* ── Header ── */}
             <header className="statistiques-header">
-                <h1 className="statistiques-header__title">Statistiques</h1>
-                <p className="statistiques-header__subtitle">
-                    Analysez les performances de votre activité commerciale.
-                </p>
+                <div className="statistiques-header__top">
+                    <div>
+                        <h1 className="statistiques-header__title">Statistiques</h1>
+                        <p className="statistiques-header__subtitle">
+                            Analysez les performances de votre activité commerciale.
+                            {hasActiveFilter && (
+                                <span className="statistiques-header__filter-badge">
+                                    {activeFilter.dateDebut && `Du ${activeFilter.dateDebut}`}
+                                    {activeFilter.dateDebut && activeFilter.dateFin && " "}
+                                    {activeFilter.dateFin && `au ${activeFilter.dateFin}`}
+                                </span>
+                            )}
+                        </p>
+                    </div>
+                    <div className="statistiques-header__actions">
+                        <button
+                            className={`app-button app-button--sm${hasActiveFilter ? " app-button--primary" : " app-button--ghost"}`}
+                            onClick={() => setShowFilter(true)}
+                            type="button"
+                            aria-label="Filtrer les statistiques"
+                        >
+                            <Filter size={16} aria-hidden="true" />
+                            Filtrer
+                        </button>
+                        <div style={{ position: "relative" }}>
+                            <button
+                                className="app-button app-button--ghost app-button--sm"
+                                onClick={() => setExportOpen(v => !v)}
+                                type="button"
+                                aria-expanded={exportOpen}
+                                aria-haspopup="menu"
+                            >
+                                <Download size={16} aria-hidden="true" />
+                                Exporter
+                                <ChevronDown size={14} aria-hidden="true" />
+                            </button>
+                            {exportOpen && (
+                                <div className="statistiques-export-menu" role="menu">
+                                    {[".csv", ".pdf", ".xlsx"].map(f => (
+                                        <button
+                                            key={f}
+                                            className="statistiques-export-menu__item"
+                                            onClick={() => setExportOpen(false)}
+                                            role="menuitem"
+                                            type="button"
+                                        >
+                                            {f.toUpperCase()}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </header>
+
+            {/* ── Filtre (modal) ── */}
+            {showFilter && (
+                <>
+                    <div
+                        className="statistiques-filter__overlay"
+                        onClick={() => setShowFilter(false)}
+                        aria-hidden="true"
+                    />
+                    <div
+                        className="statistiques-filter__panel"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Filtrer les statistiques"
+                    >
+                        <div className="statistiques-filter__header">
+                            <h2 className="statistiques-filter__title">Filtrer</h2>
+                            <button
+                                className="statistiques-filter__close"
+                                onClick={() => setShowFilter(false)}
+                                aria-label="Fermer"
+                                type="button"
+                            >
+                                <X size={18} aria-hidden="true" />
+                            </button>
+                        </div>
+                        <div className="statistiques-filter__body">
+                            <div className="statistiques-filter__field">
+                                <label className="statistiques-filter__label" htmlFor="stats-date-debut">
+                                    Date de début
+                                </label>
+                                <input
+                                    id="stats-date-debut"
+                                    type="date"
+                                    className="app-input"
+                                    value={dateDebut}
+                                    onChange={e => setDateDebut(e.target.value)}
+                                />
+                            </div>
+                            <div className="statistiques-filter__field">
+                                <label className="statistiques-filter__label" htmlFor="stats-date-fin">
+                                    Date de fin
+                                </label>
+                                <input
+                                    id="stats-date-fin"
+                                    type="date"
+                                    className="app-input"
+                                    value={dateFin}
+                                    onChange={e => setDateFin(e.target.value)}
+                                    min={dateDebut || undefined}
+                                />
+                            </div>
+                        </div>
+                        <div className="statistiques-filter__footer">
+                            <button
+                                className="app-button app-button--ghost app-button--sm"
+                                onClick={clearFilter}
+                                type="button"
+                            >
+                                Réinitialiser
+                            </button>
+                            <button
+                                className="app-button app-button--primary app-button--sm"
+                                onClick={applyFilter}
+                                type="button"
+                            >
+                                Appliquer
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
 
             {/* ── Navigation onglets ── */}
             <nav className="stats-tabs" role="tablist" aria-label="Sections statistiques">

@@ -1,50 +1,64 @@
-/* ─── Overlay ─────────────────────────────────────────────────────────────────── */
+/* ─── Backdrop ─────────────────────────────────────────────────────────────────── */
 
 .finCommandes-modal__overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.40);
-    z-index: calc(var(--z-modal) + 1);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.35);
+    z-index: calc(var(--z-overlay) + 3);
     animation: finDCModal-fadeIn var(--duration-fast) var(--ease-out);
 }
 
-@media (min-width: 640px) {
-    .finCommandes-modal__overlay {
-        align-items: center;
-        padding: var(--space-4);
-    }
-}
-
-/* ─── Panneau modal ───────────────────────────────────────────────────────────── */
+/* ─── Panneau — Mobile : bottom sheet ────────────────────────────────────────── */
 
 .finCommandes-modal__panel {
-    width: 100%;
-    max-width: 500px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: calc(var(--z-overlay) + 4);
+    max-height: 92dvh;
     background-color: var(--color-surface);
     border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    border-top: 1px solid var(--color-border);
     overflow: hidden;
     box-shadow: var(--shadow-xl);
+    display: flex;
+    flex-direction: column;
     animation: finDCModal-slideUp var(--duration-normal) var(--ease-out);
 }
 
-@media (min-width: 640px) {
+/* ─── Desktop (≥ 1025px) : drawer latéral droit ──────────────────────────────── */
+
+@media (min-width: 1025px) {
+    .finCommandes-modal__overlay {
+        display: none;
+    }
+
     .finCommandes-modal__panel {
-        border-radius: var(--radius-2xl);
-        animation: finDCModal-scaleIn var(--duration-normal) var(--ease-out);
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: auto;
+        width: 480px;
+        max-height: 100dvh;
+        border-radius: 0;
+        border-top: none;
+        border-left: 1px solid var(--color-border);
+        animation: finDCModal-slideRight var(--duration-normal) var(--ease-out);
+    }
+
+    @keyframes finDCModal-slideRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to   { transform: translateX(0);    opacity: 1; }
     }
 }
 
-/* ─── Variante large (détails complets) ───────────────────────────────────────── */
+/* ─── Variante large (ignorée, conservée pour compatibilité) ─────────────────── */
 
-.finCommandes-modal__panel--large {
-    max-width: 680px;
-}
+.finCommandes-modal__panel--large { }
 
 .finCommandes-modal__panel--large .finCommandes-modal__body {
-    max-height: 70vh;
     overflow-y: auto;
 }
 
