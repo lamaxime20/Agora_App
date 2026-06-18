@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Bell, ChevronRight, Search, User, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Menu, Bell, ChevronRight, Search, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+
+import UserProfileDropdown from "../../components/shared/UserProfileDropdown";
 
 import {
     GESTION_STOCK_DASHBOARD,
@@ -110,13 +112,7 @@ function GestionStock({ onglet }) {
                             <span className="gestionStock-header__notif-badge" aria-hidden="true">3</span>
                         </button>
 
-                        <button
-                            className="gestionStock-header__profile"
-                            aria-label="Mon profil"
-                            type="button"
-                        >
-                            <User size={18} aria-hidden="true" />
-                        </button>
+                        <UserProfileDropdown btnClassName="gestionStock-header__profile" />
                     </div>
                 </header>
 

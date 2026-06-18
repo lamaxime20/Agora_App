@@ -32,6 +32,20 @@ export function wasAuthorizationSessionActive() {
     return window.sessionStorage.getItem(SESSION_ACTIVE_FLAG) === 'true';
 }
 
+export function patchAuthorizationSessionUser(patch) {
+    const raw = window.localStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    try {
+        const stored = JSON.parse(raw);
+        window.localStorage.setItem(SESSION_KEY, JSON.stringify({
+            ...stored,
+            user: { ...stored.user, ...patch },
+        }));
+    } catch {
+        // ignore
+    }
+}
+
 export { isSessionExpired, createSessionTimeout };
 
 // ─── Entreprises ──────────────────────────────────────────────────────────────

@@ -22,6 +22,9 @@ import Ventes from './pages/modules/ventes';
 import Finances from './pages/modules/finances';
 import RessourcesHumaines from './pages/modules/ressourcesHumaines';
 import Livraison from './pages/modules/livraison';
+import ParametresEntreprise from './pages/parametres-entreprise.jsx';
+import ParametresUtilisateur from './pages/parametres-utilisateur.jsx';
+
 
 import LoginPageAdmin from './pages/admin/loginPage.jsx';
 import ForgotPasswordPageAdmin from './pages/admin/forgotPasswordPage.jsx';
@@ -127,6 +130,8 @@ function App() {
 
                         <Route element={<RouteGuardAuthorization />}>
                             <Route path="/application" element={<ApplicationPage />} />
+                            <Route path="/application/parametres-entreprise" element={<ParametresEntreprise />} />
+                            <Route path="/application/parametres-utilisateur" element={<ParametresUtilisateur />} />
                             <Route path="/application/stock" element={<GestionStock  onglet={GESTION_STOCK_DASHBOARD} />} />
                             <Route path="/application/stock/produits" element={<GestionStock  onglet={GESTION_STOCK_PRODUITS} />} />
                             <Route path="/application/stock/reapprovisionnement" element={<GestionStock  onglet={GESTION_STOCK_REAPPROVISIONNEMENT} />} />

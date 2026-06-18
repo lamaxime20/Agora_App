@@ -1,0 +1,236 @@
+.param-user-root {
+    min-height: 100dvh;
+    background-color: var(--color-bg);
+    display: flex;
+    justify-content: center;
+    padding: var(--space-8) var(--space-4);
+}
+
+.param-user__inner {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+/* ── Page header ───────────────────────────────────────────────────────────── */
+
+.param-user__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.param-user__back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color            var(--duration-fast) var(--ease-out);
+}
+
+.param-user__back-btn:hover {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+.param-user__title {
+    font-size: 22px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+/* ── Identity block ────────────────────────────────────────────────────────── */
+
+.param-user__identity {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+}
+
+.param-user__identity-name {
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    margin: 0;
+    flex: 1;
+}
+
+.param-user__identity-role {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--space-3);
+    border-radius: var(--radius-full);
+    background-color: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+/* ── Section card ──────────────────────────────────────────────────────────── */
+
+.param-user__section {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.param-user__section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.param-user__section-icon {
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.param-user__section-title {
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+/* ── Form ──────────────────────────────────────────────────────────────────── */
+
+.param-user__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.param-user__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.param-user__label {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+}
+
+.param-user__input {
+    height: 42px;
+    padding: 0 var(--space-3);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    outline: none;
+    transition: border-color var(--duration-fast) var(--ease-out);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.param-user__input:focus {
+    border-color: var(--color-primary);
+}
+
+.param-user__input--error {
+    border-color: var(--color-danger, #e74c3c);
+}
+
+/* ── Password wrapper with toggle ──────────────────────────────────────────── */
+
+.param-user__password-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.param-user__password-wrap .param-user__input {
+    padding-right: 44px;
+}
+
+.param-user__toggle-pw {
+    position: absolute;
+    right: var(--space-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 0;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.param-user__toggle-pw:hover {
+    color: var(--color-text);
+}
+
+/* ── Field error ───────────────────────────────────────────────────────────── */
+
+.param-user__field-error {
+    font-size: var(--text-xs);
+    color: var(--color-danger, #e74c3c);
+    margin: 0;
+}
+
+/* ── Success banner ────────────────────────────────────────────────────────── */
+
+.param-user__success {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background-color: color-mix(in srgb, var(--color-success, #27ae60) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-success, #27ae60) 30%, transparent);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    color: var(--color-success, #27ae60);
+}
+
+/* ── Submit button ─────────────────────────────────────────────────────────── */
+
+.param-user__submit-btn {
+    height: 42px;
+    padding: 0 var(--space-5);
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: #fff;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    transition:
+        opacity var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out);
+    align-self: flex-start;
+}
+
+.param-user__submit-btn:hover:not(:disabled) {
+    opacity: 0.88;
+}
+
+.param-user__submit-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}

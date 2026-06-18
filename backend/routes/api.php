@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\Admin\EmployeController as AdminEmployeController;
 use App\Http\Controllers\Api\Admin\AdminController as AdminAdminController;
 use App\Http\Controllers\Api\Admin\ParametresController as AdminParametresController;
 use App\Http\Controllers\Api\SignupController;
+use App\Http\Controllers\Api\UserParametresController;
 use App\Http\Controllers\Api\RH\RhDashboardController;
 use App\Http\Controllers\Api\RH\RhEmployeController;
 use App\Http\Controllers\Api\RH\RhSalaireController;
@@ -128,6 +129,9 @@ Route::middleware(MiddlewareTokenAuth::class)->group(function () {
 Route::middleware(MiddlewareTokenAuthorization::class)->group(function () {
     Route::get('auth/me/application',      [AuthController::class, 'meApplication']);
     Route::post('auth/logout/application', [AuthController::class, 'logoutApplication']);
+
+    Route::patch('user/parametres/email',         [UserParametresController::class, 'changeEmail']);
+    Route::patch('user/parametres/mot-de-passe',  [UserParametresController::class, 'changePassword']);
 });
 
 // ─── Route création d'entreprise ────────────────────────────────────────────

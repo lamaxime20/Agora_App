@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Bell, ChevronRight, Menu, User } from "lucide-react";
+import { Bell, ChevronRight, Menu } from "lucide-react";
+
+import UserProfileDropdown from "../../components/shared/UserProfileDropdown";
 
 import {
     FINANCES_DASHBOARD,
@@ -110,13 +112,7 @@ function Finances({ onglet }) {
                         >
                             <Bell size={20} aria-hidden="true" />
                         </button>
-                        <button
-                            className="finances-header__action-btn"
-                            aria-label="Profil utilisateur"
-                            type="button"
-                        >
-                            <User size={20} aria-hidden="true" />
-                        </button>
+                        <UserProfileDropdown btnClassName="finances-header__action-btn" />
                     </div>
                 </header>
 

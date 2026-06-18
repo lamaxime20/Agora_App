@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import { Bell, ChevronRight, User } from "lucide-react";
+import { Bell, ChevronRight } from "lucide-react";
+
+import UserProfileDropdown from "../../components/shared/UserProfileDropdown";
 
 import {
     VENTES_DASHBOARD,
@@ -67,13 +69,7 @@ function Ventes({ onglet }) {
                         >
                             <Bell size={20} aria-hidden="true" />
                         </button>
-                        <button
-                            className="ventes-header__action-btn"
-                            aria-label="Profil utilisateur"
-                            type="button"
-                        >
-                            <User size={20} aria-hidden="true" />
-                        </button>
+                        <UserProfileDropdown btnClassName="ventes-header__action-btn" />
                     </div>
                 </header>
 

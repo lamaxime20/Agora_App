@@ -7,6 +7,7 @@ import {
     getAuthorizationSession,
     isSessionExpired,
     logoutAuthorizationFromApi,
+    patchAuthorizationSessionUser,
     recoverAuthorizationSessionFromApi,
     selectRoleFromApi,
     wasAuthorizationSessionActive,
@@ -23,6 +24,7 @@ export const AuthorizationContext = createContext({
     logoutError: null,
     selectRole: async () => false,
     logoutAuthorization: async () => false,
+    updateUser: () => {},
 });
 
 export const AuthorizationProvider = ({ children }) => {
@@ -149,8 +151,13 @@ export const AuthorizationProvider = ({ children }) => {
 
     const dismissLogoutError = useCallback(() => setLogoutError(null), []);
 
+    const updateUser = useCallback((patch) => {
+        patchAuthorizationSessionUser(patch);
+        setUser((prev) => prev ? { ...prev, ...patch } : prev);
+    }, []);
+
     return (
-        <AuthorizationContext.Provider value={{ isAuthorized, isLoading, user, logoutError, selectRole, logoutAuthorization }}>
+        <AuthorizationContext.Provider value={{ isAuthorized, isLoading, user, logoutError, selectRole, logoutAuthorization, updateUser }}>
             {children}
             {logoutError && (
                 <div className="authorizationContext-logoutError" role="alert">

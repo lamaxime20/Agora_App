@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, ChevronRight, Menu, User } from "lucide-react";
+import { Bell, ChevronRight, Menu } from "lucide-react";
+
+import UserProfileDropdown from "../../components/shared/UserProfileDropdown";
 
 import { RH_DASHBOARD, RH_EMPLOYEES, RH_STATISTICS } from "../../services/rh.js";
 
@@ -110,13 +112,7 @@ function RessourcesHumaines({ onglet = RH_DASHBOARD, showAdd = false }) {
                         >
                             <Bell size={20} aria-hidden="true" />
                         </button>
-                        <button
-                            className="rh-header__action-btn"
-                            aria-label="Profil utilisateur"
-                            type="button"
-                        >
-                            <User size={20} aria-hidden="true" />
-                        </button>
+                        <UserProfileDropdown btnClassName="rh-header__action-btn" />
                     </div>
                 </header>
 
