@@ -78,7 +78,7 @@ export async function fetchStatsVueGenerale() {
     const cacheKey = "stats_vue_generale";
     let result;
     try {
-        const res = await apiFetch("finances/statistiques/vue-generale");
+        const res = await apiFetch("finances/statistiques/general");
         result = res.data ?? res;
         writeCache(cacheKey, result);
     } catch {

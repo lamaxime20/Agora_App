@@ -49,33 +49,64 @@ class FinancesSalaireController extends FinancesBaseController
             $data = $query
                 ->orderBy('u.name', 'asc')
                 ->forPage($page, $perPage)
-                ->select([
-                    's.id',
-                    's.montant',
-                    's.date_debut',
-                    's.date_fin',
-                    's.statut',
-                    'u.id as utilisateur_id',
-                    'u.name as utilisateur_nom',
-                    'u.prename as utilisateur_prenom',
-                ])
+                ->selectRaw("
+                    s.id,
+                    s.montant,
+                    s.date_debut,
+                    s.date_fin,
+                    s.statut,
+                    u.id    AS utilisateur_id,
+                    u.name  AS utilisateur_nom,
+                    u.prename AS utilisateur_prenom,
+                    (
+                        SELECT r.role
+                        FROM   appartenir_entreprise ae
+                        JOIN   roles_utilisateur r ON r.id = ae.role_utilisateur_id
+                        WHERE  ae.utilisateur_id  = s.utilisateur
+                        AND    ae.entreprise_id   = ?
+                        AND    ae.statut          = 'actif'
+                        ORDER  BY ae.date_enregistrement DESC
+                        LIMIT  1
+                    ) AS poste
+                ", [$entrepriseId])
                 ->get()
                 ->map(fn($row) => [
-                    'id'         => $row->id,
-                    'utilisateur'=> [
+                    'id'          => $row->id,
+                    'utilisateur' => [
                         'id'     => $row->utilisateur_id,
                         'nom'    => $row->utilisateur_nom,
                         'prenom' => $row->utilisateur_prenom,
                     ],
-                    'montant'    => (float) $row->montant,
-                    'date_debut' => $row->date_debut,
-                    'date_fin'   => $row->date_fin,
-                    'statut'     => $row->statut,
+                    'poste'       => $row->poste,
+                    'montant'     => (float) $row->montant,
+                    'date_debut'  => $row->date_debut,
+                    'date_fin'    => $row->date_fin,
+                    'statut'      => $row->statut,
                 ]);
+
+            $masseSalariale = (float) DB::table('salaires')
+                ->where('entreprise', $entrepriseId)
+                ->where('statut', 'actif')
+                ->where('actif', true)
+                ->sum('montant');
+
+            $dernierPaiement = DB::table('paiements_salaires')
+                ->where('entreprise', $entrepriseId)
+                ->max('date_paiement');
+
+            if ($dernierPaiement) {
+                $dernierPaiement = substr($dernierPaiement, 0, 10);
+            }
 
             return response()->json([
                 'data' => $data,
-                'meta' => ['page' => $page, 'per_page' => $perPage, 'total' => $total],
+                'meta' => [
+                    'page'            => $page,
+                    'per_page'        => $perPage,
+                    'total'           => $total,
+                    'masseSalariale'  => $masseSalariale,
+                    'dernierPaiement' => $dernierPaiement,
+                ],
             ], 200);
         } catch (\Throwable $e) {
             return $this->financesErrorResponse($e, $request, __METHOD__);

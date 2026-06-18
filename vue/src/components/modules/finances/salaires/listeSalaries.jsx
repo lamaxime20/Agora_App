@@ -15,15 +15,14 @@ function getInitiales(prenom, nom) {
 }
 
 const STATUT_MAP = {
-    actif:   { label: "Actif",     cls: "fin-badge--success" },
-    conge:   { label: "En congé",  cls: "fin-badge--warning" },
-    inactif: { label: "Inactif",   cls: "fin-badge--neutral" },
+    actif:   { label: "Actif",    cls: "fin-badge--success" },
+    archive: { label: "Archivé",  cls: "fin-badge--neutral" },
 };
 
 function KpiSkeleton() {
     return (
         <div className="finSal-kpis">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3].map(i => (
                 <div key={i} className="finSal-kpi">
                     <div className="finSal-skeleton finSal-skeleton--sm" />
                     <div className="finSal-skeleton finSal-skeleton--md" style={{ marginTop: 4 }} />
@@ -99,9 +98,8 @@ function ListeSalaries() {
 
     const filtered = recherche
         ? data.filter(e =>
-            `${e.prenom} ${e.nom}`.toLowerCase().includes(recherche.toLowerCase()) ||
-            e.poste.toLowerCase().includes(recherche.toLowerCase()) ||
-            e.id.toLowerCase().includes(recherche.toLowerCase())
+            `${e.utilisateur?.prenom ?? ''} ${e.utilisateur?.nom ?? ''}`.toLowerCase().includes(recherche.toLowerCase()) ||
+            (e.poste ?? '').toLowerCase().includes(recherche.toLowerCase())
           )
         : data;
 
@@ -138,10 +136,6 @@ function ListeSalaries() {
                         <div className="finSal-kpi">
                             <p className="finSal-kpi__label">Dernier versement</p>
                             <p className="finSal-kpi__value">{fmtDate(meta?.dernierPaiement)}</p>
-                        </div>
-                        <div className="finSal-kpi">
-                            <p className="finSal-kpi__label">Prochain versement</p>
-                            <p className="finSal-kpi__value finSal-kpi__value--warning">{fmtDate(meta?.prochaineEcheance)}</p>
                         </div>
                     </div>
 
@@ -226,17 +220,17 @@ function ListeSalaries() {
                                             <td>
                                                 <div className="finSal-employee-cell">
                                                     <div className="finSal-avatar" aria-hidden="true">
-                                                        {getInitiales(emp.prenom, emp.nom)}
+                                                        {getInitiales(emp.utilisateur?.prenom, emp.utilisateur?.nom)}
                                                     </div>
                                                     <div className="finSal-employee-cell__info">
-                                                        <span className="finSal-employee-cell__name">{emp.prenom} {emp.nom}</span>
-                                                        <span className="finSal-employee-cell__role">{emp.id}</span>
+                                                        <span className="finSal-employee-cell__name">{emp.utilisateur?.prenom} {emp.utilisateur?.nom}</span>
+                                                        <span className="finSal-employee-cell__role">{emp.poste ?? "—"}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td style={{ fontSize: "var(--text-sm)", color: "var(--color-text)" }}>{emp.poste}</td>
-                                            <td className="finSal-table__amount">{fmt(emp.salaireNet)}</td>
-                                            <td className="finSal-table__date">{fmtDate(emp.prochaineEcheance)}</td>
+                                            <td style={{ fontSize: "var(--text-sm)", color: "var(--color-text)" }}>{emp.poste ?? "—"}</td>
+                                            <td className="finSal-table__amount">{fmt(emp.montant)}</td>
+                                            <td className="finSal-table__date">{fmtDate(emp.date_fin)}</td>
                                             <td><span className={`fin-badge ${st.cls}`}>{st.label}</span></td>
                                             <td>
                                                 <button
@@ -274,16 +268,16 @@ function ListeSalaries() {
                                     <div className="finSal-card__top">
                                         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
                                             <div className="finSal-avatar finSal-avatar--sm" aria-hidden="true">
-                                                {getInitiales(emp.prenom, emp.nom)}
+                                                {getInitiales(emp.utilisateur?.prenom, emp.utilisateur?.nom)}
                                             </div>
-                                            <span className="finSal-card__name">{emp.prenom} {emp.nom}</span>
+                                            <span className="finSal-card__name">{emp.utilisateur?.prenom} {emp.utilisateur?.nom}</span>
                                         </div>
                                         <span className={`fin-badge ${st.cls}`}>{st.label}</span>
                                     </div>
-                                    <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>{emp.poste}</div>
+                                    <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>{emp.poste ?? "—"}</div>
                                     <div className="finSal-card__meta">
-                                        <span className="finSal-card__amount">{fmt(emp.salaireNet)}/mois</span>
-                                        <span className="finSal-card__id">{emp.id}</span>
+                                        <span className="finSal-card__amount">{fmt(emp.montant)}/mois</span>
+                                        <span className="finSal-card__id">{emp.utilisateur?.id}</span>
                                     </div>
                                 </article>
                             );
