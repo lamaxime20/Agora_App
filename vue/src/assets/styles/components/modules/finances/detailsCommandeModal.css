@@ -1,6 +1,6 @@
 /* ─── Backdrop ─────────────────────────────────────────────────────────────────── */
 
-.finCommandes-modal__overlay {
+.finDCModal__backdrop {
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.35);
@@ -10,12 +10,12 @@
 
 /* ─── Panneau — Mobile : bottom sheet ────────────────────────────────────────── */
 
-.finCommandes-modal__panel {
+.finDCModal__panel {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: calc(var(--z-overlay) + 4);
+    z-index: calc(var(--z-overlay) + 20);
     max-height: 92dvh;
     background-color: var(--color-surface);
     border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
@@ -30,11 +30,11 @@
 /* ─── Desktop (≥ 1025px) : drawer latéral droit ──────────────────────────────── */
 
 @media (min-width: 1025px) {
-    .finCommandes-modal__overlay {
+    .finDCModal__backdrop {
         display: none;
     }
 
-    .finCommandes-modal__panel {
+    .finDCModal__panel {
         position: fixed;
         top: 0;
         right: 0;
@@ -54,12 +54,11 @@
     }
 }
 
-/* ─── Variante large (ignorée, conservée pour compatibilité) ─────────────────── */
+/* ─── Body scrollable dans le panel ─────────────────────────────────────────── */
 
-.finCommandes-modal__panel--large { }
-
-.finCommandes-modal__panel--large .finCommandes-modal__body {
+.finDCModal__panel .finCommandes-modal__body {
     overflow-y: auto;
+    flex: 1;
 }
 
 /* ─── Header ──────────────────────────────────────────────────────────────────── */

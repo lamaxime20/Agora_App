@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Package, CreditCard, Loader } from "lucide-react";
 import { fetchCommandeDetail } from "../../../../services/financesDashboard.js";
 import { readCache } from "../../../../services/financesCache.js";
@@ -54,15 +55,15 @@ function DetailsCommandeModal({ commande, onClose }) {
 
     const resteAPayer = (data.montant_commande ?? 0) - (data.total_paye ?? 0);
 
-    return (
+    return createPortal(
         <>
         <div
-            className="finCommandes-modal__overlay"
+            className="finDCModal__backdrop"
             onClick={onClose}
             aria-hidden="true"
         />
         <div
-            className="finCommandes-modal__panel finCommandes-modal__panel--large"
+            className="finDCModal__panel"
             role="dialog"
             aria-modal="true"
             aria-labelledby="detail-commande-title"
@@ -274,7 +275,8 @@ function DetailsCommandeModal({ commande, onClose }) {
                     </button>
                 </div>
         </div>
-        </>
+        </>,
+        document.body
     );
 }
 

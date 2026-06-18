@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 function DetailsCommandeRemboursementModal({ commande, onClose }) {
@@ -6,7 +7,7 @@ function DetailsCommandeRemboursementModal({ commande, onClose }) {
 
     console.log("commande :", commande);
 
-    return (
+    return createPortal(
         <div className="finRemb-modal__overlay" role="dialog" aria-modal="true" aria-labelledby="detailcmd-remb-title">
             <div className="finRemb-modal__panel">
 
@@ -56,7 +57,8 @@ function DetailsCommandeRemboursementModal({ commande, onClose }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 

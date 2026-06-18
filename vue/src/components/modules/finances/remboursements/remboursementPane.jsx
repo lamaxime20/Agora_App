@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ExternalLink } from "lucide-react";
 import DetailsCommandeRemboursementModal from "./detailsCommandeRemboursementModal.jsx";
 
@@ -17,7 +18,7 @@ function RemboursementPane({ remboursement, onClose }) {
     const cmd = remboursement.commandeAssociee ?? {};
     const cmdLabel = cmd.nom ?? `${cmd.client ?? ""} — ${cmd.id ?? ""}`.trim();
 
-    return (
+    return createPortal(
         <>
             <div className="finRemb-drawer__overlay" onClick={onClose} aria-hidden="true" />
             <aside
@@ -123,19 +124,18 @@ function RemboursementPane({ remboursement, onClose }) {
 
             {showCommandeModal && (
                 <DetailsCommandeRemboursementModal
-                    commande={{ ...cmd, nom: cmdLabel }}
                     commande={{
                         id: remboursement.commande_numero,
                         nom: remboursement.client,
                         client: remboursement.client,
                         totalFacture: cmd.totalFacture,
                         totalPaye: cmd.totalPaye,
-                        // Les autres détails de la commande (totalFacture, totalPaye) devront être récupérés si nécessaire
                     }}
                     onClose={() => setShowCommandeModal(false)}
                 />
             )}
-        </>
+        </>,
+        document.body
     );
 }
 
