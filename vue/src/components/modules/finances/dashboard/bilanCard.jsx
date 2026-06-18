@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 function BilanCard({ loading, data }) {
     const fmt = (n) =>
@@ -21,24 +21,21 @@ function BilanCard({ loading, data }) {
         {
             key: "entrees",
             label: "Entrées du mois",
-            value: data?.entrees,
-            variation: data?.variations?.entrees,
+            value: data?.total_entrees,
             icon: ArrowUpRight,
             color: "success",
         },
         {
             key: "sorties",
             label: "Sorties du mois",
-            value: data?.sorties,
-            variation: data?.variations?.sorties,
+            value: data?.total_sorties,
             icon: ArrowDownRight,
             color: "error",
         },
         {
             key: "benefice",
             label: "Bénéfice net",
-            value: data?.benefice,
-            variation: data?.variations?.benefice,
+            value: data?.benefice_net,
             icon: Wallet,
             color: "primary",
         },
@@ -47,29 +44,17 @@ function BilanCard({ loading, data }) {
     return (
         <div className="finDash-bilan">
             <p className="finDash-bilan__title">Résumé du mois</p>
-            {rows.map(({ key, label, value, variation, icon: Icon, color }) => {
-                const positive = (variation ?? 0) >= 0;
-                return (
-                    <div key={key} className="finDash-bilan__row">
-                        <div className={`finDash-bilan__icon finDash-bilan__icon--${color}`}>
-                            <Icon size={16} aria-hidden="true" />
-                        </div>
-                        <div className="finDash-bilan__body">
-                            <span className="finDash-bilan__label">{label}</span>
-                            <span className="finDash-bilan__amount">{fmt(value)} FCFA</span>
-                        </div>
-                        {variation != null && (
-                            <span className={`finDash-bilan__variation ${positive ? "finDash-bilan__variation--up" : "finDash-bilan__variation--down"}`}>
-                                {positive
-                                    ? <TrendingUp size={12} aria-hidden="true" />
-                                    : <TrendingDown size={12} aria-hidden="true" />
-                                }
-                                {positive ? "+" : ""}{variation}%
-                            </span>
-                        )}
+            {rows.map(({ key, label, value, icon: Icon, color }) => (
+                <div key={key} className="finDash-bilan__row">
+                    <div className={`finDash-bilan__icon finDash-bilan__icon--${color}`}>
+                        <Icon size={16} aria-hidden="true" />
                     </div>
-                );
-            })}
+                    <div className="finDash-bilan__body">
+                        <span className="finDash-bilan__label">{label}</span>
+                        <span className="finDash-bilan__amount">{fmt(value)} FCFA</span>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }

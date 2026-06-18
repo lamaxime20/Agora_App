@@ -31,14 +31,18 @@ function Depenses() {
 
     useEffect(() => {
         fetchStatsAutres()
-            .then(d => { setData(d.depenses); setLoading(false); })
+            .then(d => {
+                const evolution    = d.depenses?.evolution ?? [];
+                const montantTotal = evolution.reduce((s, e) => s + (e.montant ?? 0), 0);
+                const moyenne      = evolution.length ? montantTotal / evolution.length : 0;
+                setData({ montantTotal, moyenne, parMois: evolution });
+                setLoading(false);
+            })
             .catch(() => setLoading(false));
     }, []);
 
     if (loading) return <div className="finStats-tab-content"><div className="finStats-skeleton" style={{ height: 240 }} /></div>;
     if (!data)   return <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>Données indisponibles.</p>;
-
-    const maxCat = Math.max(...data.categories.map(c => c.montant));
 
     return (
         <div className="finStats-tab-content">
@@ -56,28 +60,6 @@ function Depenses() {
                     </div>
                     <p className="finStats-kpi__label">Moyenne mensuelle</p>
                     <p className="finStats-kpi__value finStats-kpi__value--error">{fmt(data.moyenne)}</p>
-                </div>
-            </div>
-
-            <div className="finStats-chart-wrap">
-                <p className="finStats-chart-title">Répartition par catégorie</p>
-                <div className="finStats-categories">
-                    {data.categories.map(c => (
-                        <div key={c.nom} className="finStats-category-row">
-                            <span className="finStats-category-row__label">{c.nom}</span>
-                            <div className="finStats-category-row__bar-wrap">
-                                <div
-                                    className="finStats-category-row__bar finStats-category-row__bar--expense"
-                                    style={{ width: `${Math.round((c.montant / maxCat) * 100)}%` }}
-                                    role="progressbar"
-                                    aria-valuenow={Math.round((c.montant / maxCat) * 100)}
-                                    aria-valuemin={0}
-                                    aria-valuemax={100}
-                                />
-                            </div>
-                            <span className="finStats-category-row__amount">{fmt(c.montant)}</span>
-                        </div>
-                    ))}
                 </div>
             </div>
 

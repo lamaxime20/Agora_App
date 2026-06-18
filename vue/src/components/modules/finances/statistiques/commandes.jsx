@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShoppingCart, TrendingUp, CheckCircle, Clock } from "lucide-react";
+import { ShoppingCart, TrendingUp } from "lucide-react";
 import { fetchStatsAutres } from "../../../../services/financesP5.js";
 
 const fmt = (n) =>
@@ -31,7 +31,16 @@ function Commandes() {
 
     useEffect(() => {
         fetchStatsAutres()
-            .then(d => { setData(d.commandes); setLoading(false); })
+            .then(d => {
+                const raw    = d.commandes_paiements ?? {};
+                const modes  = raw.modes ?? [];
+                setData({
+                    nombreCommandes: modes.reduce((s, m) => s + (m.count   ?? 0), 0),
+                    montantEncaisse: modes.reduce((s, m) => s + (m.montant ?? 0), 0),
+                    parMois:         raw.evolution ?? [],
+                });
+                setLoading(false);
+            })
             .catch(() => setLoading(false));
     }, []);
 
@@ -54,20 +63,6 @@ function Commandes() {
                     </div>
                     <p className="finStats-kpi__label">Montant encaissé</p>
                     <p className="finStats-kpi__value finStats-kpi__value--success">{fmt(data.montantEncaisse)}</p>
-                </div>
-                <div className="finStats-kpi">
-                    <div className="finStats-kpi__icon-wrap" style={{ background: "rgba(52,152,219,0.12)", color: "#3498DB" }}>
-                        <Clock size={18} aria-hidden="true" />
-                    </div>
-                    <p className="finStats-kpi__label">Montant restant</p>
-                    <p className="finStats-kpi__value" style={{ color: "#3498DB" }}>{fmt(data.montantRestant)}</p>
-                </div>
-                <div className="finStats-kpi">
-                    <div className="finStats-kpi__icon-wrap finStats-kpi__icon-wrap--income">
-                        <CheckCircle size={18} aria-hidden="true" />
-                    </div>
-                    <p className="finStats-kpi__label">Taux paiement complet</p>
-                    <p className="finStats-kpi__value finStats-kpi__value--success">{data.tauxPaiementComplet}%</p>
                 </div>
             </div>
 

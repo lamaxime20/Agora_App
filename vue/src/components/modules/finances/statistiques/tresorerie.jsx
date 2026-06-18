@@ -5,13 +5,6 @@ import { fetchStatsTresorerie } from "../../../../services/financesP5.js";
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
 
-const PERIODS = [
-    { key: "7j",  label: "7 jours",  pointsKey: "points7j",  variationKey: "variation7j"  },
-    { key: "30j", label: "30 jours", pointsKey: "points30j", variationKey: "variation30j" },
-    { key: "90j", label: "90 jours", pointsKey: "points90j", variationKey: "variation90j" },
-    { key: "1an", label: "1 an",     pointsKey: "points1an", variationKey: null            },
-];
-
 function SvgLineChart({ points }) {
     if (!points || points.length < 2) return null;
 
@@ -21,7 +14,7 @@ function SvgLineChart({ points }) {
     const innerW = W - PAD.left - PAD.right;
     const innerH = H - PAD.top - PAD.bottom;
 
-    const values   = points.map(p => p.solde);
+    const values   = points.map(p => p.valeur);
     const minVal   = Math.min(...values);
     const maxVal   = Math.max(...values);
     const range    = maxVal - minVal || 1;
@@ -29,11 +22,11 @@ function SvgLineChart({ points }) {
     const toX = (i) => PAD.left + (i / (points.length - 1)) * innerW;
     const toY = (v) => PAD.top + innerH - ((v - minVal) / range) * innerH;
 
-    const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${toX(i)} ${toY(p.solde)}`).join(" ");
+    const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${toX(i)} ${toY(p.valeur)}`).join(" ");
 
     const areaD = [
-        `M ${toX(0)} ${toY(points[0].solde)}`,
-        ...points.slice(1).map((p, i) => `L ${toX(i + 1)} ${toY(p.solde)}`),
+        `M ${toX(0)} ${toY(points[0].valeur)}`,
+        ...points.slice(1).map((p, i) => `L ${toX(i + 1)} ${toY(p.valeur)}`),
         `L ${toX(points.length - 1)} ${PAD.top + innerH}`,
         `L ${toX(0)} ${PAD.top + innerH}`,
         "Z",
@@ -61,7 +54,6 @@ function SvgLineChart({ points }) {
                 </linearGradient>
             </defs>
 
-            {/* Y grid lines */}
             {yTicks.map((tick, i) => (
                 <g key={i}>
                     <line
@@ -80,18 +72,13 @@ function SvgLineChart({ points }) {
                 </g>
             ))}
 
-            {/* Area fill */}
             <path d={areaD} fill="url(#tresAreaGrad)" />
-
-            {/* Line */}
             <path d={pathD} fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 
-            {/* Dots */}
             {points.map((p, i) => (
-                <circle key={i} cx={toX(i)} cy={toY(p.solde)} r="3.5" fill="var(--color-primary)" />
+                <circle key={i} cx={toX(i)} cy={toY(p.valeur)} r="3.5" fill="var(--color-primary)" />
             ))}
 
-            {/* X labels */}
             {xLabels.map(p => {
                 const i = points.indexOf(p);
                 return (
@@ -113,7 +100,6 @@ function SvgLineChart({ points }) {
 function Tresorerie() {
     const [loading, setLoading] = useState(true);
     const [stats, setStats]     = useState(null);
-    const [period, setPeriod]   = useState("30j");
 
     useEffect(() => {
         fetchStatsTresorerie()
@@ -121,15 +107,11 @@ function Tresorerie() {
             .catch(() => setLoading(false));
     }, []);
 
-    const currentPeriod = PERIODS.find(p => p.key === period);
-    const points        = stats?.[currentPeriod?.pointsKey] ?? [];
-    const variation     = currentPeriod?.variationKey ? stats?.[currentPeriod.variationKey] : null;
-
     if (loading) {
         return (
             <div className="finStats-tab-content">
                 <div className="finStats-kpis">
-                    {[1, 2, 3].map(i => (
+                    {[1, 2].map(i => (
                         <div key={i} className="finStats-kpi">
                             <div className="finStats-skeleton finStats-skeleton--sm" />
                             <div className="finStats-skeleton finStats-skeleton--md" style={{ marginTop: 6 }} />
@@ -145,16 +127,22 @@ function Tresorerie() {
 
     if (!stats) return <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>Données indisponibles.</p>;
 
+    const points      = stats.evolution ?? [];
+    const soldeActuel = points.length ? (points[points.length - 1].valeur ?? 0) : 0;
+    const premier     = points.length ? (points[0].valeur ?? 0) : null;
+    const variation   = premier != null && premier !== 0
+        ? parseFloat(((soldeActuel - premier) / Math.abs(premier) * 100).toFixed(1))
+        : null;
+
     return (
         <div className="finStats-tab-content">
-            {/* KPIs */}
             <div className="finStats-kpis">
                 <div className="finStats-kpi">
                     <div className="finStats-kpi__icon-wrap finStats-kpi__icon-wrap--balance">
                         <TrendingUp size={18} aria-hidden="true" />
                     </div>
                     <p className="finStats-kpi__label">Solde actuel</p>
-                    <p className="finStats-kpi__value finStats-kpi__value--primary">{fmt(stats.soldeActuel)}</p>
+                    <p className="finStats-kpi__value finStats-kpi__value--primary">{fmt(soldeActuel)}</p>
                 </div>
                 {variation !== null && (
                     <div className="finStats-kpi">
@@ -164,31 +152,16 @@ function Tresorerie() {
                                 : <TrendingDown size={18} aria-hidden="true" />
                             }
                         </div>
-                        <p className="finStats-kpi__label">Variation ({period})</p>
+                        <p className="finStats-kpi__label">Variation (30 jours)</p>
                         <p className={`finStats-kpi__value ${variation >= 0 ? "finStats-kpi__value--success" : "finStats-kpi__value--error"}`}>
-                            {variation >= 0 ? "+" : ""}{fmt(variation)}
+                            {variation >= 0 ? "+" : ""}{variation}%
                         </p>
                     </div>
                 )}
             </div>
 
-            {/* Period selector */}
             <div className="finStats-chart-wrap">
-                <div className="finStats-chart-toolbar">
-                    <p className="finStats-chart-title">Évolution de la trésorerie</p>
-                    <div className="finStats-period-selector" role="group" aria-label="Période">
-                        {PERIODS.map(p => (
-                            <button
-                                key={p.key}
-                                className={`finStats-period-btn ${period === p.key ? "finStats-period-btn--active" : ""}`}
-                                onClick={() => setPeriod(p.key)}
-                                type="button"
-                            >
-                                {p.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                <p className="finStats-chart-title">Évolution de la trésorerie (30 jours)</p>
                 <SvgLineChart points={points} />
             </div>
         </div>

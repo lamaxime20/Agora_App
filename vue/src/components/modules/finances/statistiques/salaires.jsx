@@ -1,9 +1,30 @@
 import { useEffect, useState } from "react";
-import { Users, TrendingDown } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { fetchStatsAutres } from "../../../../services/financesP5.js";
 
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
+
+function BarChart({ data }) {
+    if (!data || data.length === 0) return null;
+    const maxVal = Math.max(...data.map(d => d.montant), 1);
+    return (
+        <div className="finStats-barchart">
+            {data.map(d => (
+                <div key={d.mois} className="finStats-barchart__col">
+                    <div className="finStats-barchart__bars">
+                        <div
+                            className="finStats-barchart__bar"
+                            style={{ height: `${Math.round((d.montant / maxVal) * 100)}%`, background: "var(--color-error)" }}
+                            title={`${d.mois}: ${fmt(d.montant)}`}
+                        />
+                    </div>
+                    <span className="finStats-barchart__label">{d.mois}</span>
+                </div>
+            ))}
+        </div>
+    );
+}
 
 function StatsSalaires() {
     const [loading, setLoading] = useState(true);
@@ -11,14 +32,21 @@ function StatsSalaires() {
 
     useEffect(() => {
         fetchStatsAutres()
-            .then(d => { setData(d.salaires); setLoading(false); })
+            .then(d => {
+                const evolution        = d.salaires?.evolution ?? [];
+                const last             = evolution[evolution.length - 1]?.montant ?? 0;
+                const prev             = evolution.length >= 2 ? evolution[evolution.length - 2].montant : null;
+                const variationMensuelle = prev != null && prev !== 0
+                    ? parseFloat(((last - prev) / Math.abs(prev) * 100).toFixed(1))
+                    : null;
+                setData({ masseSalariale: last, variationMensuelle, evolution });
+                setLoading(false);
+            })
             .catch(() => setLoading(false));
     }, []);
 
     if (loading) return <div className="finStats-tab-content"><div className="finStats-skeleton" style={{ height: 240 }} /></div>;
     if (!data)   return <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>Données indisponibles.</p>;
-
-    const maxRep = Math.max(...data.repartition.map(r => r.montant));
 
     return (
         <div className="finStats-tab-content">
@@ -27,45 +55,28 @@ function StatsSalaires() {
                     <div className="finStats-kpi__icon-wrap finStats-kpi__icon-wrap--expense">
                         <TrendingDown size={18} aria-hidden="true" />
                     </div>
-                    <p className="finStats-kpi__label">Masse salariale mensuelle</p>
+                    <p className="finStats-kpi__label">Masse salariale (dernier mois)</p>
                     <p className="finStats-kpi__value finStats-kpi__value--error">{fmt(data.masseSalariale)}</p>
                 </div>
-                <div className="finStats-kpi">
-                    <div className="finStats-kpi__icon-wrap finStats-kpi__icon-wrap--orders">
-                        <Users size={18} aria-hidden="true" />
+                {data.variationMensuelle !== null && (
+                    <div className="finStats-kpi">
+                        <div className={`finStats-kpi__icon-wrap ${data.variationMensuelle >= 0 ? "finStats-kpi__icon-wrap--expense" : "finStats-kpi__icon-wrap--income"}`}>
+                            {data.variationMensuelle >= 0
+                                ? <TrendingUp size={18} aria-hidden="true" />
+                                : <TrendingDown size={18} aria-hidden="true" />
+                            }
+                        </div>
+                        <p className="finStats-kpi__label">Variation mensuelle</p>
+                        <p className={`finStats-kpi__value ${data.variationMensuelle >= 0 ? "finStats-kpi__value--error" : "finStats-kpi__value--success"}`}>
+                            {data.variationMensuelle >= 0 ? "+" : ""}{data.variationMensuelle}%
+                        </p>
                     </div>
-                    <p className="finStats-kpi__label">Effectif salarié</p>
-                    <p className="finStats-kpi__value">{data.nombreSalaries}</p>
-                </div>
-                <div className="finStats-kpi">
-                    <div className="finStats-kpi__icon-wrap finStats-kpi__icon-wrap--balance">
-                        <Users size={18} aria-hidden="true" />
-                    </div>
-                    <p className="finStats-kpi__label">Variation mensuelle</p>
-                    <p className="finStats-kpi__value finStats-kpi__value--primary">{data.variationMensuelle}%</p>
-                </div>
+                )}
             </div>
 
             <div className="finStats-chart-wrap">
-                <p className="finStats-chart-title">Répartition par poste</p>
-                <div className="finStats-categories">
-                    {data.repartition.map(r => (
-                        <div key={r.poste} className="finStats-category-row">
-                            <span className="finStats-category-row__label">{r.poste}</span>
-                            <div className="finStats-category-row__bar-wrap">
-                                <div
-                                    className="finStats-category-row__bar finStats-category-row__bar--expense"
-                                    style={{ width: `${Math.round((r.montant / maxRep) * 100)}%` }}
-                                    role="progressbar"
-                                    aria-valuenow={Math.round((r.montant / maxRep) * 100)}
-                                    aria-valuemin={0}
-                                    aria-valuemax={100}
-                                />
-                            </div>
-                            <span className="finStats-category-row__amount">{fmt(r.montant)}</span>
-                        </div>
-                    ))}
-                </div>
+                <p className="finStats-chart-title">Évolution mensuelle de la masse salariale</p>
+                <BarChart data={data.evolution} />
             </div>
         </div>
     );

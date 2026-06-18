@@ -181,12 +181,13 @@ class FinancesSalaireController extends FinancesBaseController
                 ])
                 ->get()
                 ->map(fn($row) => [
-                    'id'                    => $row->id,
-                    'montant'               => (float) $row->montant,
-                    'date_paiement'         => substr($row->date_paiement, 0, 10),
-                    'mode_payement'         => $row->mode_payement,
-                    'reference_transaction' => $row->reference_transaction,
-                    'enregistre_par'        => $row->enregistre_par,
+                    'id'        => $row->id,
+                    'montant'   => (float) $row->montant,
+                    'date'      => substr($row->date_paiement, 0, 10),
+                    'periode'   => date('M Y', strtotime($row->date_paiement)),
+                    'mode'      => $row->mode_payement,
+                    'reference' => $row->reference_transaction,
+                    'utilisateur' => $row->enregistre_par,
                 ]);
 
             return response()->json([
@@ -197,6 +198,119 @@ class FinancesSalaireController extends FinancesBaseController
                 ],
                 'paiements' => $paiements,
                 'meta'      => ['page' => $page, 'per_page' => $perPage, 'total' => $total],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->financesErrorResponse($e, $request, __METHOD__, ['salaire_id' => $id]);
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // ROUTE 34 — GET /api/finances/salaires/{id}
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Détail complet d'un salaire : informations de l'employé, résumé financier et derniers paiements.
+     *
+     * Path param : id (UUID du salaire)
+     */
+    public function show(Request $request, string $id): JsonResponse
+    {
+        try {
+            $entreprise   = $this->currentEntreprise($request);
+            $entrepriseId = $entreprise->id;
+
+            $salaire = DB::table('salaires as s')
+                ->leftJoin('utilisateurs as u', 'u.id', '=', 's.utilisateur')
+                ->where('s.id', $id)
+                ->where('s.entreprise', $entrepriseId)
+                ->selectRaw("
+                    s.id,
+                    s.montant,
+                    s.date_debut,
+                    s.date_fin,
+                    s.statut,
+                    u.id     AS utilisateur_id,
+                    u.name   AS utilisateur_nom,
+                    u.prename AS utilisateur_prenom,
+                    u.email  AS utilisateur_email,
+                    (
+                        SELECT r.role
+                        FROM   appartenir_entreprise ae
+                        JOIN   roles_utilisateur r ON r.id = ae.role_utilisateur_id
+                        WHERE  ae.utilisateur_id  = s.utilisateur
+                        AND    ae.entreprise_id   = ?
+                        AND    ae.statut          = 'actif'
+                        ORDER  BY ae.date_enregistrement DESC NULLS LAST
+                        LIMIT  1
+                    ) AS poste
+                ", [$entrepriseId])
+                ->first();
+
+            if (!$salaire) {
+                return response()->json([
+                    'ok'      => false,
+                    'code'    => 'NOT_FOUND',
+                    'message' => 'Salaire introuvable.',
+                ], 404);
+            }
+
+            $totalPaye = (float) DB::table('paiements_salaires')
+                ->where('salaire', $id)
+                ->where('entreprise', $entrepriseId)
+                ->sum('montant');
+
+            $nombrePaiements = (int) DB::table('paiements_salaires')
+                ->where('salaire', $id)
+                ->where('entreprise', $entrepriseId)
+                ->count();
+
+            $dernierPaiement = DB::table('paiements_salaires')
+                ->where('salaire', $id)
+                ->where('entreprise', $entrepriseId)
+                ->max('date_paiement');
+
+            $paiementsRecents = DB::table('paiements_salaires as ps')
+                ->leftJoin('utilisateurs as u', 'u.id', '=', 'ps.user_enregistre')
+                ->where('ps.salaire', $id)
+                ->where('ps.entreprise', $entrepriseId)
+                ->orderBy('ps.date_paiement', 'desc')
+                ->limit(5)
+                ->select([
+                    'ps.id',
+                    'ps.montant',
+                    'ps.date_paiement',
+                    'ps.mode_payement',
+                    'ps.reference_transaction',
+                    DB::raw("CONCAT(u.name, ' ', u.prename) as enregistre_par"),
+                ])
+                ->get()
+                ->map(fn($row) => [
+                    'id'          => $row->id,
+                    'montant'     => (float) $row->montant,
+                    'date'        => substr($row->date_paiement, 0, 10),
+                    'periode'     => date('M Y', strtotime($row->date_paiement)),
+                    'mode'        => $row->mode_payement,
+                    'reference'   => $row->reference_transaction,
+                    'utilisateur' => $row->enregistre_par,
+                ]);
+
+            return response()->json([
+                'id'         => $salaire->id,
+                'utilisateur' => [
+                    'id'     => $salaire->utilisateur_id,
+                    'prenom' => $salaire->utilisateur_prenom,
+                    'nom'    => $salaire->utilisateur_nom,
+                    'email'  => $salaire->utilisateur_email,
+                ],
+                'poste'           => $salaire->poste,
+                'date_debut'      => $salaire->date_debut ? substr($salaire->date_debut, 0, 10) : null,
+                'date_fin'        => $salaire->date_fin   ? substr($salaire->date_fin,   0, 10) : null,
+                'montant'         => (float) $salaire->montant,
+                'statut'          => $salaire->statut,
+                'totalPaye'       => $totalPaye,
+                'nombrePaiements' => $nombrePaiements,
+                'dernierPaiement' => $dernierPaiement ? substr($dernierPaiement, 0, 10) : null,
+                'paiementsRecents'=> $paiementsRecents,
             ], 200);
         } catch (\Throwable $e) {
             return $this->financesErrorResponse($e, $request, __METHOD__, ['salaire_id' => $id]);

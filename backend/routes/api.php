@@ -293,6 +293,9 @@ Route::prefix('finances')
         // Route 31 — liste des salaires
         Route::get('salaires', [FinancesSalaireController::class, 'index']);
 
+        // Route 34 — détail d'un salaire
+        Route::get('salaires/{id}', [FinancesSalaireController::class, 'show']);
+
         // Route 32 — historique des paiements d'un salaire
         Route::get('salaires/{id}/paiements', [FinancesSalaireController::class, 'paiements']);
 

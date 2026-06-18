@@ -1,12 +1,11 @@
-import { TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, RotateCcw, ShoppingCart, BarChart2, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ShoppingCart, Clock, Wallet } from "lucide-react";
 
 const KPI_CONFIG = [
-    { key: "entrees",        label: "Entrées",           icon: ArrowUpRight,  color: "success", unit: "FCFA" },
-    { key: "sorties",        label: "Sorties",           icon: ArrowDownRight,color: "error",   unit: "FCFA" },
-    { key: "benefice",       label: "Bénéfice net",      icon: Wallet,        color: "primary", unit: "FCFA" },
-    { key: "paiements",      label: "Paiements reçus",   icon: ShoppingCart,  color: "info",    unit: ""     },
-    { key: "remboursements", label: "Remboursements",    icon: RotateCcw,     color: "warning", unit: ""     },
-    { key: "depenses",       label: "Dépenses",          icon: BarChart2,     color: "muted",   unit: ""     },
+    { key: "total_entrees",                  label: "Entrées",                  icon: ArrowUpRight,  color: "success", unit: "FCFA" },
+    { key: "total_sorties",                  label: "Sorties",                  icon: ArrowDownRight,color: "error",   unit: "FCFA" },
+    { key: "benefice_net",                   label: "Bénéfice net",             icon: Wallet,        color: "primary", unit: "FCFA" },
+    { key: "commandes_en_attente_validation",label: "En attente validation",    icon: ShoppingCart,  color: "info",    unit: ""     },
+    { key: "commandes_en_attente_paiement",  label: "En attente paiement",      icon: Clock,         color: "warning", unit: ""     },
 ];
 
 function formatVal(n, unit) {

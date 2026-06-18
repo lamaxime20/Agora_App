@@ -162,18 +162,19 @@ function RhStatistics({ onExport }) {
         setLoading(true);
         setErreur("");
 
-        const stale = readCache("rh_statistics");
+        const cacheKey = `rh_statistics_${periode}`;
+        const stale = readCache(cacheKey);
         if (stale) { setData(stale); setLoading(false); }
 
         try {
-            const res = await fetchRhStatistics();
+            const res = await fetchRhStatistics(periode);
             setData(res);
         } catch (err) {
             if (!stale) setErreur(err.message ?? "Erreur de chargement.");
         } finally {
             if (!stale) setLoading(false);
         }
-    }, []);
+    }, [periode]);
 
     useEffect(() => { load(); }, [load]);
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Mail, Phone, Briefcase, Calendar, CreditCard, TrendingDown, History } from "lucide-react";
+import { X, Mail, Briefcase, Calendar, CreditCard, TrendingDown, History } from "lucide-react";
 import { fetchSalarieDetail } from "../../../../services/financesP5.js";
 import HistoriquePaiementsSalarie from "./historiquePaiementsSalarie.jsx";
 
@@ -14,9 +14,8 @@ function getInitiales(prenom, nom) {
 }
 
 const STATUT_MAP = {
-    actif:   { label: "Actif",    cls: "fin-badge--success" },
-    conge:   { label: "En congé", cls: "fin-badge--warning" },
-    inactif: { label: "Inactif",  cls: "fin-badge--neutral" },
+    actif:   { label: "Actif",   cls: "fin-badge--success" },
+    archive: { label: "Archivé", cls: "fin-badge--neutral" },
 };
 
 function DetailSkeleton() {
@@ -53,7 +52,9 @@ function SalariePane({ salarieId, onClose }) {
         return () => { cancelled = true; };
     }, [salarieId]);
 
-    const st = salarie ? (STATUT_MAP[salarie.statut] ?? { label: salarie.statut, cls: "fin-badge--neutral" }) : null;
+    const prenom = salarie?.utilisateur?.prenom ?? "—";
+    const nom    = salarie?.utilisateur?.nom    ?? "—";
+    const st     = salarie ? (STATUT_MAP[salarie.statut] ?? { label: salarie.statut, cls: "fin-badge--neutral" }) : null;
 
     return (
         <>
@@ -61,7 +62,7 @@ function SalariePane({ salarieId, onClose }) {
             <aside
                 className="finSal-drawer"
                 role="complementary"
-                aria-label={salarie ? `Profil de ${salarie.prenom} ${salarie.nom}` : "Chargement"}
+                aria-label={salarie ? `Profil de ${prenom} ${nom}` : "Chargement"}
             >
                 <div className="finSal-drawer__handle">
                     <div className="finSal-drawer__handle-bar" />
@@ -69,7 +70,7 @@ function SalariePane({ salarieId, onClose }) {
 
                 <div className="finSal-drawer__header">
                     <h2 className="finSal-drawer__title">
-                        {loading ? "Chargement…" : salarie ? `${salarie.prenom} ${salarie.nom}` : "Introuvable"}
+                        {loading ? "Chargement…" : salarie ? `${prenom} ${nom}` : "Introuvable"}
                     </h2>
                     <button className="finSal-drawer__close" onClick={onClose} aria-label="Fermer" type="button">
                         <X size={18} aria-hidden="true" />
@@ -88,10 +89,10 @@ function SalariePane({ salarieId, onClose }) {
                             {/* Hero */}
                             <div className="finSal-pane-hero">
                                 <div className="finSal-avatar finSal-avatar--lg" aria-hidden="true">
-                                    {getInitiales(salarie.prenom, salarie.nom)}
+                                    {getInitiales(prenom, nom)}
                                 </div>
                                 <div className="finSal-pane-hero__info">
-                                    <p className="finSal-pane-hero__name">{salarie.prenom} {salarie.nom}</p>
+                                    <p className="finSal-pane-hero__name">{prenom} {nom}</p>
                                     <p className="finSal-pane-hero__id">{salarie.id}</p>
                                 </div>
                                 {st && <span className={`fin-badge ${st.cls}`}>{st.label}</span>}
@@ -104,32 +105,26 @@ function SalariePane({ salarieId, onClose }) {
                                     <span className="finSal-detail__key">
                                         <Mail size={13} style={{ marginRight: 4 }} aria-hidden="true" />Email
                                     </span>
-                                    <span className="finSal-detail__val">{salarie.email}</span>
-                                </div>
-                                <div className="finSal-detail__row">
-                                    <span className="finSal-detail__key">
-                                        <Phone size={13} style={{ marginRight: 4 }} aria-hidden="true" />Téléphone
-                                    </span>
-                                    <span className="finSal-detail__val">{salarie.telephone}</span>
+                                    <span className="finSal-detail__val">{salarie.utilisateur?.email ?? "—"}</span>
                                 </div>
                                 <div className="finSal-detail__row">
                                     <span className="finSal-detail__key">
                                         <Briefcase size={13} style={{ marginRight: 4 }} aria-hidden="true" />Poste
                                     </span>
-                                    <span className="finSal-detail__val">{salarie.poste}</span>
+                                    <span className="finSal-detail__val">{salarie.poste ?? "—"}</span>
                                 </div>
                                 <div className="finSal-detail__row">
                                     <span className="finSal-detail__key">
                                         <Calendar size={13} style={{ marginRight: 4 }} aria-hidden="true" />Date d'embauche
                                     </span>
-                                    <span className="finSal-detail__val">{fmtDate(salarie.dateEmbauche)}</span>
+                                    <span className="finSal-detail__val">{fmtDate(salarie.date_debut)}</span>
                                 </div>
                                 <div className="finSal-detail__row">
                                     <span className="finSal-detail__key">
                                         <CreditCard size={13} style={{ marginRight: 4 }} aria-hidden="true" />Salaire net
                                     </span>
                                     <span className="finSal-detail__val finSal-detail__val--amount" style={{ color: "var(--color-error)" }}>
-                                        {fmt(salarie.salaireNet)}/mois
+                                        {fmt(salarie.montant)}/mois
                                     </span>
                                 </div>
                             </section>
@@ -150,12 +145,6 @@ function SalariePane({ salarieId, onClose }) {
                                 <div className="finSal-detail__row">
                                     <span className="finSal-detail__key">Dernier versement</span>
                                     <span className="finSal-detail__val">{fmtDate(salarie.dernierPaiement)}</span>
-                                </div>
-                                <div className="finSal-detail__row">
-                                    <span className="finSal-detail__key">Prochain versement</span>
-                                    <span className="finSal-detail__val" style={{ color: "var(--color-warning)", fontWeight: "var(--weight-semibold)" }}>
-                                        {fmtDate(salarie.prochaineEcheance)}
-                                    </span>
                                 </div>
                             </section>
 
@@ -207,7 +196,7 @@ function SalariePane({ salarieId, onClose }) {
 
             {showHistorique && salarie && (
                 <HistoriquePaiementsSalarie
-                    salarie={salarie}
+                    salarie={{ ...salarie, prenom, nom }}
                     onClose={() => setShowHistorique(false)}
                 />
             )}

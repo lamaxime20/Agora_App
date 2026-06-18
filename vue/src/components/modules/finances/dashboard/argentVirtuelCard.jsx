@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown } from "lucide-react";
 
 function useCountUp(target, duration = 800) {
     const [value, setValue] = useState(0);
@@ -35,9 +34,6 @@ function ArgentVirtuelCard({ loading, data }) {
         );
     }
 
-    const positive = data?.variation_positive ?? true;
-    const variation = data?.variation_mois ?? 0;
-
     return (
         <div className="finDash-argent">
             <p className="finDash-argent__eyebrow">Argent virtuel</p>
@@ -45,13 +41,6 @@ function ArgentVirtuelCard({ loading, data }) {
                 {fmt(animatedValue)}
                 <span className="finDash-argent__currency"> FCFA</span>
             </p>
-            <div className={`finDash-argent__badge ${positive ? "finDash-argent__badge--up" : "finDash-argent__badge--down"}`}>
-                {positive
-                    ? <TrendingUp size={14} aria-hidden="true" />
-                    : <TrendingDown size={14} aria-hidden="true" />
-                }
-                <span>{positive ? "+" : ""}{variation}% ce mois</span>
-            </div>
         </div>
     );
 }
