@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ExternalLink } from "lucide-react";
 import DetailsCommandeModal from "./DetailsCommandeModal.jsx";
 import "../../../../assets/styles/components/modules/finances/paiementPane.css";
@@ -12,7 +13,7 @@ function PaiementPane({ paiement, onClose }) {
     const formatDate = (d) =>
         new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(d));
 
-    return (
+    return createPortal(
         <>
             <div
                 className="finCommandes-drawer__overlay"
@@ -104,7 +105,8 @@ function PaiementPane({ paiement, onClose }) {
                     onClose={() => setShowCommandeModal(false)}
                 />
             )}
-        </>
+        </>,
+        document.body
     );
 }
 

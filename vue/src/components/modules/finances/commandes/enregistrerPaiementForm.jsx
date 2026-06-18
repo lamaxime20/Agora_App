@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, CheckCircle, AlertTriangle, ArrowLeft } from "lucide-react";
 import { creerPaiement } from "../../../../services/financesDashboard.js";
 import "../../../../assets/styles/components/modules/finances/enregistrerPaiementForm.css";
@@ -275,7 +276,7 @@ function EnregistrerPaiementForm({ commande, onClose }) {
         success: null,
     };
 
-    return (
+    return createPortal(
         <div
             className="finCommandes-modal__overlay"
             role="dialog"
@@ -325,7 +326,8 @@ function EnregistrerPaiementForm({ commande, onClose }) {
                 )}
 
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 

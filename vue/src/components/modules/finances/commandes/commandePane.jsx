@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, CreditCard, PlusCircle, Package, Loader } from "lucide-react";
 import EnregistrerPaiementForm from "./enregistrerPaiementForm.jsx";
 import { fetchCommandeDetail } from "../../../../services/financesDashboard.js";
@@ -47,7 +48,7 @@ function CommandePane({ commande, onClose }) {
         ? Math.min(100, Math.round((totalPaye / montantCommande) * 100))
         : 0;
 
-    return (
+    return createPortal(
         <>
             <div
                 className="finCommandes-drawer__overlay"
@@ -249,7 +250,8 @@ function CommandePane({ commande, onClose }) {
                     onClose={() => setShowFormPaiement(false)}
                 />
             )}
-        </>
+        </>,
+        document.body
     );
 }
 

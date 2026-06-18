@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { X, ArrowUpRight, ArrowDownRight, User, Calendar, Hash, FileText } from "lucide-react";
 
 function ActivitePane({ activite, onClose }) {
@@ -21,7 +22,7 @@ function ActivitePane({ activite, onClose }) {
         { icon: FileText, key: "Description", val: activite.description },
     ];
 
-    return (
+    return createPortal(
         <>
             <div className="finDash-pane__overlay" onClick={onClose} aria-hidden="true" />
             <aside
@@ -78,7 +79,8 @@ function ActivitePane({ activite, onClose }) {
                     </section>
                 </div>
             </aside>
-        </>
+        </>,
+        document.body
     );
 }
 
