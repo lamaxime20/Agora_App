@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Bell, ChevronRight, Menu } from "lucide-react";
+import { ChevronRight, Menu } from "lucide-react";
 
 import UserProfileDropdown from "../../components/shared/UserProfileDropdown";
+import NotificationBell from "../../components/shared/NotificationBell";
 
 import {
     FINANCES_DASHBOARD,
@@ -105,13 +106,7 @@ function Finances({ onglet }) {
                     </nav>
 
                     <div className="finances-header__actions">
-                        <button
-                            className="finances-header__action-btn"
-                            aria-label="Notifications"
-                            type="button"
-                        >
-                            <Bell size={20} aria-hidden="true" />
-                        </button>
+                        <NotificationBell btnClassName="finances-header__action-btn" />
                         <UserProfileDropdown btnClassName="finances-header__action-btn" />
                     </div>
                 </header>

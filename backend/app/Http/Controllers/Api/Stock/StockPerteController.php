@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Stock;
 
+use App\Events\Stock\StockLossCreated;
+use App\Events\Stock\StockLowAlert;
 use App\Models\PerteProduit;
 use App\Models\Produit;
 use Carbon\Carbon;
@@ -187,10 +189,24 @@ class StockPerteController extends StockBaseController
                 throw $e; // Renvoyer l'exception pour qu'elle soit loggée
             }
 
-            // TODO: créer la notification de perte pour le directeur de l'entreprise ici.
+            event(new StockLossCreated(
+                companyId:       $entreprise->id,
+                produitId:       $produit->id,
+                produitNom:      $produit->nom,
+                quantitePerdue:  (float) $request->input('quantite_perdu'),
+                motif:           trim((string) $request->input('motif_perte')),
+                signaleParUserId: $user->id
+            ));
 
-            if ((float) $produit->fresh()->stock_actuel <= (float) $produit->seuil_alerte) {
-                // TODO: créer la notification de stock faible après perte ici.
+            $produitFresh = $produit->fresh();
+            if ((float) $produitFresh->stock_actuel <= (float) $produit->seuil_alerte) {
+                event(new StockLowAlert(
+                    companyId:    $entreprise->id,
+                    produitId:    $produit->id,
+                    produitNom:   $produit->nom,
+                    stockActuel:  (float) $produitFresh->stock_actuel,
+                    seuilAlerte:  (float) $produit->seuil_alerte
+                ));
             }
 
             $perteResponse = DB::table('pertes_produits as pp')

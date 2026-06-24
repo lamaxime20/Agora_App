@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom
 import { AuthProvider } from './context/AuthContext';
 import { AuthorizationProvider } from './context/AuthorizationContext';
 import { AdminProvider } from './context/AdminContext';
+import { NotificationsProvider } from './context/NotificationsContext';
 
 import RouteGuardAuth from './components/guards/RouteGuardAuth';
 import RouteGuardAuthorization from './components/guards/RouteGuardAuthorization';
@@ -24,6 +25,7 @@ import RessourcesHumaines from './pages/modules/ressourcesHumaines';
 import Livraison from './pages/modules/livraison';
 import ParametresEntreprise from './pages/parametres-entreprise.jsx';
 import ParametresUtilisateur from './pages/parametres-utilisateur.jsx';
+import NotificationsPage from './pages/modules/notifications.jsx';
 
 
 import LoginPageAdmin from './pages/admin/loginPage.jsx';
@@ -129,7 +131,9 @@ function App() {
                         </Route>
 
                         <Route element={<RouteGuardAuthorization />}>
+                            <Route element={<NotificationsProvider><Outlet /></NotificationsProvider>}>
                             <Route path="/application" element={<ApplicationPage />} />
+                            <Route path="/application/notifications" element={<NotificationsPage />} />
                             <Route path="/application/parametres-entreprise" element={<ParametresEntreprise />} />
                             <Route path="/application/parametres-utilisateur" element={<ParametresUtilisateur />} />
                             <Route path="/application/stock" element={<GestionStock  onglet={GESTION_STOCK_DASHBOARD} />} />
@@ -170,7 +174,8 @@ function App() {
                                 <Route path="mes-livraisons" element={<Livraison onglet={LIVRAISON_MES_LIVRAISONS} />} />
                                 <Route path="statistiques" element={<Livraison onglet={LIVRAISON_STATISTIQUES} />} />
                             </Route>
-                        </Route>
+                            </Route>{/* /NotificationsProvider */}
+                        </Route>{/* /RouteGuardAuthorization */}
 
                         <Route path="/404" element={<div>Page 404</div>} />
                         <Route path="*" element={<Navigate to="/404" replace />} />

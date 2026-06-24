@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Bell, ChevronRight, Search, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Menu, ChevronRight, Search, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import UserProfileDropdown from "../../components/shared/UserProfileDropdown";
+import NotificationBell from "../../components/shared/NotificationBell";
 
 import {
     GESTION_STOCK_DASHBOARD,
@@ -103,15 +104,7 @@ function GestionStock({ onglet }) {
                     </div>
 
                     <div className="gestionStock-header__actions">
-                        <button
-                            className="gestionStock-header__notif"
-                            aria-label="Notifications — 3 non lues"
-                            type="button"
-                        >
-                            <Bell size={20} aria-hidden="true" />
-                            <span className="gestionStock-header__notif-badge" aria-hidden="true">3</span>
-                        </button>
-
+                        <NotificationBell btnClassName="gestionStock-header__notif" />
                         <UserProfileDropdown btnClassName="gestionStock-header__profile" />
                     </div>
                 </header>

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Bell, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import UserProfileDropdown from "../../components/shared/UserProfileDropdown";
+import NotificationBell from "../../components/shared/NotificationBell";
 
 import {
     VENTES_DASHBOARD,
@@ -62,13 +63,7 @@ function Ventes({ onglet }) {
 
                     {/* Actions : notifications + profil */}
                     <div className="ventes-header__actions">
-                        <button
-                            className="ventes-header__action-btn"
-                            aria-label="Notifications"
-                            type="button"
-                        >
-                            <Bell size={20} aria-hidden="true" />
-                        </button>
+                        <NotificationBell btnClassName="ventes-header__action-btn" />
                         <UserProfileDropdown btnClassName="ventes-header__action-btn" />
                     </div>
                 </header>

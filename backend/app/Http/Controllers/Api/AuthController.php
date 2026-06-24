@@ -267,6 +267,7 @@ class AuthController extends Controller
                 'ok'      => true,
                 'message' => 'Rôle sélectionné avec succès.',
                 'user'    => [
+                    'id'         => $user->id,
                     'email'      => $user->email,
                     'nom'        => $user->name,
                     'prenom'     => $user->prename,
@@ -275,7 +276,8 @@ class AuthController extends Controller
                         'id'  => $entreprise->id,
                         'nom' => $entreprise->nom,
                     ],
-                    'role' => $roleName,
+                    'role'    => $roleName,
+                    'role_id' => $request->role_id,
                 ],
             ], 200)
                 ->withCookie($expiredAuthCookie)
@@ -305,6 +307,7 @@ class AuthController extends Controller
         return response()->json([
             'ok'   => true,
             'user' => [
+                'id'         => $user->id,
                 'email'      => $user->email,
                 'nom'        => $user->name,
                 'prenom'     => $user->prename,
@@ -313,7 +316,8 @@ class AuthController extends Controller
                     'id'  => $entreprise->id,
                     'nom' => $entreprise->nom,
                 ],
-                'role' => $role->role,
+                'role'    => $role->role,
+                'role_id' => $role->id,
             ],
         ], 200);
     }

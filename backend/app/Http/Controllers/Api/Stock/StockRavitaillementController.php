@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api\Stock;
 
+use App\Events\Stock\RavitaillementCancelled;
+use App\Events\Stock\RavitaillementConfirmed;
+use App\Events\Stock\RavitaillementRequested;
 use App\Models\Produit;
 use App\Models\Ravitaillement;
 use Illuminate\Http\JsonResponse;
@@ -125,7 +128,7 @@ class StockRavitaillementController extends StockBaseController
                 ->where('id', $request->input('produit_id'))
                 ->where('entreprise', $entreprise->id)
                 ->where('statut', 'actif')
-                ->select(['id', 'type_produit'])
+                ->select(['id', 'type_produit', 'nom'])
                 ->first();
 
             if (!$produit || $produit->type_produit !== 'physique') {
@@ -159,7 +162,14 @@ class StockRavitaillementController extends StockBaseController
                 $entreprise->id
             ));
 
-            // TODO: créer la notification de ravitaillement pour le directeur de l'entreprise ici.
+            event(new RavitaillementRequested(
+                companyId:         $entreprise->id,
+                ravitaillementId:  $ravitaillement->id,
+                produitId:         $produit->id,
+                produitNom:        $produit->nom,
+                quantiteDemandee:  (float) $request->input('quantite'),
+                demandeParUserId:  $user->id
+            ));
 
             $ravitaillementResponse = DB::table('ravitaillements as r')
                 ->join('produits as p', 'p.id', '=', 'r.produit')
@@ -229,7 +239,14 @@ class StockRavitaillementController extends StockBaseController
                 $entreprise->id
             ));
 
-            // TODO: créer la notification d'annulation du ravitaillement avec la raison ici.
+            $produitRow = DB::table('produits')->where('id', $ravitaillement->produit)->select(['id', 'nom'])->first();
+            event(new RavitaillementCancelled(
+                companyId:        $entreprise->id,
+                ravitaillementId: $ravitaillement->id,
+                produitId:        $ravitaillement->produit,
+                produitNom:       $produitRow?->nom ?? '',
+                raison:           $request->input('raison_annulation')
+            ));
 
             $ravitaillementResponse = DB::table('ravitaillements as r')
                 ->join('produits as p', 'p.id', '=', 'r.produit')
@@ -342,7 +359,13 @@ class StockRavitaillementController extends StockBaseController
                 ));
             });
 
-            // TODO: créer la notification de confirmation du ravitaillement pour les modules concernés ici.
+            event(new RavitaillementConfirmed(
+                companyId:        $entreprise->id,
+                ravitaillementId: $ravitaillement->id,
+                produitId:        $produit->id,
+                produitNom:       $produit->nom,
+                quantiteAjoutee:  (float) $ravitaillement->quantite
+            ));
 
             $ravitaillementResponse = DB::table('ravitaillements as r')
                 ->join('produits as p', 'p.id', '=', 'r.produit')

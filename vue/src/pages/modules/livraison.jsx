@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Bell, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import UserProfileDropdown from "../../components/shared/UserProfileDropdown";
+import NotificationBell from "../../components/shared/NotificationBell";
 
 import {
     LIVRAISON_DASHBOARD,
@@ -48,9 +49,7 @@ function Livraison({ onglet }) {
                     </nav>
 
                     <div className="livraison-header__actions">
-                        <button className="livraison-header__action-btn" aria-label="Notifications" type="button">
-                            <Bell size={20} aria-hidden="true" />
-                        </button>
+                        <NotificationBell btnClassName="livraison-header__action-btn" />
                         <UserProfileDropdown btnClassName="livraison-header__action-btn" />
                     </div>
                 </header>

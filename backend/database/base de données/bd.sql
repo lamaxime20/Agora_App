@@ -337,37 +337,40 @@ CREATE TABLE IF NOT EXISTS invitations (
 CREATE TABLE IF NOT EXISTS notifications (
   id UUID DEFAULT gen_random_uuid(),
 
-  titre VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
 
-  date_arrivee TIMESTAMP DEFAULT NOW(),
+  type VARCHAR(100) NOT NULL,
+  priority VARCHAR(20) NOT NULL DEFAULT 'medium',
 
-  statut statut_notification DEFAULT 'non_lue',
+  data JSONB,
 
-  type_notification type_notification NOT NULL,
+  read_at TIMESTAMP,
+  archived_at TIMESTAMP,
 
-  actif BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
 
-  utilisateur UUID NOT NULL,
-  entreprise UUID NOT NULL,
-  role UUID NOT NULL,
+  user_id UUID NOT NULL,
+  company_id UUID NOT NULL,
+  role_id UUID NOT NULL,
 
-  CONSTRAINT notifications_cc0 PRIMARY KEY(id),
+  CONSTRAINT notifications_pkey PRIMARY KEY(id),
 
-  CONSTRAINT notifications_cr0
-    FOREIGN KEY (utilisateur)
+  CONSTRAINT notifications_user_id_foreign
+    FOREIGN KEY (user_id)
     REFERENCES utilisateurs(id)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
 
-  CONSTRAINT notifications_cr1
-    FOREIGN KEY (entreprise)
+  CONSTRAINT notifications_company_id_foreign
+    FOREIGN KEY (company_id)
     REFERENCES entreprises(id)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
 
-  CONSTRAINT notifications_cr2
-    FOREIGN KEY (role)
+  CONSTRAINT notifications_role_id_foreign
+    FOREIGN KEY (role_id)
     REFERENCES roles_utilisateur(id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
@@ -1417,11 +1420,20 @@ ON utilisateurs(email);
 CREATE INDEX entreprises_directeur_index
 ON entreprises(directeur);
 
-CREATE INDEX notifications_utilisateur_index
-ON notifications(utilisateur);
+CREATE INDEX notifications_user_id_index
+ON notifications(user_id);
 
-CREATE INDEX notifications_entreprise_index
-ON notifications(entreprise);
+CREATE INDEX notifications_company_id_index
+ON notifications(company_id);
+
+CREATE INDEX notifications_role_id_index
+ON notifications(role_id);
+
+CREATE INDEX notifications_read_at_index
+ON notifications(read_at);
+
+CREATE INDEX notifications_archived_at_index
+ON notifications(archived_at);
 
 CREATE INDEX produits_entreprise_index
 ON produits(entreprise);

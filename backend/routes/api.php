@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EntrepriseController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PasswordController;
 use App\Http\Controllers\Api\Stock\StockCategorieController;
 use App\Http\Controllers\Api\Stock\StockHistoriqueController;
@@ -136,6 +137,27 @@ Route::middleware(MiddlewareTokenAuthorization::class)->group(function () {
 
     Route::get('entreprise/parametres',   [EntrepriseParametresController::class, 'show']);
     Route::patch('entreprise/parametres', [EntrepriseParametresController::class, 'update']);
+
+    // ── Notifications (universelles — indépendantes du module) ───────────────
+    Route::get('notifications',                              [NotificationController::class, 'index']);
+    Route::get('notifications/unread-count',                 [NotificationController::class, 'unreadCount']);
+    Route::patch('notifications/read-all',                   [NotificationController::class, 'markAllRead']);
+    Route::patch('notifications/archive-all',                [NotificationController::class, 'archiveAll']);
+    Route::delete('notifications/bulk',                      [NotificationController::class, 'destroyBulk']);
+    Route::delete('notifications/archived',                  [NotificationController::class, 'destroyArchived']);
+    Route::patch('notifications/{id}/read',                  [NotificationController::class, 'markRead']);
+    Route::patch('notifications/{id}/archive',               [NotificationController::class, 'archive']);
+    Route::delete('notifications/{id}',                      [NotificationController::class, 'destroy']);
+
+    // ── Auth canal broadcast (Reverb) ────────────────────────────────────────
+    Route::post('broadcasting/auth', function (\Illuminate\Http\Request $request) {
+        $user = $request->attributes->get('authorizedUser');
+        if (!$user) {
+            return response()->json(['message' => 'Non autorisé.'], 403);
+        }
+        \Illuminate\Support\Facades\Auth::setUser($user);
+        return \Illuminate\Support\Facades\Broadcast::auth($request);
+    });
 });
 
 // ─── Route création d'entreprise ────────────────────────────────────────────

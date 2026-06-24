@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, ChevronRight, Menu } from "lucide-react";
+import { ChevronRight, Menu } from "lucide-react";
 
 import UserProfileDropdown from "../../components/shared/UserProfileDropdown";
+import NotificationBell from "../../components/shared/NotificationBell";
 
 import { RH_DASHBOARD, RH_EMPLOYEES, RH_STATISTICS } from "../../services/rh.js";
 
@@ -105,13 +106,7 @@ function RessourcesHumaines({ onglet = RH_DASHBOARD, showAdd = false }) {
                     </nav>
 
                     <div className="rh-header__actions">
-                        <button
-                            className="rh-header__action-btn"
-                            aria-label="Notifications"
-                            type="button"
-                        >
-                            <Bell size={20} aria-hidden="true" />
-                        </button>
+                        <NotificationBell btnClassName="rh-header__action-btn" />
                         <UserProfileDropdown btnClassName="rh-header__action-btn" />
                     </div>
                 </header>

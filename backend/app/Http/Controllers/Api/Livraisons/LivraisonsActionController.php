@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Api\Livraisons;
 
+use App\Events\Livraison\LivraisonAnnulee;
+use App\Events\Livraison\LivraisonCreated;
+use App\Events\Livraison\LivraisonEchec;
+use App\Events\Livraison\LivraisonLancee;
+use App\Events\Livraison\LivraisonRetour;
+use App\Events\Livraison\LivraisonValidee;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -153,33 +159,31 @@ class LivraisonsActionController extends LivraisonsBaseController
                 ->first();
             $nomLivreur = $livreurRow ? $livreurRow->name . ' ' . $livreurRow->prename : $livreurId;
 
-            // 10. NOTIFICATIONS ─────────────────────────────────────────────
-            // Créer une notification pour le livreur assigné.
-            //
-            // Récupérer le role_id employe_livreur du livreur dans cette entreprise :
-            // $livreurRoleRow = DB::table('appartenir_entreprise as ae')
-            //     ->join('roles_utilisateur as ru', 'ru.id', '=', 'ae.role_utilisateur_id')
-            //     ->where('ae.utilisateur_id', $livreurId)
-            //     ->where('ae.entreprise_id', $entrepriseId)
-            //     ->where('ru.role', 'employe_livreur')
-            //     ->select('ae.role_utilisateur_id')
-            //     ->first();
-            // $livreurRoleId = $livreurRoleRow?->role_utilisateur_id;
-            //
-            // if ($livreurRoleId) {
-            //     DB::table('notifications')->insert([
-            //         'id'                => (string) Str::uuid(),
-            //         'titre'             => 'Nouvelle livraison assignée',
-            //         'message'           => "Une nouvelle livraison vous a été assignée pour la commande {$numeroCMD}.",
-            //         'type_notification' => 'livraison',
-            //         'statut'            => 'non_lue',
-            //         'actif'             => true,
-            //         'utilisateur'       => $livreurId,
-            //         'entreprise'        => $entrepriseId,
-            //         'role'              => $livreurRoleId,
-            //         'date_arrivee'      => now(),
-            //     ]);
-            // }
+            // 10. NOTIFICATIONS
+            $livreurRoleRow = DB::table('appartenir_entreprise as ae')
+                ->join('roles_utilisateur as ru', 'ru.id', '=', 'ae.role_utilisateur_id')
+                ->where('ae.utilisateur_id', $livreurId)
+                ->where('ae.entreprise_id', $entrepriseId)
+                ->whereIn('ru.role', ['employe_livraison', 'manager_livraison'])
+                ->select('ae.role_utilisateur_id')
+                ->first();
+
+            $clientRow = DB::table('commandes as c')
+                ->leftJoin('clients as cl', 'cl.id', '=', 'c.client')
+                ->where('c.id', $commandeId)
+                ->select(['cl.nom as client_nom'])
+                ->first();
+
+            if ($livreurRoleRow) {
+                event(new LivraisonCreated(
+                    companyId:     $entrepriseId,
+                    livraisonId:   $livraisonId,
+                    commandeId:    $commandeId,
+                    livreurUserId: $livreurId,
+                    livreurRoleId: $livreurRoleRow->role_utilisateur_id,
+                    clientNom:     $clientRow?->client_nom ?? 'Client inconnu'
+                ));
+            }
 
             // 11. Historique
             $this->history(
@@ -250,26 +254,19 @@ class LivraisonsActionController extends LivraisonsBaseController
 
             $numeroCMD = $this->calcNumeroCommande($livraison->commande);
 
-            // NOTIFICATIONS ─────────────────────────────────────────────────
-            // Créer une notification pour chaque utilisateur ayant un rôle Ventes dans l'entreprise.
-            //
-            // $ventesUsers = $this->getUsersByRole($entrepriseId, 'employe_vente');
-            // $ventesUsers = $ventesUsers->merge($this->getUsersByRole($entrepriseId, 'manager_vente'));
-            //
-            // foreach ($ventesUsers as $ventesUser) {
-            //     DB::table('notifications')->insert([
-            //         'id'                => (string) Str::uuid(),
-            //         'titre'             => 'Livraison démarrée',
-            //         'message'           => "La livraison de la commande {$numeroCMD} a démarré.",
-            //         'type_notification' => 'livraison',
-            //         'statut'            => 'non_lue',
-            //         'actif'             => true,
-            //         'utilisateur'       => $ventesUser->id,
-            //         'entreprise'        => $entrepriseId,
-            //         'role'              => $ventesUser->role_id,
-            //         'date_arrivee'      => now(),
-            //     ]);
-            // }
+            // NOTIFICATIONS
+            $clientRowL = DB::table('commandes as c')
+                ->leftJoin('clients as cl', 'cl.id', '=', 'c.client')
+                ->where('c.id', $livraison->commande)
+                ->select(['cl.nom as client_nom'])
+                ->first();
+
+            event(new LivraisonLancee(
+                companyId:  $entrepriseId,
+                livraisonId: $id,
+                commandeId: $livraison->commande,
+                clientNom:  $clientRowL?->client_nom ?? 'Client inconnu'
+            ));
 
             $this->history(
                 'livraisons', 'livraisons', $id,
@@ -352,30 +349,21 @@ class LivraisonsActionController extends LivraisonsBaseController
 
             $numeroCMD = $this->calcNumeroCommande($livraison->commande);
 
-            // NOTIFICATIONS ─────────────────────────────────────────────────
-            // Notifier les utilisateurs Ventes et Finance que la livraison est confirmée.
-            //
-            // $rolesSells  = ['employe_vente', 'manager_vente'];
-            // $rolesFinance = ['employe_finances', 'manager_finances'];
-            // $rolesStock   = ['employe_gestion_stock', 'manager_gestion_stock'];
-            //
-            // foreach (array_merge($rolesSells, $rolesFinance) as $roleSlug) {
-            //     foreach ($this->getUsersByRole($entrepriseId, $roleSlug) as $u) {
-            //         DB::table('notifications')->insert([
-            //             'id'                => (string) Str::uuid(),
-            //             'titre'             => 'Livraison confirmée',
-            //             'message'           => "La livraison de la commande {$numeroCMD} a été confirmée.",
-            //             'type_notification' => 'livraison',
-            //             'statut'            => 'non_lue',
-            //             'actif'             => true,
-            //             'utilisateur'       => $u->id,
-            //             'entreprise'        => $entrepriseId,
-            //             'role'              => $u->role_id,
-            //             'date_arrivee'      => now(),
-            //         ]);
-            //     }
-            // }
-            //
+            // NOTIFICATIONS
+            $commandeInfoV = DB::table('commandes as c')
+                ->leftJoin('clients as cl', 'cl.id', '=', 'c.client')
+                ->where('c.id', $livraison->commande)
+                ->select(['c.montant_commande', 'cl.nom as client_nom'])
+                ->first();
+
+            event(new LivraisonValidee(
+                companyId:    $entrepriseId,
+                livraisonId:  $id,
+                commandeId:   $livraison->commande,
+                clientNom:    $commandeInfoV?->client_nom ?? 'Client inconnu',
+                montantTotal: (float) ($commandeInfoV?->montant_commande ?? 0)
+            ));
+
             // Notifier les utilisateurs Gestion de Stock que le stock a été mis à jour.
             // foreach ($rolesStock as $roleSlug) {
             //     foreach ($this->getUsersByRole($entrepriseId, $roleSlug) as $u) {
@@ -471,52 +459,20 @@ class LivraisonsActionController extends LivraisonsBaseController
 
             $numeroCMD = $this->calcNumeroCommande($livraison->commande);
 
-            // NOTIFICATIONS ─────────────────────────────────────────────────
-            // Notifier le directeur et les utilisateurs Ventes de l'échec de livraison.
-            //
-            // $directeurRow = DB::table('entreprises')->where('id', $entrepriseId)->select(['directeur'])->first();
-            // $directeurId  = $directeurRow?->directeur;
-            //
-            // // Rôle du directeur dans l'entreprise
-            // $directeurRoleRow = DB::table('appartenir_entreprise as ae')
-            //     ->join('roles_utilisateur as ru', 'ru.id', '=', 'ae.role_utilisateur_id')
-            //     ->where('ae.utilisateur_id', $directeurId)
-            //     ->where('ae.entreprise_id', $entrepriseId)
-            //     ->where('ru.role', 'directeur')
-            //     ->select('ae.role_utilisateur_id')
-            //     ->first();
-            //
-            // if ($directeurId && $directeurRoleRow) {
-            //     DB::table('notifications')->insert([
-            //         'id'                => (string) Str::uuid(),
-            //         'titre'             => 'Échec de livraison',
-            //         'message'           => "La livraison de la commande {$numeroCMD} a échoué. Motif : {$motif}.",
-            //         'type_notification' => 'livraison',
-            //         'statut'            => 'non_lue',
-            //         'actif'             => true,
-            //         'utilisateur'       => $directeurId,
-            //         'entreprise'        => $entrepriseId,
-            //         'role'              => $directeurRoleRow->role_utilisateur_id,
-            //         'date_arrivee'      => now(),
-            //     ]);
-            // }
-            //
-            // foreach (['employe_vente', 'manager_vente'] as $roleSlug) {
-            //     foreach ($this->getUsersByRole($entrepriseId, $roleSlug) as $u) {
-            //         DB::table('notifications')->insert([
-            //             'id'                => (string) Str::uuid(),
-            //             'titre'             => 'Échec de livraison',
-            //             'message'           => "La livraison de la commande {$numeroCMD} a échoué. Motif : {$motif}.",
-            //             'type_notification' => 'livraison',
-            //             'statut'            => 'non_lue',
-            //             'actif'             => true,
-            //             'utilisateur'       => $u->id,
-            //             'entreprise'        => $entrepriseId,
-            //             'role'              => $u->role_id,
-            //             'date_arrivee'      => now(),
-            //         ]);
-            //     }
-            // }
+            // NOTIFICATIONS
+            $clientRowE = DB::table('commandes as c')
+                ->leftJoin('clients as cl', 'cl.id', '=', 'c.client')
+                ->where('c.id', $livraison->commande)
+                ->select(['cl.nom as client_nom'])
+                ->first();
+
+            event(new LivraisonEchec(
+                companyId:  $entrepriseId,
+                livraisonId: $id,
+                commandeId: $livraison->commande,
+                clientNom:  $clientRowE?->client_nom ?? 'Client inconnu',
+                motif:      $motif
+            ));
 
             $this->history(
                 'livraisons', 'livraisons', $id,
@@ -595,51 +551,20 @@ class LivraisonsActionController extends LivraisonsBaseController
 
             $numeroCMD = $this->calcNumeroCommande($livraison->commande);
 
-            // NOTIFICATIONS ─────────────────────────────────────────────────
-            // Notifier le directeur, les utilisateurs Ventes et Gestion de Stock du retour.
-            //
-            // $directeurRow = DB::table('entreprises')->where('id', $entrepriseId)->select(['directeur'])->first();
-            // $directeurId  = $directeurRow?->directeur;
-            //
-            // $directeurRoleRow = DB::table('appartenir_entreprise as ae')
-            //     ->join('roles_utilisateur as ru', 'ru.id', '=', 'ae.role_utilisateur_id')
-            //     ->where('ae.utilisateur_id', $directeurId)
-            //     ->where('ae.entreprise_id', $entrepriseId)
-            //     ->where('ru.role', 'directeur')
-            //     ->select('ae.role_utilisateur_id')
-            //     ->first();
-            //
-            // if ($directeurId && $directeurRoleRow) {
-            //     DB::table('notifications')->insert([
-            //         'id'                => (string) Str::uuid(),
-            //         'titre'             => 'Retour de livraison',
-            //         'message'           => "La livraison de la commande {$numeroCMD} a été retournée. Motif : {$motif}.",
-            //         'type_notification' => 'livraison',
-            //         'statut'            => 'non_lue',
-            //         'actif'             => true,
-            //         'utilisateur'       => $directeurId,
-            //         'entreprise'        => $entrepriseId,
-            //         'role'              => $directeurRoleRow->role_utilisateur_id,
-            //         'date_arrivee'      => now(),
-            //     ]);
-            // }
-            //
-            // foreach (['employe_vente', 'manager_vente', 'employe_gestion_stock', 'manager_gestion_stock'] as $roleSlug) {
-            //     foreach ($this->getUsersByRole($entrepriseId, $roleSlug) as $u) {
-            //         DB::table('notifications')->insert([
-            //             'id'                => (string) Str::uuid(),
-            //             'titre'             => 'Retour de livraison',
-            //             'message'           => "La livraison de la commande {$numeroCMD} a été retournée. Motif : {$motif}.",
-            //             'type_notification' => 'livraison',
-            //             'statut'            => 'non_lue',
-            //             'actif'             => true,
-            //             'utilisateur'       => $u->id,
-            //             'entreprise'        => $entrepriseId,
-            //             'role'              => $u->role_id,
-            //             'date_arrivee'      => now(),
-            //         ]);
-            //     }
-            // }
+            // NOTIFICATIONS
+            $clientRowR = DB::table('commandes as c')
+                ->leftJoin('clients as cl', 'cl.id', '=', 'c.client')
+                ->where('c.id', $livraison->commande)
+                ->select(['cl.nom as client_nom'])
+                ->first();
+
+            event(new LivraisonRetour(
+                companyId:  $entrepriseId,
+                livraisonId: $id,
+                commandeId: $livraison->commande,
+                clientNom:  $clientRowR?->client_nom ?? 'Client inconnu',
+                motif:      $motif
+            ));
 
             $this->history(
                 'livraisons', 'livraisons', $id,
@@ -721,25 +646,20 @@ class LivraisonsActionController extends LivraisonsBaseController
 
             $numeroCMD = $this->calcNumeroCommande($livraison->commande);
 
-            // NOTIFICATIONS ─────────────────────────────────────────────────
-            // Notifier les utilisateurs Ventes de l'annulation de livraison.
-            //
-            // foreach (['employe_vente', 'manager_vente'] as $roleSlug) {
-            //     foreach ($this->getUsersByRole($entrepriseId, $roleSlug) as $u) {
-            //         DB::table('notifications')->insert([
-            //             'id'                => (string) Str::uuid(),
-            //             'titre'             => 'Livraison annulée',
-            //             'message'           => "La livraison de la commande {$numeroCMD} a été annulée. Raison : {$motif}.",
-            //             'type_notification' => 'livraison',
-            //             'statut'            => 'non_lue',
-            //             'actif'             => true,
-            //             'utilisateur'       => $u->id,
-            //             'entreprise'        => $entrepriseId,
-            //             'role'              => $u->role_id,
-            //             'date_arrivee'      => now(),
-            //         ]);
-            //     }
-            // }
+            // NOTIFICATIONS
+            $clientRowA = DB::table('commandes as c')
+                ->leftJoin('clients as cl', 'cl.id', '=', 'c.client')
+                ->where('c.id', $livraison->commande)
+                ->select(['cl.nom as client_nom'])
+                ->first();
+
+            event(new LivraisonAnnulee(
+                companyId:  $entrepriseId,
+                livraisonId: $id,
+                commandeId: $livraison->commande,
+                clientNom:  $clientRowA?->client_nom ?? 'Client inconnu',
+                motif:      $motif
+            ));
 
             $this->history(
                 'livraisons', 'livraisons', $id,

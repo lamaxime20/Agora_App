@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Ventes;
 
+use App\Events\Commande\CommandeCancelled;
+use App\Events\Commande\CommandeCreated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -365,38 +367,14 @@ class VentesCommandeController extends VentesBaseController
                 $numero . ' - ' . $montantTotal . ' - ' . count($produitsData) . ' produit(s)'
             );
 
-            // NOTIFICATIONS — À implémenter ultérieurement
-            //
-            // Objectif : notifier tous les utilisateurs ayant un rôle Finance dans l'entreprise
-            //            qu'une nouvelle commande a été enregistrée et attend leur validation.
-            //
-            // 1. Récupérer le rôle Finance :
-            //    $roleFinance = DB::table('roles_utilisateur')
-            //        ->where('role', 'finance')   // adapter selon le libellé exact en base
-            //        ->first();
-            //
-            // 2. Récupérer les utilisateurs Finance de l'entreprise :
-            //    $usersFinance = DB::table('appartenir_entreprise')
-            //        ->where('entreprise_id', $entrepriseId)
-            //        ->where('role_utilisateur_id', $roleFinance->id)
-            //        ->where('statut', 'actif')
-            //        ->pluck('utilisateur_id');
-            //
-            // 3. Insérer une notification pour chacun :
-            //    foreach ($usersFinance as $userId) {
-            //        DB::table('notifications')->insert([
-            //            'id'                => (string) Str::uuid(),
-            //            'titre'             => 'Nouvelle commande',
-            //            'message'           => "Une nouvelle commande {$numero} a été enregistrée et est en attente de validation.",
-            //            'type_notification' => 'paiement',
-            //            'statut'            => 'non_lue',
-            //            'actif'             => true,
-            //            'date_arrivee'      => now(),
-            //            'utilisateur'       => $userId,
-            //            'entreprise'        => $entrepriseId,
-            //            'role'              => $roleFinance->id,
-            //        ]);
-            //    }
+            // NOTIFICATIONS
+            $clientRow = DB::table('clients')->where('id', $clientId)->select(['nom'])->first();
+            event(new CommandeCreated(
+                companyId:   $entrepriseId,
+                commandeId:  $commandeId,
+                clientNom:   $clientRow?->nom ?? 'Client inconnu',
+                montantTotal: $montantTotal
+            ));
 
             return response()->json([
                 'commande' => [
@@ -503,39 +481,20 @@ class VentesCommandeController extends VentesBaseController
                 $raisonAnnulation
             );
 
-            // NOTIFICATIONS — À implémenter ultérieurement
-            //
-            // Objectif : notifier les utilisateurs Finance de l'entreprise que la commande
-            //            a été annulée, avec la raison.
-            //
-            // 1. Récupérer le rôle Finance :
-            //    $roleFinance = DB::table('roles_utilisateur')
-            //        ->where('role', 'finance')
-            //        ->first();
-            //
-            // 2. Récupérer les utilisateurs Finance de l'entreprise :
-            //    $usersFinance = DB::table('appartenir_entreprise')
-            //        ->where('entreprise_id', $entrepriseId)
-            //        ->where('role_utilisateur_id', $roleFinance->id)
-            //        ->where('statut', 'actif')
-            //        ->pluck('utilisateur_id');
-            //
-            // 3. Insérer une notification pour chacun :
-            //    $numero = $commande->numero;
-            //    foreach ($usersFinance as $userId) {
-            //        DB::table('notifications')->insert([
-            //            'id'                => (string) Str::uuid(),
-            //            'titre'             => 'Commande annulée',
-            //            'message'           => "La commande {$numero} a été annulée. Raison : {$raisonAnnulation}",
-            //            'type_notification' => 'paiement',
-            //            'statut'            => 'non_lue',
-            //            'actif'             => true,
-            //            'date_arrivee'      => now(),
-            //            'utilisateur'       => $userId,
-            //            'entreprise'        => $entrepriseId,
-            //            'role'              => $roleFinance->id,
-            //        ]);
-            //    }
+            // NOTIFICATIONS
+            $commandeClient = DB::table('commandes as c')
+                ->leftJoin('clients as cl', 'cl.id', '=', 'c.client')
+                ->where('c.id', $id)
+                ->select(['c.montant_commande', 'cl.nom as client_nom'])
+                ->first();
+
+            event(new CommandeCancelled(
+                companyId:   $entrepriseId,
+                commandeId:  $id,
+                clientNom:   $commandeClient?->client_nom ?? 'Client inconnu',
+                montantTotal: (float) ($commandeClient?->montant_commande ?? 0),
+                raison:      $raisonAnnulation
+            ));
 
             return response()->json(['message' => 'Commande annulée avec succès.'], 200);
         } catch (\Throwable $e) {

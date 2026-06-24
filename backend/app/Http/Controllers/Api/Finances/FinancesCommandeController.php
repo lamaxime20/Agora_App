@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Finances;
 
+use App\Events\Commande\CommandeValidated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -135,40 +136,19 @@ class FinancesCommandeController extends FinancesBaseController
                 "Commande {$commande->numero} validée par le module Finance."
             );
 
-            // NOTIFICATIONS — À implémenter ultérieurement
-            //
-            // Objectif : notifier tous les utilisateurs ayant le rôle Ventes dans cette entreprise
-            // que la commande vient d'être validée par le module Finance.
-            //
-            // Étapes à suivre :
-            //
-            // 1. Récupérer le rôle "ventes" dans la table roles_utilisateur :
-            //    $roleVentes = DB::table('roles_utilisateur')
-            //        ->where('role', 'employe_vente')  // adapter selon le vrai libellé du rôle en base
-            //        ->first();
-            //
-            // 2. Récupérer tous les utilisateurs ayant ce rôle dans l'entreprise :
-            //    $usersVentes = DB::table('appartenir_entreprise')
-            //        ->where('entreprise_id', $entrepriseId)
-            //        ->where('role_utilisateur_id', $roleVentes->id)
-            //        ->where('statut', 'actif')
-            //        ->pluck('utilisateur_id');
-            //
-            // 3. Pour chaque utilisateur, insérer une notification :
-            //    foreach ($usersVentes as $userId) {
-            //        DB::table('notifications')->insert([
-            //            'id'                => (string) Str::uuid(),
-            //            'titre'             => 'Commande validée',
-            //            'message'           => "La commande {$commande->numero} a été validée par le module Finance.",
-            //            'type_notification' => 'paiement',
-            //            'statut'            => 'non_lue',
-            //            'actif'             => true,
-            //            'date_arrivee'      => now(),
-            //            'utilisateur'       => $userId,
-            //            'entreprise'        => $entrepriseId,
-            //            'role'              => $roleVentes->id,
-            //        ]);
-            //    }
+            // NOTIFICATIONS
+            $commandeClientF = DB::table('commandes as c')
+                ->leftJoin('clients as cl', 'cl.id', '=', 'c.client')
+                ->where('c.id', $id)
+                ->select(['cl.nom as client_nom'])
+                ->first();
+
+            event(new CommandeValidated(
+                companyId:   $entrepriseId,
+                commandeId:  $id,
+                clientNom:   $commandeClientF?->client_nom ?? 'Client inconnu',
+                montantTotal: (float) $commande->montant_commande
+            ));
 
             return response()->json(['message' => 'Commande validée avec succès.'], 200);
         } catch (\Throwable $e) {
