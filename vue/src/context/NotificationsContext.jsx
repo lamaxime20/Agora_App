@@ -83,7 +83,7 @@ export function NotificationsProvider({ children }) {
     const refreshUnreadCount = useCallback(async () => {
         try {
             const data = await getUnreadCount();
-            setUnreadCount(data?.count ?? 0);
+            setUnreadCount(data?.data?.count ?? 0);
         } catch {
             // silently ignore
         }
@@ -93,7 +93,7 @@ export function NotificationsProvider({ children }) {
         setIsLoadingRecent(true);
         try {
             const data = await getNotifications({ page: 1, limit: 10, filter: 'all' });
-            setRecentNotifications(data?.data ?? []);
+            setRecentNotifications(data?.data?.notifications ?? []);
         } catch {
             // silently ignore
         } finally {

@@ -27,8 +27,9 @@ export function useNotifications() {
         setIsLoading(true);
         try {
             const data = await getNotifications({ page: p, limit: 25, filter: f, search: s });
-            setNotifications(data?.data ?? []);
-            setTotalPages(data?.last_page ?? 1);
+            const inner = data?.data ?? {};
+            setNotifications(inner.notifications ?? []);
+            setTotalPages(inner.total ? Math.ceil(inner.total / 25) : 1);
         } finally {
             setIsLoading(false);
         }
