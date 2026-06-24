@@ -63,7 +63,7 @@ function NotificationItem({ notification, onMarkRead, onArchive, onDelete }) {
     );
 }
 
-function NotificationDropdown({ notifications, isLoading, onMarkRead, onMarkAllRead, onArchive, onDelete, onClose, notifPath = '/application/notifications' }) {
+function NotificationDropdown({ notifications = [], isLoading, onMarkRead, onMarkAllRead, onArchive, onDelete, onClose, notifPath = '/application/notifications' }) {
     const hasUnread = notifications.some((n) => !n.is_read);
 
     return (

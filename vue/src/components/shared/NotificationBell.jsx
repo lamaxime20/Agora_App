@@ -12,12 +12,11 @@ function NotificationBell({ btnClassName }) {
     const [open, setOpen] = useState(false);
     const rootRef = useRef(null);
 
-    const toggle = useCallback(() => {
-        setOpen((v) => {
-            if (!v) refreshRecent();
-            return !v;
-        });
-    }, [refreshRecent]);
+    const toggle = useCallback(() => setOpen((v) => !v), []);
+
+    useEffect(() => {
+        if (open) refreshRecent();
+    }, [open, refreshRecent]);
 
     useEffect(() => {
         if (!open) return;
