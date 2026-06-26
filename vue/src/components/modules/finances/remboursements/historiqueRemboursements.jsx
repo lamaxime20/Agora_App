@@ -3,6 +3,7 @@ import { Search, Download, ChevronDown, ChevronLeft, ChevronRight, RotateCcw, Al
 import RemboursementPane from "./remboursementPane.jsx";
 import { fetchRemboursements } from "../../../../services/financesP3.js";
 import { readCache } from "../../../../services/financesCache.js";
+import { exportRemboursements } from "../../../../services/exportService.js";
 
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -25,6 +26,7 @@ function HistoriqueRemboursements() {
     const [recherche, setRecherche]   = useState("");
     const [filtreDate, setFiltreDate] = useState("");
     const [exportOpen, setExportOpen] = useState(false);
+    const [exporting, setExporting]   = useState(null);
 
     useEffect(() => {
         const cacheKey = `remboursements_${page}`;
@@ -59,6 +61,17 @@ function HistoriqueRemboursements() {
 
     const totalRembourse = filtres.reduce((s, r) => s + r.montant, 0);
     const totalPages     = Math.ceil(meta.total / meta.per_page);
+
+    const handleExport = async (fmtKey) => {
+        if (exporting === fmtKey) return;
+        setExporting(fmtKey);
+        setExportOpen(false);
+        try {
+            await exportRemboursements(fmtKey, { recherche, date: filtreDate });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    };
 
     return (
         <>
@@ -111,11 +124,12 @@ function HistoriqueRemboursements() {
                         </button>
                         {exportOpen && (
                             <div className="finCommandes-export-menu" role="menu">
-                                {[".csv", ".pdf", ".xlsx"].map(f => (
+                                {["pdf", "csv", "docx"].map(f => (
                                     <button
                                         key={f}
                                         className="finCommandes-export-menu__item"
-                                        onClick={() => setExportOpen(false)}
+                                        onClick={() => handleExport(f)}
+                                        disabled={exporting === f}
                                         role="menuitem"
                                         type="button"
                                     >

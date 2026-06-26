@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { fetchJournalFinancier } from "../../../services/financesP5.js";
 import { readCache } from "../../../services/financesCache.js";
+import { exportJournal } from "../../../services/exportService.js";
 import MouvementPane from "./journalFinancier/mouvementPane.jsx";
 import "../../../assets/styles/components/modules/finances/journalFinancier.css";
 
@@ -77,6 +78,7 @@ function JournalFinancier() {
     const [meta, setMeta]             = useState(null);
     const [page, setPage]             = useState(1);
     const [exportOpen, setExportOpen] = useState(false);
+    const [exporting, setExporting]   = useState(null);
     const [selectedId, setSelectedId] = useState(null);
 
     const [recherche, setRecherche]   = useState("");
@@ -125,6 +127,17 @@ function JournalFinancier() {
     useEffect(() => { load(); }, [load]);
 
     const totalPages = meta ? Math.ceil(meta.total / (meta.per_page ?? 20)) : 1;
+
+    const handleExport = async (fmtKey) => {
+        if (exporting === fmtKey) return;
+        setExporting(fmtKey);
+        setExportOpen(false);
+        try {
+            await exportJournal(fmtKey, { recherche, type, sens, dateDebut, dateFin });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    };
 
     return (
         <section className="finJrn-root" aria-label="Journal financier">
@@ -228,11 +241,12 @@ function JournalFinancier() {
                         </button>
                         {exportOpen && (
                             <div className="finJrn-export-menu" role="menu">
-                                {[".csv", ".pdf", ".xlsx"].map(f => (
+                                {["pdf", "csv", "docx"].map(f => (
                                     <button
                                         key={f}
                                         className="finJrn-export-menu__item"
-                                        onClick={() => setExportOpen(false)}
+                                        onClick={() => handleExport(f)}
+                                        disabled={exporting === f}
                                         role="menuitem"
                                         type="button"
                                     >

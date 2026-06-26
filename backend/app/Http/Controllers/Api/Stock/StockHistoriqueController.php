@@ -7,9 +7,13 @@ use App\Models\Commande;
 use App\Models\PerteProduit;
 use App\Models\Produit;
 use App\Models\Ravitaillement;
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StockHistoriqueController extends StockBaseController
 {
@@ -152,5 +156,80 @@ class StockHistoriqueController extends StockBaseController
             'commandes'         => Commande::with(['client', 'lignes.produit', 'livraisons'])->find($historique->id_element),
             default             => null,
         };
+    }
+
+    public function export(Request $request): Response|StreamedResponse
+    {
+        $entreprise = $this->currentEntreprise($request);
+        $format     = strtolower($request->query('format', 'pdf'));
+        $module     = $request->query('module', 'stock');
+        $type       = $request->query('type');
+        $search     = trim((string) $request->query('search', ''));
+        [$dateDebut, $dateFin] = $this->daterange($request->query('dateDebut'), $request->query('dateFin'));
+
+        $rows    = $this->buildHistoriqueExportRows($entreprise->id, $module, $type, $search, $dateDebut, $dateFin);
+        $columns = [
+            'action'  => 'Action',
+            'table'   => 'Élément',
+            'details' => 'Détails',
+            'date'    => 'Date',
+            'user'    => 'Utilisateur',
+        ];
+        $subtitle = ($dateDebut && $dateFin)
+            ? 'Du ' . $dateDebut->toDateString() . ' au ' . $dateFin->toDateString()
+            : 'Toutes les périodes';
+        $filename = 'agora-historique-transactions-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => ExportService::csv($rows, $columns, $filename),
+            'docx'        => ExportService::docx($rows, $columns, 'Historique des Transactions', $subtitle, $filename),
+            default       => ExportService::pdf($rows, $columns, 'Historique des Transactions', $subtitle, $filename),
+        };
+    }
+
+    private function buildHistoriqueExportRows(
+        string $entrepriseId,
+        string $module,
+        ?string $type,
+        string $search,
+        ?Carbon $from,
+        ?Carbon $to
+    ): array {
+        $query = DB::table('historiques as h')
+            ->leftJoin('utilisateurs as u', 'u.id', '=', 'h.utilisateur')
+            ->where('h.entreprise', $entrepriseId)
+            ->where('h.module', $module);
+
+        if ($type) {
+            $query->where('h.action', $type);
+        }
+        if ($from) {
+            $query->where('h.date_action', '>=', $from);
+        }
+        if ($to) {
+            $query->where('h.date_action', '<=', $to);
+        }
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('h.action', 'ilike', "%$search%")
+                  ->orWhere('h.details_action', 'ilike', "%$search%");
+            });
+        }
+
+        return $query
+            ->orderByDesc('h.date_action')
+            ->select([
+                'h.action', 'h.table_concernee', 'h.details_action', 'h.date_action',
+                DB::raw("CONCAT(u.name, ' ', u.prename) as utilisateur"),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'action'  => str_replace('_', ' ', $r->action),
+                'table'   => $r->table_concernee,
+                'details' => $r->details_action ?? '—',
+                'date'    => ExportService::fmtDatetime($r->date_action),
+                'user'    => $r->utilisateur,
+            ])
+            ->toArray();
     }
 }

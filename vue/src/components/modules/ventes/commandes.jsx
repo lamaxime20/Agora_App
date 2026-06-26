@@ -10,6 +10,7 @@ import {
     fetchVentesCommandes, fetchVentesCommandeById, createVentesCommande, annulerVentesCommande,
     fetchVentesClients, fetchVentesProduits, fetchVentesNotifications, createVentesClient,
 } from "../../../services/ventes.js";
+import { exportCommandes } from "../../../services/exportService.js";
 import { readCache } from "../../../services/ventesCache.js"
 import "../../../assets/styles/components/modules/ventes/commandes.css";
 
@@ -374,6 +375,7 @@ function Commandes() {
 
     // ── EXPORT ──
     const [showExport, setShowExport] = useState(false);
+    const [exporting, setExporting]   = useState(null);
     const exportRef = useRef(null);
 
     // ── NOTIFICATIONS ──
@@ -723,6 +725,22 @@ function Commandes() {
         setShowFilters(false);
     };
 
+    async function handleExportCommandes(fmt) {
+        if (exporting) return;
+        setExporting(fmt);
+        setShowExport(false);
+        try {
+            await exportCommandes(fmt, {
+                statut: filters.statut !== "tous" ? filters.statut : undefined,
+                date_debut: filters.dateDebut,
+                date_fin: filters.dateFin,
+                recherche: debouncedQuery,
+            });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    }
+
     // ── RENDU ──────────────────────────────────────────────────────────────────
     return (
         <section className="commandes-root" aria-label="Gestion des commandes">
@@ -827,18 +845,23 @@ function Commandes() {
                         </button>
                         {showExport && (
                             <div className="commandes-export-menu" role="menu">
-                                {["CSV", "PDF", "DOCX"].map(fmt => (
-                                    <button
-                                        key={fmt}
-                                        className="commandes-export-menu__item"
-                                        onClick={() => { alert(`Export ${fmt} — ${filteredOrders.length} commandes`); setShowExport(false); }}
-                                        type="button"
-                                        role="menuitem"
-                                    >
-                                        <Download size={14} aria-hidden="true" />
-                                        {fmt}
-                                    </button>
-                                ))}
+                                {["CSV", "PDF", "DOCX"].map(fmt => {
+                                    const fmtLow = fmt.toLowerCase();
+                                    const busy   = exporting === fmtLow;
+                                    return (
+                                        <button
+                                            key={fmt}
+                                            className="commandes-export-menu__item"
+                                            onClick={() => handleExportCommandes(fmtLow)}
+                                            type="button"
+                                            role="menuitem"
+                                            disabled={busy}
+                                        >
+                                            <Download size={14} aria-hidden="true" />
+                                            {busy ? "…" : fmt}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>

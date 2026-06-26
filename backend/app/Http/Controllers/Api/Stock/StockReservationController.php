@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Api\Stock;
 
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StockReservationController extends StockBaseController
 {
@@ -274,5 +278,77 @@ class StockReservationController extends StockBaseController
         }
 
         return 'validée';
+    }
+
+    public function export(Request $request): Response|StreamedResponse
+    {
+        $entreprise = $this->currentEntreprise($request);
+        $format     = strtolower($request->query('format', 'pdf'));
+        $statut     = $request->query('statut');
+        $search     = trim((string) $request->query('search', ''));
+        [$dateDebut, $dateFin] = $this->daterange($request->query('dateDebut'), $request->query('dateFin'));
+
+        $rows    = $this->buildReservationsExportRows($entreprise->id, $statut, $search, $dateDebut, $dateFin);
+        $columns = [
+            'client'   => 'Client',
+            'statut'   => 'Statut',
+            'paiement' => 'État paiement',
+            'montant'  => 'Montant',
+            'date'     => 'Date commande',
+        ];
+        $subtitle = ($dateDebut && $dateFin)
+            ? 'Du ' . $dateDebut->toDateString() . ' au ' . $dateFin->toDateString()
+            : 'Toutes les périodes';
+        $filename = 'agora-reservations-stock-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => ExportService::csv($rows, $columns, $filename),
+            'docx'        => ExportService::docx($rows, $columns, 'Réservations Stock', $subtitle, $filename),
+            default       => ExportService::pdf($rows, $columns, 'Réservations Stock', $subtitle, $filename),
+        };
+    }
+
+    private function buildReservationsExportRows(
+        string $entrepriseId,
+        ?string $statut,
+        string $search,
+        ?Carbon $from,
+        ?Carbon $to
+    ): array {
+        $query = DB::table('commandes as c')
+            ->leftJoin('clients as cl', 'cl.id', '=', 'c.client')
+            ->where('c.entreprise', $entrepriseId);
+
+        if ($statut) {
+            $query->where('c.statut', $statut);
+        }
+        if ($from) {
+            $query->where('c.date_commande', '>=', $from);
+        }
+        if ($to) {
+            $query->where('c.date_commande', '<=', $to);
+        }
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('cl.nom', 'ilike', "%$search%")
+                  ->orWhere('cl.prenom', 'ilike', "%$search%");
+            });
+        }
+
+        return $query
+            ->orderByDesc('c.date_commande')
+            ->select([
+                'c.statut', 'c.etat_payement', 'c.montant_commande', 'c.date_commande',
+                DB::raw("CONCAT(cl.nom, ' ', COALESCE(cl.prenom, '')) as client_nom"),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'client'   => trim($r->client_nom),
+                'statut'   => ucfirst($r->statut),
+                'paiement' => ucfirst(str_replace('_', ' ', $r->etat_payement ?? '—')),
+                'montant'  => ExportService::fmtMontant($r->montant_commande),
+                'date'     => ExportService::fmtDate($r->date_commande),
+            ])
+            ->toArray();
     }
 }

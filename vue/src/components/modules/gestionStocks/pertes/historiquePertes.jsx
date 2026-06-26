@@ -6,6 +6,7 @@ import {
 import PaneDetailsPerte    from "./paneDetailsPerte.jsx";
 import ModalAnnulerPerte   from "./modalAnnulerPerte.jsx";
 import { fetchStockPertes } from "../../../../services/gestionStock.js";
+import { exportPertes } from "../../../../services/exportService.js";
 import "../../../../assets/styles/components/modules/gestionStocks/historiquePertes.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -99,6 +100,7 @@ function HistoriquePertes() {
     const [showFilters, setShowFilters]   = useState(false);
     const [paneItem, setPaneItem]         = useState(null);
     const [itemAAnnuler, setItemAAnnuler] = useState(null);
+    const [exporting, setExporting]       = useState(null);
 
     const handleAnnuler = useCallback((e, item) => { e.stopPropagation(); setItemAAnnuler(item); }, []);
 
@@ -143,6 +145,16 @@ function HistoriquePertes() {
 
     const nbFiltresActifs = [filtreMotif, filtreStatut, dateDebut, dateFin].filter(Boolean).length;
 
+    async function handleExport(fmt) {
+        if (exporting) return;
+        setExporting(fmt);
+        try {
+            await exportPertes(fmt, { motif: filtreMotif, dateDebut, dateFin });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    }
+
     return (
         <div className="histPertes-root">
 
@@ -174,17 +186,23 @@ function HistoriquePertes() {
                         )}
                     </button>
                     <div className="histPertes-exports">
-                        {["PDF", "CSV", "DOCX"].map(fmt => (
-                            <button
-                                key={fmt}
-                                className="app-button app-button--ghost app-button--sm histPertes-export-btn"
-                                type="button"
-                                aria-label={`Exporter en ${fmt}`}
-                            >
-                                <Download size={13} aria-hidden="true" />
-                                {fmt}
-                            </button>
-                        ))}
+                        {["PDF", "CSV", "DOCX"].map(fmt => {
+                            const fmtLow = fmt.toLowerCase();
+                            const busy   = exporting === fmtLow;
+                            return (
+                                <button
+                                    key={fmt}
+                                    className="app-button app-button--ghost app-button--sm histPertes-export-btn"
+                                    type="button"
+                                    aria-label={`Exporter en ${fmt}`}
+                                    onClick={() => handleExport(fmtLow)}
+                                    disabled={busy}
+                                >
+                                    <Download size={13} aria-hidden="true" />
+                                    {busy ? "…" : fmt}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

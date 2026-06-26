@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import PaneDetailsReservation from "./reservations/paneDetailsReservation.jsx";
 import { fetchStockReservations } from "../../../services/gestionStock.js";
+import { exportReservationsStock } from "../../../services/exportService.js";
 import { useStockData } from "../../../services/useStockData.js";
 import "../../../assets/styles/components/modules/gestionStocks/reservations.css";
 
@@ -91,6 +92,7 @@ function Reservations() {
     const [filtreFin, setFiltreFin]         = useState("");
     const [showFilters, setShowFilters]     = useState(false);
     const [paneItem, setPaneItem]           = useState(null);
+    const [exporting, setExporting]         = useState(null);
 
     const itemsFiltres = items.filter(item => {
         const q = recherche.toLowerCase();
@@ -109,6 +111,16 @@ function Reservations() {
     const articlesTotal = actives.reduce((acc, i) => acc + (i.lignes ?? []).reduce((a, l) => a + Number(l.quantite_reservee ?? 0), 0), 0);
     const valeurTotal   = actives.reduce((acc, i) => acc + i.montant_total, 0);
     const nbFiltresActifs = [filtreStatut, filtreDebut, filtreFin].filter(Boolean).length;
+
+    async function handleExport(fmt) {
+        if (exporting) return;
+        setExporting(fmt);
+        try {
+            await exportReservationsStock(fmt, { statut: filtreStatut, dateDebut: filtreDebut, dateFin: filtreFin, search: recherche });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    }
 
     return (
         <div className="reservations-root">
@@ -171,17 +183,23 @@ function Reservations() {
                         )}
                     </button>
                     <div className="reservations-exports">
-                        {["PDF", "CSV", "DOCX"].map(fmt => (
-                            <button
-                                key={fmt}
-                                className="app-button app-button--ghost app-button--sm reservations-export-btn"
-                                type="button"
-                                aria-label={`Exporter en ${fmt}`}
-                            >
-                                <Download size={13} aria-hidden="true" />
-                                {fmt}
-                            </button>
-                        ))}
+                        {["PDF", "CSV", "DOCX"].map(fmt => {
+                            const fmtLow = fmt.toLowerCase();
+                            const busy   = exporting === fmtLow;
+                            return (
+                                <button
+                                    key={fmt}
+                                    className="app-button app-button--ghost app-button--sm reservations-export-btn"
+                                    type="button"
+                                    aria-label={`Exporter en ${fmt}`}
+                                    onClick={() => handleExport(fmtLow)}
+                                    disabled={busy}
+                                >
+                                    <Download size={13} aria-hidden="true" />
+                                    {busy ? "…" : fmt}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

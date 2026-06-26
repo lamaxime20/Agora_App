@@ -6,12 +6,15 @@ use App\Events\Stock\StockLossCreated;
 use App\Events\Stock\StockLowAlert;
 use App\Models\PerteProduit;
 use App\Models\Produit;
+use App\Services\ExportService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StockPerteController extends StockBaseController
 {
@@ -341,5 +344,67 @@ class StockPerteController extends StockBaseController
         } catch (\Throwable $e) {
             return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'destroy', 'id' => $id]);
         }
+    }
+
+    public function export(Request $request): Response|StreamedResponse
+    {
+        $entreprise = $this->currentEntreprise($request);
+        $format     = strtolower($request->query('format', 'pdf'));
+        $motif      = trim((string) $request->query('motif', ''));
+        [$dateDebut, $dateFin] = $this->daterange($request->query('dateDebut'), $request->query('dateFin'));
+
+        $rows    = $this->buildPertesExportRows($entreprise->id, $motif, $dateDebut, $dateFin);
+        $columns = [
+            'produit'  => 'Produit',
+            'quantite' => 'Quantité perdue',
+            'motif'    => 'Motif',
+            'date'     => 'Date perte',
+            'signale'  => 'Signalé par',
+        ];
+        $subtitle = ($dateDebut && $dateFin)
+            ? 'Du ' . $dateDebut->toDateString() . ' au ' . $dateFin->toDateString()
+            : 'Toutes les périodes';
+        $filename = 'agora-pertes-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => ExportService::csv($rows, $columns, $filename),
+            'docx'        => ExportService::docx($rows, $columns, 'Historique des Pertes de Stock', $subtitle, $filename),
+            default       => ExportService::pdf($rows, $columns, 'Historique des Pertes de Stock', $subtitle, $filename),
+        };
+    }
+
+    private function buildPertesExportRows(string $entrepriseId, string $motif, ?Carbon $from, ?Carbon $to): array
+    {
+        $query = DB::table('pertes_produits as pp')
+            ->join('produits as p', 'p.id', '=', 'pp.produit')
+            ->leftJoin('utilisateurs as u', 'u.id', '=', 'pp.user_signale')
+            ->where('pp.entreprise', $entrepriseId);
+
+        if ($motif !== '') {
+            $query->where('pp.motif_perte', 'ilike', "%$motif%");
+        }
+        if ($from) {
+            $query->where('pp.date_perte', '>=', $from);
+        }
+        if ($to) {
+            $query->where('pp.date_perte', '<=', $to);
+        }
+
+        return $query
+            ->orderByDesc('pp.date_perte')
+            ->select([
+                'pp.quantite_perdu', 'pp.motif_perte', 'pp.date_perte',
+                'p.nom as produit_nom',
+                DB::raw("CONCAT(u.name, ' ', u.prename) as signale_par"),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'produit'  => $r->produit_nom,
+                'quantite' => $r->quantite_perdu,
+                'motif'    => $r->motif_perte,
+                'date'     => ExportService::fmtDate($r->date_perte),
+                'signale'  => $r->signale_par,
+            ])
+            ->toArray();
     }
 }

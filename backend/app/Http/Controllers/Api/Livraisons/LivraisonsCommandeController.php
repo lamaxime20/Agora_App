@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api\Livraisons;
 
+use App\Services\ExportService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LivraisonsCommandeController extends LivraisonsBaseController
 {
@@ -282,13 +285,131 @@ class LivraisonsCommandeController extends LivraisonsBaseController
      * Même logique que historique() sans pagination.
      * Inclure en plus : adresse_livraison, liste produits, motif_echec / motif_retour / raison_annulation.
      */
-    public function exportHistorique(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export. Récupère les données filtrées
+     * et délègue au générateur du format demandé.
+     */
+    public function exportHistorique(Request $request): Response|StreamedResponse
     {
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
-        ], 501);
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+
+        $rows     = $this->buildExportRows($request, $entrepriseId);
+        $columns  = [
+            'numero'        => 'N° Livraison',
+            'commande'      => 'N° Commande',
+            'client'        => 'Client',
+            'livreur'       => 'Livreur',
+            'statut'        => 'Statut',
+            'montant'       => 'Montant',
+            'dateCreation'  => 'Date création',
+            'dateLancement' => 'Date lancement',
+            'dateLivraison' => 'Date livraison',
+        ];
+        $subtitle = $this->buildSubtitle($request);
+        $filename = 'agora-livraisons-historique-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Historique des Livraisons', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Historique des Livraisons', $subtitle, $filename),
+        };
+    }
+
+    /**
+     * Fonction 2 — Génère un fichier PDF avec le branding AGORA.
+     */
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    /**
+     * Fonction 3 — Génère un fichier DOCX (Word).
+     */
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    /**
+     * Fonction 4 — Génère un fichier CSV.
+     */
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildExportRows(Request $request, string $entrepriseId): array
+    {
+        $recherche = trim((string) $request->query('recherche', ''));
+        $statut    = $request->query('statut', 'tous');
+        $dateDebut = $request->query('date_debut');
+        $dateFin   = $request->query('date_fin');
+
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $query = DB::table('livraisons as l')
+            ->join('commandes as c', 'c.id', '=', 'l.commande')
+            ->join('clients as cl', 'cl.id', '=', 'c.client')
+            ->join('utilisateurs as u', 'u.id', '=', 'l.livreur')
+            ->where('c.entreprise', $entrepriseId)
+            ->where('l.actif', true);
+
+        if ($statut !== 'tous') {
+            $query->where('l.statut', $statut);
+        }
+        if ($from) $query->where('l.date_creation', '>=', $from);
+        if ($to)   $query->where('l.date_creation', '<=', $to);
+
+        if ($recherche !== '') {
+            $livNum = $this->livNumExprSql($entrepriseId);
+            $cmdNum = $this->cmdNumExprSql();
+            $query->where(function ($q) use ($recherche, $livNum, $cmdNum) {
+                $q->whereRaw("$livNum ILIKE ?", ["%$recherche%"])
+                  ->orWhereRaw("$cmdNum ILIKE ?", ["%$recherche%"])
+                  ->orWhereRaw("CONCAT(cl.nom, ' ', COALESCE(cl.prenom, '')) ILIKE ?", ["%$recherche%"])
+                  ->orWhereRaw("CONCAT(u.name, ' ', u.prename) ILIKE ?", ["%$recherche%"]);
+            });
+        }
+
+        return $query
+            ->orderBy('l.date_creation', 'desc')
+            ->select([
+                'l.statut',
+                'l.date_creation',
+                'l.date_lancement',
+                'l.date_livraison_effective',
+                'c.montant_commande',
+                DB::raw("CONCAT(cl.nom, ' ', COALESCE(cl.prenom, '')) as client_nom"),
+                DB::raw("CONCAT(u.name, ' ', u.prename) as livreur_nom"),
+                $this->numeroLivraisonRaw($entrepriseId),
+                $this->numeroCommandeRaw(),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'numero'        => $r->numero_liv ?? '—',
+                'commande'      => $r->numero_cmd ?? '—',
+                'client'        => $r->client_nom,
+                'livreur'       => $r->livreur_nom,
+                'statut'        => ucfirst($r->statut),
+                'montant'       => ExportService::fmtMontant($r->montant_commande),
+                'dateCreation'  => ExportService::fmtDate($r->date_creation),
+                'dateLancement' => ExportService::fmtDate($r->date_lancement),
+                'dateLivraison' => ExportService::fmtDate($r->date_livraison_effective),
+            ])
+            ->toArray();
+    }
+
+    private function buildSubtitle(Request $request): string
+    {
+        $parts  = [];
+        $statut = $request->query('statut', 'tous');
+        if ($statut !== 'tous') $parts[] = 'Statut : ' . ucfirst($statut);
+        if ($d = $request->query('date_debut')) $parts[] = 'Du ' . $d;
+        if ($f = $request->query('date_fin'))   $parts[] = 'Au ' . $f;
+        return implode(' · ', $parts) ?: 'Toutes les livraisons';
     }
 
     // ──────────────────────────────────────────────────────────────────────────

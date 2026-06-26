@@ -1,4 +1,4 @@
-import { apiFetch } from "./api.js";
+import { apiFetch, apiFetchBlob } from "./api.js";
 import { readCache, writeCache, clearCache } from "./rhCache.js";
 
 // ─── DASHBOARD ──────────────────────────────────────────────────────────────────
@@ -86,7 +86,7 @@ export async function fetchRhStatistics(periode = "12m") {
 
 // ─── EXPORT ─────────────────────────────────────────────────────────────────────
 
-export async function exportRh(format, context = "rh_employees") {
-    const result = await apiFetch(`rh/export?format=${format}&context=${context}`);
-    return result;
+export function exportRh(format, context = "rh_employees") {
+    const ext = (format === 'csv' || format === 'xlsx') ? 'csv' : format;
+    return apiFetchBlob(`rh/export?format=${format}&context=${context}`, `agora-rh-${context}.${ext}`);
 }

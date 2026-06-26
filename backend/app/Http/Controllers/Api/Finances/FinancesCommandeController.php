@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Api\Finances;
 
 use App\Events\Commande\CommandeValidated;
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FinancesCommandeController extends FinancesBaseController
 {
@@ -746,16 +750,102 @@ class FinancesCommandeController extends FinancesBaseController
      *
      * Query params : format (pdf|csv|docx), + mêmes filtres que route 8
      */
-    public function exportPaiements(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export paiements.
+     */
+    public function exportPaiements(Request $request): Response|StreamedResponse
     {
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX.
-        // Utiliser les mêmes filtres que indexPaiements() sans pagination,
-        // inclure en plus : montant_commande et etat_payement de la commande associée.
-        // Librairies suggérées : barryvdh/laravel-dompdf (PDF), League\Csv (CSV), PhpOffice\PhpWord (DOCX).
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
-        ], 501);
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $dateDebut    = $request->query('date_debut');
+        $dateFin      = $request->query('date_fin');
+        $recherche    = trim((string) $request->query('recherche', ''));
+
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $rows    = $this->buildPaiementsRows($entrepriseId, $from, $to, $recherche);
+        $columns = [
+            'numero'     => 'N° Commande',
+            'client'     => 'Client',
+            'montant'    => 'Montant payé',
+            'mode'       => 'Mode de paiement',
+            'reference'  => 'Référence transaction',
+            'date'       => 'Date paiement',
+            'enregistre' => 'Enregistré par',
+        ];
+        $subtitle = ($dateDebut && $dateFin) ? "Du $dateDebut au $dateFin"
+                  : ($dateDebut ? "Depuis le $dateDebut" : ($dateFin ? "Jusqu'au $dateFin" : 'Toutes les périodes'));
+        $filename = 'agora-paiements-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Historique des Paiements', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Historique des Paiements', $subtitle, $filename),
+        };
+    }
+
+    /**
+     * Fonction 2 — Génère un fichier PDF avec le branding AGORA.
+     */
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    /**
+     * Fonction 3 — Génère un fichier DOCX (Word).
+     */
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    /**
+     * Fonction 4 — Génère un fichier CSV.
+     */
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildPaiementsRows(string $entrepriseId, ?Carbon $from, ?Carbon $to, string $recherche): array
+    {
+        $query = DB::table('payements as p')
+            ->join('commandes as c', 'c.id', '=', 'p.commande')
+            ->join('clients as cl', 'cl.id', '=', 'c.client')
+            ->leftJoin('utilisateurs as u', 'u.id', '=', 'p.utilisateur_enregistre')
+            ->where('p.entreprise', $entrepriseId)
+            ->where('p.actif', true);
+
+        if ($from) $query->where('p.date_payement', '>=', $from);
+        if ($to)   $query->where('p.date_payement', '<=', $to);
+
+        if ($recherche !== '') {
+            $query->where(function ($q) use ($recherche) {
+                $q->where(DB::raw("CONCAT(cl.nom, ' ', cl.prenom)"), 'ilike', "%$recherche%")
+                  ->orWhere('p.reference_transaction', 'ilike', "%$recherche%");
+            });
+        }
+
+        return $query
+            ->orderBy('p.date_payement', 'desc')
+            ->select([
+                'p.montant', 'p.mode_payement', 'p.reference_transaction', 'p.date_payement',
+                DB::raw("CONCAT(cl.nom, ' ', cl.prenom) as client_nom"),
+                DB::raw("CONCAT(u.name, ' ', u.prename) as enregistre_par"),
+                $this->numeroCommandeRaw(),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'numero'     => $r->numero ?? '—',
+                'client'     => $r->client_nom,
+                'montant'    => ExportService::fmtMontant($r->montant),
+                'mode'       => $r->mode_payement ?? '—',
+                'reference'  => $r->reference_transaction ?? '—',
+                'date'       => ExportService::fmtDate($r->date_payement),
+                'enregistre' => $r->enregistre_par,
+            ])
+            ->toArray();
     }
 }

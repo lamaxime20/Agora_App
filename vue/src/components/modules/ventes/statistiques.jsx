@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { readCache } from "../../../services/ventesCache.js";
 import { formatMontant, formatDate, fetchVentesStatistiquesGeneral, fetchVentesStatistiquesClients, fetchVentesStatistiquesCommandes } from "../../../services/ventes.js";
+import { exportVentesStatistiques } from "../../../services/exportService.js";
 import "../../../assets/styles/components/modules/ventes/statistiques.css";
 
 // ─── Configuration des onglets ─────────────────────────────────────────────────
@@ -91,6 +92,7 @@ function Statistiques() {
     const [dateDebut,    setDateDebut]    = useState("");
     const [dateFin,      setDateFin]      = useState("");
     const [activeFilter, setActiveFilter] = useState({ dateDebut: "", dateFin: "" });
+    const [exporting, setExporting]       = useState(null);
 
     // ── Fetch vue générale au montage ou changement de filtre ─────────────────
     useEffect(() => {
@@ -182,6 +184,20 @@ function Statistiques() {
 
     const hasActiveFilter = activeFilter.dateDebut || activeFilter.dateFin;
 
+    async function handleExportStatistiques(fmt) {
+        if (exporting) return;
+        setExporting(fmt);
+        setExportOpen(false);
+        try {
+            await exportVentesStatistiques(fmt, {
+                date_debut: activeFilter.dateDebut,
+                date_fin: activeFilter.dateFin,
+            });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    }
+
     return (
         <section className="statistiques-root" aria-label="Statistiques Vente">
 
@@ -225,17 +241,22 @@ function Statistiques() {
                             </button>
                             {exportOpen && (
                                 <div className="statistiques-export-menu" role="menu">
-                                    {[".csv", ".pdf", ".xlsx"].map(f => (
-                                        <button
-                                            key={f}
-                                            className="statistiques-export-menu__item"
-                                            onClick={() => setExportOpen(false)}
-                                            role="menuitem"
-                                            type="button"
-                                        >
-                                            {f.toUpperCase()}
-                                        </button>
-                                    ))}
+                                    {["CSV", "PDF", "DOCX"].map(fmt => {
+                                        const fmtLow = fmt.toLowerCase();
+                                        const busy   = exporting === fmtLow;
+                                        return (
+                                            <button
+                                                key={fmt}
+                                                className="statistiques-export-menu__item"
+                                                onClick={() => handleExportStatistiques(fmtLow)}
+                                                role="menuitem"
+                                                type="button"
+                                                disabled={busy}
+                                            >
+                                                {busy ? "…" : fmt}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>

@@ -61,6 +61,45 @@ export async function apiFetch(endpoint, { method = 'GET', body = null } = {}) {
     return payload;
 }
 
+// ─── Téléchargement de fichiers binaires (PDF / DOCX / CSV) ──────────────────
+// Déclenche un téléchargement navigateur sans ouvrir de nouvel onglet.
+// filename : nom suggéré au navigateur (ex: "rapport.pdf")
+
+export async function apiFetchBlob(endpoint, filename = 'export') {
+    let response;
+    try {
+        response = await fetch(`${BASE_URL}/api/${endpoint}`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: { Accept: '*/*' },
+        });
+    } catch {
+        throw new ApiError('Impossible de joindre le serveur.', {
+            status: 0,
+            code: 'NETWORK_ERROR',
+        });
+    }
+
+    if (!response.ok) {
+        let msg = 'Erreur lors de l\'export.';
+        try {
+            const payload = await response.json();
+            msg = payload?.message || msg;
+        } catch { /* réponse non-JSON */ }
+        throw new ApiError(msg, { status: response.status, code: 'EXPORT_ERROR' });
+    }
+
+    const blob = await response.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 export async function apiFetchMultipart(endpoint, formData, { method = 'POST' } = {}) {
     const config = {
         method,

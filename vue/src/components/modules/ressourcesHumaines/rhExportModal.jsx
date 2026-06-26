@@ -18,14 +18,7 @@ function RhExportModal({ onClose, context = "dashboard" }) {
         setLoading(true);
         setError("");
         try {
-            const res = await exportRh(format, { context });
-            // Déclenche le téléchargement (simulation)
-            const a = document.createElement("a");
-            a.href = res.downloadUrl;
-            a.download = `rh-rapport.${format}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            await exportRh(format, context);
             setDone(true);
             setTimeout(onClose, 1500);
         } catch {

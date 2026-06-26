@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Api\Finances;
 
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FinancesRemboursementController extends FinancesBaseController
 {
@@ -290,15 +294,96 @@ class FinancesRemboursementController extends FinancesBaseController
      *
      * Query params : format (pdf|csv|docx), + mêmes filtres que route 10
      */
-    public function export(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export remboursements.
+     */
+    public function export(Request $request): Response|StreamedResponse
     {
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX.
-        // Même logique que index() sans pagination.
-        // Inclure en plus : détails de la commande associée (montant, produits).
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
-        ], 501);
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $dateDebut    = $request->query('date_debut');
+        $dateFin      = $request->query('date_fin');
+        $recherche    = trim((string) $request->query('recherche', ''));
+
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $rows    = $this->buildRemboursementsRows($entrepriseId, $from, $to, $recherche);
+        $columns = [
+            'numero'    => 'N° Commande',
+            'client'    => 'Client',
+            'montant'   => 'Montant remboursé',
+            'cause'     => 'Cause',
+            'date'      => 'Date remboursement',
+            'facture'   => 'Total facturé',
+            'paye'      => 'Total payé',
+            'enregistre'=> 'Enregistré par',
+        ];
+        $subtitle = ($dateDebut && $dateFin) ? "Du $dateDebut au $dateFin"
+                  : ($dateDebut ? "Depuis le $dateDebut" : ($dateFin ? "Jusqu'au $dateFin" : 'Toutes les périodes'));
+        $filename = 'agora-remboursements-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Historique des Remboursements', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Historique des Remboursements', $subtitle, $filename),
+        };
+    }
+
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildRemboursementsRows(string $entrepriseId, ?Carbon $from, ?Carbon $to, string $recherche): array
+    {
+        $query = DB::table('remboursements as r')
+            ->join('commandes as c', 'c.id', '=', 'r.commande')
+            ->join('clients as cl', 'cl.id', '=', 'c.client')
+            ->leftJoin('utilisateurs as u', 'u.id', '=', 'r.utilisateur_engage')
+            ->where('r.entreprise', $entrepriseId)
+            ->where('r.actif', true);
+
+        if ($from) $query->where('r.date_remboursement', '>=', $from);
+        if ($to)   $query->where('r.date_remboursement', '<=', $to);
+
+        if ($recherche !== '') {
+            $query->where(function ($q) use ($recherche) {
+                $q->where(DB::raw("CONCAT(cl.nom, ' ', cl.prenom)"), 'ilike', "%$recherche%")
+                  ->orWhere('r.cause', 'ilike', "%$recherche%");
+            });
+        }
+
+        return $query
+            ->orderBy('r.date_remboursement', 'desc')
+            ->select([
+                'r.montant', 'r.cause', 'r.date_remboursement', 'c.montant_commande',
+                DB::raw("(SELECT COALESCE(SUM(p.montant), 0) FROM payements p WHERE p.commande = c.id AND p.actif = true) as total_paye"),
+                DB::raw("CONCAT(cl.nom, ' ', cl.prenom) as client_nom"),
+                DB::raw("CONCAT(u.name, ' ', u.prename) as enregistre_par"),
+                $this->numeroCommandeRaw(),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'numero'    => $r->numero ?? '—',
+                'client'    => $r->client_nom,
+                'montant'   => ExportService::fmtMontant($r->montant),
+                'cause'     => $r->cause ?? '—',
+                'date'      => ExportService::fmtDate($r->date_remboursement),
+                'facture'   => ExportService::fmtMontant($r->montant_commande),
+                'paye'      => ExportService::fmtMontant($r->total_paye),
+                'enregistre'=> $r->enregistre_par,
+            ])
+            ->toArray();
     }
 }

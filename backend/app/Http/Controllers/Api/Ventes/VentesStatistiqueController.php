@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Api\Ventes;
 
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class VentesStatistiqueController extends VentesBaseController
 {
@@ -345,5 +349,83 @@ class VentesStatistiqueController extends VentesBaseController
         } catch (\Throwable $e) {
             return $this->ventesErrorResponse($e, $request, __METHOD__);
         }
+    }
+
+    public function export(Request $request): Response|StreamedResponse
+    {
+        $entreprise   = $this->currentEntreprise($request);
+        $format       = strtolower($request->query('format', 'pdf'));
+        [$from, $to]  = $this->daterange($request->query('date_debut'), $request->query('date_fin'));
+
+        $rows    = $this->buildStatistiquesExportRows($entreprise->id, $from, $to);
+        $columns = [
+            'indicateur' => 'Indicateur',
+            'valeur'     => 'Valeur',
+        ];
+        $subtitle = ($from && $to)
+            ? 'Du ' . $from->toDateString() . ' au ' . $to->toDateString()
+            : 'Toutes les périodes';
+        $filename = 'agora-ventes-statistiques-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => ExportService::csv($rows, $columns, $filename),
+            'docx'        => ExportService::docx($rows, $columns, 'Statistiques des Ventes', $subtitle, $filename),
+            default       => ExportService::pdf($rows, $columns, 'Statistiques des Ventes', $subtitle, $filename),
+        };
+    }
+
+    private function buildStatistiquesExportRows(string $entrepriseId, ?Carbon $from, ?Carbon $to): array
+    {
+        $commandesQuery = DB::table('commandes as c')
+            ->where('c.entreprise', $entrepriseId)
+            ->where('c.actif', true);
+        if ($from) {
+            $commandesQuery->where('c.date_commande', '>=', $from);
+        }
+        if ($to) {
+            $commandesQuery->where('c.date_commande', '<=', $to);
+        }
+
+        $nbClients   = (clone $commandesQuery)->distinct('c.client')->count('c.client');
+        $nbCommandes = (clone $commandesQuery)->count();
+        $nbAnnulees  = (clone $commandesQuery)->where('c.statut', 'annulee')->count();
+        $nbLivrees   = (clone $commandesQuery)
+            ->where('c.statut', 'validee')
+            ->whereExists(fn($q) => $q->selectRaw('1')->from('livraisons as lf')
+                ->whereRaw('lf.commande = c.id')->where('lf.statut', 'livree'))
+            ->count();
+
+        $payementsQuery = DB::table('payements as p')
+            ->join('commandes as c', 'c.id', '=', 'p.commande')
+            ->where('p.entreprise', $entrepriseId)
+            ->where('p.actif', true);
+        if ($from) {
+            $payementsQuery->where('p.date_payement', '>=', $from);
+        }
+        if ($to) {
+            $payementsQuery->where('p.date_payement', '<=', $to);
+        }
+        $caTotal = (float) (clone $payementsQuery)->sum('p.montant');
+
+        $denom        = $nbLivrees + $nbAnnulees;
+        $tauxLivraison = $denom > 0 ? round(($nbLivrees / $denom) * 100, 1) : 0;
+
+        $nbProduits = DB::table('produits')
+            ->where('entreprise', $entrepriseId)
+            ->where('statut', 'actif')
+            ->count();
+
+        $panier = $nbCommandes > 0 ? round($caTotal / $nbCommandes, 2) : 0;
+
+        return [
+            ['indicateur' => 'Clients ayant commandé', 'valeur' => $nbClients],
+            ['indicateur' => 'Commandes totales',       'valeur' => $nbCommandes],
+            ['indicateur' => 'Commandes livrées',       'valeur' => $nbLivrees],
+            ['indicateur' => 'Commandes annulées',      'valeur' => $nbAnnulees],
+            ['indicateur' => 'Taux de livraison',       'valeur' => $tauxLivraison . ' %'],
+            ['indicateur' => 'Chiffre d\'affaires',     'valeur' => ExportService::fmtMontant($caTotal)],
+            ['indicateur' => 'Panier moyen',            'valeur' => ExportService::fmtMontant($panier)],
+            ['indicateur' => 'Produits actifs',         'valeur' => $nbProduits],
+        ];
     }
 }

@@ -7,6 +7,7 @@ import PaneDetailsReapprovisionnement    from "./paneDetailsReapprovisionnement.
 import ModalAnnulerReapprovisionnement   from "./modalAnnulerReapprovisionnement.jsx";
 import ModalConfirmerReapprovisionnement from "./modalConfirmerReapprovisionnement.jsx";
 import { fetchStockRavitaillements } from "../../../../services/gestionStock.js";
+import { exportRavitaillements } from "../../../../services/exportService.js";
 import "../../../../assets/styles/components/modules/gestionStocks/historiqueReapprovisionnement.css";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────────── */
@@ -83,6 +84,7 @@ function HistoriqueReapprovisionnement() {
     const [paneItem, setPaneItem]             = useState(null);
     const [itemAAnnuler, setItemAAnnuler]     = useState(null);
     const [itemAConfirmer, setItemAConfirmer] = useState(null);
+    const [exporting, setExporting]           = useState(null);
 
     const handleAnnuler  = useCallback((e, item) => { e.stopPropagation(); setItemAAnnuler(item);  }, []);
     const handleConfirmer = useCallback((e, item) => { e.stopPropagation(); setItemAConfirmer(item); }, []);
@@ -127,6 +129,16 @@ function HistoriqueReapprovisionnement() {
 
     const nbFiltresActifs = [filtreStatut, dateDebut, dateFin].filter(Boolean).length;
 
+    async function handleExport(fmt) {
+        if (exporting) return;
+        setExporting(fmt);
+        try {
+            await exportRavitaillements(fmt, { statut: filtreStatut, dateDebut, dateFin });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    }
+
     return (
         <div className="histReappro-root">
 
@@ -159,17 +171,23 @@ function HistoriqueReapprovisionnement() {
                     </button>
 
                     <div className="histReappro-exports">
-                        {["PDF", "CSV", "DOCX"].map(fmt => (
-                            <button
-                                key={fmt}
-                                className="app-button app-button--ghost app-button--sm histReappro-export-btn"
-                                type="button"
-                                aria-label={`Exporter en ${fmt}`}
-                            >
-                                <Download size={13} aria-hidden="true" />
-                                {fmt}
-                            </button>
-                        ))}
+                        {["PDF", "CSV", "DOCX"].map(fmt => {
+                            const fmtLow = fmt.toLowerCase();
+                            const busy   = exporting === fmtLow;
+                            return (
+                                <button
+                                    key={fmt}
+                                    className="app-button app-button--ghost app-button--sm histReappro-export-btn"
+                                    type="button"
+                                    aria-label={`Exporter en ${fmt}`}
+                                    onClick={() => handleExport(fmtLow)}
+                                    disabled={busy}
+                                >
+                                    <Download size={13} aria-hidden="true" />
+                                    {busy ? "…" : fmt}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

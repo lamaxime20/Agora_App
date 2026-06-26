@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Api\Ventes;
 
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class VentesReservationController extends VentesBaseController
 {
@@ -268,19 +272,118 @@ class VentesReservationController extends VentesBaseController
      *
      * Query params : format (pdf|csv|docx), + mêmes filtres que route 11
      */
-    public function export(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export réservations.
+     */
+    public function export(Request $request): Response|StreamedResponse
     {
-        $format = $request->query('format', 'pdf');
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $statut       = $request->query('statut', 'tous');
+        $produit      = trim((string) $request->query('produit', ''));
+        $client       = trim((string) $request->query('client', ''));
+        $dateDebut    = $request->query('date_debut');
+        $dateFin      = $request->query('date_fin');
 
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX ($format).
-        // Même logique que index() sans pagination.
-        // Inclure pour chaque réservation : produit, quantité, client, numéro de commande,
-        // statut, date, stock actuel, stock réservé, stock disponible.
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => "Export {$format} non encore implémenté.",
-        ], 501);
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $rows    = $this->buildReservationsRows($entrepriseId, $statut, $produit, $client, $from, $to);
+        $columns = [
+            'produit'   => 'Produit',
+            'quantite'  => 'Quantité',
+            'client'    => 'Client',
+            'commande'  => 'N° Commande',
+            'statut'    => 'Statut',
+            'date'      => 'Date',
+            'stock_res' => 'Stock réservé',
+            'stock_dispo'=> 'Stock disponible',
+        ];
+        $subtitle = ($dateDebut && $dateFin) ? "Du $dateDebut au $dateFin"
+                  : ($dateDebut ? "Depuis le $dateDebut" : ($dateFin ? "Jusqu'au $dateFin" : 'Toutes les périodes'));
+        $filename = 'agora-reservations-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Réservations de Produits', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Réservations de Produits', $subtitle, $filename),
+        };
+    }
+
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildReservationsRows(
+        string $entrepriseId,
+        string $statut,
+        string $produit,
+        string $client,
+        ?Carbon $from,
+        ?Carbon $to
+    ): array {
+        $query = DB::table('contenir_produit as cp')
+            ->join('commandes as c', 'c.id', '=', 'cp.commande_id')
+            ->join('produits as p', 'p.id', '=', 'cp.produit_id')
+            ->join('clients as cl', 'cl.id', '=', 'c.client')
+            ->where('c.entreprise', $entrepriseId)
+            ->where('p.type_produit', 'physique');
+
+        if ($statut !== 'tous') {
+            match ($statut) {
+                'annulé'   => $query->where('c.statut', 'annulee'),
+                'validé'   => $query->whereExists(fn($q) => $q->selectRaw('1')->from('livraisons as lf')
+                                ->whereRaw('lf.commande = c.id')->where('lf.statut', 'livree')),
+                'en_cours' => $query->where('c.statut', '!=', 'annulee')
+                                ->whereNotExists(fn($q) => $q->selectRaw('1')->from('livraisons as lf')
+                                ->whereRaw('lf.commande = c.id')->where('lf.statut', 'livree')),
+                default    => null,
+            };
+        }
+
+        if ($produit !== '') $query->where('p.nom', 'ilike', "%$produit%");
+        if ($client !== '')  $query->where(fn($q) => $q->where('cl.nom', 'ilike', "%$client%")->orWhere('cl.prenom', 'ilike', "%$client%"));
+        if ($from) $query->where('c.date_commande', '>=', $from);
+        if ($to)   $query->where('c.date_commande', '<=', $to);
+
+        return $query
+            ->orderBy('c.date_commande', 'desc')
+            ->select([
+                'cp.quantite', 'c.statut as commande_statut', 'c.date_commande',
+                'p.nom as produit_nom', 'p.stock_actuel',
+                DB::raw("CONCAT(cl.nom, ' ', COALESCE(cl.prenom, '')) as client"),
+                DB::raw("(SELECT COUNT(1) FROM livraisons lv WHERE lv.commande = c.id AND lv.statut = 'livree') > 0 as a_livraison_livree"),
+                $this->stockReserveRaw($entrepriseId),
+                $this->numeroCommandeRaw(),
+            ])
+            ->get()
+            ->map(function ($r) {
+                $statut      = $this->calculerStatutReservation($r->commande_statut, (bool) $r->a_livraison_livree);
+                $stockRes    = (float) $r->stock_reserve;
+                $stockDispo  = max(0, (float) $r->stock_actuel - $stockRes);
+                return [
+                    'produit'    => $r->produit_nom,
+                    'quantite'   => $r->quantite,
+                    'client'     => $r->client,
+                    'commande'   => $r->numero ?? '—',
+                    'statut'     => $statut,
+                    'date'       => ExportService::fmtDate($r->date_commande),
+                    'stock_res'  => $stockRes,
+                    'stock_dispo'=> $stockDispo,
+                ];
+            })
+            ->toArray();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

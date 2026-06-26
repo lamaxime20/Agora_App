@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api\Livraisons;
 
+use App\Services\ExportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LivraisonsPersonnelController extends LivraisonsBaseController
 {
@@ -203,13 +206,118 @@ class LivraisonsPersonnelController extends LivraisonsBaseController
      * Même logique que mesLivraisonsHistorique() sans pagination.
      * Inclure en plus : motif_echec / motif_retour si applicable.
      */
-    public function mesLivraisonsExport(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export historique personnel livreur.
+     */
+    public function mesLivraisonsExport(Request $request): Response|StreamedResponse
     {
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
-        ], 501);
+        $user     = $this->currentUser($request);
+        $format   = strtolower($request->query('format', 'pdf'));
+
+        $rows    = $this->buildPersonnelExportRows($request, $user->id);
+        $columns = [
+            'commande'      => 'N° Commande',
+            'client'        => 'Client',
+            'telephone'     => 'Téléphone',
+            'adresse'       => 'Adresse',
+            'montant'       => 'Montant',
+            'statut'        => 'Statut',
+            'motif'         => 'Motif',
+            'dateCreation'  => 'Date création',
+            'dateLancement' => 'Date lancement',
+            'dateLivraison' => 'Date livraison',
+        ];
+        $prenom   = $user->prenom ?? '';
+        $subtitle = 'Livreur : ' . $user->nom . ($prenom ? ' ' . $prenom : '');
+        $filename = 'agora-mes-livraisons-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Mon Historique de Livraisons', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Mon Historique de Livraisons', $subtitle, $filename),
+        };
+    }
+
+    /**
+     * Fonction 2 — Génère un fichier PDF avec le branding AGORA.
+     */
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    /**
+     * Fonction 3 — Génère un fichier DOCX (Word).
+     */
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    /**
+     * Fonction 4 — Génère un fichier CSV.
+     */
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildPersonnelExportRows(Request $request, string $userId): array
+    {
+        $recherche = trim((string) $request->query('recherche', ''));
+        $statut    = $request->query('statut', 'tous');
+        $dateDebut = $request->query('date_debut');
+        $dateFin   = $request->query('date_fin');
+
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $query = DB::table('livraisons as l')
+            ->join('commandes as c', 'c.id', '=', 'l.commande')
+            ->join('clients as cl', 'cl.id', '=', 'c.client')
+            ->where('l.livreur', $userId)
+            ->where('l.actif', true);
+
+        if ($statut !== 'tous') $query->where('l.statut', $statut);
+        if ($from) $query->where('l.date_creation', '>=', $from);
+        if ($to)   $query->where('l.date_creation', '<=', $to);
+
+        if ($recherche !== '') {
+            $cmdNum = $this->cmdNumExprSql();
+            $query->where(function ($q) use ($recherche, $cmdNum) {
+                $q->whereRaw("$cmdNum ILIKE ?", ["%$recherche%"])
+                  ->orWhereRaw("CONCAT(cl.nom, ' ', COALESCE(cl.prenom, '')) ILIKE ?", ["%$recherche%"]);
+            });
+        }
+
+        return $query
+            ->orderBy('l.date_creation', 'desc')
+            ->select([
+                'l.statut',
+                'l.motif_echec',
+                'l.motif_retour',
+                'l.date_creation',
+                'l.date_lancement',
+                'l.date_livraison_effective',
+                'c.montant_commande',
+                'c.adresse_livraison',
+                DB::raw("CONCAT(cl.nom, ' ', COALESCE(cl.prenom, '')) as client_nom"),
+                'cl.telephone',
+                $this->numeroCommandeRaw(),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'commande'      => $r->numero_cmd ?? '—',
+                'client'        => $r->client_nom,
+                'telephone'     => $r->telephone ?? '—',
+                'adresse'       => $r->adresse_livraison ?? '—',
+                'montant'       => ExportService::fmtMontant($r->montant_commande),
+                'statut'        => ucfirst($r->statut),
+                'motif'         => $r->motif_echec ?? $r->motif_retour ?? '—',
+                'dateCreation'  => ExportService::fmtDate($r->date_creation),
+                'dateLancement' => ExportService::fmtDate($r->date_lancement),
+                'dateLivraison' => ExportService::fmtDate($r->date_livraison_effective),
+            ])
+            ->toArray();
     }
 
     // ── Helper SQL inline ─────────────────────────────────────────────────────

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api\Livraisons;
 
+use App\Services\ExportService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LivraisonsStatistiqueController extends LivraisonsBaseController
 {
@@ -627,12 +630,117 @@ class LivraisonsStatistiqueController extends LivraisonsBaseController
      * Exécuter les mêmes calculs que la section correspondante (routes 16-22)
      * sans pagination, selon le paramètre section (general|livreurs|activite|echecs|retours|geographie|clients).
      */
-    public function export(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export statistiques livraisons.
+     * Génère un rapport synthétique des KPIs, performances livreurs
+     * et répartition des statuts sur la période demandée.
+     */
+    public function export(Request $request): Response|StreamedResponse
     {
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
-        ], 501);
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $dateDebut    = $request->query('date_debut');
+        $dateFin      = $request->query('date_fin');
+
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $rows    = $this->buildStatsExportRows($entrepriseId, $from, $to);
+        $columns = [
+            'indicateur' => 'Indicateur',
+            'valeur'     => 'Valeur',
+        ];
+        $subtitle = ($dateDebut && $dateFin)
+            ? "Du $dateDebut au $dateFin"
+            : ($dateDebut ? "Depuis le $dateDebut" : ($dateFin ? "Jusqu\'au $dateFin" : 'Toutes les périodes'));
+        $filename = 'agora-livraisons-statistiques-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Rapport Statistiques Livraisons', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Rapport Statistiques Livraisons', $subtitle, $filename),
+        };
+    }
+
+    /**
+     * Fonction 2 — Génère un fichier PDF avec le branding AGORA.
+     */
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    /**
+     * Fonction 3 — Génère un fichier DOCX (Word).
+     */
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    /**
+     * Fonction 4 — Génère un fichier CSV.
+     */
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildStatsExportRows(string $entrepriseId, ?Carbon $from, ?Carbon $to): array
+    {
+        $query = DB::table('livraisons as l')
+            ->join('commandes as c', 'c.id', '=', 'l.commande')
+            ->where('c.entreprise', $entrepriseId)
+            ->where('l.actif', true);
+
+        if ($from) $query->where('l.date_creation', '>=', $from);
+        if ($to)   $query->where('l.date_creation', '<=', $to);
+
+        $stats = $query->selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN l.statut = 'livree'   THEN 1 ELSE 0 END) as livrees,
+            SUM(CASE WHEN l.statut = 'echec'    THEN 1 ELSE 0 END) as echecs,
+            SUM(CASE WHEN l.statut = 'retour'   THEN 1 ELSE 0 END) as retours,
+            SUM(CASE WHEN l.statut = 'en_cours' THEN 1 ELSE 0 END) as en_cours,
+            AVG(CASE WHEN l.date_livraison_effective IS NOT NULL AND l.date_lancement IS NOT NULL
+                THEN EXTRACT(EPOCH FROM (l.date_livraison_effective - l.date_lancement))/60
+                ELSE NULL END) as temps_moyen_min
+        ")->first();
+
+        $total   = (int) ($stats->total ?? 0);
+        $livrees = (int) ($stats->livrees ?? 0);
+        $taux    = $total > 0 ? round(($livrees / $total) * 100, 1) : 0;
+
+        $livreurs = DB::table('livraisons as l')
+            ->join('commandes as c', 'c.id', '=', 'l.commande')
+            ->join('utilisateurs as u', 'u.id', '=', 'l.livreur')
+            ->where('c.entreprise', $entrepriseId)
+            ->where('l.actif', true)
+            ->when($from, fn($q) => $q->where('l.date_creation', '>=', $from))
+            ->when($to,   fn($q) => $q->where('l.date_creation', '<=', $to))
+            ->selectRaw("CONCAT(u.name, ' ', u.prename) as nom, COUNT(*) as nb, SUM(CASE WHEN l.statut='livree' THEN 1 ELSE 0 END) as ok")
+            ->groupBy('u.id', 'u.name', 'u.prename')
+            ->orderByDesc('nb')
+            ->limit(5)
+            ->get();
+
+        $rows = [
+            ['indicateur' => 'Total livraisons',       'valeur' => $total],
+            ['indicateur' => 'Livrées avec succès',     'valeur' => $livrees],
+            ['indicateur' => 'Taux de réussite',        'valeur' => $taux . '%'],
+            ['indicateur' => 'Échecs',                  'valeur' => (int) ($stats->echecs ?? 0)],
+            ['indicateur' => 'Retours',                 'valeur' => (int) ($stats->retours ?? 0)],
+            ['indicateur' => 'En cours',                'valeur' => (int) ($stats->en_cours ?? 0)],
+            ['indicateur' => 'Temps moyen (min)',        'valeur' => $stats->temps_moyen_min ? round((float) $stats->temps_moyen_min, 1) : '—'],
+            ['indicateur' => '─── Top livreurs ───',    'valeur' => ''],
+        ];
+
+        foreach ($livreurs as $l) {
+            $tauxL  = $l->nb > 0 ? round(($l->ok / $l->nb) * 100, 1) : 0;
+            $rows[] = ['indicateur' => $l->nom, 'valeur' => $l->nb . ' livraisons (' . $tauxL . '% succès)'];
+        }
+
+        return $rows;
     }
 }
+

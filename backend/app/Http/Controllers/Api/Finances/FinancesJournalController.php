@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Api\Finances;
 
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FinancesJournalController extends FinancesBaseController
 {
@@ -172,16 +176,91 @@ class FinancesJournalController extends FinancesBaseController
      *
      * Query params : format (pdf|csv|docx), + mêmes filtres que route 34
      */
-    public function export(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export journal financier.
+     */
+    public function export(Request $request): Response|StreamedResponse
     {
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX.
-        // Même logique que index() sans pagination.
-        // Inclure en plus les détails de l'élément référencé pour chaque mouvement.
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
-        ], 501);
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $type         = $request->query('type', 'tous');
+        $sens         = $request->query('sens', 'tous');
+        $dateDebut    = $request->query('date_debut');
+        $dateFin      = $request->query('date_fin');
+        $recherche    = trim((string) $request->query('recherche', ''));
+
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $rows    = $this->buildJournalRows($entrepriseId, $type, $sens, $from, $to, $recherche);
+        $columns = [
+            'date'        => 'Date opération',
+            'type'        => 'Type',
+            'sens'        => 'Sens',
+            'montant'     => 'Montant',
+            'description' => 'Description',
+            'utilisateur' => 'Utilisateur',
+        ];
+        $subtitle = ($dateDebut && $dateFin) ? "Du $dateDebut au $dateFin"
+                  : ($dateDebut ? "Depuis le $dateDebut" : ($dateFin ? "Jusqu'au $dateFin" : 'Toutes les périodes'));
+        $filename = 'agora-journal-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Journal Financier', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Journal Financier', $subtitle, $filename),
+        };
+    }
+
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildJournalRows(string $entrepriseId, string $type, string $sens, ?Carbon $from, ?Carbon $to, string $recherche): array
+    {
+        $query = DB::table('mouvements_financiers as mf')
+            ->leftJoin('utilisateurs as u', 'u.id', '=', 'mf.utilisateur_id')
+            ->where('mf.entreprise_id', $entrepriseId);
+
+        if ($type !== 'tous') $query->where('mf.type_operation', $type);
+        if ($sens !== 'tous') $query->where('mf.sens', $sens);
+        if ($from) $query->where('mf.date_operation', '>=', $from);
+        if ($to)   $query->where('mf.date_operation', '<=', $to);
+
+        if ($recherche !== '') {
+            $query->where(function ($q) use ($recherche) {
+                $q->where('mf.description', 'ilike', "%$recherche%")
+                  ->orWhere(DB::raw("CONCAT(u.name, ' ', u.prename)"), 'ilike', "%$recherche%");
+            });
+        }
+
+        return $query
+            ->orderBy('mf.date_operation', 'desc')
+            ->select([
+                'mf.date_operation', 'mf.type_operation', 'mf.montant', 'mf.sens', 'mf.description',
+                DB::raw("CONCAT(u.name, ' ', u.prename) as utilisateur"),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'date'        => ExportService::fmtDatetime($r->date_operation),
+                'type'        => str_replace('_', ' ', $r->type_operation),
+                'sens'        => ucfirst($r->sens),
+                'montant'     => ExportService::fmtMontant($r->montant),
+                'description' => $r->description ?? '—',
+                'utilisateur' => $r->utilisateur,
+            ])
+            ->toArray();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

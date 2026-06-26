@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Api\Ventes;
 
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class VentesClientController extends VentesBaseController
 {
@@ -249,18 +253,82 @@ class VentesClientController extends VentesBaseController
      *
      * Query params : format (pdf|csv|docx), recherche
      */
-    public function export(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export clients.
+     */
+    public function export(Request $request): Response|StreamedResponse
     {
-        $format = $request->query('format', 'pdf');
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $recherche    = trim((string) $request->query('recherche', ''));
 
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX ($format).
-        // Même logique que index() sans pagination.
-        // Colonnes : nom, prénom, email, téléphone, nombre de commandes, CA total.
-        // Insérer dans historiques : action = 'export clients', details_action = $format.
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => "Export {$format} non encore implémenté.",
-        ], 501);
+        $rows    = $this->buildClientsRows($entrepriseId, $recherche);
+        $columns = [
+            'nom'       => 'Nom',
+            'prenom'    => 'Prénom',
+            'email'     => 'Email',
+            'telephone' => 'Téléphone',
+            'commandes' => 'Nb. commandes',
+            'ca_total'  => 'CA total',
+        ];
+        $filename = 'agora-clients-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Liste des Clients', '', $filename),
+            default       => $this->generatePdf($rows, $columns, 'Liste des Clients', '', $filename),
+        };
+    }
+
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildClientsRows(string $entrepriseId, string $recherche): array
+    {
+        $query = DB::table('clients as cl')
+            ->where('cl.entreprise', $entrepriseId)
+            ->selectRaw(
+                "cl.nom, cl.prenom, cl.email, cl.telephone," .
+                "(SELECT COUNT(c.id) FROM commandes c WHERE c.client = cl.id) as commandes," .
+                "(SELECT COALESCE(SUM(p.montant), 0) FROM payements p " .
+                "JOIN commandes c ON c.id = p.commande " .
+                "WHERE c.client = cl.id AND p.entreprise = ? AND p.actif = TRUE) as ca_total",
+                [$entrepriseId]
+            );
+
+        if ($recherche !== '') {
+            $query->where(function ($q) use ($recherche) {
+                $q->where('cl.nom', 'ilike', "%$recherche%")
+                  ->orWhere('cl.prenom', 'ilike', "%$recherche%")
+                  ->orWhere('cl.email', 'ilike', "%$recherche%")
+                  ->orWhere('cl.telephone', 'ilike', "%$recherche%");
+            });
+        }
+
+        return $query
+            ->orderBy('cl.nom', 'asc')
+            ->get()
+            ->map(fn($r) => [
+                'nom'       => $r->nom,
+                'prenom'    => $r->prenom ?? '—',
+                'email'     => $r->email ?? '—',
+                'telephone' => $r->telephone ?? '—',
+                'commandes' => (int) $r->commandes,
+                'ca_total'  => ExportService::fmtMontant($r->ca_total),
+            ])
+            ->toArray();
     }
 }

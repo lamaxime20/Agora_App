@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Finances\FinancesAbonnementController;
 use App\Http\Controllers\Api\Finances\FinancesReapprovisionnementController;
 use App\Http\Controllers\Api\Finances\FinancesSalaireController;
 use App\Http\Controllers\Api\Finances\FinancesJournalController;
+use App\Http\Controllers\Api\Finances\FinancesRapportController;
 use App\Http\Controllers\Api\Finances\FinancesStatistiqueController;
 use App\Http\Controllers\Api\Ventes\VentesClientController;
 use App\Http\Controllers\Api\Ventes\VentesCommandeController;
@@ -190,6 +191,12 @@ Route::prefix('stock')
         Route::get('categories', [StockCategorieController::class, 'index']);
         Route::post('categories', [StockCategorieController::class, 'store']);
 
+        // ── Export routes (before routes with {id}) ───────────────────────────
+        Route::get('ravitaillements/export', [StockRavitaillementController::class, 'export']);
+        Route::get('pertes/export',          [StockPerteController::class,          'export']);
+        Route::get('reservations/export',    [StockReservationController::class,    'export']);
+        Route::get('historique/export',      [StockHistoriqueController::class,     'export']);
+
         Route::get('ravitaillements', [StockRavitaillementController::class, 'index']);
         Route::post('ravitaillements', [StockRavitaillementController::class, 'store']);
         Route::patch('ravitaillements/{id}/annuler', [StockRavitaillementController::class, 'cancel']);
@@ -339,6 +346,9 @@ Route::prefix('finances')
         // Route 35 — détail d'un mouvement financier
         Route::get('journal/{id}', [FinancesJournalController::class, 'show']);
 
+        // ── Rapports ──────────────────────────────────────────────────────────
+        Route::get('rapports', [FinancesRapportController::class, 'export']);
+
         // ── Statistiques ──────────────────────────────────────────────────────
         // Route 37 — statistiques générales
         Route::get('statistiques/general', [FinancesStatistiqueController::class, 'general']);
@@ -400,6 +410,9 @@ Route::prefix('ventes')
         Route::get('reservations/{commande_id}/{produit_id}', [VentesReservationController::class, 'show']);
 
         // ── Statistiques ─────────────────────────────────────────────────────
+        // Route — export statistiques (avant les routes nommées pour éviter les conflits)
+        Route::get('statistiques/export', [VentesStatistiqueController::class, 'export']);
+
         // Route 14 — KPIs généraux
         Route::get('statistiques/general', [VentesStatistiqueController::class, 'general']);
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Search, Download, ChevronDown, ChevronLeft, ChevronRight, Truck } from "lucide-react";
 import { fetchReapprosEnAttente } from "../../../../services/financesP4.js";
+import { exportReapprovisionnements } from "../../../../services/exportService.js";
 import { readCache } from "../../../../services/financesCache.js";
 import ReapprovisionnementPane from "./reapprovisionnementPane.jsx";
 import ValiderReapprovisionnementModal from "./validerReapprovisionnementModal.jsx";
@@ -42,6 +43,7 @@ function EnAttenteReapprovisionnements() {
     const [erreur, setErreur]             = useState("");
     const [recherche, setRecherche]       = useState("");
     const [exportOpen, setExportOpen]     = useState(false);
+    const [exporting, setExporting]       = useState(null);
     const [selectedR, setSelectedR]       = useState(null);
     const [toValider, setToValider]       = useState(null);
     const [toRefuser, setToRefuser]       = useState(null);
@@ -93,6 +95,17 @@ function EnAttenteReapprovisionnements() {
     });
 
     const totalPages = meta ? Math.ceil(meta.total / meta.per_page) : 1;
+
+    const handleExport = async (fmtKey) => {
+        if (exporting === fmtKey) return;
+        setExporting(fmtKey);
+        setExportOpen(false);
+        try {
+            await exportReapprovisionnements(fmtKey, { statut: "en_attente", recherche: recherche || undefined });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    };
 
     const handleActionSuccess = () => {
         setToValider(null);
@@ -148,11 +161,12 @@ function EnAttenteReapprovisionnements() {
                         </button>
                         {exportOpen && (
                             <div className="finCommandes-export-menu" role="menu">
-                                {[".csv", ".pdf", ".docx"].map(fmt => (
+                                {["pdf", "csv", "docx"].map(fmt => (
                                     <button
                                         key={fmt}
                                         className="finCommandes-export-menu__item"
-                                        onClick={() => setExportOpen(false)}
+                                        onClick={() => handleExport(fmt)}
+                                        disabled={exporting === fmt}
                                         role="menuitem"
                                         type="button"
                                     >

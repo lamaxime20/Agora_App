@@ -5,6 +5,7 @@ import {
     AlertCircle, SlidersHorizontal, ReceiptText
 } from "lucide-react";
 import { getBadgeConfig, formatMontant, formatDate, fetchVentesClients, fetchVentesClientById } from "../../../services/ventes.js";
+import { exportClients } from "../../../services/exportService.js";
 import { readCache } from "../../../services/ventesCache.js";
 import "../../../assets/styles/components/modules/ventes/clients.css";
 
@@ -79,6 +80,7 @@ function Clients() {
     // ── Recherche ──────────────────────────────────────────────────────────────
     const [searchQuery,    setSearchQuery]    = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
+    const [exporting, setExporting]           = useState(null);
 
     // ── Préchargement hover (desktop) ──────────────────────────────────────────
     const prefetchTimerRef = useRef(null);
@@ -184,6 +186,16 @@ function Clients() {
         },
     ];
 
+    async function handleExportClients(fmt) {
+        if (exporting) return;
+        setExporting(fmt);
+        try {
+            await exportClients(fmt, { recherche: debouncedQuery });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    }
+
     return (
         <section className="clients-root" aria-label="Gestion des clients">
 
@@ -196,15 +208,23 @@ function Clients() {
                     </p>
                 </div>
                 <div className="clients-header__actions">
-                    <button
-                        className="app-button app-button--ghost app-button--sm"
-                        onClick={() => window.alert("Export CSV")}
-                        type="button"
-                        aria-label="Exporter"
-                    >
-                        <Download size={16} aria-hidden="true" />
-                        Exporter
-                    </button>
+                    {["PDF", "CSV", "DOCX"].map(fmt => {
+                        const fmtLow = fmt.toLowerCase();
+                        const busy   = exporting === fmtLow;
+                        return (
+                            <button
+                                key={fmt}
+                                className="app-button app-button--ghost app-button--sm"
+                                type="button"
+                                aria-label={`Exporter en ${fmt}`}
+                                onClick={() => handleExportClients(fmtLow)}
+                                disabled={busy}
+                            >
+                                <Download size={16} aria-hidden="true" />
+                                {busy ? "…" : fmt}
+                            </button>
+                        );
+                    })}
                 </div>
             </header>
 

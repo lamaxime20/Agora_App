@@ -7,11 +7,15 @@ use App\Events\Stock\RavitaillementConfirmed;
 use App\Events\Stock\RavitaillementRequested;
 use App\Models\Produit;
 use App\Models\Ravitaillement;
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StockRavitaillementController extends StockBaseController
 {
@@ -385,5 +389,84 @@ class StockRavitaillementController extends StockBaseController
         } catch (\Throwable $e) {
             return $this->stockErrorResponse($e, $request, __METHOD__, ['action' => 'confirm', 'id' => $id]);
         }
+    }
+
+    public function export(Request $request): Response|StreamedResponse
+    {
+        $entreprise = $this->currentEntreprise($request);
+        $format     = strtolower($request->query('format', 'pdf'));
+        $statut     = $request->query('statut');
+        $produitId  = $request->query('produit');
+        [$dateDebut, $dateFin] = $this->daterange($request->query('dateDebut'), $request->query('dateFin'));
+
+        $rows    = $this->buildRavitaillementsExportRows($entreprise->id, $statut, $produitId, $dateDebut, $dateFin);
+        $columns = [
+            'produit'       => 'Produit',
+            'quantite'      => 'Quantité',
+            'montant'       => 'Montant',
+            'statut'        => 'Statut',
+            'date_creation' => 'Date demande',
+            'date_valid'    => 'Date validation',
+            'demandeur'     => 'Demandeur',
+            'confirme_par'  => 'Confirmé par',
+        ];
+        $subtitle = ($dateDebut && $dateFin)
+            ? 'Du ' . $dateDebut->toDateString() . ' au ' . $dateFin->toDateString()
+            : 'Toutes les périodes';
+        $filename = 'agora-ravitaillements-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => ExportService::csv($rows, $columns, $filename),
+            'docx'        => ExportService::docx($rows, $columns, 'Historique des Ravitaillements', $subtitle, $filename),
+            default       => ExportService::pdf($rows, $columns, 'Historique des Ravitaillements', $subtitle, $filename),
+        };
+    }
+
+    private function buildRavitaillementsExportRows(
+        string $entrepriseId,
+        ?string $statut,
+        ?string $produitId,
+        ?Carbon $from,
+        ?Carbon $to
+    ): array {
+        $query = DB::table('ravitaillements as r')
+            ->join('produits as p', 'p.id', '=', 'r.produit')
+            ->leftJoin('utilisateurs as ud', 'ud.id', '=', 'r.utilisateur_demande')
+            ->leftJoin('utilisateurs as uc', 'uc.id', '=', 'r.user_confirmation')
+            ->where('r.entreprise', $entrepriseId);
+
+        if ($statut) {
+            $query->where('r.statut', $statut);
+        }
+        if ($produitId) {
+            $query->where('r.produit', $produitId);
+        }
+        if ($from) {
+            $query->where('r.date_creation', '>=', $from);
+        }
+        if ($to) {
+            $query->where('r.date_creation', '<=', $to);
+        }
+
+        return $query
+            ->orderByDesc('r.date_creation')
+            ->select([
+                'r.quantite', 'r.montant_a_depenser', 'r.statut', 'r.date_creation', 'r.date_validation',
+                'p.nom as produit_nom',
+                DB::raw("CONCAT(ud.name, ' ', ud.prename) as demandeur"),
+                DB::raw("CONCAT(uc.name, ' ', uc.prename) as confirme_par"),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'produit'       => $r->produit_nom,
+                'quantite'      => $r->quantite,
+                'montant'       => ExportService::fmtMontant($r->montant_a_depenser),
+                'statut'        => ucfirst(str_replace('_', ' ', $r->statut)),
+                'date_creation' => ExportService::fmtDate($r->date_creation),
+                'date_valid'    => ExportService::fmtDate($r->date_validation),
+                'demandeur'     => $r->demandeur,
+                'confirme_par'  => $r->confirme_par ?? '—',
+            ])
+            ->toArray();
     }
 }

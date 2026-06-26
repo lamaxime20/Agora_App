@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Api\Finances;
 
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FinancesSalaireController extends FinancesBaseController
 {
@@ -326,15 +330,92 @@ class FinancesSalaireController extends FinancesBaseController
      *
      * Query params : format (pdf|csv|docx), + mêmes filtres que route 31
      */
-    public function export(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export salaires.
+     */
+    public function export(Request $request): Response|StreamedResponse
     {
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX.
-        // Même logique que index() sans pagination.
-        // Pour chaque salarié, inclure l'historique de ses paiements de salaire.
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
-        ], 501);
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $statut       = $request->query('statut', 'actif');
+        $recherche    = trim((string) $request->query('recherche', ''));
+
+        $rows    = $this->buildSalairesRows($entrepriseId, $statut, $recherche);
+        $columns = [
+            'employe'    => 'Employé',
+            'poste'      => 'Poste',
+            'montant'    => 'Salaire mensuel',
+            'date_debut' => 'Date début',
+            'date_fin'   => 'Date fin',
+            'statut'     => 'Statut',
+        ];
+        $subtitle = $statut !== 'tous' ? ucfirst($statut) : 'Tous les salaires';
+        $filename = 'agora-salaires-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Grille des Salaires', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Grille des Salaires', $subtitle, $filename),
+        };
+    }
+
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildSalairesRows(string $entrepriseId, string $statut, string $recherche): array
+    {
+        $query = DB::table('salaires as s')
+            ->leftJoin('utilisateurs as u', 'u.id', '=', 's.utilisateur')
+            ->where('s.entreprise', $entrepriseId)
+            ->where('s.actif', true);
+
+        if ($statut !== 'tous') $query->where('s.statut', $statut);
+
+        if ($recherche !== '') {
+            $query->where(function ($q) use ($recherche) {
+                $q->where('u.name', 'ilike', "%$recherche%")
+                  ->orWhere('u.prename', 'ilike', "%$recherche%");
+            });
+        }
+
+        return $query
+            ->orderBy('u.name', 'asc')
+            ->selectRaw("
+                s.montant, s.date_debut, s.date_fin, s.statut,
+                CONCAT(u.name, ' ', u.prename) as employe,
+                (
+                    SELECT r.role
+                    FROM   appartenir_entreprise ae
+                    JOIN   roles_utilisateur r ON r.id = ae.role_utilisateur_id
+                    WHERE  ae.utilisateur_id  = s.utilisateur
+                    AND    ae.entreprise_id   = ?
+                    AND    ae.statut          = 'actif'
+                    ORDER  BY ae.date_enregistrement DESC
+                    LIMIT  1
+                ) AS poste
+            ", [$entrepriseId])
+            ->get()
+            ->map(fn($r) => [
+                'employe'    => $r->employe,
+                'poste'      => $r->poste ?? '—',
+                'montant'    => ExportService::fmtMontant($r->montant),
+                'date_debut' => ExportService::fmtDate($r->date_debut),
+                'date_fin'   => ExportService::fmtDate($r->date_fin),
+                'statut'     => ucfirst($r->statut),
+            ])
+            ->toArray();
     }
 }

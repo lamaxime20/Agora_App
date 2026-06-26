@@ -3,6 +3,7 @@ import { Search, ChevronDown, Download, Receipt, AlertCircle, ChevronLeft, Chevr
 import PaiementPane from "./PaiementPane.jsx";
 import { fetchPaiements } from "../../../../services/financesDashboard.js";
 import { readCache } from "../../../../services/financesCache.js";
+import { exportPaiements } from "../../../../services/exportService.js";
 
 const PER_PAGE = 20;
 const MODES    = { "carte_bancaire": "carte bancaire", "virement": "virement bancaire", "cash": "espèces", "cheque": "chèque" };
@@ -29,6 +30,7 @@ function HistoriquePaiements() {
     const [filtreDate,       setFiltreDate]      = useState("");
     const [filtreMode,       setFiltreMode]      = useState("");
     const [exportOpen,       setExportOpen]      = useState(false);
+    const [exporting,        setExporting]       = useState(null);
     const [page,             setPage]            = useState(1);
 
     useEffect(() => {
@@ -61,6 +63,17 @@ function HistoriquePaiements() {
 
     const totalPages = Math.max(1, Math.ceil(paiementsFiltres.length / PER_PAGE));
     const paginated  = paiementsFiltres.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+    const handleExport = async (fmt) => {
+        if (exporting === fmt) return;
+        setExporting(fmt);
+        setExportOpen(false);
+        try {
+            await exportPaiements(fmt, { recherche, date: filtreDate, mode: filtreMode });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    };
 
     const handleRecherche = (v) => { setRecherche(v); setPage(1); };
     const handleDate      = (v) => { setFiltreDate(v); setPage(1); };
@@ -144,11 +157,12 @@ function HistoriquePaiements() {
                         </button>
                         {exportOpen && (
                             <div className="finCommandes-export-menu" role="menu">
-                                {[".csv", ".pdf", ".docx"].map(fmt => (
+                                {["pdf", "csv", "docx"].map(fmt => (
                                     <button
                                         key={fmt}
                                         className="finCommandes-export-menu__item"
-                                        onClick={() => { alert(`Export ${fmt} en cours…`); setExportOpen(false); }}
+                                        onClick={() => handleExport(fmt)}
+                                        disabled={exporting === fmt}
                                         role="menuitem"
                                         type="button"
                                     >

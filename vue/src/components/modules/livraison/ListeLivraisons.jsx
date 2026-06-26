@@ -4,7 +4,7 @@ import {
 } from "lucide-react";
 import {
     fetchMesLivraisons, fetchHistoriquePersonnel,
-    formatMontant, formatDate, getStatutBadge, exportLivraisons,
+    formatMontant, formatDate, getStatutBadge, exportLivraisonsPersonnel,
     CACHE,
 } from "../../../services/livraison.js";
 import DeliveryDrawer from "./DeliveryDrawer.jsx";
@@ -268,8 +268,8 @@ function HistoriquePersonnel() {
     const handleExport = async (format) => {
         setExporting(true);
         try {
-            const res = await exportLivraisons(format);
-            setExportMsg(res?.message ?? "Export réalisé.");
+            await exportLivraisonsPersonnel(format, params);
+            setExportMsg("Export réalisé.");
         } catch {
             setExportMsg("Export non encore disponible.");
         } finally {

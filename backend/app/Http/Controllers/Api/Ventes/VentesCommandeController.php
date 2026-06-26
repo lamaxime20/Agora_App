@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Api\Ventes;
 
 use App\Events\Commande\CommandeCancelled;
 use App\Events\Commande\CommandeCreated;
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class VentesCommandeController extends VentesBaseController
 {
@@ -511,20 +515,100 @@ class VentesCommandeController extends VentesBaseController
      *
      * Query params : format (pdf|csv|docx), + mêmes filtres que route 5
      */
-    public function export(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export commandes.
+     */
+    public function export(Request $request): Response|StreamedResponse
     {
-        $format = $request->query('format', 'pdf');
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $statut       = $request->query('statut', 'tous');
+        $dateDebut    = $request->query('date_debut');
+        $dateFin      = $request->query('date_fin');
+        $recherche    = trim((string) $request->query('recherche', ''));
+        $montantMin   = $request->query('montant_min');
+        $montantMax   = $request->query('montant_max');
 
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX ($format).
-        // Même logique que index() sans pagination.
-        // Inclure pour chaque commande : numéro, client (nom + prénom + téléphone), montant,
-        // statut calculé, date commande, adresse livraison, notes, liste des produits
-        // (nom, quantité, prix unitaire, montant), historique des paiements (date, montant, mode, référence).
-        // Insérer dans historiques : action = 'export commandes', details_action = $format.
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => "Export {$format} non encore implémenté.",
-        ], 501);
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $rows    = $this->buildCommandesRows($entrepriseId, $statut, $from, $to, $recherche, $montantMin, $montantMax);
+        $columns = [
+            'numero'  => 'N° Commande',
+            'client'  => 'Client',
+            'montant' => 'Montant',
+            'statut'  => 'Statut',
+            'date'    => 'Date commande',
+        ];
+        $subtitle = ($dateDebut && $dateFin) ? "Du $dateDebut au $dateFin"
+                  : ($dateDebut ? "Depuis le $dateDebut" : ($dateFin ? "Jusqu'au $dateFin" : 'Toutes les périodes'));
+        $filename = 'agora-commandes-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Historique des Commandes', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Historique des Commandes', $subtitle, $filename),
+        };
+    }
+
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildCommandesRows(
+        string $entrepriseId,
+        string $statut,
+        ?Carbon $from,
+        ?Carbon $to,
+        string $recherche,
+        ?string $montantMin,
+        ?string $montantMax
+    ): array {
+        $query = DB::table('commandes as c')
+            ->join('clients as cl', 'cl.id', '=', 'c.client')
+            ->where('c.entreprise', $entrepriseId)
+            ->where('c.actif', true);
+
+        if ($statut !== 'tous') $this->applyStatutFilter($query, $statut);
+        if ($from) $query->where('c.date_commande', '>=', $from);
+        if ($to)   $query->where('c.date_commande', '<=', $to);
+        if ($montantMin !== null) $query->where('c.montant_commande', '>=', (float) $montantMin);
+        if ($montantMax !== null) $query->where('c.montant_commande', '<=', (float) $montantMax);
+
+        if ($recherche !== '') {
+            $query->where(function ($q) use ($recherche) {
+                $q->where(DB::raw("CONCAT(cl.nom, ' ', COALESCE(cl.prenom, ''))"), 'ilike', "%$recherche%");
+            });
+        }
+
+        return $query
+            ->orderBy('c.date_commande', 'desc')
+            ->select([
+                'c.statut', 'c.montant_commande', 'c.date_commande',
+                DB::raw("CONCAT(cl.nom, ' ', COALESCE(cl.prenom, '')) as client"),
+                DB::raw("(SELECT COUNT(1) FROM livraisons lv WHERE lv.commande = c.id AND lv.statut = 'livree') > 0 as a_livraison_livree"),
+                DB::raw("(SELECT COUNT(1) FROM livraisons lv WHERE lv.commande = c.id AND lv.statut = 'en_cours') > 0 as a_livraison_en_cours"),
+                $this->numeroCommandeRaw(),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'numero'  => $r->numero ?? '—',
+                'client'  => $r->client,
+                'montant' => ExportService::fmtMontant($r->montant_commande),
+                'statut'  => $this->calculerStatutMetier($r->statut, (bool) $r->a_livraison_livree, (bool) $r->a_livraison_en_cours),
+                'date'    => ExportService::fmtDate($r->date_commande),
+            ])
+            ->toArray();
     }
 }

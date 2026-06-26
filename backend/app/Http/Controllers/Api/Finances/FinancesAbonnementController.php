@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Api\Finances;
 
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FinancesAbonnementController extends FinancesBaseController
 {
@@ -440,15 +444,76 @@ class FinancesAbonnementController extends FinancesBaseController
      *
      * Query params : format (pdf|csv|docx), + mêmes filtres que route 20
      */
-    public function export(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export abonnements.
+     */
+    public function export(Request $request): Response|StreamedResponse
     {
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX.
-        // Même logique que index() sans pagination.
-        // Pour chaque abonnement, inclure l'historique de ses paiements.
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
-        ], 501);
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $statut       = $request->query('statut', 'tous');
+        $dateDebut    = $request->query('date_debut');
+        $dateFin      = $request->query('date_fin');
+
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $rows    = $this->buildAbonnementsRows($entrepriseId, $statut, $from, $to);
+        $columns = [
+            'service'    => 'Service',
+            'fournisseur'=> 'Fournisseur',
+            'montant'    => 'Montant mensuel',
+            'date'       => "Date d'abonnement",
+            'statut'     => 'Statut',
+        ];
+        $subtitle = $statut !== 'tous' ? ucfirst($statut) : 'Tous les abonnements';
+        if ($dateDebut && $dateFin) $subtitle .= " — Du $dateDebut au $dateFin";
+        $filename = 'agora-abonnements-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Abonnements & Frais Mensuels', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Abonnements & Frais Mensuels', $subtitle, $filename),
+        };
+    }
+
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildAbonnementsRows(string $entrepriseId, string $statut, ?Carbon $from, ?Carbon $to): array
+    {
+        $query = DB::table('frais_mensuel')
+            ->where('entreprise', $entrepriseId)
+            ->where('actif', true);
+
+        if ($statut === 'actif')   $query->where('depense_active', true);
+        if ($statut === 'resilié') $query->where('depense_active', false);
+        if ($from) $query->where('date_abonnement', '>=', $from->toDateString());
+        if ($to)   $query->where('date_abonnement', '<=', $to->toDateString());
+
+        return $query
+            ->orderBy('date_abonnement', 'desc')
+            ->select(['service_paye', 'fournisseur', 'montant_mensuel', 'date_abonnement', 'depense_active'])
+            ->get()
+            ->map(fn($r) => [
+                'service'    => $r->service_paye,
+                'fournisseur'=> $r->fournisseur ?? '—',
+                'montant'    => ExportService::fmtMontant($r->montant_mensuel),
+                'date'       => ExportService::fmtDate($r->date_abonnement),
+                'statut'     => $r->depense_active ? 'Actif' : 'Résilié',
+            ])
+            ->toArray();
     }
 }

@@ -1,0 +1,21 @@
+Qu'est ce que c'est AGORA ?
+
+Plateforme web de gestion d'entreprise qui servira de base à Bytes-Corp pour livrer plus efficacement des ERP adaptés aux besoins de l'entreprise qui a fait la requête
+
+L'entreprise vient faire une demande d'ERP à Bytes-Corp et ensuite, le développeur de Bytes-Corp prendra l'application web AGORA, le modifiera afin de fournir à l'entreprise une application qui colle réellement avec les processus de travail implémentés dans celle ci et qi respecte le branding de l'entreprise.
+
+Donc, AGORA est une base que Bytes-Corp pourra modifier à sa guise afin de satisfaire ses clients.
+
+Une base assez complète car elle contient des modules Gestion de Stock, ventes, Finances, Livraisons, Ressources humaines et un espace Admin que je présenterai plus tard
+
+
+
+
+
+
+
+
+
+
+
+

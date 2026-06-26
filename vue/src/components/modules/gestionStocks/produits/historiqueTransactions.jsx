@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import PaneDetailsTransaction from "./paneDetailsTransaction.jsx";
 import { fetchStockHistorique } from "../../../../services/gestionStock.js";
+import { exportHistoriqueTransactions } from "../../../../services/exportService.js";
 import "../../../../assets/styles/components/modules/gestionStocks/historiqueTransactions.css";
 
 /* ─── Config des types ────────────────────────────────────────────────────────── */
@@ -212,6 +213,7 @@ function HistoriqueTransactions() {
     const [selectedId, setSelectedId]           = useState(null);
     const [selectedTxn, setSelectedTxn]         = useState(null);
     const [paneLoading, setPaneLoading]         = useState(false);
+    const [exporting, setExporting]             = useState(null);
 
     useEffect(() => {
         let active = true;
@@ -313,6 +315,21 @@ function HistoriqueTransactions() {
         setRecherche("");
         setPage(1);
     };
+
+    async function handleExport(fmt) {
+        if (exporting) return;
+        setExporting(fmt);
+        try {
+            await exportHistoriqueTransactions(fmt, {
+                search: recherche,
+                type: filtres.filtreType,
+                dateDebut: filtres.dateDebut,
+                dateFin: filtres.dateFin,
+            });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    }
 
     return (
         <div className="histTxn-root">
@@ -427,13 +444,19 @@ function HistoriqueTransactions() {
                     )}
 
                     <div className="histTxn-exports" style={{ marginLeft: "auto", alignSelf: "flex-end" }}>
-                        {["CSV", "PDF", "DOCX"].map(fmt => (
-                            <button key={fmt} type="button" className="histTxn-export-btn"
-                                aria-label={`Exporter en ${fmt}`}>
-                                <FileText size={12} aria-hidden="true" />
-                                {fmt}
-                            </button>
-                        ))}
+                        {["CSV", "PDF", "DOCX"].map(fmt => {
+                            const fmtLow = fmt.toLowerCase();
+                            const busy   = exporting === fmtLow;
+                            return (
+                                <button key={fmt} type="button" className="histTxn-export-btn"
+                                    aria-label={`Exporter en ${fmt}`}
+                                    onClick={() => handleExport(fmtLow)}
+                                    disabled={busy}>
+                                    <FileText size={12} aria-hidden="true" />
+                                    {busy ? "…" : fmt}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

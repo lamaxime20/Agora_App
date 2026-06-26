@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Download, FileText, FileSpreadsheet, File } from "lucide-react";
+import { exportRapport } from "../../../../services/exportService.js";
 
 const PERIODS = [
     { key: "mensuel",    label: "Mensuel" },
@@ -27,10 +28,15 @@ function Rapports() {
     const [period, setPeriod]     = useState("mensuel");
     const [exporting, setExporting] = useState(null);
 
-    function handleExport(rapport, format) {
+    async function handleExport(rapport, format) {
         const key = `${rapport}-${format}`;
+        if (exporting === key) return;
         setExporting(key);
-        setTimeout(() => setExporting(null), 1500);
+        try {
+            await exportRapport(format, rapport, period);
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
     }
 
     return (

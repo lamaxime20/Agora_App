@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Api\Finances;
 
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FinancesReapprovisionnementController extends FinancesBaseController
 {
@@ -492,15 +496,89 @@ class FinancesReapprovisionnementController extends FinancesBaseController
      *
      * Query params : format (pdf|csv|docx), + mêmes filtres que route 27
      */
-    public function export(Request $request): JsonResponse
+    /**
+     * Fonction 1 — Point d'entrée export réapprovisionnements.
+     */
+    public function export(Request $request): Response|StreamedResponse
     {
-        // TODO: Implémenter la génération de fichier PDF / CSV / DOCX.
-        // Même logique que index() sans pagination.
-        // Inclure en plus : raison_annulation si le statut est "refuse".
-        return response()->json([
-            'ok'      => false,
-            'code'    => 'NOT_IMPLEMENTED',
-            'message' => 'Export non encore implémenté.',
-        ], 501);
+        $entreprise   = $this->currentEntreprise($request);
+        $entrepriseId = $entreprise->id;
+        $format       = strtolower($request->query('format', 'pdf'));
+        $statut       = $request->query('statut', 'tous');
+        $dateDebut    = $request->query('date_debut');
+        $dateFin      = $request->query('date_fin');
+
+        [$from, $to] = $this->daterange($dateDebut, $dateFin);
+
+        $rows    = $this->buildReapproRows($entrepriseId, $statut, $from, $to);
+        $columns = [
+            'produit'      => 'Produit',
+            'quantite'     => 'Quantité',
+            'montant'      => 'Montant à dépenser',
+            'statut'       => 'Statut',
+            'date_creation'=> 'Date demande',
+            'date_valid'   => 'Date validation',
+            'demandeur'    => 'Demandeur',
+            'confirme_par' => 'Confirmé par',
+        ];
+        $subtitle = ($dateDebut && $dateFin) ? "Du $dateDebut au $dateFin"
+                  : ($dateDebut ? "Depuis le $dateDebut" : ($dateFin ? "Jusqu'au $dateFin" : 'Toutes les périodes'));
+        $filename = 'agora-reapprovisionnements-' . now()->format('Ymd-His');
+
+        return match ($format) {
+            'csv', 'xlsx' => $this->generateCsv($rows, $columns, $filename),
+            'docx'        => $this->generateDocx($rows, $columns, 'Historique des Réapprovisionnements', $subtitle, $filename),
+            default       => $this->generatePdf($rows, $columns, 'Historique des Réapprovisionnements', $subtitle, $filename),
+        };
+    }
+
+    protected function generatePdf(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::pdf($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateDocx(array $rows, array $columns, string $title, string $subtitle, string $filename): Response
+    {
+        return ExportService::docx($rows, $columns, $title, $subtitle, $filename);
+    }
+
+    protected function generateCsv(array $rows, array $columns, string $filename): StreamedResponse
+    {
+        return ExportService::csv($rows, $columns, $filename);
+    }
+
+    private function buildReapproRows(string $entrepriseId, string $statut, ?Carbon $from, ?Carbon $to): array
+    {
+        $query = DB::table('ravitaillements as r')
+            ->join('produits as p', 'p.id', '=', 'r.produit')
+            ->leftJoin('utilisateurs as ud', 'ud.id', '=', 'r.utilisateur_demande')
+            ->leftJoin('utilisateurs as uc', 'uc.id', '=', 'r.user_confirmation')
+            ->where('r.entreprise', $entrepriseId)
+            ->where('r.actif', true);
+
+        if ($statut !== 'tous') $query->where('r.statut', $statut);
+        if ($from) $query->where('r.date_creation', '>=', $from);
+        if ($to)   $query->where('r.date_creation', '<=', $to);
+
+        return $query
+            ->orderBy('r.date_creation', 'desc')
+            ->select([
+                'r.quantite', 'r.montant_a_depenser', 'r.statut', 'r.date_creation', 'r.date_validation',
+                'p.nom as produit',
+                DB::raw("CONCAT(ud.name, ' ', ud.prename) as demandeur"),
+                DB::raw("CONCAT(uc.name, ' ', uc.prename) as confirme_par"),
+            ])
+            ->get()
+            ->map(fn($r) => [
+                'produit'      => $r->produit,
+                'quantite'     => $r->quantite,
+                'montant'      => ExportService::fmtMontant($r->montant_a_depenser),
+                'statut'       => ucfirst(str_replace('_', ' ', $r->statut)),
+                'date_creation'=> ExportService::fmtDate($r->date_creation),
+                'date_valid'   => ExportService::fmtDate($r->date_validation),
+                'demandeur'    => $r->demandeur,
+                'confirme_par' => $r->confirme_par ?? '—',
+            ])
+            ->toArray();
     }
 }

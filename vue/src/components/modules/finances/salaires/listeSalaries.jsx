@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Search, Users, Download, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchSalaires } from "../../../../services/financesP5.js";
 import { readCache } from "../../../../services/financesCache.js";
+import { exportSalaires } from "../../../../services/exportService.js";
 import SalariePane from "./salariePane.jsx";
 
 const fmt = (n) =>
@@ -67,6 +68,7 @@ function ListeSalaries() {
     const [page, setPage]         = useState(1);
     const [recherche, setRecherche] = useState("");
     const [exportOpen, setExportOpen] = useState(false);
+    const [exporting, setExporting]   = useState(null);
     const [selectedSalarie, setSelectedSalarie] = useState(null);
 
     const load = useCallback(async () => {
@@ -104,6 +106,17 @@ function ListeSalaries() {
         : data;
 
     const totalPages = meta ? Math.ceil(meta.total / (meta.per_page ?? 20)) : 1;
+
+    const handleExport = async (fmtKey) => {
+        if (exporting === fmtKey) return;
+        setExporting(fmtKey);
+        setExportOpen(false);
+        try {
+            await exportSalaires(fmtKey, { recherche });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    };
 
     return (
         <>
@@ -166,11 +179,12 @@ function ListeSalaries() {
                                 </button>
                                 {exportOpen && (
                                     <div className="finSal-export-menu" role="menu">
-                                        {[".csv", ".pdf", ".xlsx"].map(f => (
+                                        {["pdf", "csv", "docx"].map(f => (
                                             <button
                                                 key={f}
                                                 className="finSal-export-menu__item"
-                                                onClick={() => setExportOpen(false)}
+                                                onClick={() => handleExport(f)}
+                                                disabled={exporting === f}
                                                 role="menuitem"
                                                 type="button"
                                             >

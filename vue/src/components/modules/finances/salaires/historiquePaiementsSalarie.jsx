@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { X, Download, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchSalairePaiements } from "../../../../services/financesP5.js";
 import { readCache } from "../../../../services/financesCache.js";
+import { exportSalaires } from "../../../../services/exportService.js";
 
 const fmt = (n) =>
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", maximumFractionDigits: 0 }).format(n);
@@ -121,6 +122,7 @@ function HistoriquePaiementsSalarie({ salarie, onClose }) {
     const [meta, setMeta]             = useState(null);
     const [page, setPage]             = useState(1);
     const [exportOpen, setExportOpen] = useState(false);
+    const [exporting, setExporting]   = useState(null);
     const [selectedPay, setSelectedPay] = useState(null);
 
     const load = useCallback(async () => {
@@ -149,6 +151,17 @@ function HistoriquePaiementsSalarie({ salarie, onClose }) {
 
     const totalPages    = meta ? Math.ceil(meta.total / (meta.per_page ?? 20)) : 1;
     const totalVerseP   = paiements.reduce((s, p) => s + p.montant, 0);
+
+    const handleExport = async (fmtKey) => {
+        if (exporting === fmtKey) return;
+        setExporting(fmtKey);
+        setExportOpen(false);
+        try {
+            await exportSalaires(fmtKey, { salarie_id: salarie.id });
+        } catch { /* silencieux */ } finally {
+            setExporting(null);
+        }
+    };
 
     return (
         <>
@@ -211,11 +224,12 @@ function HistoriquePaiementsSalarie({ salarie, onClose }) {
                         </button>
                         {exportOpen && (
                             <div className="finSal-export-menu" role="menu">
-                                {[".csv", ".pdf", ".xlsx"].map(f => (
+                                {["pdf", "csv", "docx"].map(f => (
                                     <button
                                         key={f}
                                         className="finSal-export-menu__item"
-                                        onClick={() => setExportOpen(false)}
+                                        onClick={() => handleExport(f)}
+                                        disabled={exporting === f}
                                         role="menuitem"
                                         type="button"
                                     >

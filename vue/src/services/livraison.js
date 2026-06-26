@@ -1,4 +1,4 @@
-import { apiFetch } from './api.js';
+import { apiFetch, apiFetchBlob } from './api.js';
 
 // ─── Constantes onglets ────────────────────────────────────────────────────────
 
@@ -259,6 +259,17 @@ export async function annulerLivraison(id, motif) {
     return apiFetch(`livraisons/${id}/annuler`, { method: 'POST', body: { motif } });
 }
 
-export function exportLivraisons(format = 'pdf') {
-    return apiFetch(`livraisons/historique/export?format=${format}`);
+export function exportLivraisons(format = 'pdf', params = {}) {
+    const q = buildQuery({ format, ...params });
+    return apiFetchBlob(`livraisons/historique/export${q}`, `agora-livraisons.${format === 'csv' || format === 'xlsx' ? 'csv' : format}`);
+}
+
+export function exportLivraisonsPersonnel(format = 'pdf', params = {}) {
+    const q = buildQuery({ format, ...params });
+    return apiFetchBlob(`livraisons/mes-livraisons/historique/export${q}`, `agora-mes-livraisons.${format === 'csv' || format === 'xlsx' ? 'csv' : format}`);
+}
+
+export function exportLivraisonsStatistiques(format = 'pdf', params = {}) {
+    const q = buildQuery({ format, ...params });
+    return apiFetchBlob(`livraisons/statistiques/export${q}`, `agora-livraisons-statistiques.${format === 'csv' || format === 'xlsx' ? 'csv' : format}`);
 }

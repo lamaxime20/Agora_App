@@ -11,7 +11,7 @@ import {
     fetchStatisticsReturns,
     fetchStatisticsGeography,
     fetchStatisticsClients,
-    exportLivraisons,
+    exportLivraisonsStatistiques,
     CACHE,
 } from "../../../services/livraison.js";
 import "../../../assets/styles/components/modules/livraison/Statistiques.css";
@@ -931,8 +931,8 @@ function Statistiques() {
     const handleExport = async (format) => {
         setExporting(true);
         try {
-            const res = await exportLivraisons(format);
-            setExportMsg(res?.message ?? "Export réalisé.");
+            await exportLivraisonsStatistiques(format);
+            setExportMsg("Export réalisé.");
         } catch {
             setExportMsg("Export non encore disponible.");
         } finally {
