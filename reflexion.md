@@ -1215,5 +1215,50 @@ En dessous, la liste des administrateurs système s'affiche avec la possibilité
 ### Paramètres
 Ici, il y aura un formulaire pour changer le mot de passe de l'admin actuel, et un formulaire pour changer son email (en s'assurant qu'il reste unique)
 
+## Optimisation du flux de sélection des rôles
+
+### Ancien fonctionnement
+Après connexion (génération du `tokenAuth`) et sélection d'une entreprise sur `ChoixRolePage`, le frontend affichait systématiquement un second écran (`STEPS.ROLE`) demandant à l'utilisateur de choisir son rôle dans l'entreprise sélectionnée — même lorsque l'utilisateur ne possédait qu'un seul rôle possible dans cette entreprise. L'utilisateur devait cliquer une fois de plus avant que `POST /api/auth/select-role` ne soit appelé (expiration du `tokenAuth`, création du `tokenAuthorization`).
+
+### Nouveau fonctionnement
+Dans `vue/src/pages/ChoixRolePage.jsx`, `handleSelectCompany` inspecte désormais le tableau `company.roles` renvoyé par `GET /api/user/entreprises` :
+- **Un seul rôle** : l'écran de sélection du rôle n'est jamais affiché. Le rôle unique est transmis directement à `finalizeRoleSelection(company, role)`, qui appelle `selectRole()` (donc `POST /api/auth/select-role`) exactement comme un clic manuel l'aurait fait. L'utilisateur reste visuellement sur l'écran de sélection d'entreprise, recouvert par l'overlay de chargement existant (« Validation du rôle… »), puis est redirigé vers `/application` dès que la session `tokenAuthorization` est posée.
+- **Plusieurs rôles** : comportement historique conservé à l'identique — `step` passe à `STEPS.ROLE` et l'utilisateur choisit manuellement.
+
+La logique de sélection de rôle a été factorisée dans une fonction unique `finalizeRoleSelection(company, role)`, utilisée à la fois par le clic manuel (`handleSelectRole`) et par le déclenchement automatique (`handleSelectCompany`). Cela évite de dupliquer l'appel API et la gestion d'erreurs.
+
+### Logique de détection du rôle unique
+```js
+const roles = Array.isArray(company.roles) ? company.roles : [];
+if (roles.length === 1) {
+    finalizeRoleSelection(company, roles[0]);
+    return;
+}
+setStep(STEPS.ROLE);
+```
+Le tableau `roles` provient du backend (`EntrepriseController::userEntreprises`), qui ne renvoie que les entreprises où l'utilisateur a au moins une appartenance active — un tableau vide ne peut donc pas survenir en pratique, mais le code reste défensif (`Array.isArray`).
+
+### Avantages UX
+- Suppression d'un clic inutile et d'un écran superflu pour la majorité des utilisateurs mono-rôle (employés n'ayant qu'une seule fonction dans leur entreprise).
+- Connexion perçue comme plus rapide et plus fluide, sans rupture visuelle (pas de flash de l'écran de rôle avant redirection).
+- Le comportement multi-rôles, plus complexe, reste inchangé et donc sans risque de régression pour les utilisateurs ayant plusieurs casquettes.
+
+### Impacts techniques
+- Aucune modification backend : `AuthController::selectRole` (expiration du `tokenAuth`, création du `tokenAuthorization`/`SessionApp`) est appelé de la même façon, que la sélection soit automatique ou manuelle.
+- Aucune modification des routes API, des middlewares (`MiddlewareTokenAuth`, `MiddlewareTokenAuthorization`), ni des modèles (`TokenChoixRole`, `SessionApp`, `AppartenirEntreprise`).
+- En cas d'échec de l'appel automatique (rôle invalide, entreprise invalide, erreur serveur, `tokenAuth` expiré), la fonction `finalizeRoleSelection` retombe sur `setStep(STEPS.ROLE)` afin d'afficher l'erreur et de permettre une nouvelle tentative manuelle, au lieu de laisser l'utilisateur bloqué sur un écran figé.
+- Un `401`/`UNAUTHORIZED` pendant la sélection automatique déclenche le même nettoyage de session (`resetBrowserStorage`) et la même redirection vers `/login` que pour une sélection manuelle.
+
+### Fichiers modifiés
+- `vue/src/pages/ChoixRolePage.jsx`
+
+### Cas de test validés
+- **1 rôle** : sélection de l'entreprise → aucun écran de rôle affiché → `POST /api/auth/select-role` appelé automatiquement → redirection vers `/application`.
+- **Plusieurs rôles** : sélection de l'entreprise → écran de sélection du rôle affiché → sélection manuelle → redirection vers `/application` (comportement historique).
+- **Aucun rôle** (cas défensif, normalement impossible côté API) : pas de crash, retombe sur l'écran de sélection du rôle avec une liste vide.
+- **Rôle/entreprise invalide ou erreur serveur** : `submitError` affiché avec possibilité de réessayer, écran de rôle affiché pour permettre la nouvelle tentative.
+- **`tokenAuth` expiré / réponse 401** : nettoyage de la session locale et redirection vers `/login`, que la sélection soit automatique ou manuelle.
+- Vérifications techniques : `npm run build` (Vite) réussi, `npx eslint src/pages/ChoixRolePage.jsx` sans erreur.
+
 ## Page mot de passe oublié
 ici, il y aura le même parcours que l'utilisateur lambda pour réinitialiser son mot de passe mais sauf qu'on va utiliser les tables dédiées à l'admin

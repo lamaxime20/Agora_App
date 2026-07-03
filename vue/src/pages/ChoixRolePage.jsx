@@ -132,25 +132,13 @@ const ChoixRolePage = () => {
         return () => { cancelled = true; };
     }, [navigate]);
 
-    const handleSelectCompany = (company) => {
-        setSelectedCompany(company);
-        setSelectedRole(null);
-        setSubmitError('');
-        setStep(STEPS.ROLE);
-    };
-
-    const handleChangeEmail = () => {
-        resetBrowserStorage();
-        navigate('/login', { replace: true });
-    };
-
-    const handleSelectRole = async (role) => {
+    const finalizeRoleSelection = async (company, role) => {
         setSelectedRole(role);
         setSubmitError('');
         setSubmitting(true);
 
         try {
-            const session = await selectRole({ entrepriseId: selectedCompany.id, roleId: role.id });
+            const session = await selectRole({ entrepriseId: company.id, roleId: role.id });
             if (session) {
                 navigate('/application', { replace: true });
             }
@@ -163,9 +151,35 @@ const ChoixRolePage = () => {
 
             setSubmitError(getApiErrorMessage(error, 'Impossible de rejoindre cet espace. Réessayez.'));
             setSelectedRole(null);
+            setStep(STEPS.ROLE);
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const handleSelectCompany = (company) => {
+        setSelectedCompany(company);
+        setSelectedRole(null);
+        setSubmitError('');
+
+        const roles = Array.isArray(company.roles) ? company.roles : [];
+        if (roles.length === 1) {
+            // Rôle unique : on saute l'écran de sélection et on finalise directement.
+            finalizeRoleSelection(company, roles[0]);
+            return;
+        }
+
+        setStep(STEPS.ROLE);
+    };
+
+    const handleChangeEmail = () => {
+        resetBrowserStorage();
+        navigate('/login', { replace: true });
+    };
+
+    const handleSelectRole = (role) => {
+        if (!selectedCompany) return;
+        finalizeRoleSelection(selectedCompany, role);
     };
 
     const prenom = user?.prenom ?? 'vous';
