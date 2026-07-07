@@ -17,7 +17,7 @@ class MouvementFinancierFactory extends Factory
             'montant'        => $this->faker->randomFloat(2, 1000, 300000),
             'sens'           => 'sortie',
             'reference_id'   => null,
-            'description'    => $this->faker->sentence(),
+            'description'    => 'Mouvement financier enregistré dans le journal de l\'entreprise.',
         ];
     }
 }

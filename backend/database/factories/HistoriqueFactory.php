@@ -15,7 +15,7 @@ class HistoriqueFactory extends Factory
             'module'          => $this->faker->randomElement(['stock', 'ventes', 'finances', 'rh', 'livraison']),
             'table_concernee' => 'produits',
             'action'          => 'creation',
-            'details_action'  => $this->faker->sentence(),
+            'details_action'  => "Action enregistrée dans le journal d'activité de l'entreprise.",
             'ancienne_valeur' => null,
             'nouvelle_valeur' => null,
             'ip'              => $this->faker->ipv4(),

@@ -9,6 +9,14 @@ class RavitaillementFactory extends Factory
 {
     protected $model = Ravitaillement::class;
 
+    private const RAISONS_ANNULATION = [
+        'Fournisseur en rupture de stock.',
+        'Budget insuffisant pour ce mois.',
+        'Produit remplacé par un modèle plus récent.',
+        'Demande faite en double.',
+        'Besoin réévalué à la baisse par le service concerné.',
+    ];
+
     public function definition(): array
     {
         $dateCreation = $this->faker->dateTimeBetween('-6 months', 'now');
@@ -22,7 +30,7 @@ class RavitaillementFactory extends Factory
             'date_validation'    => in_array($statut, ['en_cours', 'termine']) ? (clone $dateCreation)->modify('+1 day') : null,
             'date_execution'     => $statut === 'termine' ? (clone $dateCreation)->modify('+3 days') : null,
             'date_annulation'    => $statut === 'annule' ? (clone $dateCreation)->modify('+1 day') : null,
-            'raison_annulation'  => $statut === 'annule' ? $this->faker->sentence() : null,
+            'raison_annulation'  => $statut === 'annule' ? $this->faker->randomElement(self::RAISONS_ANNULATION) : null,
             'actif'              => true,
         ];
     }

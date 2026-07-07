@@ -16,6 +16,7 @@ class EntreeArgentFactory extends Factory
             'raison'     => $this->faker->randomElement([
                 'Apport en capital', 'Vente de matériel usagé', 'Subvention reçue',
                 'Remboursement fournisseur', 'Recette exceptionnelle',
+                "Prestation de conseil facturée hors commande", 'Vente de matériel informatique réformé',
             ]),
             'date_entree'=> $this->faker->dateTimeBetween('-6 months', 'now'),
             'actif'      => true,

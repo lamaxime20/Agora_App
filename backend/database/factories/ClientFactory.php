@@ -13,9 +13,9 @@ class ClientFactory extends Factory
     {
         return [
             'email'     => $this->faker->optional(0.7)->safeEmail(),
-            'nom'       => $this->faker->lastName(),
-            'prenom'    => $this->faker->optional(0.8)->firstName(),
-            'telephone' => $this->faker->optional(0.8)->phoneNumber(),
+            'nom'       => 'Client',
+            'prenom'    => 'Divers',
+            'telephone' => $this->faker->optional(0.8)->numerify('+237 6## ## ## ##'),
         ];
     }
 }

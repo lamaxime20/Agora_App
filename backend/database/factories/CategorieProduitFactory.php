@@ -12,8 +12,8 @@ class CategorieProduitFactory extends Factory
     public function definition(): array
     {
         return [
-            'categorie'   => $this->faker->unique()->words(2, true),
-            'description' => $this->faker->sentence(),
+            'categorie'   => 'Catégorie générale',
+            'description' => "Catégorie de produits et services proposés par Bytes-Corp.",
         ];
     }
 }
